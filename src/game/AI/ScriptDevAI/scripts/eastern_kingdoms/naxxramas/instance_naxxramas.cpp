@@ -1200,12 +1200,6 @@ struct mob_naxxramasGargoyleAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_mob_naxxramasGargoyle(Creature* creature)
-{
-	return new mob_naxxramasGargoyleAI(creature);
-}
-
-
 void AddSC_instance_naxxramas()
 {
     Script* newScript = new Script;
@@ -1215,7 +1209,7 @@ void AddSC_instance_naxxramas()
 
     newScript = new Script;
     newScript->Name = "mob_naxxramasGargoyle";
-    newScript->GetAI = &GetAI_mob_naxxramasGargoyle;
+    newScript->GetAI = &GetNewAIInstance<mob_naxxramasGargoyleAI>;
     newScript->RegisterSelf();
 
     newScript = new Script;

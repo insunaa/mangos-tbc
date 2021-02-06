@@ -25,6 +25,9 @@ EndScriptData */
 
 struct npc_targetDummyAI : public ScriptedAI
 {
+    std::map<Unit*, uint32> combatList;
+    float x,y,z,o,d;
+
     npc_targetDummyAI(Creature* pCreature) : ScriptedAI(pCreature) 
     {
         SetCombatMovement(false);
@@ -32,7 +35,10 @@ struct npc_targetDummyAI : public ScriptedAI
         Reset();
     }
 
-    std::map<Unit*, uint32> combatList;
+    void Reset() override
+    {
+        m_creature->GetRespawnCoord(x, y, z, &o, &d);
+    }
 
     void AttackedBy(Unit* dealer)
     {
@@ -41,9 +47,7 @@ struct npc_targetDummyAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff) override
     {
-        DoStopAttack();
-        float x,y,z,o,d;
-        m_creature->GetRespawnCoord(x, y, z, &o, &d);
+        DoStopAttack();        
         m_creature->SetFacingTo(o);
         m_creature->SetHealth(m_creature->GetMaxHealth());
         m_creature->AttackStop();

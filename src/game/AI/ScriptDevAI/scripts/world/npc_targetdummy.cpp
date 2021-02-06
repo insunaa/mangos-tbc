@@ -61,8 +61,7 @@ struct npc_targetDummyAI : public ScriptedAI
         for(std::pair<Unit*, uint32> attacker : combatList){
             if (attacker.second < diff){
                 attacker.first->CombatStop(true, true);
-                Unit* temp = attacker.first;
-                deleteMe.push_back(temp);
+                deleteMe.push_back(attacker.first);
             } else {
                 combatList[attacker.first] -= diff;
             }

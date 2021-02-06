@@ -34,25 +34,9 @@ struct npc_targetDummyAI : public ScriptedAI
 
     std::map<Unit*, uint32> combatList;
 
-    void Reset() override
-    {
-        m_creature->m_movementInfo.AddMovementFlag(MOVEFLAG_ROOT);
-    }
-
-    void Aggro(Unit* who) override
-    {
-//        combatList.insert(std::pair<Unit*, uint32>(who, 5000));
-    }
-
     void AttackedBy(Unit* dealer)
     {
-        if(!combatList[dealer]){
-            sLog.outError("Adding Dealer");
-            combatList.insert(std::pair<Unit*, uint32>(dealer, 5000));
-        } else {
-            sLog.outError("Dealer Increased");
-            combatList[dealer] = 5000;
-        }
+        combatList[dealer] = 5000;
     }
 
     void UpdateAI(const uint32 diff) override
@@ -65,20 +49,15 @@ struct npc_targetDummyAI : public ScriptedAI
         m_creature->AttackStop();
         std::vector<Unit*> deleteMe;
         for(std::pair<Unit*, uint32> attacker : combatList){
-            sLog.outError("Milliseconds[]: %d", combatList[attacker.first]);
-            sLog.outError("Milliseconds: %d", attacker.second);
-            sLog.outError("Diff: %d", diff);
             if (attacker.second < diff){
-                sLog.outError("Combat should stop");
                 attacker.first->CombatStop(true, true);
                 Unit* temp = attacker.first;
                 deleteMe.push_back(temp);
             } else {
-                attacker.second -= diff;
+                combatList[attacker.first] -= diff;
             }
         }
         for(Unit* attacker : deleteMe){
-            sLog.outError("Deleting");
             combatList.erase(attacker);
         }
     }

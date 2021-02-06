@@ -1,0 +1,93 @@
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+/* ScriptData
+SDName: Target_Dummy
+SD%Complete: 50
+SDComment: Should be replaced with core based AI
+SDCategory: Creatures
+EndScriptData */
+
+#include "AI/ScriptDevAI/include/sc_common.h"
+
+struct npc_targetDummyAI : public ScriptedAI
+{
+    npc_targetDummyAI(Creature* pCreature) : ScriptedAI(pCreature) 
+    {
+        SetCombatMovement(false);
+        SetMeleeEnabled(false);
+        Reset();
+    }
+
+    std::map<Unit*, uint32> combatList;
+
+    void Reset() override
+    {
+        m_creature->m_movementInfo.AddMovementFlag(MOVEFLAG_ROOT);
+    }
+
+    void Aggro(Unit* who) override
+    {
+//        combatList.insert(std::pair<Unit*, uint32>(who, 5000));
+    }
+
+    void AttackedBy(Unit* dealer)
+    {
+        if(!combatList[dealer]){
+            sLog.outError("Adding Dealer");
+            combatList.insert(std::pair<Unit*, uint32>(dealer, 5000));
+        } else {
+            sLog.outError("Dealer Increased");
+            combatList[dealer] = 5000;
+        }
+    }
+
+    void UpdateAI(const uint32 diff) override
+    {
+        DoStopAttack();
+        float x,y,z,o,d;
+        m_creature->GetRespawnCoord(x, y, z, &o, &d);
+        m_creature->SetFacingTo(o);
+        m_creature->SetHealth(m_creature->GetMaxHealth());
+        m_creature->AttackStop();
+        std::vector<Unit*> deleteMe;
+        for(std::pair<Unit*, uint32> attacker : combatList){
+            sLog.outError("Milliseconds[]: %d", combatList[attacker.first]);
+            sLog.outError("Milliseconds: %d", attacker.second);
+            sLog.outError("Diff: %d", diff);
+            if (attacker.second < diff){
+                sLog.outError("Combat should stop");
+                attacker.first->CombatStop(true, true);
+                Unit* temp = attacker.first;
+                deleteMe.push_back(temp);
+            } else {
+                attacker.second -= diff;
+            }
+        }
+        for(Unit* attacker : deleteMe){
+            sLog.outError("Deleting");
+            combatList.erase(attacker);
+        }
+    }
+};
+
+void AddSC_targetDummy()
+{
+    Script* pNewScript = new Script;
+    pNewScript->Name = "npc_targetDummy";
+    pNewScript->GetAI = &GetNewAIInstance<npc_targetDummyAI>;
+    pNewScript->RegisterSelf(false);
+}

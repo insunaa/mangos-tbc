@@ -8,6 +8,7 @@
 extern void AddSC_battleground();
 
 // custom
+extern void AddSC_targetDummy();
 
 // examples
 extern void AddSC_example_creature();
@@ -371,6 +372,7 @@ void AddScripts()
     AddSC_battleground();
 
     // custom
+    AddSC_targetDummy();
 
     // examples
     AddSC_example_creature();

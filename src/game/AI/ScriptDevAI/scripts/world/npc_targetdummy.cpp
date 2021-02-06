@@ -45,6 +45,12 @@ struct npc_targetDummyAI : public ScriptedAI
         combatList[dealer] = 5000;
     }
 
+    void DamageTaken(Unit* /*dealer*/, uint32& damage, DamageEffectType /*damagetype*/, SpellEntry const* /*spellInfo*/) override
+    {
+        damage = std::min(damage, m_creature->GetHealth() - 1);
+
+    }
+
     void UpdateAI(const uint32 diff) override
     {
         DoStopAttack();        

@@ -28,10 +28,11 @@ struct npc_targetDummyAI : public ScriptedAI
     std::map<Unit*, uint32> combatList;
     float x,y,z,o,d;
 
-    npc_targetDummyAI(Creature* pCreature) : ScriptedAI(pCreature) 
+    npc_targetDummyAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         SetCombatMovement(false);
         SetMeleeEnabled(false);
+        SetReactState(REACT_PASSIVE);
         Reset();
     }
 
@@ -48,22 +49,24 @@ struct npc_targetDummyAI : public ScriptedAI
     void DamageTaken(Unit* /*dealer*/, uint32& damage, DamageEffectType /*damagetype*/, SpellEntry const* /*spellInfo*/) override
     {
         damage = std::min(damage, m_creature->GetHealth() - 1);
-
     }
 
     void UpdateAI(const uint32 diff) override
     {
-        DoStopAttack();        
+        DoStopAttack();
         m_creature->SetFacingTo(o);
         m_creature->SetHealth(m_creature->GetMaxHealth());
-        m_creature->AttackStop();
+        m_creature->AttackStop(false,true,true,false);
         std::vector<Unit*> deleteMe;
         for(std::pair<Unit*, uint32> attacker : combatList){
             if (attacker.second < diff){
-                attacker.first->CombatStop(true, true);
-                deleteMe.push_back(attacker.first);
+                if(attacker.first->IsInCombat()){
+                    attacker.first->CombatStop(true, true);
+                    deleteMe.push_back(attacker.first);
+                }
             } else {
-                combatList[attacker.first] -= diff;
+                if(attacker.first->IsInCombat())
+                    combatList[attacker.first] -= diff;
             }
         }
         for(Unit* attacker : deleteMe){

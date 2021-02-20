@@ -23,6 +23,8 @@ EndScriptData */
 
 #include "AI/ScriptDevAI/include/sc_common.h"
 
+uint32 m_uiHeal_Timer;
+
 struct npc_targetDummyAI : public ScriptedAI
 {
     std::map<Unit*, uint32> combatList;
@@ -30,15 +32,17 @@ struct npc_targetDummyAI : public ScriptedAI
 
     npc_targetDummyAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        SetCombatMovement(false);
-        SetMeleeEnabled(false);
-        SetReactState(REACT_PASSIVE);
         Reset();
     }
 
     void Reset() override
     {
         m_creature->GetRespawnCoord(x, y, z, &o, &d);
+        SetCombatMovement(false);
+        SetMeleeEnabled(false);
+        SetReactState(REACT_PASSIVE);
+        SetDeathPrevention(true);
+        m_uiHeal_Timer = 1000;
     }
 
     void AttackedBy(Unit* dealer)
@@ -46,17 +50,17 @@ struct npc_targetDummyAI : public ScriptedAI
         combatList[dealer] = 5000;
     }
 
-    void DamageTaken(Unit* /*dealer*/, uint32& damage, DamageEffectType /*damagetype*/, SpellEntry const* /*spellInfo*/) override
-    {
-        damage = std::min(damage, m_creature->GetHealth() - 1);
-    }
-
     void UpdateAI(const uint32 diff) override
     {
-        DoStopAttack();
         m_creature->SetFacingTo(o);
-        m_creature->SetHealth(m_creature->GetMaxHealth());
-        m_creature->AttackStop(false,true,true,false);
+        if(m_uiHeal_Timer < diff)
+            {
+                m_creature->ModifyHealth(m_creature->GetMaxHealth()/95);
+                m_uiHeal_Timer = 1000;
+            }
+        else
+            m_uiHeal_Timer -= diff;
+
         std::vector<Unit*> deleteMe;
         for(std::pair<Unit*, uint32> attacker : combatList){
             if (attacker.second < diff){

@@ -55,7 +55,7 @@ struct npc_targetDummyAI : public ScriptedAI
         m_creature->SetFacingTo(o);
         if(m_uiHeal_Timer < diff)
             {
-                if(m_creature.GetHealthPercent()<=19.f)
+                if(m_creature->GetHealthPercent()<=19.f)
                 {
                     m_creature->SetHealthPercent(19.f);
                 } else {

@@ -55,9 +55,9 @@ struct npc_targetDummyAI : public ScriptedAI
         m_creature->SetFacingTo(o);
         if(m_uiHeal_Timer < diff)
             {
-                if(m_creature->GetHealthPercent()<=19.f)
+                if(m_creature->GetHealthPercent()<=15.f)
                 {
-                    m_creature->SetHealthPercent(19.f);
+                    m_creature->SetHealthPercent(15.f);
                 } else {
                     m_creature->ModifyHealth(m_creature->GetMaxHealth()/95);
                     m_uiHeal_Timer = 1000;
@@ -68,19 +68,32 @@ struct npc_targetDummyAI : public ScriptedAI
 
         std::vector<Unit*> deleteMe;
         for(std::pair<Unit*, uint32> attacker : combatList){
-            if (attacker.second < diff){
-                if(attacker.first->IsInCombat()){
-                    attacker.first->CombatStop(true, true);
-                    deleteMe.push_back(attacker.first);
+            if(attacker.first != nullptr){
+                if (attacker.second < diff){
+                    if(attacker.first->IsInCombat()){
+                        deleteMe.push_back(attacker.first);
+                    }
+                } else {
+                    if(attacker.first->IsInCombat())
+                        combatList[attacker.first] -= diff;
                 }
-            } else {
-                if(attacker.first->IsInCombat())
-                    combatList[attacker.first] -= diff;
             }
         }
-        for(Unit* attacker : deleteMe){
-            combatList.erase(attacker);
+        if(!deleteMe.empty()){
+            for(Unit* attacker : deleteMe){
+                if(attacker){
+                    //attacker->CombatStopWithPets();
+                    // attacker->AttackStop(true);
+                    // if(attacker->AI())
+                    //     attacker->AI()->CombatStop();
+                    // attacker->GetCombatManager().StopCombatTimer();
+                    attacker->ClearInCombat();
+                    m_creature->getThreatManager().clearReferences();
+                    combatList.erase(attacker);
+                }
+            }
         }
+        deleteMe.clear();
     }
 };
 

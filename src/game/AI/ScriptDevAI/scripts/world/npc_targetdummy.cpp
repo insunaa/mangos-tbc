@@ -68,7 +68,7 @@ struct npc_targetDummyAI : public ScriptedAI
 
         std::vector<Unit*> deleteMe;
         for(std::pair<Unit*, uint32> attacker : combatList){
-            if(attacker.first != nullptr){
+            if(attacker.first){
                 if (attacker.second < diff){
                     if(attacker.first->IsInCombat()){
                         deleteMe.push_back(attacker.first);

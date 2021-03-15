@@ -47,15 +47,16 @@ struct npc_targetDummyAI : public ScriptedAI
 
     void AttackedBy(Unit* dealer)
     {
-        combatList[dealer] = 5000;
+        if(dealer->GetEntry() != 19668)
+            combatList[dealer] = 5000;
     }
 
     void UpdateAI(const uint32 diff) override
     {
         m_creature->SetFacingTo(o);
-        if(m_uiHeal_Timer < diff)
+        if (m_uiHeal_Timer < diff)
             {
-                if(m_creature->GetHealthPercent()<=15.f)
+                if (m_creature->GetHealthPercent()<=15.f)
                 {
                     m_creature->SetHealthPercent(15.f);
                 }
@@ -66,35 +67,39 @@ struct npc_targetDummyAI : public ScriptedAI
             m_uiHeal_Timer -= diff;
 
         std::vector<Unit*> deleteMe;
-        for(std::pair<Unit*, uint32> attacker : combatList){
-            if(attacker.first){
+        for (std::pair<Unit*, uint32> attacker : combatList){
+            if (attacker.first){
                 if (attacker.second < diff){
                     deleteMe.push_back(attacker.first);
                 } else {
                     combatList[attacker.first] -= diff;
                 }
             }
+            else
+            {
+                combatList.erase(attacker.first);
+            }
         }
-        if(!deleteMe.empty()){
-            for(Unit* attacker : deleteMe){
-                if(attacker){
+        if (!deleteMe.empty()){
+            for (Unit* attacker : deleteMe){
+                if (attacker){
                     attacker->CombatStopWithPets();
                     attacker->AttackStop(true);
-                    if(attacker->AI())
+                    if (attacker->AI())
                     {
                         Unit* master = attacker->GetMaster();
-                        if(master)
+                        if (master)
                             master->CombatStopWithPets();
                     }
                     Pet* pet = attacker->GetPet();
-                    if(pet)
+                    if (pet)
                     {
                         auto itr = combatList.find(pet);
                         if (itr != combatList.end())
                             combatList.erase(itr);
                     }
-                    combatList.erase(attacker);
                 }
+                combatList.erase(attacker);
             }
         }
         deleteMe.clear();

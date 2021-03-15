@@ -53,6 +53,8 @@ struct npc_targetDummyAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff) override
     {
+        if(combatList.empty())
+            m_creature->CombatStop();
         m_creature->SetFacingTo(o);
         if (m_uiHeal_Timer < diff)
             {

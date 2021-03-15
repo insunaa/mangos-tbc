@@ -47,7 +47,7 @@ struct npc_targetDummyAI : public ScriptedAI
 
     void AttackedBy(Unit* dealer)
     {
-        if(dealer->GetEntry() != 19668)
+        if(dealer->GetTypeId() == TYPEID_PLAYER)
             combatList[dealer] = 5000;
     }
 

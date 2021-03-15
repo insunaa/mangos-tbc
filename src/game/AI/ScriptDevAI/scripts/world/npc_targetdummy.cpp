@@ -58,10 +58,9 @@ struct npc_targetDummyAI : public ScriptedAI
                 if(m_creature->GetHealthPercent()<=15.f)
                 {
                     m_creature->SetHealthPercent(15.f);
-                } else {
-                    m_creature->ModifyHealth(m_creature->GetMaxHealth()/95);
-                    m_uiHeal_Timer = 1000;
                 }
+                m_creature->ModifyHealth(m_creature->GetMaxHealth()/95);
+                m_uiHeal_Timer = 1000;
             }
         else
             m_uiHeal_Timer -= diff;
@@ -70,25 +69,30 @@ struct npc_targetDummyAI : public ScriptedAI
         for(std::pair<Unit*, uint32> attacker : combatList){
             if(attacker.first){
                 if (attacker.second < diff){
-                    if(attacker.first->IsInCombat()){
-                        deleteMe.push_back(attacker.first);
-                    }
+                    deleteMe.push_back(attacker.first);
                 } else {
-                    if(attacker.first->IsInCombat())
-                        combatList[attacker.first] -= diff;
+                    combatList[attacker.first] -= diff;
                 }
             }
         }
         if(!deleteMe.empty()){
             for(Unit* attacker : deleteMe){
                 if(attacker){
-                    //attacker->CombatStopWithPets();
-                    // attacker->AttackStop(true);
-                    // if(attacker->AI())
-                    //     attacker->AI()->CombatStop();
-                    // attacker->GetCombatManager().StopCombatTimer();
-                    attacker->ClearInCombat();
-                    m_creature->getThreatManager().clearReferences();
+                    attacker->CombatStopWithPets();
+                    attacker->AttackStop(true);
+                    if(attacker->AI())
+                    {
+                        Unit* master = attacker->GetMaster();
+                        if(master)
+                            master->CombatStopWithPets();
+                    }
+                    Pet* pet = attacker->GetPet();
+                    if(pet)
+                    {
+                        auto itr = combatList.find(pet);
+                        if (itr != combatList.end())
+                            combatList.erase(itr);
+                    }
                     combatList.erase(attacker);
                 }
             }

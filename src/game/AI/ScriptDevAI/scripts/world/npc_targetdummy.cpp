@@ -79,11 +79,12 @@ struct npc_targetDummyAI : public ScriptedAI
             }
             else
             {
-                combatList.erase(attacker.first);
+                deleteMe.push_back(attacker.first);
             }
         }
         if (!deleteMe.empty()){
             for (Unit* attacker : deleteMe){
+                combatList.erase(attacker);
                 if (attacker){
                     attacker->CombatStopWithPets();
                     attacker->AttackStop(true);
@@ -101,7 +102,6 @@ struct npc_targetDummyAI : public ScriptedAI
                             combatList.erase(itr);
                     }
                 }
-                combatList.erase(attacker);
             }
         }
         deleteMe.clear();

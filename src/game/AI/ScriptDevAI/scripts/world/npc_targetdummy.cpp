@@ -85,7 +85,7 @@ struct npc_targetDummyAI : public ScriptedAI
         if (!deleteMe.empty()){
             for (Unit* attacker : deleteMe){
                 combatList.erase(attacker);
-                if (attacker){
+                if (attacker && attacker->IsInWorld()){
                     attacker->CombatStopWithPets();
                     attacker->AttackStop(true);
                     if (attacker->AI())

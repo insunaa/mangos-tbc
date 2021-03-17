@@ -22,12 +22,14 @@ SDCategory: Creatures
 EndScriptData */
 
 #include "AI/ScriptDevAI/include/sc_common.h"
+#include "Entities/Object.h"
+#include "Entities/ObjectGuid.h"
 
 uint32 m_uiHeal_Timer;
 
 struct npc_targetDummyAI : public ScriptedAI
 {
-    std::map<Unit*, uint32> combatList;
+    std::map<ObjectGuid, uint32> combatList;
     float x,y,z,o,d;
 
     npc_targetDummyAI(Creature* pCreature) : ScriptedAI(pCreature)
@@ -48,7 +50,7 @@ struct npc_targetDummyAI : public ScriptedAI
     void AttackedBy(Unit* dealer)
     {
         if(dealer->GetTypeId() == TYPEID_PLAYER)
-            combatList[dealer] = 5000;
+            combatList[dealer->GetObjectGuid()] = 5000;
     }
 
     void UpdateAI(const uint32 diff) override
@@ -68,8 +70,8 @@ struct npc_targetDummyAI : public ScriptedAI
         else
             m_uiHeal_Timer -= diff;
 
-        std::vector<Unit*> deleteMe;
-        for (std::pair<Unit*, uint32> attacker : combatList){
+        std::vector<ObjectGuid> deleteMe;
+        for (std::pair<ObjectGuid, uint32> attacker : combatList){
             if (attacker.first){
                 if (attacker.second < diff){
                     deleteMe.push_back(attacker.first);
@@ -83,8 +85,9 @@ struct npc_targetDummyAI : public ScriptedAI
             }
         }
         if (!deleteMe.empty()){
-            for (Unit* attacker : deleteMe){
-                combatList.erase(attacker);
+            for (ObjectGuid attackerGuid : deleteMe){
+                combatList.erase(attackerGuid);
+                Unit* attacker = m_creature->GetMap()->GetUnit(attackerGuid);
                 if (attacker && attacker->IsInWorld()){
                     attacker->CombatStopWithPets();
                     attacker->AttackStop(true);
@@ -94,7 +97,7 @@ struct npc_targetDummyAI : public ScriptedAI
                         if (master)
                             master->CombatStopWithPets();
                     }
-                    Pet* pet = attacker->GetPet();
+                    ObjectGuid pet = attacker->GetPet()->GetObjectGuid();
                     if (pet)
                     {
                         auto itr = combatList.find(pet);

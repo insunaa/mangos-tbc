@@ -30,7 +30,6 @@ uint32 m_uiHeal_Timer;
 struct npc_targetDummyAI : public ScriptedAI
 {
     std::map<ObjectGuid, uint32> combatList;
-    float x,y,z,o,d;
 
     npc_targetDummyAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -39,25 +38,22 @@ struct npc_targetDummyAI : public ScriptedAI
 
     void Reset() override
     {
-        m_creature->GetRespawnCoord(x, y, z, &o, &d);
+        combatList.clear();
         SetCombatMovement(false);
         SetMeleeEnabled(false);
         SetReactState(REACT_PASSIVE);
         SetDeathPrevention(true);
+        SetRootSelf(true);
         m_uiHeal_Timer = 1000;
     }
 
     void AttackedBy(Unit* dealer)
     {
-        if(dealer->GetTypeId() == TYPEID_PLAYER)
-            combatList[dealer->GetObjectGuid()] = 5000;
+        combatList[dealer->GetObjectGuid()] = 5000;
     }
 
     void UpdateAI(const uint32 diff) override
     {
-        if(combatList.empty())
-            m_creature->CombatStop();
-        m_creature->SetFacingTo(o);
         if (m_uiHeal_Timer < diff)
             {
                 if (m_creature->GetHealthPercent()<=15.f)
@@ -70,44 +66,32 @@ struct npc_targetDummyAI : public ScriptedAI
         else
             m_uiHeal_Timer -= diff;
 
-        std::vector<ObjectGuid> deleteMe;
-        for (std::pair<ObjectGuid, uint32> attacker : combatList){
-            if (attacker.first){
-                if (attacker.second < diff){
-                    deleteMe.push_back(attacker.first);
-                } else {
-                    combatList[attacker.first] -= diff;
-                }
-            }
-            else
+        for (auto itr = combatList.begin(); itr != combatList.end();)
+        {
+            Unit* attacker = m_creature->GetMap()->GetUnit(itr->first);
+            
+            if (!attacker && !attacker->IsInWorld())
             {
-                deleteMe.push_back(attacker.first);
+                itr = combatList.erase(itr);
+                continue;
             }
-        }
-        if (!deleteMe.empty()){
-            for (ObjectGuid attackerGuid : deleteMe){
-                combatList.erase(attackerGuid);
-                Unit* attacker = m_creature->GetMap()->GetUnit(attackerGuid);
-                if (attacker && attacker->IsInWorld()){
-                    attacker->CombatStopWithPets();
-                    attacker->AttackStop(true);
-                    if (attacker->AI())
-                    {
-                        Unit* master = attacker->GetMaster();
-                        if (master)
-                            master->CombatStopWithPets();
-                    }
-                    ObjectGuid pet = attacker->GetPet()->GetObjectGuid();
-                    if (pet)
-                    {
-                        auto itr = combatList.find(pet);
-                        if (itr != combatList.end())
-                            combatList.erase(itr);
-                    }
-                }
+
+            if (attacker->AI() && attacker->GetMaster() && !attacker->GetMaster()->IsInCombat())
+            {
+                itr->second = 0;
+                attacker->CombatStop();
             }
+
+            if (itr->second < diff){
+                m_creature->_removeAttacker(attacker);
+                m_creature->getThreatManager().modifyThreatPercent(attacker, -101.0f);
+                itr = combatList.erase(itr);
+                continue;
+            }
+
+            itr->second -= diff;
+            itr++;
         }
-        deleteMe.clear();
     }
 };
 

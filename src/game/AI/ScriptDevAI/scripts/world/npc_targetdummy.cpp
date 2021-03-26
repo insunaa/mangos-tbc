@@ -54,9 +54,6 @@ struct npc_targetDummyAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff) override
     {
-        if (combatList.empty())
-            m_creature->CombatStop();
-
         if (m_uiHeal_Timer < diff)
             {
                 if (m_creature->GetHealthPercent()<=15.f)

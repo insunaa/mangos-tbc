@@ -79,6 +79,7 @@ struct npc_targetDummyAI : public ScriptedAI
                 continue;
             }
 
+            // Forces Pet out of combat when Player stops attacking and is put out of combat.
             if (attacker->AI() && attacker->GetMaster() && !attacker->GetMaster()->IsInCombat())
             {
                 itr->second = 0;

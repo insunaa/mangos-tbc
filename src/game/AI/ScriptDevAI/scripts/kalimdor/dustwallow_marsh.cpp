@@ -44,7 +44,9 @@ EndContentData */
 #include "Entities/TemporarySpawn.h"
 #include "Entities/Unit.h"
 #include "Entities/UpdateFields.h"
+#include "Globals/ObjectMgr.h"
 #include "MotionGenerators/MotionMaster.h"
+#include "Platform/Define.h"
 #include "World/WorldStateDefines.h"
 #include "AI/ScriptDevAI/scripts/kalimdor/world_kalimdor.h"
 #include <unordered_map>
@@ -1520,12 +1522,32 @@ enum {
     NPC_MEDIC_HELAINA = 5200, //Red healer
     NPC_MEDIC_TAMBERLYN = 5199, //Blue healer
 
+    NPC_MASTER_SZIGETI = 5090,
+    NPC_MASTER_CRITON = 4924,
+
+    NPC_BLUE_CAPTAIAN = 5096,
+    NPC_RED_CAPTAIN = 5095,
+
     SPELL_FIRST_AID = 7162,
 
     BLUE_TEAM = 1621,
     RED_TEAM = 1622,
 
     FACTION_THERAMORE_FRIENDLY = 151,
+
+    SAY_RED_WINNER = -2100000, //Szigeti
+    SAY_BLUE_WINNER = -2100001, //Szigeti
+    SAY_RED_WINNER_OVERALL = -2100002, //Criton
+    SAY_BLUE_WINNER_OVERALL = -2100003, //Criton
+
+    SAY_BACK_TO_CORNERS = -2100004, //Criton
+
+    SAY_FOR_THE_RED = -2100005,
+    SAY_FOR_THE_BLUE = -2100006,
+
+    SAY_FIRST_COMBATANTS = -2100007,
+    SAY_FIGHT_INTRO = -2100008,
+    SAY_FIGHT_START = -2100009,
 };
 
 enum CombatantActions
@@ -1536,6 +1558,10 @@ enum CombatantActions
     COMBATANT_START_POSITION,
     COMBATANT_START_SPAR,
     COMBATANT_GET_ALL,
+    COMBATANT_SALUTE,
+    COMBATANT_SWITCH,
+    COMBATANT_SEPARATE,
+    COMBATANT_INTRO,
     COMBATANT_ACTION_MAX,
 };
 
@@ -1566,6 +1592,18 @@ struct npc_theramore_spar_controller : public CombatAI
         AddCustomAction(COMBATANT_START_POSITION, true, [&](){
             MoveIntoPosition();
         });
+        AddCustomAction(COMBATANT_SALUTE, true, [&](){
+            CombatantSalute();
+        });
+        AddCustomAction(COMBATANT_INTRO, true, [&](){
+            CombatantIntro();
+        });
+        AddCustomAction(COMBATANT_SWITCH, true, [&](){
+            SwitchMembers();
+        });
+        AddCustomAction(COMBATANT_SEPARATE, true, [&](){
+            CombatantSeparate();
+        });
         AddCustomAction(COMBATANT_GET_ALL, true, [&](){
             GetCombatants();
         });
@@ -1575,6 +1613,8 @@ struct npc_theramore_spar_controller : public CombatAI
     std::unordered_map<uint32, GuidList> teams;
     std::unordered_map<uint32, ObjectGuid> medics;
     std::unordered_map<uint32, ObjectGuid> active;
+
+    uint32 m_uiWinningTeam;
 
     void Reset() override
     {
@@ -1624,7 +1664,7 @@ struct npc_theramore_spar_controller : public CombatAI
             float blueHealth = blueCombatant->GetHealthPercent();
             if (redHealth <= 30 || blueHealth <= 30)
             {
-                ResetTimer(redHealth < blueHealth ? COMBATANT_BLUE_WIN : COMBATANT_RED_WIN, 5 * IN_MILLISECONDS);
+                ResetTimer(redHealth < blueHealth ? COMBATANT_BLUE_WIN : COMBATANT_RED_WIN, 100);
 
                 redCombatant->RestoreOriginalFaction();
                 blueCombatant->RestoreOriginalFaction();
@@ -1647,16 +1687,74 @@ struct npc_theramore_spar_controller : public CombatAI
 
     void HandleBlueWin()
     {
+        Unit* szigeti = GetClosestCreatureWithEntry(m_creature, NPC_MASTER_SZIGETI, 50.f);
+        if (szigeti && szigeti->IsAlive())
+        {
+            szigeti->HandleEmote(EMOTE_ONESHOT_POINT);
+            DoScriptText(SAY_BLUE_WINNER, szigeti);
+        }
         HandleWin(BLUE_TEAM);
+        m_uiWinningTeam = BLUE_TEAM;
     }
 
     void HandleRedWin()
     {
+        Unit* szigeti = GetClosestCreatureWithEntry(m_creature, NPC_MASTER_SZIGETI, 50.f);
+        if (szigeti && szigeti->IsAlive())
+        {
+            szigeti->HandleEmote(EMOTE_ONESHOT_POINT);
+            DoScriptText(SAY_RED_WINNER, szigeti);
+        }
         HandleWin(RED_TEAM);
+        m_uiWinningTeam = RED_TEAM;
     }
 
     void HandleWin(uint32 winningTeam)
     {
+        Unit* criton = GetClosestCreatureWithEntry(m_creature, NPC_MASTER_CRITON, 50.f);
+        Unit* szigeti = GetClosestCreatureWithEntry(m_creature, NPC_MASTER_SZIGETI, 50.f);
+        uint32 losingTeam = (winningTeam == BLUE_TEAM ? RED_TEAM : BLUE_TEAM);
+
+        if (criton && criton->IsAlive())
+        {
+            DoScriptText(SAY_BACK_TO_CORNERS, criton);
+            if (!teams[losingTeam].empty()){
+            }
+            else
+            {
+                DoScriptText(winningTeam == BLUE_TEAM ? SAY_BLUE_WINNER_OVERALL : SAY_RED_WINNER_OVERALL, criton);
+            }
+        }
+        ResetTimer(COMBATANT_SEPARATE, 100u);
+    }
+
+    void CombatantSalute()
+    {
+        Creature* redMember = dynamic_cast<Creature*>(m_creature->GetMap()->GetUnit(active[RED_TEAM]));
+        Creature* blueMember = dynamic_cast<Creature*>(m_creature->GetMap()->GetUnit(active[BLUE_TEAM]));
+        if (redMember && blueMember && redMember->IsAlive() && blueMember->IsAlive())
+        {
+            redMember->HandleEmote(EMOTE_ONESHOT_SALUTE);
+            DoScriptText(SAY_FOR_THE_RED, redMember);
+            blueMember->HandleEmote(EMOTE_ONESHOT_SALUTE);
+            DoScriptText(SAY_FOR_THE_BLUE, blueMember);
+        }
+        ResetTimer(COMBATANT_INTRO, 3000u);
+    }
+
+    void CombatantIntro()
+    {
+        Unit* criton = GetClosestCreatureWithEntry(m_creature, NPC_MASTER_CRITON, 50.f);
+        if (criton && criton->IsAlive())
+        {
+            DoScriptText(SAY_FIGHT_INTRO, criton);
+        }
+        ResetTimer(COMBATANT_START_SPAR, 3000u);
+    }
+
+    void SwitchMembers()
+    {
+        uint32 winningTeam = m_uiWinningTeam;
         uint32 losingTeam = (winningTeam == BLUE_TEAM ? RED_TEAM : BLUE_TEAM);
         Creature* loser = dynamic_cast<Creature*>(m_creature->GetMap()->GetUnit(active[losingTeam]));
         Creature* winner = dynamic_cast<Creature*>(m_creature->GetMap()->GetUnit(active[winningTeam]));
@@ -1690,10 +1788,31 @@ struct npc_theramore_spar_controller : public CombatAI
         ResetTimer(COMBATANT_START_POSITION, 5000u);
     }
 
+    void CombatantSeparate()
+    {
+        Creature* redMember = dynamic_cast<Creature*>(m_creature->GetMap()->GetUnit(active[RED_TEAM]));
+        Creature* blueMember = dynamic_cast<Creature*>(m_creature->GetMap()->GetUnit(active[BLUE_TEAM]));
+
+        if (redMember && blueMember)
+        {
+            redMember->GetMotionMaster()->Clear(true, true);
+            redMember->GetMotionMaster()->MovePoint(1, startingPositions[RED_TEAM], FORCED_MOVEMENT_RUN);
+            blueMember->GetMotionMaster()->Clear(true, true);
+            blueMember->GetMotionMaster()->MovePoint(1, startingPositions[BLUE_TEAM], FORCED_MOVEMENT_RUN);
+        }
+        ResetTimer(COMBATANT_SWITCH, 5000u);
+    }
+
     void StartSparring()
     {
         Creature* redMember = dynamic_cast<Creature*>(m_creature->GetMap()->GetUnit(active[RED_TEAM]));
         Creature* blueMember = dynamic_cast<Creature*>(m_creature->GetMap()->GetUnit(active[BLUE_TEAM]));
+
+        Unit* criton = GetClosestCreatureWithEntry(m_creature, NPC_MASTER_CRITON, 50.f);
+        if (criton && criton->IsAlive())
+        {
+            DoScriptText(SAY_FIGHT_START, criton);
+        }
 
         if (redMember && blueMember)
         {
@@ -1714,6 +1833,11 @@ struct npc_theramore_spar_controller : public CombatAI
             teams[RED_TEAM].pop_front();
             active[BLUE_TEAM] = teams[BLUE_TEAM].front();
             teams[BLUE_TEAM].pop_front();
+            Unit* criton = GetClosestCreatureWithEntry(m_creature, NPC_MASTER_CRITON, 50.f);
+            if (criton && criton->IsAlive())
+            {
+                DoScriptText(SAY_FIRST_COMBATANTS, criton);
+            }
         }
         Creature* redMember = dynamic_cast<Creature*>(m_creature->GetMap()->GetUnit(active[RED_TEAM]));
         Creature* blueMember = dynamic_cast<Creature*>(m_creature->GetMap()->GetUnit(active[BLUE_TEAM]));
@@ -1725,7 +1849,7 @@ struct npc_theramore_spar_controller : public CombatAI
             blueMember->GetMotionMaster()->Clear(true, true);
             blueMember->GetMotionMaster()->MovePoint(1, startingPositions[BLUE_TEAM], FORCED_MOVEMENT_WALK);
         }
-        ResetTimer(COMBATANT_START_SPAR, 5000u);
+        ResetTimer(COMBATANT_SALUTE, 5000u);
     }
 
     void ExecuteAction(uint32 action) override { }

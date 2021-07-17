@@ -70,7 +70,7 @@ struct npc_targetDummyAI : public ScriptedAI
         {
             Unit* attacker = m_creature->GetMap()->GetUnit(itr->first);
             
-            if (!attacker && !attacker->IsInWorld())
+            if (!attacker || !attacker->IsInWorld())
             {
                 itr = combatList.erase(itr);
                 continue;
@@ -83,7 +83,8 @@ struct npc_targetDummyAI : public ScriptedAI
                 attacker->CombatStop();
             }
 
-            if (itr->second < diff){
+            if (itr->second < diff)
+            {
                 m_creature->_removeAttacker(attacker);
                 m_creature->getThreatManager().modifyThreatPercent(attacker, -101.0f);
                 itr = combatList.erase(itr);

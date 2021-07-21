@@ -121,16 +121,16 @@ void instance_naxxramas::JustDidDialogueStep(int32 entry)
 
 void instance_naxxramas::OnPlayerEnter(Player* player)
 {
-    if (playerCooldown.find(player->GetObjectGuid()) == playerCooldown.end())
+    if (playerCooldownMap.find(player->GetObjectGuid()) == playerCooldownMap.end())
     {
-        playerCooldown[player->GetObjectGuid()] = true;
+        playerCooldownMap[player->GetObjectGuid()] = true;
     }
     else
     {
-        if (playerCooldown[player->GetObjectGuid()] == false)
+        if (playerCooldownMap[player->GetObjectGuid()] == false)
         {
             player->RemoveAllCooldowns();
-            playerCooldown[player->GetObjectGuid()] = true;
+            playerCooldownMap[player->GetObjectGuid()] = true;
         }
     }
     // Function only used to summon Sapphiron in case of server reload
@@ -720,9 +720,9 @@ void instance_naxxramas::SetData(uint32 type, uint32 data)
             {
                 if (Player* player = playerGuid.getSource())
                 {
-                    if (playerCooldown.find(player->GetObjectGuid()) != playerCooldown.end())
+                    if (playerCooldownMap.find(player->GetObjectGuid()) != playerCooldownMap.end())
                     {
-                        playerCooldown[player->GetObjectGuid()] = true;
+                        playerCooldownMap[player->GetObjectGuid()] = true;
                         player->RemoveAllCooldowns();
                     }
                 }
@@ -732,14 +732,14 @@ void instance_naxxramas::SetData(uint32 type, uint32 data)
 
     if (data == IN_PROGRESS)
     {
-        for (auto player : playerCooldown)
-            playerCooldown[player.first] = false;
+        for (auto player : playerCooldownMap)
+            playerCooldownMap[player.first] = false;
     }
 
     if (data == DONE)
     {
-        for (auto player : playerCooldown)
-            playerCooldown[player.first] = true;
+        for (auto player : playerCooldownMap)
+            playerCooldownMap[player.first] = true;
     }
 }
 

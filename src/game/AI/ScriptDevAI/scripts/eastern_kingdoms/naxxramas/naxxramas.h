@@ -306,7 +306,7 @@ class instance_naxxramas : public ScriptedInstance, private DialogueHelper
 
         std::unordered_map<ObjectGuid, GothTrigger> m_gothikTriggerMap;
 
-        std::unordered_map<ObjectGuid, bool> playerCooldown;
+        std::unordered_map<ObjectGuid, bool> playerCooldownMap;
 
         uint32 m_sapphironSpawnTimer;
         uint32 m_tauntTimer;

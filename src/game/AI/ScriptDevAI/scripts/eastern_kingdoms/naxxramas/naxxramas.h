@@ -5,6 +5,7 @@
 #ifndef DEF_NAXXRAMAS_H
 #define DEF_NAXXRAMAS_H
 
+#include "Entities/ObjectGuid.h"
 enum
 {
     MAX_ENCOUNTER               = 16,
@@ -304,6 +305,8 @@ class instance_naxxramas : public ScriptedInstance, private DialogueHelper
         GuidList m_icrecrownGuardianList;
 
         std::unordered_map<ObjectGuid, GothTrigger> m_gothikTriggerMap;
+
+        std::unordered_map<ObjectGuid, bool> playerCooldown;
 
         uint32 m_sapphironSpawnTimer;
         uint32 m_tauntTimer;

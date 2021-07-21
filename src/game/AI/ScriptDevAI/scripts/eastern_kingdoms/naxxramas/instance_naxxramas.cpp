@@ -121,6 +121,18 @@ void instance_naxxramas::JustDidDialogueStep(int32 entry)
 
 void instance_naxxramas::OnPlayerEnter(Player* player)
 {
+    if (playerCooldown.find(player->GetObjectGuid()) == playerCooldown.end())
+    {
+        playerCooldown[player->GetObjectGuid()] = true;
+    }
+    else
+    {
+        if (playerCooldown[player->GetObjectGuid()] == false)
+        {
+            player->RemoveAllCooldowns();
+            playerCooldown[player->GetObjectGuid()] = true;
+        }
+    }
     // Function only used to summon Sapphiron in case of server reload
     if (GetData(TYPE_SAPPHIRON) != SPECIAL)
         return;
@@ -696,6 +708,36 @@ void instance_naxxramas::SetData(uint32 type, uint32 data)
 
         SaveToDB();
         OUT_SAVE_INST_DATA_COMPLETE;
+    }
+
+    if (data == FAIL)
+    {
+        Map::PlayerList const& players = instance->GetPlayers();
+
+        if (!players.isEmpty())
+        {
+            for (const auto& playerGuid : players)
+            {
+                if (Player* player = playerGuid.getSource())
+                {
+                    player->RemoveAllCooldowns();
+                    if (playerCooldown.find(player->GetObjectGuid()) != playerCooldown.end())
+                        playerCooldown[player->GetObjectGuid()] = true;
+                }
+            }
+        }
+    }
+
+    if (data == IN_PROGRESS)
+    {
+        for (auto player : playerCooldown)
+            playerCooldown[player.first] = false;
+    }
+
+    if (data == DONE)
+    {
+        for (auto player : playerCooldown)
+            playerCooldown[player.first] = true;
     }
 }
 

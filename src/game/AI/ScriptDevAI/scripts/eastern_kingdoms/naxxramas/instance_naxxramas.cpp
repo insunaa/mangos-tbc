@@ -720,9 +720,11 @@ void instance_naxxramas::SetData(uint32 type, uint32 data)
             {
                 if (Player* player = playerGuid.getSource())
                 {
-                    player->RemoveAllCooldowns();
                     if (playerCooldown.find(player->GetObjectGuid()) != playerCooldown.end())
+                    {
                         playerCooldown[player->GetObjectGuid()] = true;
+                        player->RemoveAllCooldowns();
+                    }
                 }
             }
         }

@@ -129,7 +129,7 @@ void instance_naxxramas::OnPlayerEnter(Player* player)
     {
         if (playerCooldownMap[player->GetObjectGuid()] == false)
         {
-            player->RemoveAllCooldowns();
+            player->RemoveArenaSpellCooldowns();
             playerCooldownMap[player->GetObjectGuid()] = true;
         }
     }
@@ -723,7 +723,7 @@ void instance_naxxramas::SetData(uint32 type, uint32 data)
                     if (playerCooldownMap.find(player->GetObjectGuid()) != playerCooldownMap.end())
                     {
                         playerCooldownMap[player->GetObjectGuid()] = true;
-                        player->RemoveAllCooldowns();
+                        player->RemoveArenaSpellCooldowns();
                     }
                 }
             }

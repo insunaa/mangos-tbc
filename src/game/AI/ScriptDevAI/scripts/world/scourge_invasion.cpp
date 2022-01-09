@@ -16,15 +16,18 @@
 
 //#include "scriptPCH.h"
 #include "scourge_invasion.h"
+
+#include <cmath>
 //#include "CreatureGroups.h"
 #include "AI/ScriptDevAI/include/sc_common.h"
 #include "AI/ScriptDevAI/base/CombatAI.h"
-#include "Globals/ObjectMgr.h"
 #include "World/WorldStateDefines.h"
 #include "Grids/CellImpl.h"
 #include "GameEvents/GameEventMgr.h"
 #include "Grids/GridNotifiers.h"
 #include "Grids/GridNotifiersImpl.h"
+
+#undef override
 
 inline uint32 GetCampType(Creature* unit) { return unit->HasAura(SPELL_CAMP_TYPE_GHOST_SKELETON) || unit->HasAura(SPELL_CAMP_TYPE_GHOST_GHOUL) || unit->HasAura(SPELL_CAMP_TYPE_GHOUL_SKELETON); };
 
@@ -35,22 +38,22 @@ inline bool IsGuardOrBoss(Unit* unit) {
 
 Unit* SelectRandomFlameshockerSpawnTarget(Creature* unit, Unit* except, float radius)
 {
-    std::list<Unit*> targets;
+    CreatureList targets;
 
     MaNGOS::AnyUnitInObjectRangeCheck u_check(unit, radius);
-    MaNGOS::UnitListSearcher<MaNGOS::AnyUnitInObjectRangeCheck> searcher(targets, u_check);
+    MaNGOS::CreatureListSearcher<MaNGOS::AnyUnitInObjectRangeCheck> searcher(targets, u_check);
     Cell::VisitAllObjects(unit, searcher, radius);
 
     // remove current target
     if (except)
-        targets.remove(except);
+        targets.remove(dynamic_cast<Creature*>(except));
 
-    for (std::list<Unit*>::iterator tIter = targets.begin(); tIter != targets.end();)
+    for (auto tIter = targets.begin(); tIter != targets.end();)
     {
         // || !(*tIter)->ToCreature()->CanSummonGuards() - CREATURE_FLAG_EXTRA_SUMMON_GUARD
-        if (!(*tIter)->IsCreature() || !static_cast<Creature*>(*tIter)->IsCivilian() || (*tIter)->GetZoneId() != unit->GetZoneId() || !unit->CanAttack((*tIter)) || GetClosestCreatureWithEntry((*tIter), NPC_FLAMESHOCKER, VISIBILITY_DISTANCE_TINY))
+        if (!(*tIter)->IsCreature() || !dynamic_cast<Creature*>(*tIter)->IsCivilian() || (*tIter)->GetZoneId() != unit->GetZoneId() || !unit->CanAttack((*tIter)) || GetClosestCreatureWithEntry((*tIter), NPC_FLAMESHOCKER, VISIBILITY_DISTANCE_TINY))
         {
-            std::list<Unit*>::iterator tIter2 = tIter;
+            auto tIter2 = tIter;
             ++tIter;
             targets.erase(tIter2);
         }
@@ -63,12 +66,11 @@ Unit* SelectRandomFlameshockerSpawnTarget(Creature* unit, Unit* except, float ra
         return nullptr;
 
     // select random
-    uint32 rIdx = urand(0, targets.size() - 1);
-    std::list<Unit*>::const_iterator tcIter = targets.begin();
-    for (uint32 i = 0; i < rIdx; ++i)
-        ++tcIter;
+    std::vector<Creature*> random(targets.begin(), targets.end());
+    std::shuffle(random.begin(), random.end(), *GetRandomGenerator());
+    random.resize(1);
 
-    return *tcIter;
+    return random[0];
 }
 
 void ChangeZoneEventStatus(Creature* mouth, bool on)
@@ -142,7 +144,7 @@ void DespawnEventDoodads(Creature* shard)
     if (!shard)
         return;
 
-    std::list<GameObject*> doodadList;
+    GameObjectList doodadList;
     GetGameObjectListWithEntryInGrid(doodadList, shard, { GOBJ_SUMMON_CIRCLE, GOBJ_UNDEAD_FIRE, GOBJ_UNDEAD_FIRE_AURA, GOBJ_SKULLPILE_01, GOBJ_SKULLPILE_02, GOBJ_SKULLPILE_03, GOBJ_SKULLPILE_04, GOBJ_SUMMONER_SHIELD }, 60.0f);
     for (const auto pDoodad : doodadList)
     {
@@ -150,7 +152,7 @@ void DespawnEventDoodads(Creature* shard)
         pDoodad->ForcedDespawn();
     }
 
-    std::list<Creature*> finderList;
+    CreatureList finderList;
     GetCreatureListWithEntryInGrid(finderList, shard, NPC_SCOURGE_INVASION_MINION_FINDER, 60.0f);
     for (const auto pFinder : finderList)
         pFinder->ForcedDespawn();
@@ -161,7 +163,7 @@ void DespawnNecropolis(Unit* despawner)
     if (!despawner)
         return;
 
-    std::list<GameObject*> necropolisList;
+    GameObjectList necropolisList;
     GetGameObjectListWithEntryInGrid(necropolisList, despawner, { GOBJ_NECROPOLIS_TINY, GOBJ_NECROPOLIS_SMALL, GOBJ_NECROPOLIS_MEDIUM, GOBJ_NECROPOLIS_BIG, GOBJ_NECROPOLIS_HUGE }, ATTACK_DISTANCE);
     for (const auto pNecropolis : necropolisList)
         pNecropolis->ForcedDespawn();
@@ -172,22 +174,22 @@ void SummonCultists(Unit* shard)
     if (!shard)
         return;
 
-    std::list<GameObject*> summonerShieldList;
+    GameObjectList summonerShieldList;
     GetGameObjectListWithEntryInGrid(summonerShieldList, shard, GOBJ_SUMMONER_SHIELD, INSPECT_DISTANCE);
     for (const auto pSummonerShield : summonerShieldList)
         pSummonerShield->ForcedDespawn();
 
-    // We don't have all positions sniffed from the Cultists, so why not using this code which placing them almost perfectly into the circle while blizzards positions are some times way off?
+    // We don't have all positions sniffed from the Cultists, so why not using this code which placing them almost perfectly into the circle while blizzards positions are sometimes way off?
     if (GameObject* gameObject = GetClosestGameObjectWithEntry(shard, GOBJ_SUMMON_CIRCLE, CONTACT_DISTANCE))
     {
         for (int i = 0; i < 4; ++i)
         {
-            float angle = (float(i) * (M_PI / 2)) + gameObject->GetOrientation();
-            float x = gameObject->GetPositionX() + 6.95f * cos(angle);
-            float y = gameObject->GetPositionY() + 6.75f * sin(angle);
+            float angle = (float(i) * ((float)M_PI / 2.f)) + gameObject->GetOrientation();
+            float x = gameObject->GetPositionX() + 6.95f * std::cos(angle);
+            float y = gameObject->GetPositionY() + 6.75f * std::sin(angle);
             float z = gameObject->GetPositionZ() + 5.0f;
             shard->UpdateGroundPositionZ(x, y, z);
-            if (Creature* cultist = shard->SummonCreature(NPC_CULTIST_ENGINEER, x, y, z, angle - M_PI, TEMPSPAWN_TIMED_OR_DEAD_DESPAWN, IN_MILLISECONDS * HOUR, true))
+            if (Creature* cultist = shard->SummonCreature(NPC_CULTIST_ENGINEER, x, y, z, angle - (float)M_PI, TEMPSPAWN_TIMED_OR_DEAD_DESPAWN, IN_MILLISECONDS * HOUR, true))
                 cultist->AI()->SendAIEvent(AI_EVENT_CUSTOM_A, shard, cultist, NPC_CULTIST_ENGINEER);
         }
     }
@@ -198,7 +200,7 @@ void DespawnCultists(Unit* despawner)
     if (!despawner)
         return;
 
-    std::list<Creature*> cultistList;
+    CreatureList cultistList;
     GetCreatureListWithEntryInGrid(cultistList, despawner, NPC_CULTIST_ENGINEER, INSPECT_DISTANCE);
     for (const auto pCultist : cultistList)
         if (pCultist)
@@ -210,20 +212,20 @@ void DespawnShadowsOfDoom(Unit* despawner)
     if (!despawner)
         return;
 
-    std::list<Creature*> shadowList;
+    CreatureList shadowList;
     GetCreatureListWithEntryInGrid(shadowList, despawner, NPC_SHADOW_OF_DOOM, 200.0f);
     for (const auto pShadow : shadowList)
         if (pShadow && pShadow->IsAlive() && !pShadow->IsInCombat())
             pShadow->ForcedDespawn();
 }
 
-uint32 HasMinion(Creature* summoner, float range)
+uint32 HasMinion(Creature* summoner, float /*range*/)
 {
     if (!summoner)
         return false;
 
     uint32 minionCounter = 0;
-    std::list<Creature*> minionList;
+    CreatureList minionList;
     GetCreatureListWithEntryInGrid(minionList, summoner, { NPC_SKELETAL_SHOCKTROOPER, NPC_GHOUL_BERSERKER, NPC_SPECTRAL_SOLDIER, NPC_LUMBERING_HORROR, NPC_BONE_WITCH, NPC_SPIRIT_OF_THE_DAMNED }, ATTACK_DISTANCE);
     for (const auto pMinion : minionList)
         if (pMinion && pMinion->IsAlive())
@@ -237,14 +239,14 @@ bool UncommonMinionspawner(Creature* pSummoner) // Rare Minion Spawner.
     if (!pSummoner)
         return false;
 
-    std::list<Creature*> uncommonMinionList;
+    CreatureList uncommonMinionList;
     GetCreatureListWithEntryInGrid(uncommonMinionList, pSummoner, { NPC_LUMBERING_HORROR, NPC_BONE_WITCH, NPC_SPIRIT_OF_THE_DAMNED }, 100.0f);
     for (const auto pMinion : uncommonMinionList)
         if (pMinion)
             return false; // Already a rare found (dead or alive).
 
     /*
-    The chance or timer for a Rare minion spawn is unknown and i don't see an exact pattern for a spawn sequence.
+    The chance or timer for a Rare minion spawn is unknown, and I don't see an exact pattern for a spawn sequence.
     Sniffed are: 19669 Minions and 90 Rares (Ratio: 217 to 1).
     */
     uint32 chance = urand(1, 217);
@@ -257,7 +259,7 @@ bool UncommonMinionspawner(Creature* pSummoner) // Rare Minion Spawner.
 uint32 GetFindersAmount(Creature* shard)
 {
     uint32 finderCounter = 0;
-    std::list<Creature*> finderList;
+    CreatureList finderList;
     GetCreatureListWithEntryInGrid(finderList, shard, NPC_SCOURGE_INVASION_MINION_FINDER, 60.0f);
     for (const auto pFinder : finderList)
         if (pFinder)
@@ -272,7 +274,7 @@ Circle
 class GoCircle : public GameObjectAI
 {
     public:
-        GoCircle(GameObject* gameobject) : GameObjectAI(gameobject)
+        explicit GoCircle(GameObject* gameobject) : GameObjectAI(gameobject)
         {
             //m_go->CastSpell(m_go, SPELL_CREATE_CRYSTAL, true);
             m_go->CastSpell(nullptr, nullptr, SPELL_CREATE_CRYSTAL, TRIGGERED_OLD_TRIGGERED);
@@ -285,7 +287,7 @@ Necropolis
 class GoNecropolis : public GameObjectAI
 {
     public:
-        GoNecropolis(GameObject* gameobject) : GameObjectAI(gameobject)
+        explicit GoNecropolis(GameObject* gameobject) : GameObjectAI(gameobject)
         {
             m_go->SetActiveObjectState(true);
             //m_go->SetVisibilityModifier(3000.0f);
@@ -297,7 +299,7 @@ Mouth of Kel'Thuzad
 */
 struct MouthAI : public ScriptedAI
 {
-    MouthAI(Creature* creature) : ScriptedAI(creature)
+    explicit MouthAI(Creature* creature) : ScriptedAI(creature)
     {
         AddCustomAction(EVENT_MOUTH_OF_KELTHUZAD_YELL, urand((IN_MILLISECONDS * 150), (IN_MILLISECONDS * HOUR)), [&]()
         {
@@ -330,6 +332,7 @@ struct MouthAI : public ScriptedAI
                     m_creature->ForcedDespawn();
                     break;
                 }
+                default: break;
             }
         }
     }
@@ -340,7 +343,7 @@ Necropolis
 */
 struct NecropolisAI : public ScriptedAI
 {
-    NecropolisAI(Creature* creature) : ScriptedAI(creature)
+    explicit NecropolisAI(Creature* creature) : ScriptedAI(creature)
     {
         m_creature->SetActiveObjectState(true);
         //m_creature->SetVisibilityModifier(3000.0f);
@@ -372,14 +375,14 @@ Necropolis Health
 */
 struct NecropolisHealthAI : public ScriptedAI
 {
-    NecropolisHealthAI(Creature* creature) : ScriptedAI(creature)
+    explicit NecropolisHealthAI(Creature* creature) : ScriptedAI(creature)
     {
         AddCustomAction(0, 5000u, [&]()
         {
             if (m_creature->GetHealthPercent() > 99.f)
             {
                 CreatureList proxies;
-                GetCreatureListWithEntryInGrid(proxies, m_creature, NPC_NECROPOLIS_PROXY, 200.f);
+                GetCreatureListWithEntryInGrid(proxies, m_creature, NPC_NECROPOLIS_PROXY, 1100.f);
 
                 for (Creature* proxy : proxies)
                 {
@@ -391,7 +394,7 @@ struct NecropolisHealthAI : public ScriptedAI
                 }
 
                 GameObjectList circles;
-                GetGameObjectListWithEntryInGrid(circles, m_creature, GOBJ_SUMMON_CIRCLE, 1000.f);
+                GetGameObjectListWithEntryInGrid(circles, m_creature, GOBJ_SUMMON_CIRCLE, 300.f);
 
                 for (GameObject* circle : circles)
                 {
@@ -405,9 +408,9 @@ struct NecropolisHealthAI : public ScriptedAI
                         }
                     }
                 }
-                for (ScourgeInvasionMisc t_nectId : {GOBJ_NECROPOLIS_BIG, GOBJ_NECROPOLIS_HUGE, GOBJ_NECROPOLIS_MEDIUM, GOBJ_NECROPOLIS_SMALL, GOBJ_NECROPOLIS_TINY})
+                for (ScourgeInvasionMisc t_necId : {GOBJ_NECROPOLIS_BIG, GOBJ_NECROPOLIS_HUGE, GOBJ_NECROPOLIS_MEDIUM, GOBJ_NECROPOLIS_SMALL, GOBJ_NECROPOLIS_TINY})
                 {
-                    if (GameObject* t_necGo = GetClosestGameObjectWithEntry(m_creature, t_nectId, 20.f))
+                    if (GameObject* t_necGo = GetClosestGameObjectWithEntry(m_creature, t_necId, 20.f))
                     {
                         if (!t_necGo->IsSpawned())
                         {
@@ -482,7 +485,7 @@ struct NecropolisHealthAI : public ScriptedAI
         if (spellInfo->Id == SPELL_DESPAWNER_OTHER && target->GetEntry() == NPC_NECROPOLIS)
         {
             DespawnNecropolis(target);
-            static_cast<Creature*>(target)->ForcedDespawn();
+            dynamic_cast<Creature*>(target)->ForcedDespawn();
             m_creature->ForcedDespawn();
         }
     }
@@ -502,7 +505,7 @@ Necropolis Proxy
 */
 struct NecropolisProxyAI : public ScriptedAI
 {
-    NecropolisProxyAI(Creature* creature) : ScriptedAI(creature)
+    explicit NecropolisProxyAI(Creature* creature) : ScriptedAI(creature)
     {
         m_creature->SetActiveObjectState(true);
         //m_creature->SetVisibilityModifier(3000.0f);
@@ -550,7 +553,7 @@ Necropolis Relay
 */
 struct NecropolisRelayAI : public ScriptedAI
 {
-    NecropolisRelayAI(Creature* creature) : ScriptedAI(creature)
+    explicit NecropolisRelayAI(Creature* creature) : ScriptedAI(creature)
     {
         m_creature->SetActiveObjectState(true);
         //m_creature->SetVisibilityModifier(3000.0f);
@@ -598,7 +601,7 @@ Necrotic Shard
 */
 struct NecroticShard : public ScriptedAI
 {
-    NecroticShard(Creature* creature) : ScriptedAI(creature)
+    explicit NecroticShard(Creature* creature) : ScriptedAI(creature)
     {
         m_creature->SetActiveObjectState(true);
         AddCustomAction(EVENT_SHARD_MINION_SPAWNER_SMALL, true, [&]() // Spawn Minions every 5 seconds.
@@ -609,7 +612,7 @@ struct NecroticShard : public ScriptedAI
         {
             if (!m_creature)
                 return;
-            if (!GetClosestGameObjectWithEntry(m_creature, GOBJ_SUMMON_CIRCLE, 2.f) || !GetClosestCreatureWithEntry(m_creature, NPC_NECROPOLIS_HEALTH, 1000.f))
+            if (!GetClosestGameObjectWithEntry(m_creature, GOBJ_SUMMON_CIRCLE, 2.f) || !GetClosestCreatureWithEntry(m_creature, NPC_NECROPOLIS_HEALTH, 300.f))
             {
                 DespawnEventDoodads(m_creature);
                 m_creature->ForcedDespawn();
@@ -625,8 +628,8 @@ struct NecroticShard : public ScriptedAI
             AddCustomAction(EVENT_SHARD_MINION_SPAWNER_BUTTRESS, 5000u, [&]() // Spawn Cultists every 60 minutes.
             {
                 /*
-                This is a placeholder for SPELL_MINION_SPAWNER_BUTTRESS [27888] which also activates unknown, not sniffable gamebjects
-                and happens every hour if a Damaged Necrotic Shard is activ. The Cultists despawning after 1 hour,
+                This is a placeholder for SPELL_MINION_SPAWNER_BUTTRESS [27888] which also activates unknown, not sniffable gameobjects
+                and happens every hour if a Damaged Necrotic Shard is active. The Cultists despawning after 1 hour,
                 so this just resets everything and spawn them again and Refill the Health of the Shard.
                 */
                 m_creature->SetHealthPercent(100.f); // m_creature->SetFullHealth();
@@ -641,7 +644,7 @@ struct NecroticShard : public ScriptedAI
         else
         {
             // Just in case.
-            std::list<Creature*> shardList;
+            CreatureList shardList;
             GetCreatureListWithEntryInGrid(shardList, m_creature, { NPC_NECROTIC_SHARD, NPC_DAMAGED_NECROTIC_SHARD }, CONTACT_DISTANCE);
             for (const auto shard : shardList)
                 if (shard != m_creature)
@@ -679,7 +682,7 @@ struct NecroticShard : public ScriptedAI
         {
             case SPELL_ZAP_CRYSTAL_CORPSE:
             {
-                m_creature->DealDamage(m_creature, m_creature, (m_creature->GetMaxHealth() / 4), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+                Creature::DealDamage(m_creature, m_creature, (m_creature->GetMaxHealth() / 4), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                 break;
             }
             case SPELL_COMMUNIQUE_RELAY_TO_CAMP:
@@ -781,10 +784,10 @@ struct NecroticShard : public ScriptedAI
         and happens every 15 seconds for both, Necrotic Shard and Damaged Necrotic Shard.
         */
 
-        int finderCounter = 0;
-        int finderAmount = urand(1, 3); // Up to 3 spawns.
+        uint32 finderCounter = 0;
+        uint32 finderAmount = urand(1, 3); // Up to 3 spawns.
 
-        std::list<Creature*> finderList;
+        CreatureList finderList;
         GetCreatureListWithEntryInGrid(finderList, m_creature, NPC_SCOURGE_INVASION_MINION_FINDER, 60.0f);
         if (finderList.empty())
             return;
@@ -826,7 +829,7 @@ Minion Spawner
 */
 struct MinionspawnerAI : public ScriptedAI
 {
-    MinionspawnerAI(Creature* creature) : ScriptedAI(creature)
+    explicit MinionspawnerAI(Creature* creature) : ScriptedAI(creature)
     {
         AddCustomAction(EVENT_SPAWNER_SUMMON_MINION, 2000, 5000, [&]() // Spawn Minions every 5 seconds.
         {
@@ -853,7 +856,7 @@ struct MinionspawnerAI : public ScriptedAI
         SetReactState(REACT_PASSIVE);
     }
 
-    void Reset() {}
+    void Reset() override {}
 };
 
 /*
@@ -861,7 +864,7 @@ npc_cultist_engineer
 */
 struct npc_cultist_engineer : public ScriptedAI
 {
-    npc_cultist_engineer(Creature* creature) : ScriptedAI(creature)
+    explicit npc_cultist_engineer(Creature* creature) : ScriptedAI(creature)
     {
         AddCustomAction(EVENT_CULTIST_CHANNELING, false, [&]()
         {
@@ -886,7 +889,7 @@ struct npc_cultist_engineer : public ScriptedAI
         int32 eT = eventType;
         if (eT == 7166 && miscValue == 0)
         {
-            if (Player* player = dynamic_cast<Player*>(invoker))
+            if (auto* player = dynamic_cast<Player*>(invoker))
             {
                 // Player summons a Shadow of Doom for 1 hour.
                 player->CastSpell(nullptr, SPELL_SUMMON_BOSS, TRIGGERED_OLD_TRIGGERED);
@@ -905,14 +908,14 @@ struct npc_cultist_engineer : public ScriptedAI
 
 struct SummonBoss : public SpellScript
 {
-    virtual void OnSummon(Spell* spell, Creature* summon) const override
+    void OnSummon(Spell* spell, Creature* summon) const override
     {
         Unit* caster = spell->GetCaster();
         summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PLAYER);
         summon->SetFacingToObject(caster);
         summon->AI()->SendAIEvent(AI_EVENT_CUSTOM_A, caster, summon, NPC_SHADOW_OF_DOOM);
         if (caster->IsPlayer())
-            static_cast<Player*>(caster)->DestroyItemCount(ITEM_NECROTIC_RUNE, 8, true);
+            dynamic_cast<Player*>(caster)->DestroyItemCount(ITEM_NECROTIC_RUNE, 8, true);
     }
 };
 
@@ -922,7 +925,7 @@ Notes: Shard Minions, Rares and Shadow of Doom.
 */
 struct ScourgeMinion : public CombatAI
 {
-    ScourgeMinion(Creature* creature) : CombatAI(creature, 999)
+    explicit ScourgeMinion(Creature* creature) : CombatAI(creature, 999)
     {
         switch (m_creature->GetEntry())
         {
@@ -1035,6 +1038,8 @@ struct ScourgeMinion : public CombatAI
                 ResetCombatAction(EVENT_MINION_FLAMESHOCKERS_TOUCH, urand(30000, 45000));
                 break;
             }
+            default:
+                break;
         }
     }
 
@@ -1057,7 +1062,7 @@ struct PallidHorrorAI : public CombatAI
     std::set<ObjectGuid> m_flameshockers;
     std::unordered_map<ObjectGuid, uint32> m_flameshockFollowers;
 
-    PallidHorrorAI(Creature* creature) : CombatAI(creature, 999)
+    explicit PallidHorrorAI(Creature* creature) : CombatAI(creature, 999)
     {
         AddCustomAction(25, 2500u, [&]() // Hacky solution for flameshockers to remain in formation
         {
@@ -1067,7 +1072,7 @@ struct PallidHorrorAI : public CombatAI
                 {
                     if (!f->IsInCombat() && f->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE)
                     {
-                        float angle = (float(follower.second) * (M_PI / (m_flameshockFollowers.size() / static_cast<float>(2)))) + m_creature->GetOrientation();
+                        float angle = (float(follower.second) * ((float)M_PI / (float(m_flameshockFollowers.size()) / 2.f))) + m_creature->GetOrientation();
                         f->GetMotionMaster()->Clear(true, true);
                         f->GetMotionMaster()->MoveFollow(m_creature, 2.5f, angle);
                     }
@@ -1083,11 +1088,12 @@ struct PallidHorrorAI : public CombatAI
             {
                 if (Creature* pFlameshocker = m_creature->SummonCreature(NPC_FLAMESHOCKER, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0.0f, TEMPSPAWN_TIMED_OOC_OR_CORPSE_DESPAWN, HOUR * IN_MILLISECONDS, true))
                 {
-                    float angle = (float(i) * (M_PI / (amount / static_cast<float>(2)))) + m_creature->GetOrientation();
+                    float angle = (float(i) * ((float)M_PI / (float(amount) / 2.f))) + m_creature->GetOrientation();
                     //pFlameshocker->JoinCreatureGroup(m_creature, 5.0f, angle - M_PI, OPTION_FORMATION_MOVE); // Perfect Circle around the Pallid.
                     pFlameshocker->GetMotionMaster()->Clear(true, true);
                     pFlameshocker->GetMotionMaster()->MoveFollow(m_creature, 2.5f, angle);
                     pFlameshocker->CastSpell(pFlameshocker, SPELL_MINION_SPAWN_IN, TRIGGERED_OLD_TRIGGERED);
+                    pFlameshocker->SetWalk(false);
                     m_flameshockers.insert(pFlameshocker->GetObjectGuid());
                     m_flameshockFollowers.insert(std::pair<ObjectGuid, uint32>(pFlameshocker->GetObjectGuid(), i));
                 }
@@ -1101,12 +1107,37 @@ struct PallidHorrorAI : public CombatAI
         m_creature->GetMap()->SetWeather(m_creature->GetZoneId(), WEATHER_TYPE_STORM, 0.25f, true);
     }
 
+    void AddAuraOfFear()
+    {
+        auto const* spellInfo = sSpellTemplate.LookupEntry<SpellEntry>(SPELL_AURA_OF_FEAR);
+        SpellAuraHolder* holder = CreateSpellAuraHolder(spellInfo, m_creature, m_creature);
+        for (uint32 i = 0; i < MAX_EFFECT_INDEX; ++i)
+        {
+            uint8 eff = spellInfo->Effect[i];
+            if (eff >= MAX_SPELL_EFFECTS)
+                continue;
+            if (IsAreaAuraEffect(eff)           ||
+                eff == SPELL_EFFECT_APPLY_AURA  ||
+                eff == SPELL_EFFECT_PERSISTENT_AREA_AURA)
+            {
+                int32 basePoints = spellInfo->CalculateSimpleValue(SpellEffectIndex(i));
+                int32 damage = basePoints;
+                Aura* aur = CreateAura(spellInfo, SpellEffectIndex(i), &damage, &basePoints, holder, m_creature);
+                holder->AddAura(aur, SpellEffectIndex(i));
+            }
+        }
+        if (!m_creature->AddSpellAuraHolder(holder))
+            delete holder;
+    }
+
     void Reset() override
     {
         CombatAI::Reset();
         //m_creature->AddAura(SPELL_AURA_OF_FEAR);
-        m_creature->CastSpell(m_creature, SPELL_AURA_OF_FEAR, TRIGGERED_OLD_TRIGGERED);
+        //m_creature->CastSpell(m_creature, SPELL_AURA_OF_FEAR, TRIGGERED_OLD_TRIGGERED);
+        AddAuraOfFear();
         ResetTimer(25, 0);
+        m_creature->SetWalk(false);
     }
 
     void MoveInLineOfSight(Unit* pWho) override
@@ -1209,6 +1240,8 @@ struct PallidHorrorAI : public CombatAI
                 ResetCombatAction(EVENT_PALLID_SUMMON_FLAMESHOCKER, 2000);
                 break;
             }
+            default:
+                break;
         }
     }
 };

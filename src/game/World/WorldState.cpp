@@ -1733,7 +1733,7 @@ void WorldState::StartNewInvasion(uint32 zoneId)
     }
 
     if (mapPtr)
-        SummonMouth(mapPtr, zone, zone.mouth[0]);
+        SummonMouth(mapPtr, zone, zone.mouth[0], true);
 }
 
 void WorldState::StartNewCityAttack(uint32 zoneId)
@@ -1791,12 +1791,12 @@ bool WorldState::ResumeInvasion(ScourgeInvasionData::InvasionZone& zone)
         return false;
     }
 
-    SummonMouth(mapPtr, zone, zone.mouth[0]);
+    SummonMouth(mapPtr, zone, zone.mouth[0], false);
 
     return true;
 }
 
-bool WorldState::SummonMouth(Map* map, ScourgeInvasionData::InvasionZone& zone, Position position)
+bool WorldState::SummonMouth(Map* map, ScourgeInvasionData::InvasionZone& zone, Position position, bool newInvasion)
 {
     AddPendingInvasion(zone.zoneId);
     map->GetMessager().AddMessage([=](Map* map)
@@ -1811,7 +1811,8 @@ bool WorldState::SummonMouth(Map* map, ScourgeInvasionData::InvasionZone& zone, 
         {
             mouth->AI()->SendAIEvent(AI_EVENT_CUSTOM_A, mouth, mouth, EVENT_MOUTH_OF_KELTHUZAD_ZONE_START);
             sWorldState.SetMouthGuid(zone.zoneId, mouth->GetObjectGuid());
-            sWorldState.SetSIRemaining(SIRemaining(zone.remainingVar), zone.necroAmount);
+            if (newInvasion)
+                sWorldState.SetSIRemaining(SIRemaining(zone.remainingVar), zone.necroAmount);
         }
         sWorldState.RemovePendingInvasion(zone.zoneId);
     });

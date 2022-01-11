@@ -269,6 +269,9 @@ uint32 GetFindersAmount(Creature* shard)
 /*
 Circle
 */
+
+std::map<uint32, std::vector<ObjectGuid>> CirclePositions;
+
 class GoCircle : public GameObjectAI
 {
     public:
@@ -276,6 +279,20 @@ class GoCircle : public GameObjectAI
         {
             //m_go->CastSpell(m_go, SPELL_CREATE_CRYSTAL, true);
             m_go->CastSpell(nullptr, nullptr, SPELL_CREATE_CRYSTAL, TRIGGERED_OLD_TRIGGERED);
+            if(CirclePositions.empty() || CirclePositions.find(m_go->GetZoneId()) == CirclePositions.end())
+            {
+                std::vector<ObjectGuid> zoneMap;
+                zoneMap.push_back(m_go->GetObjectGuid());
+                CirclePositions.emplace(m_go->GetZoneId(), zoneMap);
+            }
+            else
+            {
+                for(auto& a : CirclePositions)
+                {
+                    if(a.first == m_go->GetZoneId())
+                        a.second.push_back(m_go->GetObjectGuid());
+                }
+            }
         }
 };
 
@@ -371,10 +388,30 @@ struct NecropolisAI : public ScriptedAI
 /*
 Necropolis Health
 */
+
+//std::map<uint32, std::map<ObjectGuid, Position>> NecropolisPositions;
+std::map<uint32, std::vector<ObjectGuid>> NecropolisPositions;
+
 struct NecropolisHealthAI : public ScriptedAI
 {
+    std::vector<ObjectGuid> ownedCircles;
+    bool m_firstSpawn = true;
     NecropolisHealthAI(Creature* creature) : ScriptedAI(creature)
     {
+        if (NecropolisPositions.empty() || NecropolisPositions.find(m_creature->GetZoneId()) == NecropolisPositions.end())
+        {
+            std::vector<ObjectGuid> zoneMap;
+            zoneMap.push_back(m_creature->GetObjectGuid());
+            NecropolisPositions.emplace(m_creature->GetZoneId(), zoneMap);
+        }
+        else
+        {
+            for (auto& a : NecropolisPositions)
+            {
+                if (a.first == m_creature->GetZoneId())
+                    a.second.push_back(m_creature->GetObjectGuid());
+            }
+        }
         AddCustomAction(0, 5000u, [&]()
         {
             if (m_creature->GetHealthPercent() > 99.f)
@@ -391,21 +428,30 @@ struct NecropolisHealthAI : public ScriptedAI
                     }
                 }
 
-                GameObjectList circles;
-                GetGameObjectListWithEntryInGrid(circles, m_creature, GOBJ_SUMMON_CIRCLE, 300.f);
+                if (ownedCircles.size() < 3) {
+                    if (!CirclePositions.empty()) {
+                        auto t_myZone = CirclePositions.find(m_creature->GetZoneId());
+                        if (t_myZone != CirclePositions.end())
+                            for (auto circle: t_myZone->second)
+                                if (auto* t_circle = m_creature->GetMap()->GetCreature(circle))
+                                    if (sqrtf(t_circle->GetPosition().GetDistance(m_creature->GetPosition())) <= 350.f)
+                                        ownedCircles.push_back(circle);
+                    }
 
-                for (GameObject* circle : circles)
-                {
-                    if (circle && !circle->IsSpawned())
-                    {
-                        Creature* shard = GetClosestCreatureWithEntry(circle, NPC_NECROTIC_SHARD, 1.f);
-                        if (shard && shard->IsAlive())
-                        {
-                            circle->SetRespawnTime(0);
-                            circle->Respawn();
+                    for (ObjectGuid circle: ownedCircles) {
+                        if (GameObject *t_circle = m_creature->GetMap()->GetGameObject(circle)) {
+                            if (!t_circle->IsSpawned()) {
+                                Creature *shard = GetClosestCreatureWithEntry(t_circle, NPC_NECROTIC_SHARD, 1.f);
+                                if (m_firstSpawn || shard && shard->IsAlive()) {
+                                    t_circle->SetRespawnTime(0);
+                                    t_circle->Respawn();
+                                    m_firstSpawn = false;
+                                }
+                            }
                         }
                     }
                 }
+
                 for (ScourgeInvasionMisc t_necId : {GOBJ_NECROPOLIS_BIG, GOBJ_NECROPOLIS_HUGE, GOBJ_NECROPOLIS_MEDIUM, GOBJ_NECROPOLIS_SMALL, GOBJ_NECROPOLIS_TINY})
                 {
                     if (GameObject* t_necGo = GetClosestGameObjectWithEntry(m_creature, t_necId, 20.f))
@@ -418,7 +464,7 @@ struct NecropolisHealthAI : public ScriptedAI
                     }
                 }
 
-                ResetTimer(0, 60 * IN_MILLISECONDS);
+                //ResetTimer(0, 60 * IN_MILLISECONDS);
             }
         });
         //m_creature->SetVisibilityModifier(3000.0f);
@@ -606,16 +652,43 @@ struct NecroticShard : public ScriptedAI
         {
             HandleShardMinionSpawnerSmall();
         });
-        AddCustomAction(11, 15000u, [&]() // Check if there are a summoning circle and a necropolis nearby, otherwise despawn
+        AddCustomAction(11, 25000u, [&]() // Check if there are a summoning circle and a necropolis nearby, otherwise despawn
         {
             if (!m_creature)
                 return;
-            if (!GetClosestGameObjectWithEntry(m_creature, GOBJ_SUMMON_CIRCLE, 2.f) || !GetClosestCreatureWithEntry(m_creature, NPC_NECROPOLIS_HEALTH, 300.f))
+
+            bool despawnMe = false;
+
+            if (!GetClosestGameObjectWithEntry(m_creature, GOBJ_SUMMON_CIRCLE, 2.f))
+            {
+                despawnMe = true;
+            }
+
+            if (!despawnMe && !NecropolisPositions.empty())
+            {
+                int8 t_necroNear = 0;
+                if (NecropolisPositions.find(m_creature->GetZoneId()) != NecropolisPositions.end())
+                {
+                    for (auto& t_necropolis: NecropolisPositions[m_creature->GetZoneId()])
+                        if (auto* t_crNecro = m_creature->GetMap()->GetCreature(t_necropolis))
+                            if (t_crNecro && t_crNecro->IsAlive() &&
+                                sqrtf(m_creature->GetPosition().GetDistance(t_crNecro->GetPosition())) <= 350.f)
+                                t_necroNear++;
+                }
+                else
+                    t_necroNear--;
+
+                if(t_necroNear == 0)
+                    despawnMe = true;
+            }
+
+            if (despawnMe)
             {
                 DespawnEventDoodads(m_creature);
                 m_creature->ForcedDespawn();
                 return;
             }
+
             ResetTimer(11, 60000u);
         });
         //m_creature->SetVisibilityModifier(3000.0f);

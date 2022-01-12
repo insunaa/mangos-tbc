@@ -396,15 +396,14 @@ struct NecropolisHealthAI : public ScriptedAI
 
                 std::vector<ObjectGuid> circles;
 
-                auto continent = dynamic_cast<ScriptedInstance*>(m_creature->GetMap()->GetInstanceData());
-                if (continent)
+                if (auto* continent = dynamic_cast<ScriptedInstance*>(m_creature->GetMap()->GetInstanceData()))
                     continent->GetGameObjectGuidVectorFromStorage(GOBJ_SUMMON_CIRCLE, circles);
 
                 if (ownedCircles.size() < 3)
                 {
                     if (!circles.empty())
                     {
-                        for (auto circle : circles)
+                        for (ObjectGuid circle : circles)
                             if (auto* t_circle = m_creature->GetMap()->GetGameObject(circle))
                                 if (t_circle->GetZoneId() == m_creature->GetZoneId())
                                     if (sqrtf(t_circle->GetPosition().GetDistance(m_creature->GetPosition())) <= 350.f)
@@ -425,7 +424,7 @@ struct NecropolisHealthAI : public ScriptedAI
                     }
                 }
 
-                for (auto circle: ownedCircles)
+                for (ObjectGuid circle: ownedCircles)
                 {
                     if (auto *t_circle = m_creature->GetMap()->GetGameObject(circle))
                     {
@@ -656,22 +655,18 @@ struct NecroticShard : public ScriptedAI
 
             std::vector<ObjectGuid> necropoli;
 
-            auto continent = dynamic_cast<ScriptedInstance*>(m_creature->GetMap()->GetInstanceData());
-            if (continent)
+            if (auto* continent = dynamic_cast<ScriptedInstance*>(m_creature->GetMap()->GetInstanceData()))
                 continent->GetCreatureGuidVectorFromStorage(NPC_NECROPOLIS_HEALTH, necropoli);
 
             if (!despawnMe && !necropoli.empty())
             {
                 int8 t_necroNear = 0;
-                for (auto necropolis : necropoli)
-                    if (auto* t_crNecro = m_creature->GetMap()->GetCreature(necropolis)) {
-                        if (t_crNecro->GetZoneId() == m_creature->GetZoneId()) {
-                            if (t_crNecro && t_crNecro->IsAlive() &&
-                                sqrtf(t_crNecro->GetPosition().GetDistance(m_creature->GetPosition())) <= 350.f) {
+                for (ObjectGuid necropolis : necropoli)
+                    if (auto* t_crNecro = m_creature->GetMap()->GetCreature(necropolis))
+                        if (t_crNecro->GetZoneId() == m_creature->GetZoneId())
+                            if (t_crNecro && t_crNecro->IsAlive()
+                            && sqrtf(t_crNecro->GetPosition().GetDistance(m_creature->GetPosition())) <= 350.f)
                                 t_necroNear++;
-                            }
-                        }
-                    }
 
                 if (t_necroNear == 0)
                 {

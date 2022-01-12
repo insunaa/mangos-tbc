@@ -397,7 +397,8 @@ struct NecropolisHealthAI : public ScriptedAI
                 std::vector<ObjectGuid> circles;
 
                 auto continent = dynamic_cast<ScriptedInstance*>(m_creature->GetMap()->GetInstanceData());
-                continent->GetGameObjectGuidVectorFromStorage(GOBJ_SUMMON_CIRCLE, circles);
+                if (continent)
+                    continent->GetGameObjectGuidVectorFromStorage(GOBJ_SUMMON_CIRCLE, circles);
 
                 if (ownedCircles.size() < 3)
                 {
@@ -656,7 +657,8 @@ struct NecroticShard : public ScriptedAI
             std::vector<ObjectGuid> necropoli;
 
             auto continent = dynamic_cast<ScriptedInstance*>(m_creature->GetMap()->GetInstanceData());
-            continent->GetCreatureGuidVectorFromStorage(NPC_NECROPOLIS_HEALTH, necropoli);
+            if (continent)
+                continent->GetCreatureGuidVectorFromStorage(NPC_NECROPOLIS_HEALTH, necropoli);
 
 
             if (!despawnMe && !necropoli.empty())

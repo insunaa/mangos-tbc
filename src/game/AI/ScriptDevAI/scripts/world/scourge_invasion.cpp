@@ -281,9 +281,7 @@ class GoCircle : public GameObjectAI
             m_go->CastSpell(nullptr, nullptr, SPELL_CREATE_CRYSTAL, TRIGGERED_OLD_TRIGGERED);
             if(CirclePositions.empty() || CirclePositions.find(m_go->GetZoneId()) == CirclePositions.end())
             {
-                std::set<ObjectGuid> zoneSet;
-                zoneSet.insert(m_go->GetObjectGuid());
-                CirclePositions.emplace(m_go->GetZoneId(), std::move(zoneSet));
+                CirclePositions.emplace(m_go->GetZoneId(), std::set<ObjectGuid>({ m_go->GetObjectGuid() }));
             }
             else
             {
@@ -399,9 +397,7 @@ struct NecropolisHealthAI : public ScriptedAI
     {
         if (NecropolisPositions.empty() || NecropolisPositions.find(m_creature->GetZoneId()) == NecropolisPositions.end())
         {
-            std::set<ObjectGuid> zoneSet;
-            zoneSet.insert(m_creature->GetObjectGuid());
-            NecropolisPositions.emplace(m_creature->GetZoneId(), std::move(zoneSet));
+            NecropolisPositions.emplace(m_creature->GetZoneId(), std::set<ObjectGuid>( { m_creature->GetObjectGuid() }));
         }
         else
         {

@@ -182,12 +182,12 @@ void SummonCultists(Unit* shard)
     {
         for (int i = 0; i < 4; ++i)
         {
-            float angle = (float(i) * ((float)M_PI / 2.f)) + gameObject->GetOrientation();
+            float angle = (float(i) * (M_PI_F / 2.f)) + gameObject->GetOrientation();
             float x = gameObject->GetPositionX() + 6.95f * std::cos(angle);
             float y = gameObject->GetPositionY() + 6.75f * std::sin(angle);
             float z = gameObject->GetPositionZ() + 5.0f;
             shard->UpdateGroundPositionZ(x, y, z);
-            if (Creature* cultist = shard->SummonCreature(NPC_CULTIST_ENGINEER, x, y, z, angle - (float)M_PI, TEMPSPAWN_TIMED_OR_DEAD_DESPAWN, IN_MILLISECONDS * HOUR, true))
+            if (Creature* cultist = shard->SummonCreature(NPC_CULTIST_ENGINEER, x, y, z, angle - M_PI_F, TEMPSPAWN_TIMED_OR_DEAD_DESPAWN, IN_MILLISECONDS * HOUR, true))
                 cultist->AI()->SendAIEvent(AI_EVENT_CUSTOM_A, shard, cultist, NPC_CULTIST_ENGINEER);
         }
     }
@@ -281,9 +281,9 @@ class GoCircle : public GameObjectAI
             m_go->CastSpell(nullptr, nullptr, SPELL_CREATE_CRYSTAL, TRIGGERED_OLD_TRIGGERED);
             if(CirclePositions.empty() || CirclePositions.find(m_go->GetZoneId()) == CirclePositions.end())
             {
-                std::set<ObjectGuid> zoneMap;
-                zoneMap.insert(m_go->GetObjectGuid());
-                CirclePositions.emplace(m_go->GetZoneId(), zoneMap);
+                std::set<ObjectGuid> zoneSet;
+                zoneSet.insert(m_go->GetObjectGuid());
+                CirclePositions.emplace(m_go->GetZoneId(), std::move(zoneSet));
             }
             else
             {
@@ -399,9 +399,9 @@ struct NecropolisHealthAI : public ScriptedAI
     {
         if (NecropolisPositions.empty() || NecropolisPositions.find(m_creature->GetZoneId()) == NecropolisPositions.end())
         {
-            std::set<ObjectGuid> zoneMap;
-            zoneMap.insert(m_creature->GetObjectGuid());
-            NecropolisPositions.emplace(m_creature->GetZoneId(), zoneMap);
+            std::set<ObjectGuid> zoneSet;
+            zoneSet.insert(m_creature->GetObjectGuid());
+            NecropolisPositions.emplace(m_creature->GetZoneId(), std::move(zoneSet));
         }
         else
         {

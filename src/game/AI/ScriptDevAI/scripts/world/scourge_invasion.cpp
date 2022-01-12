@@ -660,7 +660,6 @@ struct NecroticShard : public ScriptedAI
             if (continent)
                 continent->GetCreatureGuidVectorFromStorage(NPC_NECROPOLIS_HEALTH, necropoli);
 
-
             if (!despawnMe && !necropoli.empty())
             {
                 int8 t_necroNear = 0;

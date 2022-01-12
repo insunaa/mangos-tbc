@@ -270,8 +270,6 @@ uint32 GetFindersAmount(Creature* shard)
 Circle
 */
 
-std::map<uint32, std::set<ObjectGuid>> CirclePositions;
-
 class GoCircle : public GameObjectAI
 {
     public:
@@ -279,18 +277,6 @@ class GoCircle : public GameObjectAI
         {
             //m_go->CastSpell(m_go, SPELL_CREATE_CRYSTAL, true);
             m_go->CastSpell(nullptr, nullptr, SPELL_CREATE_CRYSTAL, TRIGGERED_OLD_TRIGGERED);
-            if(CirclePositions.empty() || CirclePositions.find(m_go->GetZoneId()) == CirclePositions.end())
-            {
-                CirclePositions.emplace(m_go->GetZoneId(), std::set<ObjectGuid>({ m_go->GetObjectGuid() }));
-            }
-            else
-            {
-                for(auto& a : CirclePositions)
-                {
-                    if(a.first == m_go->GetZoneId())
-                        a.second.insert(m_go->GetObjectGuid());
-                }
-            }
         }
 };
 
@@ -386,27 +372,12 @@ struct NecropolisAI : public ScriptedAI
 /*
 Necropolis Health
 */
-
-std::map<uint32, std::set<ObjectGuid>> NecropolisPositions;
-
 struct NecropolisHealthAI : public ScriptedAI
 {
     std::set<ObjectGuid> ownedCircles;
     bool m_firstSpawn = true;
     NecropolisHealthAI(Creature* creature) : ScriptedAI(creature)
     {
-        if (NecropolisPositions.empty() || NecropolisPositions.find(m_creature->GetZoneId()) == NecropolisPositions.end())
-        {
-            NecropolisPositions.emplace(m_creature->GetZoneId(), std::set<ObjectGuid>( { m_creature->GetObjectGuid() }));
-        }
-        else
-        {
-            for (auto& a : NecropolisPositions)
-            {
-                if (a.first == m_creature->GetZoneId())
-                    a.second.insert(m_creature->GetObjectGuid());
-            }
-        }
         AddCustomAction(0, 5000u, [&]()
         {
             if (m_creature->GetHealthPercent() > 99.f)
@@ -423,14 +394,18 @@ struct NecropolisHealthAI : public ScriptedAI
                     }
                 }
 
+                std::vector<ObjectGuid> circles;
+
+                auto continent = dynamic_cast<ScriptedInstance*>(m_creature->GetMap()->GetInstanceData());
+                continent->GetGameObjectGuidVectorFromStorage(GOBJ_SUMMON_CIRCLE, circles);
+
                 if (ownedCircles.size() < 3)
                 {
-                    if (!CirclePositions.empty())
+                    if (!circles.empty())
                     {
-                        auto t_myZone = CirclePositions.find(m_creature->GetZoneId());
-                        if (t_myZone != CirclePositions.end())
-                            for (auto circle: t_myZone->second)
-                                if (auto *t_circle = m_creature->GetMap()->GetGameObject(circle))
+                        for (auto circle : circles)
+                            if (auto* t_circle = m_creature->GetMap()->GetGameObject(circle))
+                                if (t_circle->GetZoneId() == m_creature->GetZoneId())
                                     if (sqrtf(t_circle->GetPosition().GetDistance(m_creature->GetPosition())) <= 350.f)
                                         ownedCircles.insert(circle);
 
@@ -678,22 +653,29 @@ struct NecroticShard : public ScriptedAI
                 despawnMe = true;
             }
 
-            if (!despawnMe && !NecropolisPositions.empty())
+            std::vector<ObjectGuid> necropoli;
+
+            auto continent = dynamic_cast<ScriptedInstance*>(m_creature->GetMap()->GetInstanceData());
+            continent->GetCreatureGuidVectorFromStorage(NPC_NECROPOLIS_HEALTH, necropoli);
+
+
+            if (!despawnMe && !necropoli.empty())
             {
                 int8 t_necroNear = 0;
-                if (NecropolisPositions.find(m_creature->GetZoneId()) != NecropolisPositions.end())
-                {
-                    for (auto t_necropolis: NecropolisPositions[m_creature->GetZoneId()])
-                        if (auto* t_crNecro = m_creature->GetMap()->GetCreature(t_necropolis))
+                for (auto necropolis : necropoli)
+                    if (auto* t_crNecro = m_creature->GetMap()->GetCreature(necropolis)) {
+                        if (t_crNecro->GetZoneId() == m_creature->GetZoneId()) {
                             if (t_crNecro && t_crNecro->IsAlive() &&
-                                sqrtf(m_creature->GetPosition().GetDistance(t_crNecro->GetPosition())) <= 350.f)
+                                sqrtf(t_crNecro->GetPosition().GetDistance(m_creature->GetPosition())) <= 350.f) {
                                 t_necroNear++;
-                }
-                else
-                    t_necroNear--;
+                            }
+                        }
+                    }
 
-                if(t_necroNear == 0)
+                if (t_necroNear == 0)
+                {
                     despawnMe = true;
+                }
             }
 
             if (despawnMe)
@@ -974,7 +956,7 @@ struct npc_cultist_engineer : public ScriptedAI
         int32 eT = eventType;
         if (eT == 7166 && miscValue == 0)
         {
-            if (auto* player = dynamic_cast<Player*>(invoker))
+            if (Player* player = dynamic_cast<Player*>(invoker))
             {
                 // Player summons a Shadow of Doom for 1 hour.
                 player->CastSpell(nullptr, SPELL_SUMMON_BOSS, TRIGGERED_OLD_TRIGGERED);

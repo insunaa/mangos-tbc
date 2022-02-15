@@ -1093,11 +1093,11 @@ enum Opcodes
     SMSG_REFER_A_FRIEND_FAILURE                     = 0x420,
     SMSG_SPLINE_MOVE_SET_FLYING                     = 0x421,
     SMSG_SPLINE_MOVE_UNSET_FLYING                   = 0x422,
-    SMSG_SUMMON_CANCEL                              = 0x423
+    SMSG_SUMMON_CANCEL                              = 0x423,
 };
 
 // Don't forget to change this value and add opcode name to Opcodes.cpp when you add new opcode!
-#define NUM_MSG_TYPES 0x424
+#define NUM_MSG_TYPES 0x486
 
 /// Player state
 enum SessionStatus

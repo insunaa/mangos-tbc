@@ -6,5 +6,7 @@ zlib_dep = dependency('zlib')
 openssl_dep = dependency('openssl')
 mariadb_dep = dependency('mariadb')
 
+add_global_arguments('-DSYSCONFDIR="../etc/"', language: 'cpp')
+
 subdir('dep')
 subdir('src')

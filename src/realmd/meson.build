@@ -1,0 +1,17 @@
+realmd_sources = [
+    'AuthCodes.h',
+    'AuthSocket.cpp',
+    'AuthSocket.h',
+    'Main.cpp',
+    'RealmList.cpp',
+    'RealmList.h'
+]
+
+realmd_inc = include_directories('../shared', '../game', '../framework', '../../dep/include/utf8cpp', '../../dep/include/gsoap')
+
+executable('realmd',
+            realmd_sources,
+            link_with: [sharedlib],
+            include_directories: realmd_inc,
+            dependencies: [boost_dep, mariadb_dep, zlib_dep]
+)

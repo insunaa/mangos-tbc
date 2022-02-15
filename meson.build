@@ -7,6 +7,7 @@ openssl_dep = dependency('openssl')
 mariadb_dep = dependency('mariadb')
 
 add_global_arguments('-DSYSCONFDIR="../etc/"', language: 'cpp')
+add_global_arguments('-DBUILD_SCRIPTDEV=1', language: 'cpp')
 
 subdir('dep')
 subdir('src')

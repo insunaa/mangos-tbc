@@ -22,5 +22,6 @@ executable('mangosd',
             mangosd_sources,
             link_with: [sharedlib, gamelib, gsoaplib],
             include_directories: mangosd_inc,
-            dependencies: [boost_dep, mariadb_dep, zlib_dep]
+            dependencies: [boost_dep, mariadb_dep, zlib_dep],
+            cpp_pch: '../game/pchdef.h'
 )

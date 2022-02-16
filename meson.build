@@ -1,5 +1,9 @@
 project('CMaNGOS_TBC', 'cpp',
-    default_options : ['cpp_std=c++17'])
+  default_options : ['cpp_std=c++17'])
+
+if build_machine.system() == 'windows'
+  error('Windows is currently not supported through Meson. Please use CMake instead')
+endif
 
 boost_dep = dependency('boost', version: '>=1.66.0', modules: ['thread', 'program_options', 'system', 'filesystem'], static: true)
 zlib_dep = dependency('zlib', static: true)
@@ -7,25 +11,6 @@ openssl_dep = dependency('openssl', version: '>=1.1.0')
 mariadb_dep = dependency('mariadb', required: false)
 mysql_dep = dependency('mysql', required: false)
 postgresql_dep = dependency('postgresql', required: false)
-
-own_zlib = false
-
-if not zlib_dep.found()
-  zlib_dep = cxx.find_library('zlib')
-endif
-if not zlib_dep.found()
-  zlib_dep = declare_dependency(link_with: 'zlib', include_directories: 'dep/src/zlib')
-  own_zlib = true
-endif
-if not openssl_dep.found()
-  openssl_dep = cxx.find_library('openssl')
-endif
-
-if not mariadb_dep.found() and not mysql_dep.found() and not postgresql_dep.found()
-  mariadb_dep = cxx.find_library('mariadb')
-  mysql_dep = cxx.find_library('mysql')
-  postgresql_dep = cxx.find_library('postgresql')
-endif
 
 if not mariadb_dep.found() and not mysql_dep.found() and not postgresql_dep.found()
   error('Either MySQL or MariaDB are required to build CMaNGOS')
@@ -89,10 +74,6 @@ endif
 
 if get_option('BUILD_GIT_ID')
   subdir('contrib/git_id')
-endif
-
-if own_zlib
-  subdir('dep/src/zlib')
 endif
 
 subdir('dep')

@@ -8,8 +8,14 @@ mariadb_dep = dependency('mariadb', required: false)
 mysql_dep = dependency('mysql', required: false)
 postgresql_dep = dependency('postgresql', required: false)
 
+own_zlib = false
+
 if not zlib_dep.found()
   zlib_dep = cxx.find_library('zlib')
+endif
+if not zlib_dep.found()
+  zlib_dep = declare_dependency(link_with: 'zlib', include_directories: 'dep/src/zlib')
+  own_zlib = true
 endif
 if not openssl_dep.found()
   openssl_dep = cxx.find_library('openssl')
@@ -83,6 +89,10 @@ endif
 
 if get_option('BUILD_GIT_ID')
   subdir('contrib/git_id')
+endif
+
+if own_zlib
+  subdir('dep/src/zlib')
 endif
 
 subdir('dep')

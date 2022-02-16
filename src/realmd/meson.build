@@ -14,6 +14,8 @@ executable('realmd',
             realmd_sources,
             link_with: [sharedlib],
             include_directories: realmd_inc,
-            dependencies: [boost_dep, mariadb_dep, zlib_dep, mysql_dep, postgresql_dep]
+            dependencies: [boost_dep, mariadb_dep, zlib_dep, mysql_dep, postgresql_dep],
+            install: true
 )
+install_data('realmd.conf.dist.in', rename: 'realmd.conf.dist', install_dir: 'etc')
 endif

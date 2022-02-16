@@ -861,10 +861,18 @@ endif
 
 if get_option('BUILD_PLAYERBOT')
   game_sources = [game_sources, playerbot_sources]
+  install_data('PlayerBot/playerbot.conf.dist.in', rename: 'playerbot.conf.dist', install_dir: 'etc')
 endif
 
-if get_option('USE_ANTICHEAT')
+if not get_option('USE_ANTICHEAT')
   game_sources = [game_sources, './Anticheat/Anticheat.cpp']
+else
+  install_data('Anticheat/module/anticheat.conf.dist.in', rename: 'anticheat.conf.dist', install_dir: 'etc')
+  install_subdir('Anticheat/module/warden_modules', install_dir : 'bin') # mydir subtree -> include/mydir
+endif
+
+if get_option('BUILD_AHBOT')
+  install_data('AuctionHouseBot/ahbot.conf.dist.in', rename: 'ahbot.conf.dist', install_dir: 'etc')
 endif
 
 if not get_option('PCH')

@@ -8,6 +8,19 @@ mariadb_dep = dependency('mariadb', required: false)
 mysql_dep = dependency('mysql', required: false)
 postgresql_dep = dependency('postgresql', required: false)
 
+if not zlib_dep.found()
+  zlib_dep = cxx.find_library('zlib')
+endif
+if not openssl_dep.found()
+  openssl_dep = cxx.find_library('openssl')
+endif
+
+if not mariadb_dep.found() and not mysql_dep.found() and not postgresql_dep.found()
+  mariadb_dep = cxx.find_library('mariadb')
+  mysql_dep = cxx.find_library('mysql')
+  postgresql_dep = cxx.find_library('postgresql')
+endif
+
 if not mariadb_dep.found() and not mysql_dep.found() and not postgresql_dep.found()
   error('Either MySQL or MariaDB are required to build CMaNGOS')
 else

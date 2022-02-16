@@ -5,6 +5,8 @@ if build_machine.system() == 'windows'
   error('Windows is currently not supported through Meson. Please use CMake instead')
 endif
 
+_linker_args = ''
+
 boost_dep = dependency('boost', version: '>=1.66.0', modules: ['thread', 'program_options', 'system', 'filesystem'], static: true)
 zlib_dep = dependency('zlib', static: true)
 openssl_dep = dependency('openssl', version: '>=1.1.0')
@@ -38,6 +40,16 @@ endif
 
 if build_machine.system() == 'linux'
   add_global_arguments('-DSYSCONFDIR="../etc/"', language: 'cpp')
+  if get_option('EXPERIMENTAL_LTO')
+    if meson.get_compiler('cpp').get_id() == 'clang'
+      add_global_arguments('-flto=thin', '-flto-jobs=all', '-fuse-ld=lld', language: 'cpp')
+      _linker_args = '-fuse-ld=lld'
+    elif meson.get_compiler('cpp').get_id() == 'gcc'
+      add_global_arguments('-flto', language: 'cpp')
+    else
+      warning('LTO not supported')
+    endif
+  endif
 endif
 
 add_global_arguments('-DBOOST_ALL_NO_LIB', language: 'cpp')

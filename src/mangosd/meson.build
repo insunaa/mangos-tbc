@@ -24,6 +24,7 @@ executable('mangosd',
             link_with: [sharedlib, gamelib, gsoaplib],
             include_directories: mangosd_inc,
             dependencies: [boost_dep, mariadb_dep, zlib_dep, mysql_dep, postgresql_dep],
+            link_args: _linker_args,
             install: true
 )
 install_data('mangosd.conf.dist.in', rename: 'mangosd.conf.dist', install_dir: 'etc')

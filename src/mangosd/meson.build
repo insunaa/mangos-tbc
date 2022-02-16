@@ -18,10 +18,11 @@ mangosd_sources = [
 
 mangosd_inc = include_directories('../shared', '../game', '../framework', '../../dep/include/utf8cpp', '../../dep/include/gsoap')
 
+if get_option('BUILD_GAME_SERVER')
 executable('mangosd',
             mangosd_sources,
             link_with: [sharedlib, gamelib, gsoaplib],
             include_directories: mangosd_inc,
-            dependencies: [boost_dep, mariadb_dep, zlib_dep],
-            cpp_pch: '../game/pchdef.h'
+            dependencies: [boost_dep, mariadb_dep, zlib_dep, mysql_dep, postgresql_dep]
 )
+endif

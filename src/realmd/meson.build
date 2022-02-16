@@ -9,9 +9,11 @@ realmd_sources = [
 
 realmd_inc = include_directories('../shared', '../game', '../framework', '../../dep/include/utf8cpp', '../../dep/include/gsoap')
 
+if get_option('BUILD_LOGIN_SERVER')
 executable('realmd',
             realmd_sources,
             link_with: [sharedlib],
             include_directories: realmd_inc,
-            dependencies: [boost_dep, mariadb_dep, zlib_dep]
+            dependencies: [boost_dep, mariadb_dep, zlib_dep, mysql_dep, postgresql_dep]
 )
+endif

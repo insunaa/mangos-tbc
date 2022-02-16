@@ -81,9 +81,12 @@ shared_sources = [
 
 shared_inc = include_directories('../framework', '../../dep/include/gsoap', '../../dep/include/utf8cpp', '../../dep/include', 'Database')
 
+if get_option('BUILD_GAME_SERVER') or get_option('BUILD_LOGIN_SERVER')
 sharedlib = static_library('shared',
                         shared_sources,
                         include_directories: shared_inc,
-                        dependencies: [zlib_dep, boost_dep, mariadb_dep],
+                        dependencies: [zlib_dep, boost_dep, mariadb_dep, mysql_dep, postgresql_dep],
                         link_with: [frameworklib, libutf8cpp],
-                        install : false)
+                        install : false
+)
+endif

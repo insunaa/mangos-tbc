@@ -1,5 +1,5 @@
 movemapgen_args = ''
-movemapgen_args = [movemapgen_args, '-DMMAP_GENERATOR', '-DNO_CORE_FUNCS', '-DNO_vsnprintf']
+movemapgen_args = [movemapgen_args, '-DMMAP_GENERATOR', '-DNO_CORE_FUNCS', '-DNO_vsnprintf', '-DDT_POLYREF64']
 movemapgen_sources = [
   'src/generator.cpp',
   'src/IntermediateValues.h',
@@ -22,6 +22,7 @@ vmaplib = static_library('vmaplib',
                         ['../../src/game/vmap/BIH.cpp', '../../src/game/vmap/VMapManager2.cpp', '../../src/game/vmap/MapTree.cpp', '../../src/game/vmap/TileAssembler.cpp', '../../src/game/vmap/WorldModel.cpp', '../../src/game/vmap/ModelInstance.cpp'],
                         include_directories: include_directories('../../src/framework', '../../src/game', '../../dep/json', '../../dep/g3dlite', '../../src/shared', '../../dep/recastnavigation', '../../dep/recastnavigation/Recast/Include', '../../dep/recastnavigation/Detour/Include', '../../src/game/vmap',),
                         dependencies: [zlib_dep, boost_dep, mariadb_dep, mysql_dep, postgresql_dep],
+                        cpp_args: movemapgen_args,
                         link_with: [g3dlib, detourlib, recastlib, frameworklib, sharedlib, gamelib],
                         install : false
 )

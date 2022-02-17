@@ -19,9 +19,8 @@ detour_sources = [
 
 detour_inc = include_directories('Include')
 
-#add_global_arguments('-DDT_POLYREF64', language: 'cpp')
-
 detourlib = static_library('Detour',
                         detour_sources,
                         include_directories: detour_inc,
+                        cpp_args: recastnav_args,
                         install : false)

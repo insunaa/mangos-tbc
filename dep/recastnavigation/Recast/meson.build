@@ -18,5 +18,6 @@ recast_sources = [
 recastlib = static_library('recast',
                         recast_sources,
                         include_directories: include_directories('Include'),
+                        cpp_args: recastnav_args,
                         install : false
 )

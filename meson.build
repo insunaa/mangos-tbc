@@ -53,8 +53,6 @@ if build_machine.system() == 'linux'
 endif
 
 add_global_arguments('-DBOOST_ALL_NO_LIB', language: 'cpp')
-add_global_arguments('-D__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0', language: 'cpp')
-add_global_arguments('-DDT_POLYREF64', language: 'cpp')
 
 if get_option('BUILD_SCRIPTDEV')
   add_global_arguments('-DBUILD_SCRIPTDEV', language: 'cpp')

@@ -23,8 +23,6 @@ else
     else
       error('PostgreSQL could not be found.')
     endif
-  else
-    add_global_arguments('-DDO_MYSQL', language: 'cpp')
   endif
 endif
 

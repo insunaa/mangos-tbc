@@ -85,7 +85,7 @@ revision_target = vcs_tag(
   fallback       : 'Devel',
   input          : 'meson_revision.h.in',
   output         : 'meson_revision.h.temp',
-  replace_string : '@REVISION_ID@
+  replace_string : '@REVISION_ID@'
 )
 
 actual_rev = vcs_tag(

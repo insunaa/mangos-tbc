@@ -1,4 +1,4 @@
-project('CMaNGOS_TBC', 'cpp',
+project('CMaNGOS_TBC', 'cpp', 'c',
   default_options : ['cpp_std=c++17'])
 
 if build_machine.system() == 'windows'
@@ -91,4 +91,14 @@ endif
 subdir('dep')
 if get_option('BUILD_GAME_SERVER') or get_option('BUILD_LOGIN_SERVER') or ('BUILD_EXTRACTORS')
   subdir('src')
+endif
+
+if get_option('BUILD_EXTRACTORS')
+  extractor_script_file = files('contrib/extractor_scripts/ExtractResources.sh')
+  movemapgen_script_file = files('contrib/extractor_scripts/MoveMapGen.sh')
+  offmesh_file = files('contrib/extractor_scripts/offmesh.txt')
+  subdir('contrib/extractor')
+  subdir('contrib/vmap_extractor')
+  subdir('contrib/vmap_assembler')
+  subdir('contrib/mmap')
 endif

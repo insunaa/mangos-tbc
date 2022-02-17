@@ -1,3 +1,3 @@
-executable('git-id',
+executable('git_id',
             'git_id.cpp',
 )

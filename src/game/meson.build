@@ -602,6 +602,7 @@ scriptdev_sources = [
     './AI/ScriptDevAI/scripts/world/suns_reach_reclamation.cpp',
     './AI/ScriptDevAI/scripts/world/quest_scripts.cpp',
     './AI/ScriptDevAI/scripts/world/item_scripts.cpp',
+    './AI/ScriptDevAI/scripts/world/lunar_festival.cpp',
     './AI/ScriptDevAI/scripts/world/scourge_invasion.cpp',
     './AI/ScriptDevAI/scripts/world/shade_of_the_horseman.cpp',
     './AI/ScriptDevAI/scripts/world/guards.cpp',

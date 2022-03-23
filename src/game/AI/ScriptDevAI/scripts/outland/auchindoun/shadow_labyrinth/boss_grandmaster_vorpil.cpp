@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -26,40 +26,44 @@ EndScriptData */
 
 enum
 {
-    SAY_INTRO                       = -1555028,
-    SAY_AGGRO_1                     = -1555029,
-    SAY_AGGRO_2                     = -1555030,
-    SAY_AGGRO_3                     = -1555031,
-    SAY_HELP                        = -1555032,
-    SAY_SLAY_1                      = -1555033,
-    SAY_SLAY_2                      = -1555034,
-    SAY_DEATH                       = -1555035,
+    SAY_INTRO = -1555028,
+    SAY_AGGRO_1 = -1555029,
+    SAY_AGGRO_2 = -1555030,
+    SAY_AGGRO_3 = -1555031,
+    SAY_HELP = -1555032,
+    SAY_SLAY_1 = -1555033,
+    SAY_SLAY_2 = -1555034,
+    SAY_DEATH = -1555035,
 
-    SPELL_DRAW_SHADOWS              = 33563,                // should trigger spell 33558 which is missing; so we need to hack the teleport
-    SPELL_VOID_PORTAL_A             = 33566,                // spell only summon one unit, but we use it for the visual effect and summon the 4 other portals manual way(only one spell exist)
-    SPELL_SHADOW_BOLT_VOLLEY        = 32963,
-    SPELL_RAIN_OF_FIRE              = 33617,
-    SPELL_RAIN_OF_FIRE_H            = 39363,
-    SPELL_BANISH_H                  = 38791,
-    SPELL_SUMMON_VOID_SUMMONER      = 33927,                // serverside unused currently, summoned trigger 19427 probably handles add spawning
-    SPELL_SUMMON_VOIDWALKER_A       = 33582,                // the void travelers are summond at portal locations according to DB coords
-    SPELL_SUMMON_VOIDWALKER_B       = 33583,
-    SPELL_SUMMON_VOIDWALKER_C       = 33584,
-    SPELL_SUMMON_VOIDWALKER_D       = 33585,
-    SPELL_SUMMON_VOIDWALKER_E       = 33586,
+    SPELL_DRAW_SHADOWS = 33563,  // should trigger spell 33558 which is missing;
+                                 // so we need to hack the teleport
+    SPELL_VOID_PORTAL_A = 33566, // spell only summon one unit, but we use it for the visual effect
+                                 // and summon the 4 other portals manual way(only one spell exist)
+    SPELL_SHADOW_BOLT_VOLLEY = 32963,
+    SPELL_RAIN_OF_FIRE = 33617,
+    SPELL_RAIN_OF_FIRE_H = 39363,
+    SPELL_BANISH_H = 38791,
+    SPELL_SUMMON_VOID_SUMMONER = 33927, // serverside unused currently, summoned trigger 19427 probably
+                                        // handles add spawning
+    SPELL_SUMMON_VOIDWALKER_A = 33582,  // the void travelers are summond at
+                                        // portal locations according to DB coords
+    SPELL_SUMMON_VOIDWALKER_B = 33583,
+    SPELL_SUMMON_VOIDWALKER_C = 33584,
+    SPELL_SUMMON_VOIDWALKER_D = 33585,
+    SPELL_SUMMON_VOIDWALKER_E = 33586,
 
-    SPELL_VOID_PORTAL_VISUAL        = 33569,
+    SPELL_VOID_PORTAL_VISUAL = 33569,
 
-    SPELL_EMPOWERING_SHADOWS        = 33783,
-    SPELL_EMPOWERING_SHADOWS_H      = 39364,
-    SPELL_SHADOW_NOVA               = 33846,
+    SPELL_EMPOWERING_SHADOWS = 33783,
+    SPELL_EMPOWERING_SHADOWS_H = 39364,
+    SPELL_SHADOW_NOVA = 33846,
 
-    SPELL_INSTAKILL_SELF            = 29878,
+    SPELL_INSTAKILL_SELF = 29878,
 
-    NPC_VOID_PORTAL                 = 19224,
-    NPC_VOID_TRAVELER               = 19226,
+    NPC_VOID_PORTAL = 19224,
+    NPC_VOID_TRAVELER = 19226,
 
-    MAX_PORTALS                     = 4
+    MAX_PORTALS = 4
 };
 
 struct SummonLocations
@@ -68,29 +72,28 @@ struct SummonLocations
 };
 
 // Summon locations for the void portals
-static const SummonLocations aVorpilLocation[MAX_PORTALS] =
-{
-    { -282.272f, -240.432f, 12.6839f, 5.58017f},
-    { -261.676f, -297.69f, 17.08701f, 1.36025f},
-    { -291.833f, -268.595f, 12.68254f, 0.047734f},
-    { -303.966f, -255.759f, 12.6834f, 6.01283f}
-};
+static const SummonLocations aVorpilLocation[MAX_PORTALS] = {{-282.272f, -240.432f, 12.6839f, 5.58017f},
+                                                             {-261.676f, -297.69f, 17.08701f, 1.36025f},
+                                                             {-291.833f, -268.595f, 12.68254f, 0.047734f},
+                                                             {-303.966f, -255.759f, 12.6834f, 6.01283f}};
 
-static const float aVorpilTeleportLoc[3] = { -253.06f, -264.02f, 17.08f};
+static const float aVorpilTeleportLoc[3] = {-253.06f, -264.02f, 17.08f};
 
-static const uint32 aTravelerSummonSpells[5] = {SPELL_SUMMON_VOIDWALKER_A, SPELL_SUMMON_VOIDWALKER_B, SPELL_SUMMON_VOIDWALKER_C, SPELL_SUMMON_VOIDWALKER_D, SPELL_SUMMON_VOIDWALKER_E};
+static const uint32 aTravelerSummonSpells[5] = {SPELL_SUMMON_VOIDWALKER_A, SPELL_SUMMON_VOIDWALKER_B,
+                                                SPELL_SUMMON_VOIDWALKER_C, SPELL_SUMMON_VOIDWALKER_D,
+                                                SPELL_SUMMON_VOIDWALKER_E};
 
 struct boss_grandmaster_vorpilAI : public ScriptedAI
 {
-    boss_grandmaster_vorpilAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_grandmaster_vorpilAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (ScriptedInstance *)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         m_bHasDoneIntro = false;
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    ScriptedInstance *m_pInstance;
     bool m_bIsRegularMode;
 
     uint32 m_uiShadowBoltVolleyTimer;
@@ -102,17 +105,18 @@ struct boss_grandmaster_vorpilAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiShadowBoltVolleyTimer   = urand(13000, 19000);
-        m_uiDrawShadowsTimer        = urand(38000, 44000);
-        m_uiRainOfFireTimer         = 0;
-        m_uiVoidTravelerTimer       = 5000;
-        m_uiBanishTimer             = urand(12000, 16000);
+        m_uiShadowBoltVolleyTimer = urand(13000, 19000);
+        m_uiDrawShadowsTimer = urand(38000, 44000);
+        m_uiRainOfFireTimer = 0;
+        m_uiVoidTravelerTimer = 5000;
+        m_uiBanishTimer = urand(12000, 16000);
     }
 
-    void MoveInLineOfSight(Unit* pWho) override
+    void MoveInLineOfSight(Unit *pWho) override
     {
         // not sure about right radius
-        if (!m_bHasDoneIntro && pWho->GetTypeId() == TYPEID_PLAYER && pWho->IsWithinDistInMap(m_creature, 50.0f) && pWho->IsWithinLOSInMap(m_creature))
+        if (!m_bHasDoneIntro && pWho->GetTypeId() == TYPEID_PLAYER && pWho->IsWithinDistInMap(m_creature, 50.0f) &&
+            pWho->IsWithinLOSInMap(m_creature))
         {
             DoScriptText(SAY_INTRO, m_creature);
             m_bHasDoneIntro = true;
@@ -121,13 +125,19 @@ struct boss_grandmaster_vorpilAI : public ScriptedAI
         ScriptedAI::MoveInLineOfSight(pWho);
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         switch (urand(0, 2))
         {
-            case 0: DoScriptText(SAY_AGGRO_1, m_creature); break;
-            case 1: DoScriptText(SAY_AGGRO_2, m_creature); break;
-            case 2: DoScriptText(SAY_AGGRO_3, m_creature); break;
+        case 0:
+            DoScriptText(SAY_AGGRO_1, m_creature);
+            break;
+        case 1:
+            DoScriptText(SAY_AGGRO_2, m_creature);
+            break;
+        case 2:
+            DoScriptText(SAY_AGGRO_3, m_creature);
+            break;
         }
 
         DoCastSpellIfCan(m_creature, SPELL_VOID_PORTAL_A);
@@ -146,12 +156,12 @@ struct boss_grandmaster_vorpilAI : public ScriptedAI
             m_pInstance->SetData(TYPE_VORPIL, FAIL);
     }
 
-    void KilledUnit(Unit* /*pVictim*/) override
+    void KilledUnit(Unit * /*pVictim*/) override
     {
         DoScriptText(urand(0, 1) ? SAY_SLAY_1 : SAY_SLAY_2, m_creature);
     }
 
-    void JustSummoned(Creature* pSummoned) override
+    void JustSummoned(Creature *pSummoned) override
     {
         if (pSummoned->GetEntry() == NPC_VOID_TRAVELER)
             pSummoned->GetMotionMaster()->MoveChase(m_creature, 0.0f, 0.0f);
@@ -160,7 +170,7 @@ struct boss_grandmaster_vorpilAI : public ScriptedAI
             pSummoned->CastSpell(pSummoned, SPELL_VOID_PORTAL_VISUAL, TRIGGERED_OLD_TRIGGERED);
     }
 
-    void JustDied(Unit* /*pKiller*/) override
+    void JustDied(Unit * /*pKiller*/) override
     {
         DoScriptText(SAY_DEATH, m_creature);
 
@@ -168,7 +178,8 @@ struct boss_grandmaster_vorpilAI : public ScriptedAI
             m_pInstance->SetData(TYPE_VORPIL, DONE);
     }
 
-    // Wrapper to teleport all players to the platform - Workaround for missing spell
+    // Wrapper to teleport all players to the platform - Workaround for missing
+    // spell
     void DoTeleportToPlatform()
     {
         m_creature->NearTeleportTo(aVorpilTeleportLoc[0], aVorpilTeleportLoc[1], aVorpilTeleportLoc[2], 0.0f);
@@ -179,11 +190,12 @@ struct boss_grandmaster_vorpilAI : public ScriptedAI
         m_creature->FillGuidsListFromThreatList(vGuids);
         for (GuidVector::const_iterator itr = vGuids.begin(); itr != vGuids.end(); ++itr)
         {
-            Unit* pTarget = m_creature->GetMap()->GetUnit(*itr);
+            Unit *pTarget = m_creature->GetMap()->GetUnit(*itr);
 
             if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
             {
-                pTarget->GetRandomPoint(aVorpilTeleportLoc[0], aVorpilTeleportLoc[1], aVorpilTeleportLoc[2], 4.0f, fX, fY, fZ);
+                pTarget->GetRandomPoint(aVorpilTeleportLoc[0], aVorpilTeleportLoc[1], aVorpilTeleportLoc[2], 4.0f, fX,
+                                        fY, fZ);
                 DoTeleportPlayer(pTarget, fX, fY, fZ, m_creature->GetAngle(fX, fY));
             }
         }
@@ -202,12 +214,13 @@ struct boss_grandmaster_vorpilAI : public ScriptedAI
                 SetCombatMovement(false, true);
                 DoTeleportToPlatform();
 
-                if (DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_RAIN_OF_FIRE : SPELL_RAIN_OF_FIRE_H, CAST_INTERRUPT_PREVIOUS) == CAST_OK)
+                if (DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_RAIN_OF_FIRE : SPELL_RAIN_OF_FIRE_H,
+                                     CAST_INTERRUPT_PREVIOUS) == CAST_OK)
                     m_uiRainOfFireTimer = 0;
 
                 SetCombatMovement(true);
 
-                return;                                     // Nothing more todo after the players had been teleported
+                return; // Nothing more todo after the players had been teleported
             }
             m_uiRainOfFireTimer -= uiDiff;
         }
@@ -225,7 +238,7 @@ struct boss_grandmaster_vorpilAI : public ScriptedAI
             if (DoCastSpellIfCan(m_creature, SPELL_DRAW_SHADOWS) == CAST_OK)
             {
                 m_uiDrawShadowsTimer = urand(36000, 44000);
-                m_uiRainOfFireTimer  = 1000;
+                m_uiRainOfFireTimer = 1000;
             }
         }
         else
@@ -246,7 +259,8 @@ struct boss_grandmaster_vorpilAI : public ScriptedAI
         {
             if (m_uiBanishTimer < uiDiff)
             {
-                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, nullptr, SELECT_FLAG_PLAYER))
+                if (Unit *pTarget =
+                        m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, nullptr, SELECT_FLAG_PLAYER))
                 {
                     if (DoCastSpellIfCan(pTarget, SPELL_BANISH_H) == CAST_OK)
                         m_uiBanishTimer = urand(17000, 23000);
@@ -260,14 +274,14 @@ struct boss_grandmaster_vorpilAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_grandmaster_vorpil(Creature* pCreature)
+UnitAI *GetAI_boss_grandmaster_vorpil(Creature *pCreature)
 {
     return new boss_grandmaster_vorpilAI(pCreature);
 }
 
 struct npc_void_travelerAI : public ScriptedAI
 {
-    npc_void_travelerAI(Creature* pCreature) : ScriptedAI(pCreature)
+    npc_void_travelerAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
@@ -284,20 +298,23 @@ struct npc_void_travelerAI : public ScriptedAI
         m_bHasExploded = false;
     }
 
-    void MoveInLineOfSight(Unit* pWho) override
+    void MoveInLineOfSight(Unit *pWho) override
     {
         if (!m_bHasExploded && pWho->GetEntry() == NPC_VORPIL && pWho->IsWithinDistInMap(m_creature, 3.0f))
         {
             if (DoCastSpellIfCan(nullptr, SPELL_SHADOW_NOVA) == CAST_OK)
             {
-                DoCastSpellIfCan(nullptr, m_bIsRegularMode ? SPELL_EMPOWERING_SHADOWS : SPELL_EMPOWERING_SHADOWS_H, CAST_TRIGGERED);
+                DoCastSpellIfCan(nullptr, m_bIsRegularMode ? SPELL_EMPOWERING_SHADOWS : SPELL_EMPOWERING_SHADOWS_H,
+                                 CAST_TRIGGERED);
                 m_bHasExploded = true;
                 m_uiDeathTimer = 1; // on next update
             }
         }
     }
 
-    void AttackStart(Unit* /*pWho*/) override { }
+    void AttackStart(Unit * /*pWho*/) override
+    {
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -314,14 +331,14 @@ struct npc_void_travelerAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_npc_void_traveler(Creature* pCreature)
+UnitAI *GetAI_npc_void_traveler(Creature *pCreature)
 {
     return new npc_void_travelerAI(pCreature);
 }
 
 void AddSC_boss_grandmaster_vorpil()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_grandmaster_vorpil";
     pNewScript->GetAI = &GetAI_boss_grandmaster_vorpil;
     pNewScript->RegisterSelf();

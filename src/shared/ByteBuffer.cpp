@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +18,7 @@
  */
 
 #include "ByteBuffer.h"
+
 #include "Log.h"
 
 void ByteBufferException::PrintPosError() const
@@ -27,11 +29,11 @@ void ByteBufferException::PrintPosError() const
 
 void ByteBuffer::print_storage() const
 {
-    if (!sLog.HasLogLevelOrHigher(LOG_LVL_DEBUG))   // optimize disabled debug output
+    if (!sLog.HasLogLevelOrHigher(LOG_LVL_DEBUG)) // optimize disabled debug output
         return;
 
     std::ostringstream ss;
-    ss <<  "STORAGE_SIZE: " << size() << "\n";
+    ss << "STORAGE_SIZE: " << size() << "\n";
 
     if (sLog.IsIncludeTime())
         ss << "         ";
@@ -44,11 +46,11 @@ void ByteBuffer::print_storage() const
 
 void ByteBuffer::textlike() const
 {
-    if (!sLog.HasLogLevelOrHigher(LOG_LVL_DEBUG))   // optimize disabled debug output
+    if (!sLog.HasLogLevelOrHigher(LOG_LVL_DEBUG)) // optimize disabled debug output
         return;
 
     std::ostringstream ss;
-    ss <<  "STORAGE_SIZE: " << size() << "\n";
+    ss << "STORAGE_SIZE: " << size() << "\n";
 
     if (sLog.IsIncludeTime())
         ss << "         ";
@@ -61,11 +63,11 @@ void ByteBuffer::textlike() const
 
 void ByteBuffer::hexlike() const
 {
-    if (!sLog.HasLogLevelOrHigher(LOG_LVL_DEBUG))   // optimize disabled debug output
+    if (!sLog.HasLogLevelOrHigher(LOG_LVL_DEBUG)) // optimize disabled debug output
         return;
 
     std::ostringstream ss;
-    ss <<  "STORAGE_SIZE: " << size() << "\n";
+    ss << "STORAGE_SIZE: " << size() << "\n";
 
     if (sLog.IsIncludeTime())
         ss << "         ";

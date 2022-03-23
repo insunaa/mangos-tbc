@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,12 +20,13 @@
 #ifndef MANGOS_CELLIMPL_H
 #define MANGOS_CELLIMPL_H
 
+#include <cmath>
+
 #include "Common.h"
 #include "Grids/Cell.h"
 #include "Maps/Map.h"
-#include <cmath>
 
-inline Cell::Cell(CellPair const& p)
+inline Cell::Cell(CellPair const &p)
 {
     data.Part.grid_x = p.x_coord / MAX_NUMBER_OF_CELLS;
     data.Part.grid_y = p.y_coord / MAX_NUMBER_OF_CELLS;
@@ -42,31 +44,29 @@ inline CellArea Cell::CalculateCellArea(float x, float y, float radius)
         return CellArea(center, center);
     }
 
-    return CellArea
-           (
-               MaNGOS::ComputeCellPair(x - radius, y - radius).normalize(),
-               MaNGOS::ComputeCellPair(x + radius, y + radius).normalize()
-           );
+    return CellArea(MaNGOS::ComputeCellPair(x - radius, y - radius).normalize(),
+                    MaNGOS::ComputeCellPair(x + radius, y + radius).normalize());
 }
 
-template<class T, class CONTAINER>
-inline void
-Cell::Visit(const CellPair& standing_cell, TypeContainerVisitor<T, CONTAINER>& visitor, Map& m, const WorldObject& obj, float radius) const
+template <class T, class CONTAINER>
+inline void Cell::Visit(const CellPair &standing_cell, TypeContainerVisitor<T, CONTAINER> &visitor, Map &m,
+                        const WorldObject &obj, float radius) const
 {
-    Cell::Visit(standing_cell, visitor, m, obj.GetPositionX(), obj.GetPositionY(), radius + obj.GetObjectBoundingRadius());
+    Cell::Visit(standing_cell, visitor, m, obj.GetPositionX(), obj.GetPositionY(),
+                radius + obj.GetObjectBoundingRadius());
 }
 
-
-template<class T, class CONTAINER>
-inline void
-Cell::Visit(const CellPair& standing_cell, TypeContainerVisitor<T, CONTAINER>& visitor, Map& m, float x, float y, float radius) const
+template <class T, class CONTAINER>
+inline void Cell::Visit(const CellPair &standing_cell, TypeContainerVisitor<T, CONTAINER> &visitor, Map &m, float x,
+                        float y, float radius) const
 {
-    if (standing_cell.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || standing_cell.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
+    if (standing_cell.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP ||
+        standing_cell.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
         return;
 
     // no jokes here... Actually placing ASSERT() here was good idea, but
-    // we had some problems with DynamicObjects, which pass radius = 0.0f (DB issue?)
-    // maybe it is better to just return when radius <= 0.0f?
+    // we had some problems with DynamicObjects, which pass radius = 0.0f (DB
+    // issue?) maybe it is better to just return when radius <= 0.0f?
     if (radius <= 0.0f)
     {
         m.Visit(*this, visitor);
@@ -85,12 +85,13 @@ Cell::Visit(const CellPair& standing_cell, TypeContainerVisitor<T, CONTAINER>& v
         return;
     }
 
-    CellPair& begin_cell = area.low_bound;
-    CellPair& end_cell = area.high_bound;
+    CellPair &begin_cell = area.low_bound;
+    CellPair &end_cell = area.high_bound;
     // visit all cells, found in CalculateCellArea()
-    // if radius is known to reach cell area more than 4x4 then we should call optimized VisitCircle
-    // currently this technique works with MAX_NUMBER_OF_CELLS 16 and higher, with lower values
-    // there are nothing to optimize because SIZE_OF_GRID_CELL is too big...
+    // if radius is known to reach cell area more than 4x4 then we should call
+    // optimized VisitCircle currently this technique works with
+    // MAX_NUMBER_OF_CELLS 16 and higher, with lower values there are nothing to
+    // optimize because SIZE_OF_GRID_CELL is too big...
     if (((end_cell.x_coord - begin_cell.x_coord) > 4) && ((end_cell.y_coord - begin_cell.y_coord) > 4))
     {
         VisitCircle(visitor, m, begin_cell, end_cell);
@@ -118,9 +119,9 @@ Cell::Visit(const CellPair& standing_cell, TypeContainerVisitor<T, CONTAINER>& v
     }
 }
 
-template<class T, class CONTAINER>
-inline void
-Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& m, const CellPair& begin_cell, const CellPair& end_cell) const
+template <class T, class CONTAINER>
+inline void Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER> &visitor, Map &m, const CellPair &begin_cell,
+                              const CellPair &end_cell) const
 {
     // here is an algorithm for 'filling' circum-squared octagon
     uint32 x_shift = (uint32)ceilf((end_cell.x_coord - begin_cell.x_coord) * 0.3f - 0.5f);
@@ -155,8 +156,9 @@ Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& m, const Cel
         y_start -= 1;
         for (uint32 y = y_start; y >= y_end; --y)
         {
-            // we visit cells symmetrically from both sides, heading from center to sides and from up to bottom
-            // e.g. filling 2 trapezoids after filling central cell strip...
+            // we visit cells symmetrically from both sides, heading from center
+            // to sides and from up to bottom e.g. filling 2 trapezoids after
+            // filling central cell strip...
             CellPair cell_pair_left(x_start - step, y);
             Cell r_zone_left(cell_pair_left);
             r_zone_left.data.Part.nocreate = data.Part.nocreate;
@@ -171,75 +173,78 @@ Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& m, const Cel
     }
 }
 
-template<class T>
-inline void Cell::VisitGridObjects(const WorldObject* center_obj, T& visitor, float radius, bool dont_load)
+template <class T>
+inline void Cell::VisitGridObjects(const WorldObject *center_obj, T &visitor, float radius, bool dont_load)
 {
     CellPair p(MaNGOS::ComputeCellPair(center_obj->GetPositionX(), center_obj->GetPositionY()));
     Cell cell(p);
     if (dont_load)
         cell.SetNoCreate();
-    TypeContainerVisitor<T, GridTypeMapContainer > gnotifier(visitor);
+    TypeContainerVisitor<T, GridTypeMapContainer> gnotifier(visitor);
     cell.Visit(p, gnotifier, *center_obj->GetMap(), *center_obj, radius);
 }
 
-template<class T>
-inline void Cell::VisitWorldObjects(const WorldObject* center_obj, T& visitor, float radius, bool dont_load)
+template <class T>
+inline void Cell::VisitWorldObjects(const WorldObject *center_obj, T &visitor, float radius, bool dont_load)
 {
     CellPair p(MaNGOS::ComputeCellPair(center_obj->GetPositionX(), center_obj->GetPositionY()));
     Cell cell(p);
     if (dont_load)
         cell.SetNoCreate();
-    TypeContainerVisitor<T, WorldTypeMapContainer > gnotifier(visitor);
+    TypeContainerVisitor<T, WorldTypeMapContainer> gnotifier(visitor);
     cell.Visit(p, gnotifier, *center_obj->GetMap(), *center_obj, radius);
 }
 
-template<class T>
-inline void Cell::VisitAllObjects(const WorldObject* center_obj, T& visitor, float radius, bool dont_load)
+template <class T>
+inline void Cell::VisitAllObjects(const WorldObject *center_obj, T &visitor, float radius, bool dont_load)
 {
-    // The assert below is required for https://github.com/cmangos/mangos-tbc/pull/344 and issue https://github.com/cmangos/issues/issues/2044
-    // A nullptr center_obj was passed as parameter leading to a crash. ToDo investigate why a nullptr came here in the first place.
+    // The assert below is required for
+    // https://github.com/cmangos/mangos-tbc/pull/344 and issue
+    // https://github.com/cmangos/issues/issues/2044 A nullptr center_obj was
+    // passed as parameter leading to a crash. ToDo investigate why a nullptr
+    // came here in the first place.
     MANGOS_ASSERT(center_obj != nullptr);
     CellPair p(MaNGOS::ComputeCellPair(center_obj->GetPositionX(), center_obj->GetPositionY()));
     Cell cell(p);
     if (dont_load)
         cell.SetNoCreate();
-    TypeContainerVisitor<T, GridTypeMapContainer > gnotifier(visitor);
-    TypeContainerVisitor<T, WorldTypeMapContainer > wnotifier(visitor);
+    TypeContainerVisitor<T, GridTypeMapContainer> gnotifier(visitor);
+    TypeContainerVisitor<T, WorldTypeMapContainer> wnotifier(visitor);
     cell.Visit(p, gnotifier, *center_obj->GetMap(), *center_obj, radius);
     cell.Visit(p, wnotifier, *center_obj->GetMap(), *center_obj, radius);
 }
 
-template<class T>
-inline void Cell::VisitGridObjects(float x, float y, Map* map, T& visitor, float radius, bool dont_load)
+template <class T>
+inline void Cell::VisitGridObjects(float x, float y, Map *map, T &visitor, float radius, bool dont_load)
 {
     CellPair p(MaNGOS::ComputeCellPair(x, y));
     Cell cell(p);
     if (dont_load)
         cell.SetNoCreate();
-    TypeContainerVisitor<T, GridTypeMapContainer > gnotifier(visitor);
+    TypeContainerVisitor<T, GridTypeMapContainer> gnotifier(visitor);
     cell.Visit(p, gnotifier, *map, x, y, radius);
 }
 
-template<class T>
-inline void Cell::VisitWorldObjects(float x, float y, Map* map, T& visitor, float radius, bool dont_load)
+template <class T>
+inline void Cell::VisitWorldObjects(float x, float y, Map *map, T &visitor, float radius, bool dont_load)
 {
     CellPair p(MaNGOS::ComputeCellPair(x, y));
     Cell cell(p);
     if (dont_load)
         cell.SetNoCreate();
-    TypeContainerVisitor<T, WorldTypeMapContainer > gnotifier(visitor);
+    TypeContainerVisitor<T, WorldTypeMapContainer> gnotifier(visitor);
     cell.Visit(p, gnotifier, *map, x, y, radius);
 }
 
-template<class T>
-inline void Cell::VisitAllObjects(float x, float y, Map* map, T& visitor, float radius, bool dont_load)
+template <class T>
+inline void Cell::VisitAllObjects(float x, float y, Map *map, T &visitor, float radius, bool dont_load)
 {
     CellPair p(MaNGOS::ComputeCellPair(x, y));
     Cell cell(p);
     if (dont_load)
         cell.SetNoCreate();
-    TypeContainerVisitor<T, GridTypeMapContainer > gnotifier(visitor);
-    TypeContainerVisitor<T, WorldTypeMapContainer > wnotifier(visitor);
+    TypeContainerVisitor<T, GridTypeMapContainer> gnotifier(visitor);
+    TypeContainerVisitor<T, WorldTypeMapContainer> wnotifier(visitor);
     cell.Visit(p, gnotifier, *map, x, y, radius);
     cell.Visit(p, wnotifier, *map, x, y, radius);
 }

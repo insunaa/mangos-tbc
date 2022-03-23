@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -14,14 +14,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "AI/ScriptDevAI/include/sc_common.h"
 #include "world_kalimdor.h"
-#include "AI/ScriptDevAI/scripts/world/world_map_scripts.h"
-#include "World/WorldState.h"
-#include "World/WorldStateDefines.h"
-#include "GameEvents/GameEventMgr.h"
+
+#include "AI/ScriptDevAI/include/sc_common.h"
 #include "AI/ScriptDevAI/scripts/world/brewfest.h"
 #include "AI/ScriptDevAI/scripts/world/scourge_invasion.h"
+#include "AI/ScriptDevAI/scripts/world/world_map_scripts.h"
+#include "GameEvents/GameEventMgr.h"
+#include "World/WorldState.h"
+#include "World/WorldStateDefines.h"
 
 /* *********************************************************
  *                     KALIMDOR
@@ -37,7 +38,10 @@ struct GhostOPlasmEvent
 
 struct world_map_kalimdor : public ScriptedMap
 {
-    world_map_kalimdor(Map* pMap) : ScriptedMap(pMap), m_shadeData({ AREAID_RAZOR_HILL }), m_brewfestEvent(this) { Initialize(); }
+    world_map_kalimdor(Map *pMap) : ScriptedMap(pMap), m_shadeData({AREAID_RAZOR_HILL}), m_brewfestEvent(this)
+    {
+        Initialize();
+    }
 
     uint8 m_uiMurkdeepAdds_KilledAddCount;
     std::vector<GhostOPlasmEvent> m_vGOEvents;
@@ -65,7 +69,7 @@ struct world_map_kalimdor : public ScriptedMap
         m_uiTheramoreMarksmenAlive = 0;
         m_freedSpriteDarter = 0;
         b_isOmenSpellCreditDone = false;
-        for (auto& riftList : m_aElementalRiftGUIDs)
+        for (auto &riftList : m_aElementalRiftGUIDs)
             riftList.clear();
         m_uiDronesTimer = 0;
         memset(&m_encounter, 0, sizeof(m_encounter));
@@ -73,178 +77,200 @@ struct world_map_kalimdor : public ScriptedMap
         m_shadeData.Reset();
     }
 
-    bool CheckConditionCriteriaMeet(Player const* player, uint32 instanceConditionId, WorldObject const* conditionSource, uint32 conditionSourceType) const override
+    bool CheckConditionCriteriaMeet(Player const *player, uint32 instanceConditionId,
+                                    WorldObject const *conditionSource, uint32 conditionSourceType) const override
     {
-        if (instanceConditionId >= INSTANCE_CONDITION_ID_FIRE_BRIGADE_PRACTICE_GOLDSHIRE && instanceConditionId <= INSTANCE_CONDITION_ID_LET_THE_FIRES_COME_HORDE)
+        if (instanceConditionId >= INSTANCE_CONDITION_ID_FIRE_BRIGADE_PRACTICE_GOLDSHIRE &&
+            instanceConditionId <= INSTANCE_CONDITION_ID_LET_THE_FIRES_COME_HORDE)
             return m_shadeData.IsConditionFulfilled(instanceConditionId, player->GetAreaId());
 
-        script_error_log("world_map_kalimdor::CheckConditionCriteriaMeet called with unsupported Id %u. Called with param plr %s, src %s, condition source type %u",
-            instanceConditionId, player ? player->GetGuidStr().c_str() : "nullptr", conditionSource ? conditionSource->GetGuidStr().c_str() : "nullptr", conditionSourceType);
+        script_error_log("world_map_kalimdor::CheckConditionCriteriaMeet called with "
+                         "unsupported Id %u. Called with param plr %s, src %s, condition "
+                         "source "
+                         "type %u",
+                         instanceConditionId, player ? player->GetGuidStr().c_str() : "nullptr",
+                         conditionSource ? conditionSource->GetGuidStr().c_str() : "nullptr", conditionSourceType);
         return false;
     }
 
-    void OnCreatureCreate(Creature* pCreature) override
+    void OnCreatureCreate(Creature *pCreature) override
     {
         switch (pCreature->GetEntry())
         {
-            case NPC_HORNIZZ:
-            case NPC_FREZZA:
-            case NPC_SNURK_BUCKSQUICK:
-            case NPC_MURKDEEP:
-            case NPC_OMEN:
-            case NPC_AVALANCHION:
-            case NPC_PRINCESS_TEMPESTRIA:
-            case NPC_THE_WINDREAVER:
-            case NPC_BARON_CHARR:
-            case NPC_HIGHLORD_KRUUL:
-            case NPC_BLIX_FIXWIDGET:
-            case NPC_DROHNS_DISTILLERY_BARKER:
-            case NPC_TCHALIS_VOODOO_BREWERY_BARKER:
-            case NPC_GORDOK_BREW_BARKER_H:
-            case NPC_TAPPER_SWINDLEKEG:
-            case NPC_VOLJIN:
-            case NPC_DARK_IRON_HERALD:
-                m_npcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
-                break;
-            case NPC_MASKED_ORPHAN_MATRON:
-            case NPC_COSTUMED_ORPHAN_MATRON:
-            case NPC_NECROPOLIS_HEALTH:
-                m_npcEntryGuidCollection[pCreature->GetEntry()].push_back(pCreature->GetObjectGuid());
-                break;
+        case NPC_HORNIZZ:
+        case NPC_FREZZA:
+        case NPC_SNURK_BUCKSQUICK:
+        case NPC_MURKDEEP:
+        case NPC_OMEN:
+        case NPC_AVALANCHION:
+        case NPC_PRINCESS_TEMPESTRIA:
+        case NPC_THE_WINDREAVER:
+        case NPC_BARON_CHARR:
+        case NPC_HIGHLORD_KRUUL:
+        case NPC_BLIX_FIXWIDGET:
+        case NPC_DROHNS_DISTILLERY_BARKER:
+        case NPC_TCHALIS_VOODOO_BREWERY_BARKER:
+        case NPC_GORDOK_BREW_BARKER_H:
+        case NPC_TAPPER_SWINDLEKEG:
+        case NPC_VOLJIN:
+        case NPC_DARK_IRON_HERALD:
+            m_npcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
+            break;
+        case NPC_MASKED_ORPHAN_MATRON:
+        case NPC_COSTUMED_ORPHAN_MATRON:
+        case NPC_NECROPOLIS_HEALTH:
+            m_npcEntryGuidCollection[pCreature->GetEntry()].push_back(pCreature->GetObjectGuid());
+            break;
         }
     }
 
-    void OnCreatureDeath(Creature* pCreature) override
+    void OnCreatureDeath(Creature *pCreature) override
     {
         switch (pCreature->GetEntry())
         {
-            case NPC_GREYMIST_COASTRUNNNER:
-                if (pCreature->IsTemporarySummon())         // Only count the ones summoned for Murkdeep quest
+        case NPC_GREYMIST_COASTRUNNNER:
+            if (pCreature->IsTemporarySummon()) // Only count the ones summoned
+                                                // for Murkdeep quest
+            {
+                ++m_uiMurkdeepAdds_KilledAddCount;
+
+                // If all 3 coastrunners are killed, summon 2 warriors
+                if (m_uiMurkdeepAdds_KilledAddCount == 3)
                 {
-                    ++m_uiMurkdeepAdds_KilledAddCount;
-
-                    // If all 3 coastrunners are killed, summon 2 warriors
-                    if (m_uiMurkdeepAdds_KilledAddCount == 3)
+                    float fX, fY, fZ;
+                    for (uint8 i = 0; i < 2; ++i)
                     {
-                        float fX, fY, fZ;
-                        for (uint8 i = 0; i < 2; ++i)
+                        pCreature->GetRandomPoint(aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][0],
+                                                  aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][1],
+                                                  aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][2], 5.0f, fX, fY, fZ);
+
+                        if (Creature *pTemp = pCreature->SummonCreature(NPC_GREYMIST_WARRIOR, fX, fY, fZ,
+                                                                        aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][3],
+                                                                        TEMPSPAWN_DEAD_DESPAWN, 0))
                         {
-                            pCreature->GetRandomPoint(aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][0], aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][1], aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][2], 5.0f, fX, fY, fZ);
-
-                            if (Creature* pTemp = pCreature->SummonCreature(NPC_GREYMIST_WARRIOR, fX, fY, fZ, aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][3], TEMPSPAWN_DEAD_DESPAWN, 0))
-                            {
-                                pTemp->SetWalk(false);
-                                pTemp->GetRandomPoint(aSpawnLocations[POS_IDX_MURKDEEP_MOVE][0], aSpawnLocations[POS_IDX_MURKDEEP_MOVE][1], aSpawnLocations[POS_IDX_MURKDEEP_MOVE][2], 5.0f, fX, fY, fZ);
-                                pTemp->GetMotionMaster()->MovePoint(0, fX, fY, fZ);
-                            }
+                            pTemp->SetWalk(false);
+                            pTemp->GetRandomPoint(aSpawnLocations[POS_IDX_MURKDEEP_MOVE][0],
+                                                  aSpawnLocations[POS_IDX_MURKDEEP_MOVE][1],
+                                                  aSpawnLocations[POS_IDX_MURKDEEP_MOVE][2], 5.0f, fX, fY, fZ);
+                            pTemp->GetMotionMaster()->MovePoint(0, fX, fY, fZ);
                         }
-
-                        m_uiMurkdeepAdds_KilledAddCount = 0;
                     }
+
+                    m_uiMurkdeepAdds_KilledAddCount = 0;
                 }
-                break;
-            case NPC_GREYMIST_WARRIOR:
-                if (pCreature->IsTemporarySummon())         // Only count the ones summoned for Murkdeep quest
+            }
+            break;
+        case NPC_GREYMIST_WARRIOR:
+            if (pCreature->IsTemporarySummon()) // Only count the ones summoned
+                                                // for Murkdeep quest
+            {
+                ++m_uiMurkdeepAdds_KilledAddCount;
+
+                // After the 2 warriors are killed, Murkdeep spawns, along with a
+                // hunter
+                if (m_uiMurkdeepAdds_KilledAddCount == 2)
                 {
-                    ++m_uiMurkdeepAdds_KilledAddCount;
-
-                    // After the 2 warriors are killed, Murkdeep spawns, along with a hunter
-                    if (m_uiMurkdeepAdds_KilledAddCount == 2)
+                    float fX, fY, fZ;
+                    for (uint8 i = 0; i < 2; ++i)
                     {
-                        float fX, fY, fZ;
-                        for (uint8 i = 0; i < 2; ++i)
+                        pCreature->GetRandomPoint(aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][0],
+                                                  aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][1],
+                                                  aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][2], 5.0f, fX, fY, fZ);
+
+                        if (Creature *pTemp = pCreature->SummonCreature(!i ? NPC_MURKDEEP : NPC_GREYMIST_HUNTER, fX, fY,
+                                                                        fZ, aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][3],
+                                                                        TEMPSPAWN_DEAD_DESPAWN, 0))
                         {
-                            pCreature->GetRandomPoint(aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][0], aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][1], aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][2], 5.0f, fX, fY, fZ);
-
-                            if (Creature* pTemp = pCreature->SummonCreature(!i ? NPC_MURKDEEP : NPC_GREYMIST_HUNTER, fX, fY, fZ, aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][3], TEMPSPAWN_DEAD_DESPAWN, 0))
-                            {
-                                pTemp->SetWalk(false);
-                                pTemp->GetRandomPoint(aSpawnLocations[POS_IDX_MURKDEEP_MOVE][0], aSpawnLocations[POS_IDX_MURKDEEP_MOVE][1], aSpawnLocations[POS_IDX_MURKDEEP_MOVE][2], 5.0f, fX, fY, fZ);
-                                pTemp->GetMotionMaster()->MovePoint(0, fX, fY, fZ);
-                            }
+                            pTemp->SetWalk(false);
+                            pTemp->GetRandomPoint(aSpawnLocations[POS_IDX_MURKDEEP_MOVE][0],
+                                                  aSpawnLocations[POS_IDX_MURKDEEP_MOVE][1],
+                                                  aSpawnLocations[POS_IDX_MURKDEEP_MOVE][2], 5.0f, fX, fY, fZ);
+                            pTemp->GetMotionMaster()->MovePoint(0, fX, fY, fZ);
                         }
-
-                        m_uiMurkdeepAdds_KilledAddCount = 0;
                     }
+
+                    m_uiMurkdeepAdds_KilledAddCount = 0;
                 }
-                break;
-            case NPC_OMEN:
-                SetData(TYPE_OMEN, DONE);
-                break;
-            case NPC_THE_WINDREAVER:
-                DoDespawnElementalRifts(ELEMENTAL_AIR);
-                break;
-            case NPC_PRINCESS_TEMPESTRIA:
-                DoDespawnElementalRifts(ELEMENTAL_WATER);
-                break;
-            case NPC_BARON_CHARR:
-                DoDespawnElementalRifts(ELEMENTAL_FIRE);
-                break;
-            case NPC_AVALANCHION:
-                DoDespawnElementalRifts(ELEMENTAL_EARTH);
-                break;
-            case NPC_COLOSSUS_OF_ZORA:
-                WorldObject::SpawnCreature(155122, instance);
-                break;
-            case NPC_COLOSSUS_OF_REGAL:
-                WorldObject::SpawnCreature(155124, instance);
-                break;
-            case NPC_COLOSSUS_OF_ASHI:
-                WorldObject::SpawnCreature(155123, instance);
-                break;
-            case NPC_NECROPOLIS_HEALTH:
-                m_npcEntryGuidCollection.erase(pCreature->GetObjectGuid());
-                break;
+            }
+            break;
+        case NPC_OMEN:
+            SetData(TYPE_OMEN, DONE);
+            break;
+        case NPC_THE_WINDREAVER:
+            DoDespawnElementalRifts(ELEMENTAL_AIR);
+            break;
+        case NPC_PRINCESS_TEMPESTRIA:
+            DoDespawnElementalRifts(ELEMENTAL_WATER);
+            break;
+        case NPC_BARON_CHARR:
+            DoDespawnElementalRifts(ELEMENTAL_FIRE);
+            break;
+        case NPC_AVALANCHION:
+            DoDespawnElementalRifts(ELEMENTAL_EARTH);
+            break;
+        case NPC_COLOSSUS_OF_ZORA:
+            WorldObject::SpawnCreature(155122, instance);
+            break;
+        case NPC_COLOSSUS_OF_REGAL:
+            WorldObject::SpawnCreature(155124, instance);
+            break;
+        case NPC_COLOSSUS_OF_ASHI:
+            WorldObject::SpawnCreature(155123, instance);
+            break;
+        case NPC_NECROPOLIS_HEALTH:
+            m_npcEntryGuidCollection.erase(pCreature->GetObjectGuid());
+            break;
         }
     }
 
-    void OnObjectCreate(GameObject* pGo) override
+    void OnObjectCreate(GameObject *pGo) override
     {
         switch (pGo->GetEntry())
         {
-            case GO_GHOST_MAGNET:
-                m_vGOEvents.push_back({ pGo->GetObjectGuid(), 0, 0 }); // insert new event with 0 timer
-                pGo->SetActiveObjectState(true);
-                break;
-            case GO_ROCKET_CLUSTER:
-                m_goEntryGuidStore[GO_ROCKET_CLUSTER] = pGo->GetObjectGuid();
-                break;
-            case GO_EARTH_RIFT:
-                m_aElementalRiftGUIDs[ELEMENTAL_EARTH].push_back(pGo->GetObjectGuid());
-                break;
-            case GO_WATER_RIFT:
-                m_aElementalRiftGUIDs[ELEMENTAL_WATER].push_back(pGo->GetObjectGuid());
-                break;
-            case GO_FIRE_RIFT:
-                m_aElementalRiftGUIDs[ELEMENTAL_FIRE].push_back(pGo->GetObjectGuid());
-                break;
-            case GO_AIR_RIFT:
-                m_aElementalRiftGUIDs[ELEMENTAL_AIR].push_back(pGo->GetObjectGuid());
-                break;
-            case GO_SUMMON_CIRCLE:
-                m_goEntryGuidCollection[pGo->GetEntry()].push_back(pGo->GetObjectGuid());
-                break;
+        case GO_GHOST_MAGNET:
+            m_vGOEvents.push_back({pGo->GetObjectGuid(), 0, 0}); // insert new event with 0 timer
+            pGo->SetActiveObjectState(true);
+            break;
+        case GO_ROCKET_CLUSTER:
+            m_goEntryGuidStore[GO_ROCKET_CLUSTER] = pGo->GetObjectGuid();
+            break;
+        case GO_EARTH_RIFT:
+            m_aElementalRiftGUIDs[ELEMENTAL_EARTH].push_back(pGo->GetObjectGuid());
+            break;
+        case GO_WATER_RIFT:
+            m_aElementalRiftGUIDs[ELEMENTAL_WATER].push_back(pGo->GetObjectGuid());
+            break;
+        case GO_FIRE_RIFT:
+            m_aElementalRiftGUIDs[ELEMENTAL_FIRE].push_back(pGo->GetObjectGuid());
+            break;
+        case GO_AIR_RIFT:
+            m_aElementalRiftGUIDs[ELEMENTAL_AIR].push_back(pGo->GetObjectGuid());
+            break;
+        case GO_SUMMON_CIRCLE:
+            m_goEntryGuidCollection[pGo->GetEntry()].push_back(pGo->GetObjectGuid());
+            break;
         }
     }
 
     void DoDespawnElementalRifts(uint8 index)
     {
-        // Despawn all GO rifts for a given element type, erase the GUIDs for the GOs
+        // Despawn all GO rifts for a given element type, erase the GUIDs for the
+        // GOs
         for (auto guid : m_aElementalRiftGUIDs[index])
         {
-            if (GameObject* pRift = instance->GetGameObject(guid))
+            if (GameObject *pRift = instance->GetGameObject(guid))
                 pRift->SetLootState(GO_JUST_DEACTIVATED);
         }
         m_aElementalRiftGUIDs[index].clear();
     }
 
-    bool GhostOPlasmEventStep(GhostOPlasmEvent& eventData)
+    bool GhostOPlasmEventStep(GhostOPlasmEvent &eventData)
     {
         if (eventData.despawnTimer > 180000)
         {
             for (auto guid : eventData.summonedMagrami)
             {
-                if (Creature * magrami = instance->GetCreature(guid))
+                if (Creature *magrami = instance->GetCreature(guid))
                 {
                     if (magrami->IsAlive()) // dont despawn corpses with loot
                     {
@@ -254,22 +280,28 @@ struct world_map_kalimdor : public ScriptedMap
                 }
             }
 
-            if (GameObject* go = instance->GetGameObject(eventData.guid))
-                go->AddObjectToRemoveList(); // TODO: Establish rules for despawning temporary GOs that were used in their lifetime (buttons for example)
+            if (GameObject *go = instance->GetGameObject(eventData.guid))
+                go->AddObjectToRemoveList(); // TODO: Establish rules for despawning
+                                             // temporary GOs that were used in
+                                             // their lifetime (buttons for example)
 
             return false;
         }
-        
-        if (GameObject* go = instance->GetGameObject(eventData.guid))
+
+        if (GameObject *go = instance->GetGameObject(eventData.guid))
         {
             if (eventData.despawnTimer / 15000 >= eventData.phaseCounter)
             {
                 float x, y, z;
-                go->GetPosition(x, y, z); // do some urand radius shenanigans to spawn it further and make it walk to go using doing X and Y yourself and using function in MAP to get proper Z
+                go->GetPosition(x, y, z); // do some urand radius shenanigans to spawn it
+                                          // further and make it walk to go using doing X and Y
+                                          // yourself and using function in MAP to get proper Z
                 uint32 random = urand(0, 35);
                 float xR = x + random, yR = y + (40 - random), zR = z;
                 instance->GetHeightInRange(xR, yR, zR);
-                Creature* creature = go->SummonCreature(NPC_MAGRAMI_SPECTRE, xR, yR, zR, 0, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 180000); // add more timed logic here
+                Creature *creature =
+                    go->SummonCreature(NPC_MAGRAMI_SPECTRE, xR, yR, zR, 0, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN,
+                                       180000);                            // add more timed logic here
                 instance->GetReachableRandomPointOnGround(x, y, z, 10.0f); // get position to which spectre will walk
                 eventData.phaseCounter++;
                 eventData.summonedMagrami.push_back(creature->GetObjectGuid());
@@ -299,7 +331,7 @@ struct world_map_kalimdor : public ScriptedMap
             // Timer before Omen event reset (OOC)
             if (m_uiOmenResetTimer < diff)
             {
-                if (Creature* pOmen = GetSingleCreatureFromStorage(NPC_OMEN))
+                if (Creature *pOmen = GetSingleCreatureFromStorage(NPC_OMEN))
                 {
                     // Return is Omen is in fight
                     if (pOmen->IsInCombat())
@@ -320,7 +352,7 @@ struct world_map_kalimdor : public ScriptedMap
             {
                 if (m_uiOmenMoonlightTimer < diff)
                 {
-                    if (Creature* pOmen = GetSingleCreatureFromStorage(NPC_OMEN))
+                    if (Creature *pOmen = GetSingleCreatureFromStorage(NPC_OMEN))
                     {
                         pOmen->CastSpell(pOmen, SPELL_OMEN_MOONLIGHT, TRIGGERED_OLD_TRIGGERED);
                         b_isOmenSpellCreditDone = true;
@@ -346,7 +378,7 @@ struct world_map_kalimdor : public ScriptedMap
         if (m_shadeData.Update(diff))
         {
             // Razor Hill
-            if (Creature* matron = instance->GetCreature(m_npcEntryGuidStore[NPC_MASKED_ORPHAN_MATRON]))
+            if (Creature *matron = instance->GetCreature(m_npcEntryGuidStore[NPC_MASKED_ORPHAN_MATRON]))
                 matron->AI()->SendAIEvent(AI_EVENT_CUSTOM_A, matron, matron);
         }
 
@@ -358,111 +390,132 @@ struct world_map_kalimdor : public ScriptedMap
     {
         switch (uiType)
         {
-            case TYPE_OMEN:
+        case TYPE_OMEN: {
+            switch (uiData)
             {
-                switch (uiData)
+            case NOT_STARTED:
+                // Count another rocket cluster launched
+                m_uiRocketsCounter++;
+                if (m_uiRocketsCounter < MAX_ROCKETS)
                 {
-                    case NOT_STARTED:
-                        // Count another rocket cluster launched
-                        m_uiRocketsCounter++;
-                        if (m_uiRocketsCounter < MAX_ROCKETS)
-                        {
-                            // 25% chance of spawning Minions of Omen (guessed), only if not already spawned (encounter is set to FAIL in that case)
-                            if (GetData(TYPE_OMEN) == NOT_STARTED && urand(0, 1) < 1)
-                                SetData(TYPE_OMEN, SPECIAL); // This will notify the GO to summon Omen's minions
-                        }
-                        // Set the event in motion and notify the GO to summon Omen
-                        else if (GetData(TYPE_OMEN) != IN_PROGRESS && GetData(TYPE_OMEN) != DONE)   // Check that Omen is not already spawned and event is reset
-                            SetData(TYPE_OMEN, IN_PROGRESS);
+                    // 25% chance of spawning Minions of Omen (guessed), only if
+                    // not already spawned (encounter is set to FAIL in that
+                    // case)
+                    if (GetData(TYPE_OMEN) == NOT_STARTED && urand(0, 1) < 1)
+                        SetData(TYPE_OMEN,
+                                SPECIAL); // This will notify the GO to summon
+                                          // Omen's minions
+                }
+                // Set the event in motion and notify the GO to summon Omen
+                else if (GetData(TYPE_OMEN) != IN_PROGRESS &&
+                         GetData(TYPE_OMEN) != DONE) // Check that Omen is not already
+                                                     // spawned and event is reset
+                    SetData(TYPE_OMEN, IN_PROGRESS);
 
-                        return; // Don't store NOT_STARTED data unless explicitly told so: we use it to count rockets
-                    case SPECIAL:
-                        if (GameObject* pRocketCluster = GetSingleGameObjectFromStorage(GO_ROCKET_CLUSTER))
-                        {
-                            for (uint8 i = POS_IDX_MINION_OMEN_START; i <= POS_IDX_MINION_OMEN_STOP; i++)
-                                pRocketCluster->SummonCreature(NPC_MINION_OMEN, aSpawnLocations[i][0], aSpawnLocations[i][1], aSpawnLocations[i][2], aSpawnLocations[i][3], TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 15 * MINUTE * IN_MILLISECONDS);
-                        }
-                            break;
-                    case IN_PROGRESS:
-                        if (GameObject* pRocketCluster = GetSingleGameObjectFromStorage(GO_ROCKET_CLUSTER))
-                        {
-                            if (Creature* pOmen = pRocketCluster->SummonCreature(NPC_OMEN, aSpawnLocations[POS_IDX_OMEN_SPAWN][0], aSpawnLocations[POS_IDX_OMEN_SPAWN][1], aSpawnLocations[POS_IDX_OMEN_SPAWN][2], aSpawnLocations[POS_IDX_OMEN_SPAWN][3], TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 15 * MINUTE * IN_MILLISECONDS))
-                            {
-                                // Moving him to the lake bank
-                                pOmen->SetWalk(true);
-                                pOmen->GetMotionMaster()->MovePoint(1, aSpawnLocations[POS_IDX_OMEN_MOVE][0], aSpawnLocations[POS_IDX_OMEN_MOVE][1], aSpawnLocations[POS_IDX_OMEN_MOVE][2]);
-                                m_uiOmenResetTimer = 15 * MINUTE * IN_MILLISECONDS; // Reset after 15 minutes if not engaged or defeated
-                            }
-                        }
-                        break;
-                    case DONE:
-                        m_uiOmenMoonlightTimer = 5 * IN_MILLISECONDS;            // Timer before casting the end quest spell
-                        m_uiOmenResetTimer = 5 * MINUTE * IN_MILLISECONDS;       // Prevent another summoning of Omen for 5 minutes (based on spell duration)
-                        break;
-                }
-            }
-            case TYPE_TETHYR:
-            {
-                switch (uiData)
+                return; // Don't store NOT_STARTED data unless explicitly told
+                        // so: we use it to count rockets
+            case SPECIAL:
+                if (GameObject *pRocketCluster = GetSingleGameObjectFromStorage(GO_ROCKET_CLUSTER))
                 {
-                    case NOT_STARTED:
-                        sWorldState.ExecuteOnAreaPlayers(AREAID_THERAMORE_ISLE, [=](Player* player)->void {player->SendUpdateWorldState(WORLD_STATE_TETHYR_SHOW, 0); });
-                        break;
-                    case SPECIAL: // Archer slain
-                        --m_uiTheramoreMarksmenAlive;
-                        sWorldState.ExecuteOnAreaPlayers(AREAID_THERAMORE_ISLE, [=](Player* player)->void {player->SendUpdateWorldState(WORLD_STATE_TETHYR_COUNT, m_uiTheramoreMarksmenAlive); });
-                        break;
-                    case IN_PROGRESS:
-                        if (m_encounter[uiType] != IN_PROGRESS)
-                            m_uiTheramoreMarksmenAlive = 12;
-                        sWorldState.ExecuteOnAreaPlayers(AREAID_THERAMORE_ISLE, [=](Player* player)->void {player->SendUpdateWorldState(WORLD_STATE_TETHYR_SHOW, 1); });
-                        sWorldState.ExecuteOnAreaPlayers(AREAID_THERAMORE_ISLE, [=](Player* player)->void {player->SendUpdateWorldState(WORLD_STATE_TETHYR_COUNT, m_uiTheramoreMarksmenAlive); });
-                        break;
+                    for (uint8 i = POS_IDX_MINION_OMEN_START; i <= POS_IDX_MINION_OMEN_STOP; i++)
+                        pRocketCluster->SummonCreature(
+                            NPC_MINION_OMEN, aSpawnLocations[i][0], aSpawnLocations[i][1], aSpawnLocations[i][2],
+                            aSpawnLocations[i][3], TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 15 * MINUTE * IN_MILLISECONDS);
                 }
-            }
-            case TYPE_HIVE:
-            {
-                if (uiData == IN_PROGRESS)
-                    m_uiDronesTimer = 5 * MINUTE * IN_MILLISECONDS;
                 break;
-            }
-            case TYPE_FREEDOM_CREATURES:
-            {
-                if (uiData == IN_PROGRESS)
-                    m_freedSpriteDarter = 0;
-                else if (uiData == SPECIAL)
+            case IN_PROGRESS:
+                if (GameObject *pRocketCluster = GetSingleGameObjectFromStorage(GO_ROCKET_CLUSTER))
                 {
-                    ++m_freedSpriteDarter;
-                    if (m_freedSpriteDarter >= 6)
-                        uiData = DONE;
+                    if (Creature *pOmen = pRocketCluster->SummonCreature(
+                            NPC_OMEN, aSpawnLocations[POS_IDX_OMEN_SPAWN][0], aSpawnLocations[POS_IDX_OMEN_SPAWN][1],
+                            aSpawnLocations[POS_IDX_OMEN_SPAWN][2], aSpawnLocations[POS_IDX_OMEN_SPAWN][3],
+                            TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 15 * MINUTE * IN_MILLISECONDS))
+                    {
+                        // Moving him to the lake bank
+                        pOmen->SetWalk(true);
+                        pOmen->GetMotionMaster()->MovePoint(1, aSpawnLocations[POS_IDX_OMEN_MOVE][0],
+                                                            aSpawnLocations[POS_IDX_OMEN_MOVE][1],
+                                                            aSpawnLocations[POS_IDX_OMEN_MOVE][2]);
+                        m_uiOmenResetTimer = 15 * MINUTE * IN_MILLISECONDS; // Reset after 15 minutes if
+                                                                            // not engaged or defeated
+                    }
                 }
+                break;
+            case DONE:
+                m_uiOmenMoonlightTimer = 5 * IN_MILLISECONDS;      // Timer before casting the end quest
+                                                                   // spell
+                m_uiOmenResetTimer = 5 * MINUTE * IN_MILLISECONDS; // Prevent another summoning of Omen for
+                                                                   // 5 minutes (based on spell duration)
+                break;
             }
-            case TYPE_GONG_TIME:
-                // TODO: Handle initial first gong only
+        }
+        case TYPE_TETHYR: {
+            switch (uiData)
+            {
+            case NOT_STARTED:
+                sWorldState.ExecuteOnAreaPlayers(AREAID_THERAMORE_ISLE, [=](Player *player) -> void {
+                    player->SendUpdateWorldState(WORLD_STATE_TETHYR_SHOW, 0);
+                });
                 break;
-            default:
-                if (uiType >= TYPE_SHADE_OF_THE_HORSEMAN_ATTACK_PHASE && uiType <= TYPE_SHADE_OF_THE_HORSEMAN_MAX)
-                    return m_shadeData.HandleSetData(uiType, uiData);
+            case SPECIAL: // Archer slain
+                --m_uiTheramoreMarksmenAlive;
+                sWorldState.ExecuteOnAreaPlayers(AREAID_THERAMORE_ISLE, [=](Player *player) -> void {
+                    player->SendUpdateWorldState(WORLD_STATE_TETHYR_COUNT, m_uiTheramoreMarksmenAlive);
+                });
                 break;
+            case IN_PROGRESS:
+                if (m_encounter[uiType] != IN_PROGRESS)
+                    m_uiTheramoreMarksmenAlive = 12;
+                sWorldState.ExecuteOnAreaPlayers(AREAID_THERAMORE_ISLE, [=](Player *player) -> void {
+                    player->SendUpdateWorldState(WORLD_STATE_TETHYR_SHOW, 1);
+                });
+                sWorldState.ExecuteOnAreaPlayers(AREAID_THERAMORE_ISLE, [=](Player *player) -> void {
+                    player->SendUpdateWorldState(WORLD_STATE_TETHYR_COUNT, m_uiTheramoreMarksmenAlive);
+                });
+                break;
+            }
+        }
+        case TYPE_HIVE: {
+            if (uiData == IN_PROGRESS)
+                m_uiDronesTimer = 5 * MINUTE * IN_MILLISECONDS;
+            break;
+        }
+        case TYPE_FREEDOM_CREATURES: {
+            if (uiData == IN_PROGRESS)
+                m_freedSpriteDarter = 0;
+            else if (uiData == SPECIAL)
+            {
+                ++m_freedSpriteDarter;
+                if (m_freedSpriteDarter >= 6)
+                    uiData = DONE;
+            }
+        }
+        case TYPE_GONG_TIME:
+            // TODO: Handle initial first gong only
+            break;
+        default:
+            if (uiType >= TYPE_SHADE_OF_THE_HORSEMAN_ATTACK_PHASE && uiType <= TYPE_SHADE_OF_THE_HORSEMAN_MAX)
+                return m_shadeData.HandleSetData(uiType, uiData);
+            break;
         }
         m_encounter[uiType] = uiData;
     }
 
-    void FillInitialWorldStates(ByteBuffer& data, uint32& count, uint32 /*zoneId*/, uint32 areaId) override
+    void FillInitialWorldStates(ByteBuffer &data, uint32 &count, uint32 /*zoneId*/, uint32 areaId) override
     {
         switch (areaId)
         {
-            case AREAID_THERAMORE_ISLE:
-            {
-                FillInitialWorldStateData(data, count, WORLD_STATE_TETHYR_SHOW, uint32(GetData(TYPE_TETHYR) != NOT_STARTED));
-                FillInitialWorldStateData(data, count, WORLD_STATE_TETHYR_COUNT, m_uiTheramoreMarksmenAlive);
-                break;
-            }
-            case AREAID_RAZOR_HILL:
-            {
-                FillInitialWorldStateData(data, count, WORLD_STATE_SHADE_OF_THE_HORSEMAN_TIMER, m_shadeData.CalculateWorldstateTimerValue());
-                break;
-            }
+        case AREAID_THERAMORE_ISLE: {
+            FillInitialWorldStateData(data, count, WORLD_STATE_TETHYR_SHOW,
+                                      uint32(GetData(TYPE_TETHYR) != NOT_STARTED));
+            FillInitialWorldStateData(data, count, WORLD_STATE_TETHYR_COUNT, m_uiTheramoreMarksmenAlive);
+            break;
+        }
+        case AREAID_RAZOR_HILL: {
+            FillInitialWorldStateData(data, count, WORLD_STATE_SHADE_OF_THE_HORSEMAN_TIMER,
+                                      m_shadeData.CalculateWorldstateTimerValue());
+            break;
+        }
         }
     }
 
@@ -482,14 +535,14 @@ struct world_map_kalimdor : public ScriptedMap
     }
 };
 
-InstanceData* GetInstanceData_world_map_kalimdor(Map* pMap)
+InstanceData *GetInstanceData_world_map_kalimdor(Map *pMap)
 {
     return new world_map_kalimdor(pMap);
 }
 
 void AddSC_world_kalimdor()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "world_map_kalimdor";
     pNewScript->GetInstanceData = &GetInstanceData_world_map_kalimdor;
     pNewScript->RegisterSelf();

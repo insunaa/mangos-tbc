@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,29 +25,28 @@
 #include "PosixDaemon.h"
 #endif
 
-#include "Common.h"
-#include "Master.h"
-#include "Server/WorldSocket.h"
-#include "WorldRunnable.h"
-#include "World/World.h"
-#include "Log.h"
-#include "Timer.h"
-#include "SystemConfig.h"
-#include "CliRunnable.h"
-#include "RASocket.h"
-#include "Util.h"
-#include "revision_sql.h"
-#include "MaNGOSsoap.h"
-#include "Mails/MassMailMgr.h"
-#include "Server/DBCStores.h"
+#include <memory>
 
+#include "CliRunnable.h"
+#include "Common.h"
 #include "Config/Config.h"
 #include "Database/DatabaseEnv.h"
-#include "Policies/Singleton.h"
+#include "Log.h"
+#include "MaNGOSsoap.h"
+#include "Mails/MassMailMgr.h"
+#include "Master.h"
 #include "Network/Listener.hpp"
 #include "Network/Socket.hpp"
-
-#include <memory>
+#include "Policies/Singleton.h"
+#include "RASocket.h"
+#include "Server/DBCStores.h"
+#include "Server/WorldSocket.h"
+#include "SystemConfig.h"
+#include "Timer.h"
+#include "Util.h"
+#include "World/World.h"
+#include "WorldRunnable.h"
+#include "revision_sql.h"
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
@@ -59,42 +59,48 @@ volatile bool Master::m_canBeKilled = false;
 
 class FreezeDetectorRunnable : public MaNGOS::Runnable
 {
-    public:
-        FreezeDetectorRunnable() { _delaytime = 0; }
-        uint32 m_loops, m_lastchange;
-        uint32 w_loops, w_lastchange;
-        uint32 _delaytime;
-        void SetDelayTime(uint32 t) { _delaytime = t; }
-        void run(void)
+  public:
+    FreezeDetectorRunnable()
+    {
+        _delaytime = 0;
+    }
+    uint32 m_loops, m_lastchange;
+    uint32 w_loops, w_lastchange;
+    uint32 _delaytime;
+    void SetDelayTime(uint32 t)
+    {
+        _delaytime = t;
+    }
+    void run(void)
+    {
+        if (!_delaytime)
+            return;
+        sLog.outString("Starting up anti-freeze thread (%u seconds max stuck time)...", _delaytime / 1000);
+        m_loops = 0;
+        w_loops = 0;
+        m_lastchange = 0;
+        w_lastchange = 0;
+        while (!World::IsStopped())
         {
-            if (!_delaytime)
-                return;
-            sLog.outString("Starting up anti-freeze thread (%u seconds max stuck time)...", _delaytime / 1000);
-            m_loops = 0;
-            w_loops = 0;
-            m_lastchange = 0;
-            w_lastchange = 0;
-            while (!World::IsStopped())
+            MaNGOS::Thread::Sleep(1000);
+
+            uint32 curtime = WorldTimer::getMSTime();
+
+            // normal work
+            if (w_loops != World::m_worldLoopCounter)
             {
-                MaNGOS::Thread::Sleep(1000);
-
-                uint32 curtime = WorldTimer::getMSTime();
-
-                // normal work
-                if (w_loops != World::m_worldLoopCounter)
-                {
-                    w_lastchange = curtime;
-                    w_loops = World::m_worldLoopCounter;
-                }
-                // possible freeze
-                else if (WorldTimer::getMSTimeDiff(w_lastchange, curtime) > _delaytime)
-                {
-                    sLog.outError("World Thread hangs, kicking out server!");
-                    *((uint32 volatile*)nullptr) = 0;          // bang crash
-                }
+                w_lastchange = curtime;
+                w_loops = World::m_worldLoopCounter;
             }
-            sLog.outString("Anti-freeze thread exiting without problems.");
+            // possible freeze
+            else if (WorldTimer::getMSTimeDiff(w_lastchange, curtime) > _delaytime)
+            {
+                sLog.outError("World Thread hangs, kicking out server!");
+                *((uint32 volatile *)nullptr) = 0; // bang crash
+            }
         }
+        sLog.outString("Anti-freeze thread exiting without problems.");
+    }
 };
 
 /// Main function
@@ -146,13 +152,17 @@ int Master::Run()
     {
         std::string builds = AcceptableClientBuildsListStr();
         LoginDatabase.escape_string(builds);
-        LoginDatabase.DirectPExecute("UPDATE realmlist SET realmflags = realmflags & ~(%u), population = 0, realmbuilds = '%s'  WHERE id = '%u'", REALM_FLAG_OFFLINE, builds.c_str(), realmID);
+        LoginDatabase.DirectPExecute("UPDATE realmlist SET realmflags = "
+                                     "realmflags & ~(%u), population = 0, "
+                                     "realmbuilds = '%s'  WHERE id = '%u'",
+                                     REALM_FLAG_OFFLINE, builds.c_str(), realmID);
     }
 
-    MaNGOS::Thread* cliThread = nullptr;
+    MaNGOS::Thread *cliThread = nullptr;
 
 #ifdef _WIN32
-    if (sConfig.GetBoolDefault("Console.Enable", true) && (m_ServiceStatus == -1)/* need disable console in service mode*/)
+    if (sConfig.GetBoolDefault("Console.Enable", true) &&
+        (m_ServiceStatus == -1) /* need disable console in service mode*/)
 #else
     if (sConfig.GetBoolDefault("Console.Enable", true))
 #endif
@@ -161,7 +171,8 @@ int Master::Run()
         cliThread = new MaNGOS::Thread(new CliRunnable);
     }
 
-    ///- Handle affinity for multiple processors and process priority on Windows
+    ///- Handle affinity for multiple processors and process priority on
+    /// Windows
 #ifdef _WIN32
     {
         HANDLE hProcess = GetCurrentProcess();
@@ -174,11 +185,14 @@ int Master::Run()
 
             if (GetProcessAffinityMask(hProcess, &appAff, &sysAff))
             {
-                ULONG_PTR curAff = Aff & appAff;            // remove non accessible processors
+                ULONG_PTR curAff = Aff & appAff; // remove non accessible processors
 
                 if (!curAff)
                 {
-                    sLog.outError("Processors marked in UseProcessors bitmask (hex) %x not accessible for mangosd. Accessible processors bitmask (hex): %x", Aff, appAff);
+                    sLog.outError("Processors marked in UseProcessors bitmask (hex) %x not "
+                                  "accessible for mangosd. Accessible processors bitmask "
+                                  "(hex): %x",
+                                  Aff, appAff);
                 }
                 else
                 {
@@ -193,7 +207,8 @@ int Master::Run()
 
         bool Prio = sConfig.GetBoolDefault("ProcessPriority", false);
 
-//        if(Prio && (m_ServiceStatus == -1)/* need set to default process priority class in service mode*/)
+        //        if(Prio && (m_ServiceStatus == -1)/* need set to default process
+        //        priority class in service mode*/)
         if (Prio)
         {
             if (SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS))
@@ -206,10 +221,10 @@ int Master::Run()
 #endif
 
     ///- Start up freeze catcher thread
-    MaNGOS::Thread* freeze_thread = nullptr;
+    MaNGOS::Thread *freeze_thread = nullptr;
     if (uint32 freeze_delay = sConfig.GetIntDefault("MaxCoreStuckTime", 0))
     {
-        FreezeDetectorRunnable* fdr = new FreezeDetectorRunnable();
+        FreezeDetectorRunnable *fdr = new FreezeDetectorRunnable();
         fdr->SetDelayTime(freeze_delay * 1000);
         freeze_thread = new MaNGOS::Thread(fdr);
         freeze_thread->setPriority(MaNGOS::Priority_Highest);
@@ -219,20 +234,26 @@ int Master::Run()
         int32 networkThreadWorker = sConfig.GetIntDefault("Network.Threads", 1);
         if (networkThreadWorker <= 0)
         {
-            sLog.outError("Invalid network tread workers setting in mangosd.conf. (%d) should be > 0", networkThreadWorker);
+            sLog.outError("Invalid network tread workers setting in mangosd.conf. "
+                          "(%d) should be > 0",
+                          networkThreadWorker);
             networkThreadWorker = 1;
         }
-        MaNGOS::Listener<WorldSocket> listener(sConfig.GetStringDefault("BindIP", "0.0.0.0"), int32(sWorld.getConfig(CONFIG_UINT32_PORT_WORLD)), networkThreadWorker);
+        MaNGOS::Listener<WorldSocket> listener(sConfig.GetStringDefault("BindIP", "0.0.0.0"),
+                                               int32(sWorld.getConfig(CONFIG_UINT32_PORT_WORLD)), networkThreadWorker);
 
         std::unique_ptr<MaNGOS::Listener<RASocket>> raListener;
         if (sConfig.GetBoolDefault("Ra.Enable", false))
-            raListener.reset(new MaNGOS::Listener<RASocket>(sConfig.GetStringDefault("Ra.IP", "0.0.0.0"), sConfig.GetIntDefault("Ra.Port", 3443), 1));
+            raListener.reset(new MaNGOS::Listener<RASocket>(sConfig.GetStringDefault("Ra.IP", "0.0.0.0"),
+                                                            sConfig.GetIntDefault("Ra.Port", 3443), 1));
 
         std::unique_ptr<SOAPThread> soapThread;
         if (sConfig.GetBoolDefault("SOAP.Enabled", false))
-            soapThread.reset(new SOAPThread(sConfig.GetStringDefault("SOAP.IP", "127.0.0.1"), sConfig.GetIntDefault("SOAP.Port", 7878)));
+            soapThread.reset(new SOAPThread(sConfig.GetStringDefault("SOAP.IP", "127.0.0.1"),
+                                            sConfig.GetIntDefault("SOAP.Port", 7878)));
 
-        // wait for shut down and then let things go out of scope to close them down
+        // wait for shut down and then let things go out of scope to close them
+        // down
         while (!World::IsStopped())
             std::this_thread::sleep_for(std::chrono::seconds(1));
 
@@ -247,7 +268,8 @@ int Master::Run()
     }
 
     ///- Set server offline in realmlist
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET realmflags = realmflags | %u WHERE id = '%u'", REALM_FLAG_OFFLINE, realmID);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET realmflags = realmflags | %u WHERE id = '%u'",
+                                 REALM_FLAG_OFFLINE, realmID);
 
     ///- Remove signal handling before leaving
     _UnhookSignals();
@@ -273,9 +295,10 @@ int Master::Run()
     if (cliThread)
     {
 #ifdef _WIN32
-        // send keyboard input to safely unblock the CLI thread that is waiting for an user input
+        // send keyboard input to safely unblock the CLI thread that is waiting
+        // for an user input
         HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
-        INPUT_RECORD ir[2] = { 0 };
+        INPUT_RECORD ir[2] = {0};
 
         ir[0].EventType = KEY_EVENT;
         ir[0].Event.KeyEvent.bKeyDown = TRUE;
@@ -466,7 +489,9 @@ bool Master::_StartDB()
 void Master::clearOnlineAccounts()
 {
     // Cleanup online status for characters hosted at current realm
-    /// \todo Only accounts with characters logged on *this* realm should have online status reset. Move the online column from 'account' to 'realmcharacters'?
+    /// \todo Only accounts with characters logged on *this* realm should have
+    /// online status reset. Move the online column from 'account' to
+    /// 'realmcharacters'?
     LoginDatabase.PExecute("UPDATE account SET active_realm_id = 0 WHERE active_realm_id = '%u'", realmID);
 
     CharacterDatabase.Execute("UPDATE characters SET online = 0 WHERE online<>0");
@@ -480,15 +505,15 @@ void Master::_OnSignal(int s)
 {
     switch (s)
     {
-        case SIGINT:
-            World::StopNow(RESTART_EXIT_CODE);
-            break;
-        case SIGTERM:
+    case SIGINT:
+        World::StopNow(RESTART_EXIT_CODE);
+        break;
+    case SIGTERM:
 #ifdef _WIN32
-        case SIGBREAK:
+    case SIGBREAK:
 #endif
-            World::StopNow(SHUTDOWN_EXIT_CODE);
-            break;
+        World::StopNow(SHUTDOWN_EXIT_CODE);
+        break;
     }
 
     // give a 30 sec timeout in case of Master cannot finish properly

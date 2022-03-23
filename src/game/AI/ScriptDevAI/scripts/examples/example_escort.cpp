@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -21,39 +21,42 @@ SDComment: Script used for testing escortAI
 SDCategory: Script Examples
 EndScriptData */
 
-#include "AI/ScriptDevAI/include/sc_common.h"
 #include "AI/ScriptDevAI/base/escort_ai.h"
+#include "AI/ScriptDevAI/include/sc_common.h"
 
 enum
 {
-    NPC_FELBOAR                 = 21878,
+    NPC_FELBOAR = 21878,
 
-    SPELL_DEATH_COIL            = 33130,
-    SPELL_ELIXIR_OF_FORTITUDE   = 3593,
-    SPELL_BLUE_FIREWORK         = 11540,
+    SPELL_DEATH_COIL = 33130,
+    SPELL_ELIXIR_OF_FORTITUDE = 3593,
+    SPELL_BLUE_FIREWORK = 11540,
 
-    SAY_AGGRO1                  = -1999910,
-    SAY_AGGRO2                  = -1999911,
-    SAY_WP_1                    = -1999912,
-    SAY_WP_2                    = -1999913,
-    SAY_WP_3                    = -1999914,
-    SAY_WP_4                    = -1999915,
-    SAY_DEATH_1                 = -1999916,
-    SAY_DEATH_2                 = -1999917,
-    SAY_DEATH_3                 = -1999918,
-    SAY_SPELL                   = -1999919,
-    SAY_RAND_1                  = -1999920,
-    SAY_RAND_2                  = -1999921
+    SAY_AGGRO1 = -1999910,
+    SAY_AGGRO2 = -1999911,
+    SAY_WP_1 = -1999912,
+    SAY_WP_2 = -1999913,
+    SAY_WP_3 = -1999914,
+    SAY_WP_4 = -1999915,
+    SAY_DEATH_1 = -1999916,
+    SAY_DEATH_2 = -1999917,
+    SAY_DEATH_3 = -1999918,
+    SAY_SPELL = -1999919,
+    SAY_RAND_1 = -1999920,
+    SAY_RAND_2 = -1999921
 };
 
-#define GOSSIP_ITEM_1   "Click to Test Escort(Attack, Run)"
-#define GOSSIP_ITEM_2   "Click to Test Escort(NoAttack, Walk)"
-#define GOSSIP_ITEM_3   "Click to Test Escort(NoAttack, Run)"
+#define GOSSIP_ITEM_1 "Click to Test Escort(Attack, Run)"
+#define GOSSIP_ITEM_2 "Click to Test Escort(NoAttack, Walk)"
+#define GOSSIP_ITEM_3 "Click to Test Escort(NoAttack, Run)"
 
 struct example_escortAI : public npc_escortAI
 {
     // UnitAI functions
-    example_escortAI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
+    example_escortAI(Creature *pCreature) : npc_escortAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiDeathCoilTimer;
     uint32 m_uiChatTimer;
@@ -65,7 +68,7 @@ struct example_escortAI : public npc_escortAI
         m_uiChatTimer = 4000;
     }
 
-    void JustSummoned(Creature* pSummoned) override
+    void JustSummoned(Creature *pSummoned) override
     {
         pSummoned->AI()->AttackStart(m_creature);
     }
@@ -75,30 +78,32 @@ struct example_escortAI : public npc_escortAI
     {
         switch (uiWP)
         {
-            case 1:
-                DoScriptText(SAY_WP_1, m_creature);
-                break;
-            case 3:
-                DoScriptText(SAY_WP_2, m_creature);
-                m_creature->SummonCreature(NPC_FELBOAR, m_creature->GetPositionX() + 5.0f, m_creature->GetPositionY() + 7.0f, m_creature->GetPositionZ(), 0.0f, TEMPSPAWN_TIMED_OOC_DESPAWN, 3000);
-                break;
-            case 4:
-                if (Player* pTmpPlayer = GetPlayerForEscort())
-                {
-                    // pTmpPlayer is the target of the text
-                    DoScriptText(SAY_WP_3, m_creature, pTmpPlayer);
-                    // pTmpPlayer is the source of the text
-                    DoScriptText(SAY_WP_4, pTmpPlayer);
-                }
-                break;
+        case 1:
+            DoScriptText(SAY_WP_1, m_creature);
+            break;
+        case 3:
+            DoScriptText(SAY_WP_2, m_creature);
+            m_creature->SummonCreature(NPC_FELBOAR, m_creature->GetPositionX() + 5.0f,
+                                       m_creature->GetPositionY() + 7.0f, m_creature->GetPositionZ(), 0.0f,
+                                       TEMPSPAWN_TIMED_OOC_DESPAWN, 3000);
+            break;
+        case 4:
+            if (Player *pTmpPlayer = GetPlayerForEscort())
+            {
+                // pTmpPlayer is the target of the text
+                DoScriptText(SAY_WP_3, m_creature, pTmpPlayer);
+                // pTmpPlayer is the source of the text
+                DoScriptText(SAY_WP_4, pTmpPlayer);
+            }
+            break;
         }
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         if (HasEscortState(STATE_ESCORT_ESCORTING))
         {
-            if (Player* pTemp = GetPlayerForEscort())
+            if (Player *pTemp = GetPlayerForEscort())
                 DoScriptText(SAY_AGGRO1, m_creature, pTemp);
         }
         else
@@ -106,16 +111,17 @@ struct example_escortAI : public npc_escortAI
     }
 
     // Only overwrite if there is something special
-    void JustDied(Unit* pKiller) override
+    void JustDied(Unit *pKiller) override
     {
         if (HasEscortState(STATE_ESCORT_ESCORTING))
         {
-            if (Player* pTemp = GetPlayerForEscort())
+            if (Player *pTemp = GetPlayerForEscort())
             {
                 // not a likely case, code here for the sake of example
                 if (pKiller == m_creature)
                 {
-                    // This is actually a whisper. You control the text type in database
+                    // This is actually a whisper. You control the text type in
+                    // database
                     DoScriptText(SAY_DEATH_1, m_creature, pTemp);
                 }
                 else
@@ -125,7 +131,8 @@ struct example_escortAI : public npc_escortAI
         else
             DoScriptText(SAY_DEATH_3, m_creature);
 
-        // Fail quest for group - if you don't implement JustDied in your script, this will automatically work
+        // Fail quest for group - if you don't implement JustDied in your script,
+        // this will automatically work
         npc_escortAI::JustDied(pKiller);
     }
 
@@ -172,12 +179,12 @@ struct example_escortAI : public npc_escortAI
     }
 };
 
-UnitAI* GetAI_example_escort(Creature* pCreature)
+UnitAI *GetAI_example_escort(Creature *pCreature)
 {
     return new example_escortAI(pCreature);
 }
 
-bool GossipHello_example_escort(Player* pPlayer, Creature* pCreature)
+bool GossipHello_example_escort(Player *pPlayer, Creature *pCreature)
 {
     pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetObjectGuid());
     pPlayer->PrepareGossipMenu(pCreature, pPlayer->GetDefaultGossipMenuForSource(pCreature));
@@ -191,40 +198,40 @@ bool GossipHello_example_escort(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_example_escort(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+bool GossipSelect_example_escort(Player *pPlayer, Creature *pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
-    example_escortAI* pEscortAI = dynamic_cast<example_escortAI*>(pCreature->AI());
+    example_escortAI *pEscortAI = dynamic_cast<example_escortAI *>(pCreature->AI());
 
     switch (uiAction)
     {
-        case GOSSIP_ACTION_INFO_DEF+1:
-            pPlayer->CLOSE_GOSSIP_MENU();
+    case GOSSIP_ACTION_INFO_DEF + 1:
+        pPlayer->CLOSE_GOSSIP_MENU();
 
-            if (pEscortAI)
-                pEscortAI->Start(true, pPlayer);
-            break;
-        case GOSSIP_ACTION_INFO_DEF+2:
-            pPlayer->CLOSE_GOSSIP_MENU();
+        if (pEscortAI)
+            pEscortAI->Start(true, pPlayer);
+        break;
+    case GOSSIP_ACTION_INFO_DEF + 2:
+        pPlayer->CLOSE_GOSSIP_MENU();
 
-            if (pEscortAI)
-                pEscortAI->Start(false, pPlayer);
-            break;
-        case GOSSIP_ACTION_INFO_DEF+3:
-            pPlayer->CLOSE_GOSSIP_MENU();
+        if (pEscortAI)
+            pEscortAI->Start(false, pPlayer);
+        break;
+    case GOSSIP_ACTION_INFO_DEF + 3:
+        pPlayer->CLOSE_GOSSIP_MENU();
 
-            if (pEscortAI)
-                pEscortAI->Start(true, pPlayer);
-            break;
-        default:
-            return false;                                   // nothing defined      -> mangos core handling
+        if (pEscortAI)
+            pEscortAI->Start(true, pPlayer);
+        break;
+    default:
+        return false; // nothing defined      -> mangos core handling
     }
 
-    return true;                                            // no default handling  -> prevent mangos core handling
+    return true; // no default handling  -> prevent mangos core handling
 }
 
 void AddSC_example_escort()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "example_escort";
     pNewScript->GetAI = &GetAI_example_escort;
     pNewScript->pGossipHello = &GossipHello_example_escort;

@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,32 +24,36 @@
 
 class Creature;
 
-template < class T >
-class HomeMovementGenerator;
+template <class T> class HomeMovementGenerator;
 
 template <>
-class HomeMovementGenerator<Creature>
-    : public MovementGeneratorMedium< Creature, HomeMovementGenerator<Creature> >
+class HomeMovementGenerator<Creature> : public MovementGeneratorMedium<Creature, HomeMovementGenerator<Creature>>
 {
-    public:
+  public:
+    HomeMovementGenerator(bool _runHome = true) : arrived(false), runHome(_runHome), wasActive(false)
+    {
+    }
 
-        HomeMovementGenerator(bool _runHome = true) : arrived(false), runHome(_runHome), wasActive(false)
-        {
-        }
+    ~HomeMovementGenerator()
+    {
+    }
 
-        ~HomeMovementGenerator() {}
+    void Initialize(Creature &);
+    void Finalize(Creature &);
+    void Interrupt(Creature &)
+    {
+    }
+    void Reset(Creature &);
+    bool Update(Creature &, const uint32 &);
+    MovementGeneratorType GetMovementGeneratorType() const override
+    {
+        return HOME_MOTION_TYPE;
+    }
 
-        void Initialize(Creature&);
-        void Finalize(Creature&);
-        void Interrupt(Creature&) {}
-        void Reset(Creature&);
-        bool Update(Creature&, const uint32&);
-        MovementGeneratorType GetMovementGeneratorType() const override { return HOME_MOTION_TYPE; }
-
-    private:
-        void _setTargetLocation(Creature&);
-        bool arrived;
-        bool runHome;
-        bool wasActive;
+  private:
+    void _setTargetLocation(Creature &);
+    bool arrived;
+    bool runHome;
+    bool wasActive;
 };
 #endif

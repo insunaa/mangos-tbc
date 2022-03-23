@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -26,30 +26,30 @@ EndScriptData */
 
 enum
 {
-    SAY_AGGRO                   = -1269007,
-    SAY_BANISH                  = -1269008,
-    SAY_SLAY1                   = -1269009,
-    SAY_SLAY2                   = -1269010,
-    SAY_DEATH                   = -1269011,
+    SAY_AGGRO = -1269007,
+    SAY_BANISH = -1269008,
+    SAY_SLAY1 = -1269009,
+    SAY_SLAY2 = -1269010,
+    SAY_DEATH = -1269011,
 
-    SPELL_ARCANE_BLAST          = 31457,
-    SPELL_ARCANE_BLAST_H        = 38538,
-    SPELL_ARCANE_DISCHARGE      = 31472,
-    SPELL_ARCANE_DISCHARGE_H    = 38539,
-    SPELL_TIME_LAPSE            = 31467,
-    SPELL_ATTRACTION            = 38540
+    SPELL_ARCANE_BLAST = 31457,
+    SPELL_ARCANE_BLAST_H = 38538,
+    SPELL_ARCANE_DISCHARGE = 31472,
+    SPELL_ARCANE_DISCHARGE_H = 38539,
+    SPELL_TIME_LAPSE = 31467,
+    SPELL_ATTRACTION = 38540
 };
 
 struct boss_chrono_lord_dejaAI : public ScriptedAI
 {
-    boss_chrono_lord_dejaAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_chrono_lord_dejaAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (ScriptedInstance *)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    ScriptedInstance *m_pInstance;
     bool m_bIsRegularMode;
 
     uint32 m_uiArcaneBlastTimer;
@@ -59,18 +59,18 @@ struct boss_chrono_lord_dejaAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiArcaneBlastTimer     = urand(18000, 23000);
-        m_uiTimeLapseTimer       = urand(10000, 15000);
+        m_uiArcaneBlastTimer = urand(18000, 23000);
+        m_uiTimeLapseTimer = urand(10000, 15000);
         m_uiArcaneDischargeTimer = urand(20000, 30000);
-        m_uiAttractionTimer      = urand(25000, 35000);
+        m_uiAttractionTimer = urand(25000, 35000);
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
 
-    void MoveInLineOfSight(Unit* pWho) override
+    void MoveInLineOfSight(Unit *pWho) override
     {
         // Despawn Time Keeper
         if (pWho->GetTypeId() == TYPEID_UNIT && pWho->GetEntry() == NPC_TIME_KEEPER)
@@ -85,12 +85,12 @@ struct boss_chrono_lord_dejaAI : public ScriptedAI
         ScriptedAI::MoveInLineOfSight(pWho);
     }
 
-    void KilledUnit(Unit* /*pVictim*/) override
+    void KilledUnit(Unit * /*pVictim*/) override
     {
         DoScriptText(urand(0, 1) ? SAY_SLAY1 : SAY_SLAY2, m_creature);
     }
 
-    void JustDied(Unit* /*pVictim*/) override
+    void JustDied(Unit * /*pVictim*/) override
     {
         DoScriptText(SAY_DEATH, m_creature);
     }
@@ -104,7 +104,8 @@ struct boss_chrono_lord_dejaAI : public ScriptedAI
         // Arcane Blast
         if (m_uiArcaneBlastTimer < uiDiff)
         {
-            if (DoCastSpellIfCan(m_creature->GetVictim(), m_bIsRegularMode ? SPELL_ARCANE_BLAST : SPELL_ARCANE_BLAST_H) == CAST_OK)
+            if (DoCastSpellIfCan(m_creature->GetVictim(),
+                                 m_bIsRegularMode ? SPELL_ARCANE_BLAST : SPELL_ARCANE_BLAST_H) == CAST_OK)
                 m_uiArcaneBlastTimer = urand(15000, 25000);
         }
         else
@@ -113,7 +114,8 @@ struct boss_chrono_lord_dejaAI : public ScriptedAI
         // Arcane Discharge
         if (m_uiArcaneDischargeTimer < uiDiff)
         {
-            if (DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_ARCANE_DISCHARGE : SPELL_ARCANE_DISCHARGE_H) == CAST_OK)
+            if (DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_ARCANE_DISCHARGE : SPELL_ARCANE_DISCHARGE_H) ==
+                CAST_OK)
                 m_uiArcaneDischargeTimer = urand(20000, 30000);
         }
         else
@@ -144,14 +146,14 @@ struct boss_chrono_lord_dejaAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_chrono_lord_deja(Creature* pCreature)
+UnitAI *GetAI_boss_chrono_lord_deja(Creature *pCreature)
 {
     return new boss_chrono_lord_dejaAI(pCreature);
 }
 
 void AddSC_boss_chrono_lord_deja()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_chrono_lord_deja";
     pNewScript->GetAI = &GetAI_boss_chrono_lord_deja;
     pNewScript->RegisterSelf();

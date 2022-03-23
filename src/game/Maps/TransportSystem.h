@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,18 +18,20 @@
  */
 
 /**
- * @addtogroup TransportSystem to provide abstract support for transported entities
- * The Transport System in MaNGOS consists of these files:
- * - TransportSystem.h to provide the basic classes TransportBase and TransportInfo
+ * @addtogroup TransportSystem to provide abstract support for transported
+ * entities The Transport System in MaNGOS consists of these files:
+ * - TransportSystem.h to provide the basic classes TransportBase and
+ * TransportInfo
  * - TransportSystem.cpp which implements these classes
- * - Transports.h to implement the MOTransporter (subclas of gameobject) - Remains TODO
- * as well of
+ * - Transports.h to implement the MOTransporter (subclas of gameobject) -
+ * Remains TODO as well of
  * - impacts to various files
  *
  * @{
  *
  * @file TransportSystem.h
- * This file contains the headers for base clases needed for MaNGOS to handle passengers on transports
+ * This file contains the headers for base clases needed for MaNGOS to handle
+ * passengers on transports
  *
  */
 
@@ -40,7 +43,7 @@
 
 class TransportInfo;
 
-typedef std::unordered_map<WorldObject* /*passenger*/, TransportInfo* /*passengerInfo*/> PassengerMap;
+typedef std::unordered_map<WorldObject * /*passenger*/, TransportInfo * /*passengerInfo*/> PassengerMap;
 
 /**
  * A class to provide basic support for each transporter. This includes
@@ -50,71 +53,95 @@ typedef std::unordered_map<WorldObject* /*passenger*/, TransportInfo* /*passenge
 
 class TransportBase
 {
-    public:
-        explicit TransportBase(WorldObject* owner);
-        virtual ~TransportBase();
+  public:
+    explicit TransportBase(WorldObject *owner);
+    virtual ~TransportBase();
 
-        void Update(uint32 diff);
-        void UpdateGlobalPositions();
-        void UpdateGlobalPositionOf(WorldObject* passenger, float lx, float ly, float lz, float lo) const;
+    void Update(uint32 diff);
+    void UpdateGlobalPositions();
+    void UpdateGlobalPositionOf(WorldObject *passenger, float lx, float ly, float lz, float lo) const;
 
-        WorldObject* GetOwner() const { return m_owner; }
+    WorldObject *GetOwner() const
+    {
+        return m_owner;
+    }
 
-        // Helper functions to calculate positions
-        void RotateLocalPosition(float lx, float ly, float& rx, float& ry) const;
-        void NormalizeRotatedPosition(float rx, float ry, float& lx, float& ly) const;
+    // Helper functions to calculate positions
+    void RotateLocalPosition(float lx, float ly, float &rx, float &ry) const;
+    void NormalizeRotatedPosition(float rx, float ry, float &lx, float &ly) const;
 
-        void CalculateGlobalPositionOf(float lx, float ly, float lz, float lo, float& gx, float& gy, float& gz, float& go) const;
+    void CalculateGlobalPositionOf(float lx, float ly, float lz, float lo, float &gx, float &gy, float &gz,
+                                   float &go) const;
 
-    protected:
-        // Helper functions to add/ remove a passenger from the list
-        void BoardPassenger(WorldObject* passenger, float lx, float ly, float lz, float lo);
-        void UnBoardPassenger(WorldObject* passenger);
+  protected:
+    // Helper functions to add/ remove a passenger from the list
+    void BoardPassenger(WorldObject *passenger, float lx, float ly, float lz, float lo);
+    void UnBoardPassenger(WorldObject *passenger);
 
-        WorldObject* m_owner;                               ///< The transporting unit
-        PassengerMap m_passengers;                          ///< List of passengers and their transport-information
+    WorldObject *m_owner;      ///< The transporting unit
+    PassengerMap m_passengers; ///< List of passengers and their transport-information
 
-        // Helpers to speedup position calculations
-        Position m_lastPosition;
-        float m_sinO, m_cosO;
-        uint32 m_updatePositionsTimer;                      ///< Timer that is used to trigger updates for global coordinate calculations
+    // Helpers to speedup position calculations
+    Position m_lastPosition;
+    float m_sinO, m_cosO;
+    uint32 m_updatePositionsTimer; ///< Timer that is used to trigger updates for
+                                   ///< global coordinate calculations
 };
 
 /**
- * A class to provide basic information for each transported passenger. This includes
+ * A class to provide basic information for each transported passenger. This
+ * includes
  * - local positions
  * - Accessors to get the transporter
  */
 
 class TransportInfo
 {
-    public:
-        explicit TransportInfo(WorldObject* owner, TransportBase* transport, float lx, float ly, float lz, float lo);
+  public:
+    explicit TransportInfo(WorldObject *owner, TransportBase *transport, float lx, float ly, float lz, float lo);
 
-        // Set local positions
-        void SetLocalPosition(float lx, float ly, float lz, float lo);
+    // Set local positions
+    void SetLocalPosition(float lx, float ly, float lz, float lo);
 
-        // Accessors
-        WorldObject* GetTransport() const { return m_transport->GetOwner(); }
-        ObjectGuid GetTransportGuid() const { return m_transport->GetOwner()->GetObjectGuid(); }
+    // Accessors
+    WorldObject *GetTransport() const
+    {
+        return m_transport->GetOwner();
+    }
+    ObjectGuid GetTransportGuid() const
+    {
+        return m_transport->GetOwner()->GetObjectGuid();
+    }
 
-        // Get local position
-        float GetLocalOrientation() const { return m_localPosition.o; }
-        float GetLocalPositionX() const { return m_localPosition.x; }
-        float GetLocalPositionY() const { return m_localPosition.y; }
-        float GetLocalPositionZ() const { return m_localPosition.z; }
-        void GetLocalPosition(float& lx, float& ly, float& lz, float& lo) const
-        {
-            lx = m_localPosition.x;
-            ly = m_localPosition.y;
-            lz = m_localPosition.z;
-            lo = m_localPosition.o;
-        }
+    // Get local position
+    float GetLocalOrientation() const
+    {
+        return m_localPosition.o;
+    }
+    float GetLocalPositionX() const
+    {
+        return m_localPosition.x;
+    }
+    float GetLocalPositionY() const
+    {
+        return m_localPosition.y;
+    }
+    float GetLocalPositionZ() const
+    {
+        return m_localPosition.z;
+    }
+    void GetLocalPosition(float &lx, float &ly, float &lz, float &lo) const
+    {
+        lx = m_localPosition.x;
+        ly = m_localPosition.y;
+        lz = m_localPosition.z;
+        lo = m_localPosition.o;
+    }
 
-    private:
-        WorldObject* m_owner;                               ///< Passenger
-        TransportBase* m_transport;                         ///< Transporter
-        Position m_localPosition;
+  private:
+    WorldObject *m_owner;       ///< Passenger
+    TransportBase *m_transport; ///< Transporter
+    Position m_localPosition;
 };
 
 #endif

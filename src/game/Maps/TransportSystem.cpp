@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,24 +22,24 @@
  * @{
  *
  * @file TransportSystem.cpp
- * This file contains the code needed for MaNGOS to provide abstract support for transported entities
- * Currently implemented
+ * This file contains the code needed for MaNGOS to provide abstract support
+ * for transported entities Currently implemented
  * - Calculating between local and global coords
  * - Abstract storage of passengers (added by BoardPassenger, UnboardPassenger)
  */
 
 #include "Maps/TransportSystem.h"
+
 #include "Entities/Unit.h"
 #include "Maps/MapManager.h"
 
-/* **************************************** TransportBase ****************************************/
+/* **************************************** TransportBase
+ * ****************************************/
 
-TransportBase::TransportBase(WorldObject* owner) :
-    m_owner(owner),
-    m_lastPosition(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), owner->GetOrientation()),
-    m_sinO(sin(m_lastPosition.o)),
-    m_cosO(cos(m_lastPosition.o)),
-    m_updatePositionsTimer(500)
+TransportBase::TransportBase(WorldObject *owner)
+    : m_owner(owner),
+      m_lastPosition(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), owner->GetOrientation()),
+      m_sinO(sin(m_lastPosition.o)), m_cosO(cos(m_lastPosition.o)), m_updatePositionsTimer(500)
 {
     MANGOS_ASSERT(m_owner);
 }
@@ -49,15 +50,16 @@ TransportBase::~TransportBase()
 }
 
 // Update every now and then (after some change of transporter's position)
-// This is used to calculate global positions (which don't have to be exact, they are only required for some server-side calculations
+// This is used to calculate global positions (which don't have to be exact,
+// they are only required for some server-side calculations
 void TransportBase::Update(uint32 diff)
 {
     if (m_updatePositionsTimer < diff)
     {
-        if (fabs(m_owner->GetPositionX() - m_lastPosition.x) +
-                fabs(m_owner->GetPositionY() - m_lastPosition.y) +
-                fabs(m_owner->GetPositionZ() - m_lastPosition.z) > 1.0f ||
-                MapManager::NormalizeOrientation(m_owner->GetOrientation() - m_lastPosition.o) > 0.01f)
+        if (fabs(m_owner->GetPositionX() - m_lastPosition.x) + fabs(m_owner->GetPositionY() - m_lastPosition.y) +
+                    fabs(m_owner->GetPositionZ() - m_lastPosition.z) >
+                1.0f ||
+            MapManager::NormalizeOrientation(m_owner->GetOrientation() - m_lastPosition.o) > 0.01f)
             UpdateGlobalPositions();
 
         m_updatePositionsTimer = 500;
@@ -69,8 +71,7 @@ void TransportBase::Update(uint32 diff)
 // Update the global positions of all passengers
 void TransportBase::UpdateGlobalPositions()
 {
-    Position pos(m_owner->GetPositionX(), m_owner->GetPositionY(),
-                 m_owner->GetPositionZ(), m_owner->GetOrientation());
+    Position pos(m_owner->GetPositionX(), m_owner->GetPositionY(), m_owner->GetPositionZ(), m_owner->GetOrientation());
 
     // Calculate new direction multipliers
     if (MapManager::NormalizeOrientation(pos.o - m_lastPosition.o) > 0.01f)
@@ -88,7 +89,7 @@ void TransportBase::UpdateGlobalPositions()
 }
 
 // Update the global position of a passenger
-void TransportBase::UpdateGlobalPositionOf(WorldObject* passenger, float lx, float ly, float lz, float lo) const
+void TransportBase::UpdateGlobalPositionOf(WorldObject *passenger, float lx, float ly, float lz, float lo) const
 {
     float gx, gy, gz, go;
     CalculateGlobalPositionOf(lx, ly, lz, lo, gx, gy, gz, go);
@@ -97,31 +98,32 @@ void TransportBase::UpdateGlobalPositionOf(WorldObject* passenger, float lx, flo
     {
         if (passenger->GetTypeId() == TYPEID_PLAYER)
         {
-            m_owner->GetMap()->PlayerRelocation((Player*)passenger, gx, gy, gz, go);
+            m_owner->GetMap()->PlayerRelocation((Player *)passenger, gx, gy, gz, go);
         }
         else
-            m_owner->GetMap()->CreatureRelocation((Creature*)passenger, gx, gy, gz, go);
+            m_owner->GetMap()->CreatureRelocation((Creature *)passenger, gx, gy, gz, go);
     }
     // ToDo: Add gameobject relocation
     // ToDo: Add passenger relocation for MO transports
 }
 
 // This rotates the vector (lx, ly) by transporter->orientation
-void TransportBase::RotateLocalPosition(float lx, float ly, float& rx, float& ry) const
+void TransportBase::RotateLocalPosition(float lx, float ly, float &rx, float &ry) const
 {
     rx = lx * m_cosO - ly * m_sinO;
     ry = lx * m_sinO + ly * m_cosO;
 }
 
 // This rotates the vector (rx, ry) by -transporter->orientation
-void TransportBase::NormalizeRotatedPosition(float rx, float ry, float& lx, float& ly) const
+void TransportBase::NormalizeRotatedPosition(float rx, float ry, float &lx, float &ly) const
 {
     lx = rx * -m_cosO - ry * -m_sinO;
     ly = rx * -m_sinO + ry * -m_cosO;
 }
 
 // Calculate a global position of local positions based on this transporter
-void TransportBase::CalculateGlobalPositionOf(float lx, float ly, float lz, float lo, float& gx, float& gy, float& gz, float& go) const
+void TransportBase::CalculateGlobalPositionOf(float lx, float ly, float lz, float lo, float &gx, float &gy, float &gz,
+                                              float &go) const
 {
     RotateLocalPosition(lx, ly, gx, gy);
     gx += m_owner->GetPositionX();
@@ -131,9 +133,9 @@ void TransportBase::CalculateGlobalPositionOf(float lx, float ly, float lz, floa
     go = MapManager::NormalizeOrientation(lo + m_owner->GetOrientation());
 }
 
-void TransportBase::BoardPassenger(WorldObject* passenger, float lx, float ly, float lz, float lo)
+void TransportBase::BoardPassenger(WorldObject *passenger, float lx, float ly, float lz, float lo)
 {
-    TransportInfo* transportInfo = new TransportInfo(passenger, this, lx, ly, lz, lo);
+    TransportInfo *transportInfo = new TransportInfo(passenger, this, lx, ly, lz, lo);
 
     // Insert our new passenger
     m_passengers.insert(PassengerMap::value_type(passenger, transportInfo));
@@ -142,7 +144,7 @@ void TransportBase::BoardPassenger(WorldObject* passenger, float lx, float ly, f
     passenger->SetTransportInfo(transportInfo);
 }
 
-void TransportBase::UnBoardPassenger(WorldObject* passenger)
+void TransportBase::UnBoardPassenger(WorldObject *passenger)
 {
     PassengerMap::iterator itr = m_passengers.find(passenger);
 
@@ -159,12 +161,11 @@ void TransportBase::UnBoardPassenger(WorldObject* passenger)
     m_passengers.erase(itr);
 }
 
-/* **************************************** TransportInfo ****************************************/
+/* **************************************** TransportInfo
+ * ****************************************/
 
-TransportInfo::TransportInfo(WorldObject* owner, TransportBase* transport, float lx, float ly, float lz, float lo) :
-    m_owner(owner),
-    m_transport(transport),
-    m_localPosition(lx, ly, lz, lo)
+TransportInfo::TransportInfo(WorldObject *owner, TransportBase *transport, float lx, float ly, float lz, float lo)
+    : m_owner(owner), m_transport(transport), m_localPosition(lx, ly, lz, lo)
 {
     MANGOS_ASSERT(owner && m_transport);
 }

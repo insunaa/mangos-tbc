@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +18,11 @@
  */
 
 #include "BIH.h"
-#include <stdexcept>
-#include <cmath>
 
-void BIH::buildHierarchy(std::vector<uint32>& tempTree, buildData& dat, BuildStats& stats)
+#include <cmath>
+#include <stdexcept>
+
+void BIH::buildHierarchy(std::vector<uint32> &tempTree, buildData &dat, BuildStats &stats)
 {
     // create space for the first node
     tempTree.push_back(static_cast<uint32>(3 << 30)); // dummy leaf
@@ -28,13 +30,14 @@ void BIH::buildHierarchy(std::vector<uint32>& tempTree, buildData& dat, BuildSta
     // tempTree.add(0);
 
     // seed bbox
-    AABound gridBox = { bounds.low(), bounds.high() };
+    AABound gridBox = {bounds.low(), bounds.high()};
     AABound nodeBox = gridBox;
     // seed subdivide function
     subdivide(0, dat.numPrims - 1, tempTree, dat, gridBox, nodeBox, 0, 1, stats);
 }
 
-void BIH::subdivide(int left, int right, std::vector<uint32>& tempTree, buildData& dat, AABound& gridBox, AABound& nodeBox, int nodeIndex, int depth, BuildStats& stats)
+void BIH::subdivide(int left, int right, std::vector<uint32> &tempTree, buildData &dat, AABound &gridBox,
+                    AABound &nodeBox, int nodeIndex, int depth, BuildStats &stats)
 {
     if ((right - left + 1) <= dat.maxPrims || depth >= MAX_STACK_SIZE)
     {
@@ -62,7 +65,8 @@ void BIH::subdivide(int left, int right, std::vector<uint32>& tempTree, buildDat
         {
             if (nodeBox.hi[i] < gridBox.lo[i] || nodeBox.lo[i] > gridBox.hi[i])
             {
-                // UI.printError(Module.ACCEL, "Reached tree area in error - discarding node with: %d objects", right - left + 1);
+                // UI.printError(Module.ACCEL, "Reached tree area in error -
+                // discarding node with: %d objects", right - left + 1);
                 throw std::logic_error("invalid node overlap");
             }
         }
@@ -252,7 +256,7 @@ void BIH::subdivide(int left, int right, std::vector<uint32>& tempTree, buildDat
         stats.updateLeaf(depth + 1, 0);
 }
 
-bool BIH::writeToFile(FILE* wf) const
+bool BIH::writeToFile(FILE *wf) const
 {
     uint32 treeSize = tree.size();
     uint32 check = 0;
@@ -266,7 +270,7 @@ bool BIH::writeToFile(FILE* wf) const
     return check == (3 + 3 + 2 + treeSize + count);
 }
 
-bool BIH::readFromFile(FILE* rf)
+bool BIH::readFromFile(FILE *rf)
 {
     uint32 treeSize;
     Vector3 lo, hi;
@@ -302,11 +306,11 @@ void BIH::BuildStats::printStats()
     printf("  * Nodes:          %d\n", numNodes);
     printf("  * Leaves:         %d\n", numLeaves);
     printf("  * Objects: min    %d\n", minObjects);
-    printf("             avg    %.2f\n", (float) sumObjects / numLeaves);
-    printf("           avg(n>0) %.2f\n", (float) sumObjects / (numLeaves - numLeavesN[0]));
+    printf("             avg    %.2f\n", (float)sumObjects / numLeaves);
+    printf("           avg(n>0) %.2f\n", (float)sumObjects / (numLeaves - numLeavesN[0]));
     printf("             max    %d\n", maxObjects);
     printf("  * Depth:   min    %d\n", minDepth);
-    printf("             avg    %.2f\n", (float) sumDepth / numLeaves);
+    printf("             avg    %.2f\n", (float)sumDepth / numLeaves);
     printf("             max    %d\n", maxDepth);
     printf("  * Leaves w/: N=0  %3d%%\n", 100 * numLeavesN[0] / numLeaves);
     printf("               N=1  %3d%%\n", 100 * numLeavesN[1] / numLeaves);

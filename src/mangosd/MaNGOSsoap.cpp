@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +21,10 @@
 
 #include <string>
 
-SOAPThread::SOAPThread(const std::string& host, int port) : m_host(host), m_port(port), m_workerThread(&SOAPThread::Work, this) {}
+SOAPThread::SOAPThread(const std::string &host, int port)
+    : m_host(host), m_port(port), m_workerThread(&SOAPThread::Work, this)
+{
+}
 
 SOAPThread::~SOAPThread()
 {
@@ -56,7 +60,8 @@ void SOAPThread::Work()
         if (s == SOAP_INVALID_SOCKET)
             continue;
 
-        DEBUG_LOG("MaNGOSsoap: accepted connection from IP=%d.%d.%d.%d", (int)(soap.ip >> 24) & 0xFF, (int)(soap.ip >> 16) & 0xFF, (int)(soap.ip >> 8) & 0xFF, (int)soap.ip & 0xFF);
+        DEBUG_LOG("MaNGOSsoap: accepted connection from IP=%d.%d.%d.%d", (int)(soap.ip >> 24) & 0xFF,
+                  (int)(soap.ip >> 16) & 0xFF, (int)(soap.ip >> 8) & 0xFF, (int)soap.ip & 0xFF);
 
         auto copy = soap_copy(&soap);
         soap_serve(copy);
@@ -72,7 +77,7 @@ Code used for generating stubs:
 
 int ns1__executeCommand(char* command, char** result);
 */
-int ns1__executeCommand(soap* soap, char* command, char** result)
+int ns1__executeCommand(soap *soap, char *command, char **result)
 {
     // security check
     if (!soap->userid || !soap->passwd)
@@ -109,20 +114,20 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
     std::vector<char> buffer;
     buffer.reserve(SOAPThread::CommandOutputBufferSize);
 
-    // commands are executed in the world thread. We have to wait for them to be completed
-    sWorld.QueueCliCommand(new CliCommandHolder(accountId, SEC_CONSOLE, command,
-                           [&buffer](const char* output)
-    {
-        assert(output);
+    // commands are executed in the world thread. We have to wait for them to be
+    // completed
+    sWorld.QueueCliCommand(new CliCommandHolder(
+        accountId, SEC_CONSOLE, command,
+        [&buffer](const char *output) {
+            assert(output);
 
-        for (auto p = output; *p; ++p)
-            buffer.push_back(*p);
-    },
-    [soap, &commandExecuted, &commandSucceeded](bool success)
-    {
-        commandExecuted = true;
-        commandSucceeded = success;
-    }));
+            for (auto p = output; *p; ++p)
+                buffer.push_back(*p);
+        },
+        [soap, &commandExecuted, &commandSucceeded](bool success) {
+            commandExecuted = true;
+            commandSucceeded = success;
+        }));
 
     while (!commandExecuted)
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -147,12 +152,10 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-struct Namespace namespaces[] =
-{
-    { "SOAP-ENV", "http://schemas.xmlsoap.org/soap/envelope/" }, // must be first
-    { "SOAP-ENC", "http://schemas.xmlsoap.org/soap/encoding/" }, // must be second
-    { "xsi", "http://www.w3.org/1999/XMLSchema-instance", "http://www.w3.org/*/XMLSchema-instance" },
-    { "xsd", "http://www.w3.org/1999/XMLSchema",          "http://www.w3.org/*/XMLSchema" },
-    { "ns1", "urn:MaNGOS" },     // "ns1" namespace prefix
-    { nullptr, nullptr }
-};
+struct Namespace namespaces[] = {
+    {"SOAP-ENV", "http://schemas.xmlsoap.org/soap/envelope/"}, // must be first
+    {"SOAP-ENC", "http://schemas.xmlsoap.org/soap/encoding/"}, // must be second
+    {"xsi", "http://www.w3.org/1999/XMLSchema-instance", "http://www.w3.org/*/XMLSchema-instance"},
+    {"xsd", "http://www.w3.org/1999/XMLSchema", "http://www.w3.org/*/XMLSchema"},
+    {"ns1", "urn:MaNGOS"}, // "ns1" namespace prefix
+    {nullptr, nullptr}};

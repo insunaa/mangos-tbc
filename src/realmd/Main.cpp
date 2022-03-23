@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,29 +21,27 @@
 /// @{
 /// \file
 
-#include "Common.h"
-#include "Database/DatabaseEnv.h"
-#include "RealmList.h"
-
-#include "Config/Config.h"
-#include "Log.h"
-#include "AuthSocket.h"
-#include "SystemConfig.h"
-#include "revision.h"
-#include "revision_sql.h"
-#include "Util.h"
-#include "Network/Listener.hpp"
-
-#include <openssl/opensslv.h>
 #include <openssl/crypto.h>
+#include <openssl/opensslv.h>
 
 #include <boost/program_options.hpp>
 #include <boost/version.hpp>
-
+#include <chrono>
 #include <iostream>
 #include <string>
-#include <chrono>
 #include <thread>
+
+#include "AuthSocket.h"
+#include "Common.h"
+#include "Config/Config.h"
+#include "Database/DatabaseEnv.h"
+#include "Log.h"
+#include "Network/Listener.hpp"
+#include "RealmList.h"
+#include "SystemConfig.h"
+#include "Util.h"
+#include "revision.h"
+#include "revision_sql.h"
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
@@ -64,23 +63,23 @@ bool StartDB();
 void UnhookSignals();
 void HookSignals();
 
-bool stopEvent = false;                                     ///< Setting it to true stops the server
+bool stopEvent = false; ///< Setting it to true stops the server
 
-DatabaseType LoginDatabase;                                 ///< Accessor to the realm server database
+DatabaseType LoginDatabase; ///< Accessor to the realm server database
 
 /// Launch the realm server
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     std::string configFile, serviceParameter;
 
     boost::program_options::options_description desc("Allowed options");
-    desc.add_options()
-    ("config,c", boost::program_options::value<std::string>(&configFile)->default_value(_REALMD_CONFIG), "configuration file")
-    ("version,v", "print version and exit")
+    desc.add_options()("config,c",
+                       boost::program_options::value<std::string>(&configFile)->default_value(_REALMD_CONFIG),
+                       "configuration file")("version,v", "print version and exit")
 #ifdef _WIN32
-    ("s", boost::program_options::value<std::string>(&serviceParameter), "<run, install, uninstall> service");
+        ("s", boost::program_options::value<std::string>(&serviceParameter), "<run, install, uninstall> service");
 #else
-    ("s", boost::program_options::value<std::string>(&serviceParameter), "<run, stop> service");
+        ("s", boost::program_options::value<std::string>(&serviceParameter), "<run, stop> service");
 #endif
 
     boost::program_options::variables_map vm;
@@ -90,7 +89,7 @@ int main(int argc, char* argv[])
         boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
         boost::program_options::notify(vm);
     }
-    catch (boost::program_options::error const& e)
+    catch (boost::program_options::error const &e)
     {
         std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
         std::cerr << desc << std::endl;
@@ -98,22 +97,22 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-#ifdef _WIN32                                                // windows service command need execute before config read
+#ifdef _WIN32 // windows service command need execute before config read
     if (vm.count("s"))
     {
         switch (::tolower(serviceParameter[0]))
         {
-            case 'i':
-                if (WinServiceInstall())
-                    sLog.outString("Installing service");
-                return 1;
-            case 'u':
-                if (WinServiceUninstall())
-                    sLog.outString("Uninstalling service");
-                return 1;
-            case 'r':
-                WinServiceRun();
-                break;
+        case 'i':
+            if (WinServiceInstall())
+                sLog.outString("Installing service");
+            return 1;
+        case 'u':
+            if (WinServiceUninstall())
+                sLog.outString("Uninstalling service");
+            return 1;
+        case 'r':
+            WinServiceRun();
+            break;
         }
     }
 #endif
@@ -125,33 +124,33 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-#ifndef _WIN32                                               // posix daemon commands need apply after config read
+#ifndef _WIN32 // posix daemon commands need apply after config read
     if (vm.count("s"))
     {
         switch (::tolower(serviceParameter[0]))
         {
-            case 'r':
-                startDaemon();
-                break;
-            case 's':
-                stopDaemon();
-                break;
+        case 'r':
+            startDaemon();
+            break;
+        case 's':
+            stopDaemon();
+            break;
         }
     }
 #endif
 
     sLog.Initialize();
 
-    sLog.outString("[%s Auth server v%s] port(%d)", _PACKAGENAME, VERSION
-        , sConfig.GetIntDefault("RealmServerPort", -1));
+    sLog.outString("[%s Auth server v%s] port(%d)", _PACKAGENAME, VERSION,
+                   sConfig.GetIntDefault("RealmServerPort", -1));
     sLog.outString("\n\n"
-        "       _____     __  __       _   _  _____  ____   _____ \n"
-        "      / ____|   |  \\/  |     | \\ | |/ ____|/ __ \\ / ____|\n"
-        "     | |        | \\  / |     |  \\| | |  __  |  | | (___  \n"
-        "     | |ontinued| |\\/| | __ _| . ` | | |_ | |  | |\\___ \\ \n"
-        "     | |____    | |  | |/ _` | |\\  | |__| | |__| |____) |\n"
-        "      \\_____|   |_|  |_| (_| |_| \\_|\\_____|\\____/ \\____/ \n"
-        "      http://cmangos.net\\__,_|     Doing emulation right!\n\n");
+                   "       _____     __  __       _   _  _____  ____   _____ \n"
+                   "      / ____|   |  \\/  |     | \\ | |/ ____|/ __ \\ / ____|\n"
+                   "     | |        | \\  / |     |  \\| | |  __  |  | | (___  \n"
+                   "     | |ontinued| |\\/| | __ _| . ` | | |_ | |  | |\\___ \\ \n"
+                   "     | |____    | |  | |/ _` | |\\  | |__| | |__| |____) |\n"
+                   "      \\_____|   |_|  |_| (_| |_| \\_|\\_____|\\____/ \\____/ \n"
+                   "      http://cmangos.net\\__,_|     Doing emulation right!\n\n");
 
     sLog.outString("Built on %s at %s", __DATE__, __TIME__);
     sLog.outString("Built for %s", _ENDIAN_PLATFORM);
@@ -162,18 +161,23 @@ int main(int argc, char* argv[])
     uint32 confVersion = sConfig.GetIntDefault("ConfVersion", 0);
     if (confVersion < _REALMDCONFVERSION)
     {
-        sLog.outError("*****************************************************************************");
-        sLog.outError(" WARNING: Your realmd.conf version indicates your conf file is out of date!");
-        sLog.outError("          Please check for updates, as your current default values may cause");
+        sLog.outError("************************************************************"
+                      "*****************");
+        sLog.outError(" WARNING: Your realmd.conf version indicates your conf file "
+                      "is out of date!");
+        sLog.outError("          Please check for updates, as your current default "
+                      "values may cause");
         sLog.outError("          strange behavior.");
-        sLog.outError("*****************************************************************************");
+        sLog.outError("************************************************************"
+                      "*****************");
         Log::WaitBeforeContinueIfNeed();
     }
 
     DETAIL_LOG("%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
     if (SSLeay() < 0x009080bfL)
     {
-        DETAIL_LOG("WARNING: Outdated version of OpenSSL lib. Logins to server may not work!");
+        DETAIL_LOG("WARNING: Outdated version of OpenSSL lib. Logins to server may "
+                   "not work!");
         DETAIL_LOG("WARNING: Minimal required version [OpenSSL 0.9.8k]");
     }
 
@@ -214,16 +218,18 @@ int main(int argc, char* argv[])
     // cleanup query
     // set expired bans to inactive
     LoginDatabase.BeginTransaction();
-    LoginDatabase.Execute("UPDATE account_banned SET active = 0 WHERE expires_at<=UNIX_TIMESTAMP() AND expires_at<>banned_at");
-    LoginDatabase.Execute("DELETE FROM ip_banned WHERE expires_at<=UNIX_TIMESTAMP() AND expires_at<>banned_at");
+    LoginDatabase.Execute("UPDATE account_banned SET active = 0 WHERE "
+                          "expires_at<=UNIX_TIMESTAMP() "
+                          "AND expires_at<>banned_at");
+    LoginDatabase.Execute("DELETE FROM ip_banned WHERE expires_at<=UNIX_TIMESTAMP() AND "
+                          "expires_at<>banned_at");
     LoginDatabase.CommitTransaction();
 
-    // FIXME - more intelligent selection of thread count is needed here.  config option?
-    MaNGOS::Listener<AuthSocket> listener(
-            sConfig.GetStringDefault("BindIP", "0.0.0.0"),
-            sConfig.GetIntDefault("RealmServerPort", DEFAULT_REALMSERVER_PORT),
-            sConfig.GetIntDefault("ListenerThreads", 1)
-    );
+    // FIXME - more intelligent selection of thread count is needed here.  config
+    // option?
+    MaNGOS::Listener<AuthSocket> listener(sConfig.GetStringDefault("BindIP", "0.0.0.0"),
+                                          sConfig.GetIntDefault("RealmServerPort", DEFAULT_REALMSERVER_PORT),
+                                          sConfig.GetIntDefault("ListenerThreads", 1));
 
     ///- Catch termination signals
     HookSignals();
@@ -241,11 +247,14 @@ int main(int argc, char* argv[])
 
             if (GetProcessAffinityMask(hProcess, &appAff, &sysAff))
             {
-                ULONG_PTR curAff = Aff & appAff;            // remove non accessible processors
+                ULONG_PTR curAff = Aff & appAff; // remove non accessible processors
 
                 if (!curAff)
                 {
-                    sLog.outError("Processors marked in UseProcessors bitmask (hex) %x not accessible for realmd. Accessible processors bitmask (hex): %x", Aff, appAff);
+                    sLog.outError("Processors marked in UseProcessors bitmask (hex) %x not "
+                                  "accessible for realmd. Accessible processors bitmask "
+                                  "(hex): %x",
+                                  Aff, appAff);
                 }
                 else
                 {
@@ -292,11 +301,12 @@ int main(int argc, char* argv[])
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 #ifdef _WIN32
-        if (m_ServiceStatus == 0) stopEvent = true;
-        while (m_ServiceStatus == 2) Sleep(1000);
+        if (m_ServiceStatus == 0)
+            stopEvent = true;
+        while (m_ServiceStatus == 2)
+            Sleep(1000);
 #endif
     }
-
 
     ///- Wait for the delay thread to exit
     LoginDatabase.HaltDelayThread();
@@ -309,19 +319,20 @@ int main(int argc, char* argv[])
 }
 
 /// Handle termination signals
-/** Put the global variable stopEvent to 'true' if a termination signal is caught **/
+/** Put the global variable stopEvent to 'true' if a termination signal is
+ * caught **/
 void OnSignal(int s)
 {
     switch (s)
     {
-        case SIGINT:
-        case SIGTERM:
-            stopEvent = true;
-            break;
+    case SIGINT:
+    case SIGTERM:
+        stopEvent = true;
+        break;
 #ifdef _WIN32
-        case SIGBREAK:
-            stopEvent = true;
-            break;
+    case SIGBREAK:
+        stopEvent = true;
+        break;
 #endif
     }
 

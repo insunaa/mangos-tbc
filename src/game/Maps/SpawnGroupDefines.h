@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,15 +20,16 @@
 #ifndef MANGOS_SPAWN_GROUP_DEFINE_H
 #define MANGOS_SPAWN_GROUP_DEFINE_H
 
-#include "Platform/Define.h"
-#include <string>
-#include <vector>
 #include <map>
 #include <memory>
+#include <string>
+#include <vector>
 
+#include "Platform/Define.h"
 
- // uncomment this if you want mirroring at start and end of the LINEAR_WP_MOTION_TYPE movement
- //#define ENABLE_SPAWNGROUP_FORMATION_MIRRORING
+// uncomment this if you want mirroring at start and end of the
+// LINEAR_WP_MOTION_TYPE movement
+//#define ENABLE_SPAWNGROUP_FORMATION_MIRRORING
 
 struct FormationEntry;
 class FormationData;
@@ -67,9 +69,9 @@ enum SpawnGroupType
 
 enum CreatureGroupFlags
 {
-    CREATURE_GROUP_AGGRO_TOGETHER   = 0x01,
+    CREATURE_GROUP_AGGRO_TOGETHER = 0x01,
     CREATURE_GROUP_RESPAWN_TOGETHER = 0x02,
-    CREATURE_GROUP_EVADE_TOGETHER   = 0x04,
+    CREATURE_GROUP_EVADE_TOGETHER = 0x04,
 };
 
 enum CreatureGroupEvent : uint32
@@ -85,15 +87,16 @@ struct SpawnGroupEntry
     uint32 Id;
     std::string Name;
     SpawnGroupType Type;
-    uint32 MaxCount; // Maximum active alive entities spawned in world
-    int32 WorldStateId; // Worldstate value when set to 1 enables spawning of given group and 0 disables spawning
+    uint32 MaxCount;    // Maximum active alive entities spawned in world
+    int32 WorldStateId; // Worldstate value when set to 1 enables spawning of
+                        // given group and 0 disables spawning
     uint32 Flags;
     bool Active;
     bool EnabledByDefault;
     std::vector<SpawnGroupDbGuids> DbGuids;
     std::vector<SpawnGroupRandomEntry> RandomEntries;
-    std::vector<SpawnGroupRandomEntry*> EquallyChanced;
-    std::vector<SpawnGroupRandomEntry*> ExplicitlyChanced;
+    std::vector<SpawnGroupRandomEntry *> EquallyChanced;
+    std::vector<SpawnGroupRandomEntry *> ExplicitlyChanced;
     std::vector<uint32> LinkedGroups;
 
     // may be nullptr
@@ -101,7 +104,8 @@ struct SpawnGroupEntry
 
     int32 GetFormationSlotId(uint32 dbGuid) const
     {
-        auto const& itr = std::find_if(DbGuids.begin(), DbGuids.end(), [dbGuid](SpawnGroupDbGuids const& x) { return x.DbGuid == dbGuid; });
+        auto const &itr = std::find_if(DbGuids.begin(), DbGuids.end(),
+                                       [dbGuid](SpawnGroupDbGuids const &x) { return x.DbGuid == dbGuid; });
         return itr != DbGuids.end() ? (*itr).SlotId : -1;
     }
 };
@@ -109,15 +113,15 @@ struct SpawnGroupEntry
 // Formation defines
 enum SpawnGroupFormationType : uint32
 {
-    SPAWN_GROUP_FORMATION_TYPE_RANDOM              = 0,
-    SPAWN_GROUP_FORMATION_TYPE_SINGLE_FILE         = 1,
-    SPAWN_GROUP_FORMATION_TYPE_SIDE_BY_SIDE        = 2,
-    SPAWN_GROUP_FORMATION_TYPE_LIKE_GEESE          = 3,
-    SPAWN_GROUP_FORMATION_TYPE_FANNED_OUT_BEHIND   = 4,
+    SPAWN_GROUP_FORMATION_TYPE_RANDOM = 0,
+    SPAWN_GROUP_FORMATION_TYPE_SINGLE_FILE = 1,
+    SPAWN_GROUP_FORMATION_TYPE_SIDE_BY_SIDE = 2,
+    SPAWN_GROUP_FORMATION_TYPE_LIKE_GEESE = 3,
+    SPAWN_GROUP_FORMATION_TYPE_FANNED_OUT_BEHIND = 4,
     SPAWN_GROUP_FORMATION_TYPE_FANNED_OUT_IN_FRONT = 5,
-    SPAWN_GROUP_FORMATION_TYPE_CIRCLE_THE_LEADER   = 6,
+    SPAWN_GROUP_FORMATION_TYPE_CIRCLE_THE_LEADER = 6,
 
-    SPAWN_GROUP_FORMATION_TYPE_COUNT               = 7
+    SPAWN_GROUP_FORMATION_TYPE_COUNT = 7
 };
 
 enum SpawnGroupFormationSlotType : uint32
@@ -129,9 +133,10 @@ enum SpawnGroupFormationSlotType : uint32
 
 enum SpawGroupFormationOptions : uint32
 {
-    SPAWN_GROUP_FORMATION_OPTION_NONE                                       = 0x00,
-    SPAWN_GROUP_FORMATION_OPTION_FOLLOWERS_WILL_NOT_PATHFIND_TO_LOCATION    = 0x01, // NYI - need examples where used vs normal
-    SPAWN_GROUP_FORMATION_OPTION_KEEP_CONPACT                               = 0x02,
+    SPAWN_GROUP_FORMATION_OPTION_NONE = 0x00,
+    SPAWN_GROUP_FORMATION_OPTION_FOLLOWERS_WILL_NOT_PATHFIND_TO_LOCATION =
+        0x01, // NYI - need examples where used vs normal
+    SPAWN_GROUP_FORMATION_OPTION_KEEP_CONPACT = 0x02,
 };
 
 struct FormationEntry
@@ -148,7 +153,7 @@ struct FormationEntry
 struct SpawnGroupEntryContainer
 {
     std::map<uint32, SpawnGroupEntry> spawnGroupMap;
-    std::map<std::pair<uint32, uint32>, SpawnGroupEntry*> spawnGroupByGuidMap;
+    std::map<std::pair<uint32, uint32>, SpawnGroupEntry *> spawnGroupByGuidMap;
 };
 
 #endif

@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -26,37 +26,37 @@ EndScriptData */
 
 enum
 {
-    SAY_AGGRO                           = -1090024,
-    SAY_PHASE                           = -1090025,
-    SAY_BOMB                            = -1090026,
-    SAY_SLAY                            = -1090027,
+    SAY_AGGRO = -1090024,
+    SAY_PHASE = -1090025,
+    SAY_BOMB = -1090026,
+    SAY_SLAY = -1090027,
 
-    SPELL_ACTIVATE_BOMB_A               = 11511,            // Target Dest = -530.754 670.571 -313.784
-    SPELL_ACTIVATE_BOMB_B               = 11795,            // Target Dest = -530.754 670.571 -313.784
-    SPELL_KNOCK_AWAY                    = 10101,
-    SPELL_KNOCK_AWAY_AOE                = 11130,
-    SPELL_WALKING_BOMB_EFFECT           = 11504,
+    SPELL_ACTIVATE_BOMB_A = 11511, // Target Dest = -530.754 670.571 -313.784
+    SPELL_ACTIVATE_BOMB_B = 11795, // Target Dest = -530.754 670.571 -313.784
+    SPELL_KNOCK_AWAY = 10101,
+    SPELL_KNOCK_AWAY_AOE = 11130,
+    SPELL_WALKING_BOMB_EFFECT = 11504,
 
-    NPC_WALKING_BOMB                    = 7915,
+    NPC_WALKING_BOMB = 7915,
 };
 
-static const float fBombSpawnZ  = -316.2625f;
+static const float fBombSpawnZ = -316.2625f;
 
 struct boss_thermapluggAI : public ScriptedAI
 {
-    boss_thermapluggAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_thermapluggAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (instance_gnomeregan*)pCreature->GetInstanceData();
+        m_pInstance = (instance_gnomeregan *)pCreature->GetInstanceData();
         Reset();
     }
 
-    instance_gnomeregan* m_pInstance;
+    instance_gnomeregan *m_pInstance;
     bool m_bIsPhaseTwo;
 
     uint32 m_uiKnockAwayTimer;
     uint32 m_uiActivateBombTimer;
 
-    sBombFace* m_asBombFaces;
+    sBombFace *m_asBombFaces;
     float m_afSpawnPos[3];
 
     GuidList m_lSummonedBombGUIDs;
@@ -73,23 +73,24 @@ struct boss_thermapluggAI : public ScriptedAI
         m_lLandedBombGUIDs.clear();
     }
 
-    void GetAIInformation(ChatHandler& reader) override
+    void GetAIInformation(ChatHandler &reader) override
     {
         reader.PSendSysMessage("Thermaplugg, currently phase %s", m_bIsPhaseTwo ? "two" : "one");
 
         if (m_asBombFaces)
         {
             for (uint8 i = 0; i < MAX_GNOME_FACES; ++i)
-                reader.PSendSysMessage("Bomb face %u is %s ", (uint32)i, m_asBombFaces[i].m_bActivated ? "activated" : "not activated");
+                reader.PSendSysMessage("Bomb face %u is %s ", (uint32)i,
+                                       m_asBombFaces[i].m_bActivated ? "activated" : "not activated");
         }
     }
 
-    void KilledUnit(Unit* /*pVictim*/) override
+    void KilledUnit(Unit * /*pVictim*/) override
     {
         DoScriptText(SAY_SLAY, m_creature);
     }
 
-    void JustDied(Unit* /*pKiller*/) override
+    void JustDied(Unit * /*pKiller*/) override
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_THERMAPLUGG, DONE);
@@ -97,7 +98,7 @@ struct boss_thermapluggAI : public ScriptedAI
         m_lSummonedBombGUIDs.clear();
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
@@ -120,13 +121,13 @@ struct boss_thermapluggAI : public ScriptedAI
         // Remove remaining bombs
         for (GuidList::const_iterator itr = m_lSummonedBombGUIDs.begin(); itr != m_lSummonedBombGUIDs.end(); ++itr)
         {
-            if (Creature* pBomb = m_creature->GetMap()->GetCreature(*itr))
+            if (Creature *pBomb = m_creature->GetMap()->GetCreature(*itr))
                 pBomb->ForcedDespawn();
         }
         m_lSummonedBombGUIDs.clear();
     }
 
-    void JustSummoned(Creature* pSummoned) override
+    void JustSummoned(Creature *pSummoned) override
     {
         if (pSummoned->GetEntry() == NPC_WALKING_BOMB)
         {
@@ -137,13 +138,13 @@ struct boss_thermapluggAI : public ScriptedAI
         }
     }
 
-    void SummonedMovementInform(Creature* pSummoned, uint32 uiMotionType, uint32 uiPointId) override
+    void SummonedMovementInform(Creature *pSummoned, uint32 uiMotionType, uint32 uiPointId) override
     {
         if (pSummoned->GetEntry() == NPC_WALKING_BOMB && uiMotionType == POINT_MOTION_TYPE && uiPointId == 1)
             m_lLandedBombGUIDs.push_back(pSummoned->GetObjectGuid());
     }
 
-    void SummonedCreatureDespawn(Creature* pSummoned) override
+    void SummonedCreatureDespawn(Creature *pSummoned) override
     {
         m_lSummonedBombGUIDs.remove(pSummoned->GetObjectGuid());
     }
@@ -158,7 +159,7 @@ struct boss_thermapluggAI : public ScriptedAI
         {
             for (GuidList::const_iterator itr = m_lLandedBombGUIDs.begin(); itr != m_lLandedBombGUIDs.end(); ++itr)
             {
-                if (Creature* pBomb = m_creature->GetMap()->GetCreature(*itr))
+                if (Creature *pBomb = m_creature->GetMap()->GetCreature(*itr))
                     pBomb->GetMotionMaster()->MoveFollow(m_creature, 0.0f, 0.0f);
             }
             m_lLandedBombGUIDs.clear();
@@ -191,7 +192,7 @@ struct boss_thermapluggAI : public ScriptedAI
             if (DoCastSpellIfCan(m_creature, m_bIsPhaseTwo ? SPELL_ACTIVATE_BOMB_B : SPELL_ACTIVATE_BOMB_A) == CAST_OK)
             {
                 m_uiActivateBombTimer = (m_bIsPhaseTwo ? urand(6, 12) : urand(12, 17)) * IN_MILLISECONDS;
-                if (!urand(0, 5))                           // TODO, chance/ place for this correct?
+                if (!urand(0, 5)) // TODO, chance/ place for this correct?
                     DoScriptText(SAY_BOMB, m_creature);
             }
         }
@@ -207,15 +208,17 @@ struct boss_thermapluggAI : public ScriptedAI
                 {
                     if (m_asBombFaces[i].m_uiBombTimer < uiDiff)
                     {
-                        // Calculate the spawning position as 90% between face and thermaplugg spawn-pos, and hight hardcoded
+                        // Calculate the spawning position as 90% between face and
+                        // thermaplugg spawn-pos, and hight hardcoded
                         float fX = 0.0f, fY = 0.0f;
-                        if (GameObject* pFace = m_creature->GetMap()->GetGameObject(m_asBombFaces[i].m_gnomeFaceGuid))
+                        if (GameObject *pFace = m_creature->GetMap()->GetGameObject(m_asBombFaces[i].m_gnomeFaceGuid))
                         {
                             fX = 0.35 * m_afSpawnPos[0] + 0.65 * pFace->GetPositionX();
                             fY = 0.35 * m_afSpawnPos[1] + 0.65 * pFace->GetPositionY();
                         }
-                        m_creature->SummonCreature(NPC_WALKING_BOMB, fX, fY, fBombSpawnZ, 0.0f, TEMPSPAWN_CORPSE_DESPAWN, 0);
-                        m_asBombFaces[i].m_uiBombTimer = urand(10000, 25000);   // TODO
+                        m_creature->SummonCreature(NPC_WALKING_BOMB, fX, fY, fBombSpawnZ, 0.0f,
+                                                   TEMPSPAWN_CORPSE_DESPAWN, 0);
+                        m_asBombFaces[i].m_uiBombTimer = urand(10000, 25000); // TODO
                     }
                     else
                         m_asBombFaces[i].m_uiBombTimer -= uiDiff;
@@ -227,38 +230,52 @@ struct boss_thermapluggAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_thermaplugg(Creature* pCreature)
+UnitAI *GetAI_boss_thermaplugg(Creature *pCreature)
 {
     return new boss_thermapluggAI(pCreature);
 }
 
-bool EffectDummyCreature_spell_boss_thermaplugg(Unit* /*pCaster*/, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget, ObjectGuid /*originalCasterGuid*/)
+bool EffectDummyCreature_spell_boss_thermaplugg(Unit * /*pCaster*/, uint32 uiSpellId, SpellEffectIndex uiEffIndex,
+                                                Creature *pCreatureTarget, ObjectGuid /*originalCasterGuid*/)
 {
     if ((uiSpellId != SPELL_ACTIVATE_BOMB_A && uiSpellId != SPELL_ACTIVATE_BOMB_B) || uiEffIndex != EFFECT_INDEX_0)
         return false;
 
     // This spell should select a random Bomb-Face and activate it if needed
-    if (instance_gnomeregan* pInstance = (instance_gnomeregan*)pCreatureTarget->GetInstanceData())
+    if (instance_gnomeregan *pInstance = (instance_gnomeregan *)pCreatureTarget->GetInstanceData())
         pInstance->DoActivateBombFace(urand(0, MAX_GNOME_FACES - 1));
 
     return true;
 }
 
-bool GOUse_go_gnomeface_button(Player* pPlayer, GameObject* pGo)
+bool GOUse_go_gnomeface_button(Player *pPlayer, GameObject *pGo)
 {
-    instance_gnomeregan* pInstance = (instance_gnomeregan*)pPlayer->GetInstanceData();
+    instance_gnomeregan *pInstance = (instance_gnomeregan *)pPlayer->GetInstanceData();
     if (!pInstance)
         return false;
 
-    // If a button is used, the related face should be deactivated (if already activated)
+    // If a button is used, the related face should be deactivated (if already
+    // activated)
     switch (pGo->GetEntry())
     {
-        case GO_BUTTON_1: pInstance->DoDeactivateBombFace(0); break;
-        case GO_BUTTON_2: pInstance->DoDeactivateBombFace(1); break;
-        case GO_BUTTON_3: pInstance->DoDeactivateBombFace(2); break;
-        case GO_BUTTON_4: pInstance->DoDeactivateBombFace(3); break;
-        case GO_BUTTON_5: pInstance->DoDeactivateBombFace(4); break;
-        case GO_BUTTON_6: pInstance->DoDeactivateBombFace(5); break;
+    case GO_BUTTON_1:
+        pInstance->DoDeactivateBombFace(0);
+        break;
+    case GO_BUTTON_2:
+        pInstance->DoDeactivateBombFace(1);
+        break;
+    case GO_BUTTON_3:
+        pInstance->DoDeactivateBombFace(2);
+        break;
+    case GO_BUTTON_4:
+        pInstance->DoDeactivateBombFace(3);
+        break;
+    case GO_BUTTON_5:
+        pInstance->DoDeactivateBombFace(4);
+        break;
+    case GO_BUTTON_6:
+        pInstance->DoDeactivateBombFace(5);
+        break;
     }
 
     return false;
@@ -266,7 +283,7 @@ bool GOUse_go_gnomeface_button(Player* pPlayer, GameObject* pGo)
 
 void AddSC_boss_thermaplugg()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_thermaplugg";
     pNewScript->GetAI = &GetAI_boss_thermaplugg;
     pNewScript->pEffectDummyNPC = &EffectDummyCreature_spell_boss_thermaplugg;

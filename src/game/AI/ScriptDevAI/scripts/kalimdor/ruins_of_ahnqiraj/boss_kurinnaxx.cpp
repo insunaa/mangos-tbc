@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -21,21 +21,21 @@ SDComment: Summon Player ability NYI
 SDCategory: Ruins of Ahn'Qiraj
 EndScriptData */
 
-#include "AI/ScriptDevAI/include/sc_common.h"
 #include "AI/ScriptDevAI/base/CombatAI.h"
+#include "AI/ScriptDevAI/include/sc_common.h"
 
 enum
 {
-    SAY_ENRAGE              = -1000002,
+    SAY_ENRAGE = -1000002,
 
-    SPELL_THRASH            = 3391,
-    SPELL_WIDE_SLASH        = 25814,
-    SPELL_MORTAL_WOUND      = 25646,
-    SPELL_SANDTRAP          = 26524,        // summons gameobject 180647
-    SPELL_ENRAGE            = 26527,
-    SPELL_SUMMON_PLAYER     = 26446,
+    SPELL_THRASH = 3391,
+    SPELL_WIDE_SLASH = 25814,
+    SPELL_MORTAL_WOUND = 25646,
+    SPELL_SANDTRAP = 26524, // summons gameobject 180647
+    SPELL_ENRAGE = 26527,
+    SPELL_SUMMON_PLAYER = 26446,
 
-    GO_SAND_TRAP            = 180647,
+    GO_SAND_TRAP = 180647,
 };
 
 enum KurinnaxxAction
@@ -51,7 +51,7 @@ enum KurinnaxxAction
 
 struct boss_kurinnaxxAI : public CombatAI
 {
-    boss_kurinnaxxAI(Creature* creature) : CombatAI(creature, KURINNAXX_ACTION_MAX)
+    boss_kurinnaxxAI(Creature *creature) : CombatAI(creature, KURINNAXX_ACTION_MAX)
     {
         AddTimerlessCombatAction(KURINNAXX_ENRAGE, true);
         AddCombatAction(KURINNAXX_MORTAL_WOUND, 8000, 10000);
@@ -63,7 +63,7 @@ struct boss_kurinnaxxAI : public CombatAI
 
     ObjectGuid m_sandtrapGuid;
 
-    void JustSummoned(GameObject* pGo) override
+    void JustSummoned(GameObject *pGo) override
     {
         if (pGo->GetEntry() == GO_SAND_TRAP)
         {
@@ -74,7 +74,7 @@ struct boss_kurinnaxxAI : public CombatAI
 
     void TriggerTrap()
     {
-        if (GameObject* trap = m_creature->GetMap()->GetGameObject(m_sandtrapGuid))
+        if (GameObject *trap = m_creature->GetMap()->GetGameObject(m_sandtrapGuid))
             trap->Use(m_creature);
     }
 
@@ -82,49 +82,44 @@ struct boss_kurinnaxxAI : public CombatAI
     {
         switch (action)
         {
-            case KURINNAXX_ENRAGE:
+        case KURINNAXX_ENRAGE: {
+            if (m_creature->GetHealthPercent() <= 30.0f)
             {
-                if (m_creature->GetHealthPercent() <= 30.0f)
+                if (DoCastSpellIfCan(nullptr, SPELL_ENRAGE) == CAST_OK)
                 {
-                    if (DoCastSpellIfCan(nullptr, SPELL_ENRAGE) == CAST_OK)
-                    {
-                        DoScriptText(SAY_ENRAGE, m_creature);
-                        SetActionReadyStatus(action, false);
-                    }
+                    DoScriptText(SAY_ENRAGE, m_creature);
+                    SetActionReadyStatus(action, false);
                 }
-                break;
             }
-            case KURINNAXX_MORTAL_WOUND:
-            {
-                if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_MORTAL_WOUND) == CAST_OK)
-                    ResetCombatAction(action, urand(8000, 10000));
-                break;
-            }
-            case KURINNAXX_SAND_TRAP:
-            {
-                if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SANDTRAP) == CAST_OK)
-                    ResetCombatAction(action, urand(10000, 15000));
-                break;
-            }
-            case KURINNAXX_THRASH:
-            {
-                if (DoCastSpellIfCan(nullptr, SPELL_THRASH) == CAST_OK)
-                    ResetCombatAction(action, urand(12000, 17000));
-                break;
-            }
-            case KURINNAXX_WIDE_SLASH:
-            {
-                if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_WIDE_SLASH) == CAST_OK)
-                    ResetCombatAction(action, urand(12000, 15000));
-                break;
-            }
+            break;
+        }
+        case KURINNAXX_MORTAL_WOUND: {
+            if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_MORTAL_WOUND) == CAST_OK)
+                ResetCombatAction(action, urand(8000, 10000));
+            break;
+        }
+        case KURINNAXX_SAND_TRAP: {
+            if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SANDTRAP) == CAST_OK)
+                ResetCombatAction(action, urand(10000, 15000));
+            break;
+        }
+        case KURINNAXX_THRASH: {
+            if (DoCastSpellIfCan(nullptr, SPELL_THRASH) == CAST_OK)
+                ResetCombatAction(action, urand(12000, 17000));
+            break;
+        }
+        case KURINNAXX_WIDE_SLASH: {
+            if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_WIDE_SLASH) == CAST_OK)
+                ResetCombatAction(action, urand(12000, 15000));
+            break;
+        }
         }
     }
 };
 
 void AddSC_boss_kurinnaxx()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_kurinnaxx";
     pNewScript->GetAI = &GetNewAIInstance<boss_kurinnaxxAI>;
     pNewScript->RegisterSelf();

@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,35 +29,37 @@ class Spell;
 
 class PetAI : public CreatureAI
 {
-    public:
+  public:
+    explicit PetAI(Creature *creature);
 
-        explicit PetAI(Creature* creature);
+    void MoveInLineOfSight(Unit *who) override;
+    void AttackStart(Unit *who) override;
+    void EnterEvadeMode() override;
+    void AttackedBy(Unit *attacker) override;
 
-        void MoveInLineOfSight(Unit* who) override;
-        void AttackStart(Unit* who) override;
-        void EnterEvadeMode() override;
-        void AttackedBy(Unit* attacker) override;
+    void UpdateAI(const uint32 diff) override;
+    static int Permissible(const Creature *creature);
 
-        void UpdateAI(const uint32 diff) override;
-        static int Permissible(const Creature* creature);
+    void OnUnsummon() override;
+    void JustDied(Unit *killer) override;
 
-        void OnUnsummon() override;
-        void JustDied(Unit* killer) override;
+  protected:
+    std::string GetAIName() override
+    {
+        return "PetAI";
+    }
 
-    protected:
-        std::string GetAIName() override { return "PetAI"; }
+  private:
+    void UpdateAllies();
 
-    private:
-        void UpdateAllies();
+    void RelinquishFollowData();
 
-        void RelinquishFollowData();
+    bool inCombat;
 
-        bool inCombat;
+    GuidSet m_AllySet;
+    uint32 m_updateAlliesTimer;
 
-        GuidSet m_AllySet;
-        uint32 m_updateAlliesTimer;
-
-        float m_followAngle;
-        float m_followDist;
+    float m_followAngle;
+    float m_followDist;
 };
 #endif

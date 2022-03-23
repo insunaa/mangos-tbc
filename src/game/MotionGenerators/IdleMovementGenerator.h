@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,32 +24,48 @@
 
 class IdleMovementGenerator : public MovementGenerator
 {
-    public:
-        void Initialize(Unit&) override {}
-        void Finalize(Unit&) override {}
-        void Interrupt(Unit&) override {}
-        void Reset(Unit&) override {}
-        bool Update(Unit&, const uint32&) override;
+  public:
+    void Initialize(Unit &) override
+    {
+    }
+    void Finalize(Unit &) override
+    {
+    }
+    void Interrupt(Unit &) override
+    {
+    }
+    void Reset(Unit &) override
+    {
+    }
+    bool Update(Unit &, const uint32 &) override;
 
-        MovementGeneratorType GetMovementGeneratorType() const override { return IDLE_MOTION_TYPE; }
+    MovementGeneratorType GetMovementGeneratorType() const override
+    {
+        return IDLE_MOTION_TYPE;
+    }
 };
 
 extern IdleMovementGenerator si_idleMovement;
 
 class DistractMovementGenerator : public IdleMovementGenerator
 {
-    public:
-        explicit DistractMovementGenerator(uint32 timer) : m_timer(timer) {}
+  public:
+    explicit DistractMovementGenerator(uint32 timer) : m_timer(timer)
+    {
+    }
 
-        void Initialize(Unit& owner) override;
-        void Finalize(Unit& owner) override;
-        void Reset(Unit& owner) override;
-        bool Update(Unit& owner, const uint32& diff) override;
+    void Initialize(Unit &owner) override;
+    void Finalize(Unit &owner) override;
+    void Reset(Unit &owner) override;
+    bool Update(Unit &owner, const uint32 &diff) override;
 
-        MovementGeneratorType GetMovementGeneratorType() const override { return DISTRACT_MOTION_TYPE; }
+    MovementGeneratorType GetMovementGeneratorType() const override
+    {
+        return DISTRACT_MOTION_TYPE;
+    }
 
-    private:
-        ShortTimeTracker m_timer;
+  private:
+    ShortTimeTracker m_timer;
 };
 
 #endif

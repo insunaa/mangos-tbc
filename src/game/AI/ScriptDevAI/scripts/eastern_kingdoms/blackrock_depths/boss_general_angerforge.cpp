@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -25,24 +25,27 @@ EndScriptData */
 
 enum
 {
-    EMOTE_ALARM                 = -1230035,
+    EMOTE_ALARM = -1230035,
 
-    SPELL_FLURRY                = 15088,
-    SPELL_ENRAGE                = 15097,
-    SPELL_SUNDER_ARMOR          = 15572,
+    SPELL_FLURRY = 15088,
+    SPELL_ENRAGE = 15097,
+    SPELL_SUNDER_ARMOR = 15572,
 
-    NPC_ANVILRAGE_MEDIC         = 8894,
-    NPC_ANVILRAGE_RESERVIST     = 8901,
+    NPC_ANVILRAGE_MEDIC = 8894,
+    NPC_ANVILRAGE_RESERVIST = 8901,
 
-    NPC_ELITE_AMOUNT            = 2,
-    NPC_NORMAL_AMOUNT           = 8,
+    NPC_ELITE_AMOUNT = 2,
+    NPC_NORMAL_AMOUNT = 8,
 };
 
 static const float aAlarmPoint[4] = {717.343f, 22.116f, -45.4321f, 3.1415f};
 
 struct boss_general_angerforgeAI : public ScriptedAI
 {
-    boss_general_angerforgeAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_general_angerforgeAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiSunderArmorTimer;
     uint32 m_uiAlarmTimer;
@@ -53,7 +56,7 @@ struct boss_general_angerforgeAI : public ScriptedAI
         m_uiAlarmTimer = 0;
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         DoCastSpellIfCan(m_creature, SPELL_FLURRY, CAST_AURA_NOT_PRESENT | CAST_TRIGGERED);
         DoCastSpellIfCan(m_creature, SPELL_ENRAGE, CAST_AURA_NOT_PRESENT | CAST_TRIGGERED);
@@ -63,10 +66,11 @@ struct boss_general_angerforgeAI : public ScriptedAI
     {
         float fX, fY, fZ;
         m_creature->GetRandomPoint(aAlarmPoint[0], aAlarmPoint[1], aAlarmPoint[2], 1.0f, fX, fY, fZ);
-        m_creature->SummonCreature(uiEntry, fX, fY, fZ, aAlarmPoint[3], TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 30 * IN_MILLISECONDS);
+        m_creature->SummonCreature(uiEntry, fX, fY, fZ, aAlarmPoint[3], TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN,
+                                   30 * IN_MILLISECONDS);
     }
 
-    void JustSummoned(Creature* pSummoned) override
+    void JustSummoned(Creature *pSummoned) override
     {
         if (m_creature->GetVictim())
             pSummoned->AI()->AttackStart(m_creature->GetVictim());
@@ -109,14 +113,14 @@ struct boss_general_angerforgeAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_general_angerforge(Creature* pCreature)
+UnitAI *GetAI_boss_general_angerforge(Creature *pCreature)
 {
     return new boss_general_angerforgeAI(pCreature);
 }
 
 void AddSC_boss_general_angerforge()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_general_angerforge";
     pNewScript->GetAI = &GetAI_boss_general_angerforge;
     pNewScript->RegisterSelf();

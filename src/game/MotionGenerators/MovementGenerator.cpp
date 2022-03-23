@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,15 +18,16 @@
  */
 
 #include "MotionGenerators/MovementGenerator.h"
+
 #include "Entities/Unit.h"
 
 MovementGenerator::~MovementGenerator()
 {
 }
 
-bool MovementGenerator::IsActive(Unit& u)
+bool MovementGenerator::IsActive(Unit &u)
 {
-    // When movement generator list modified from Update movegen object erase delayed,
-    // so pointer still valid and be used for check
+    // When movement generator list modified from Update movegen object erase
+    // delayed, so pointer still valid and be used for check
     return !u.GetMotionMaster()->empty() && u.GetMotionMaster()->top() == this;
 }

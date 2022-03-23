@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,16 +18,17 @@
  */
 
 #include "Chat/ChannelMgr.h"
+
 #include "Policies/Singleton.h"
 #include "World/World.h"
 
 INSTANTIATE_SINGLETON_1(AllianceChannelMgr);
 INSTANTIATE_SINGLETON_1(HordeChannelMgr);
 
-ChannelMgr* channelMgr(Team team)
+ChannelMgr *channelMgr(Team team)
 {
     if (sWorld.getConfig(CONFIG_BOOL_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
-        return &MaNGOS::Singleton<AllianceChannelMgr>::Instance();        // cross-faction
+        return &MaNGOS::Singleton<AllianceChannelMgr>::Instance(); // cross-faction
 
     if (team == ALLIANCE)
         return &MaNGOS::Singleton<AllianceChannelMgr>::Instance();
@@ -38,13 +40,13 @@ ChannelMgr* channelMgr(Team team)
 
 ChannelMgr::~ChannelMgr()
 {
-    for (auto& channel : channels)
+    for (auto &channel : channels)
         delete channel.second;
 
     channels.clear();
 }
 
-Channel* ChannelMgr::GetJoinChannel(const std::string& name, uint32 channel_id)
+Channel *ChannelMgr::GetJoinChannel(const std::string &name, uint32 channel_id)
 {
     std::wstring wname;
     Utf8toWStr(name, wname);
@@ -52,7 +54,7 @@ Channel* ChannelMgr::GetJoinChannel(const std::string& name, uint32 channel_id)
 
     if (channels.find(wname) == channels.end())
     {
-        Channel* nchan = new Channel(name, channel_id);
+        Channel *nchan = new Channel(name, channel_id);
         channels[wname] = nchan;
         return nchan;
     }
@@ -60,7 +62,7 @@ Channel* ChannelMgr::GetJoinChannel(const std::string& name, uint32 channel_id)
     return channels[wname];
 }
 
-Channel* ChannelMgr::GetChannel(const std::string& name, Player* p, bool pkt)
+Channel *ChannelMgr::GetChannel(const std::string &name, Player *p, bool pkt)
 {
     std::wstring wname;
     Utf8toWStr(name, wname);
@@ -82,7 +84,7 @@ Channel* ChannelMgr::GetChannel(const std::string& name, Player* p, bool pkt)
     return i->second;
 }
 
-void ChannelMgr::LeftChannel(const std::string& name)
+void ChannelMgr::LeftChannel(const std::string &name)
 {
     std::wstring wname;
     Utf8toWStr(name, wname);
@@ -93,7 +95,7 @@ void ChannelMgr::LeftChannel(const std::string& name)
     if (i == channels.end())
         return;
 
-    Channel* channel = i->second;
+    Channel *channel = i->second;
 
     if (channel->GetNumPlayers() == 0 && !channel->IsConstant())
     {

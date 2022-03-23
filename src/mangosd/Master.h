@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,18 +30,18 @@
 /// Start the server
 class Master
 {
-    public:
-        int Run();
-        static volatile bool m_canBeKilled;
+  public:
+    int Run();
+    static volatile bool m_canBeKilled;
 
-    private:
-        bool _StartDB();
+  private:
+    bool _StartDB();
 
-        void _HookSignals();
-        void _UnhookSignals();
-        static void _OnSignal(int s);
+    void _HookSignals();
+    void _UnhookSignals();
+    static void _OnSignal(int s);
 
-        void clearOnlineAccounts();
+    void clearOnlineAccounts();
 };
 
 #define sMaster MaNGOS::Singleton<Master>::Instance()

@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,45 +17,44 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "Common.h"
 #include "Log.h"
-#include "Policies/Singleton.h"
-#include "Config/Config.h"
-#include "Util.h"
-#include "ByteBuffer.h"
-#include "ProgressBar.h"
 
+#include <boost/stacktrace.hpp>
+#include <cstdarg>
 #include <fstream>
 #include <iostream>
 #include <thread>
-#include <cstdarg>
 
-#include <boost/stacktrace.hpp>
+#include "ByteBuffer.h"
+#include "Common.h"
+#include "Config/Config.h"
+#include "Policies/Singleton.h"
+#include "ProgressBar.h"
+#include "Util.h"
 
 INSTANTIATE_SINGLETON_1(Log);
 
-LogFilterData logFilterData[LOG_FILTER_COUNT] =
-{
-    { "transport_moves",     "LogFilter_TransportMoves",     true  },
-    { "creature_moves",      "LogFilter_CreatureMoves",      true  },
-    { "visibility_changes",  "LogFilter_VisibilityChanges",  true  },
-    { "",                    "",                             true  },
-    { "weather",             "LogFilter_Weather",            true  },
-    { "player_stats",        "LogFilter_PlayerStats",        false },
-    { "sql_text",            "LogFilter_SQLText",            true  },
-    { "player_moves",        "LogFilter_PlayerMoves",        true  },
-    { "periodic_effects",    "LogFilter_PeriodicAffects",    false },
-    { "ai_and_movegens",     "LogFilter_AIAndMovegens",      false },
-    { "damage",              "LogFilter_Damage",             false },
-    { "combat",              "LogFilter_Combat",             false },
-    { "spell_cast",          "LogFilter_SpellCast",          false },
-    { "db_stricted_check",   "LogFilter_DbStrictedCheck",    true  },
-    { "",                    "",                             true  },
-    { "",                    "",                             true  },
-    { "pathfinding",         "LogFilter_Pathfinding",        true  },
-    { "map_loading",         "LogFilter_MapLoading",         true  },
-    { "event_ai_dev",        "LogFilter_EventAiDev",         true  },
-    { "db_scripts_dev",      "LogFilter_DbScriptDev",        true  },
+LogFilterData logFilterData[LOG_FILTER_COUNT] = {
+    {"transport_moves", "LogFilter_TransportMoves", true},
+    {"creature_moves", "LogFilter_CreatureMoves", true},
+    {"visibility_changes", "LogFilter_VisibilityChanges", true},
+    {"", "", true},
+    {"weather", "LogFilter_Weather", true},
+    {"player_stats", "LogFilter_PlayerStats", false},
+    {"sql_text", "LogFilter_SQLText", true},
+    {"player_moves", "LogFilter_PlayerMoves", true},
+    {"periodic_effects", "LogFilter_PeriodicAffects", false},
+    {"ai_and_movegens", "LogFilter_AIAndMovegens", false},
+    {"damage", "LogFilter_Damage", false},
+    {"combat", "LogFilter_Combat", false},
+    {"spell_cast", "LogFilter_SpellCast", false},
+    {"db_stricted_check", "LogFilter_DbStrictedCheck", true},
+    {"", "", true},
+    {"", "", true},
+    {"pathfinding", "LogFilter_Pathfinding", true},
+    {"map_loading", "LogFilter_MapLoading", true},
+    {"event_ai_dev", "LogFilter_EventAiDev", true},
+    {"db_scripts_dev", "LogFilter_DbScriptDev", true},
 };
 
 enum LogType
@@ -67,14 +67,15 @@ enum LogType
 
 const int LogType_count = int(LogError) + 1;
 
-Log::Log() :
-    raLogfile(nullptr), logfile(nullptr), gmLogfile(nullptr), charLogfile(nullptr), dberLogfile(nullptr),
-    eventAiErLogfile(nullptr), scriptErrLogFile(nullptr), worldLogfile(nullptr), customLogFile(nullptr), m_colored(false), m_includeTime(false), m_gmlog_per_account(false), m_scriptLibName(nullptr)
+Log::Log()
+    : raLogfile(nullptr), logfile(nullptr), gmLogfile(nullptr), charLogfile(nullptr), dberLogfile(nullptr),
+      eventAiErLogfile(nullptr), scriptErrLogFile(nullptr), worldLogfile(nullptr), customLogFile(nullptr),
+      m_colored(false), m_includeTime(false), m_gmlog_per_account(false), m_scriptLibName(nullptr)
 {
     Initialize();
 }
 
-void Log::InitColors(const std::string& str)
+void Log::InitColors(const std::string &str)
 {
     if (str.empty())
     {
@@ -86,7 +87,7 @@ void Log::InitColors(const std::string& str)
 
     std::istringstream ss(str);
 
-    for (int& i : color)
+    for (int &i : color)
     {
         ss >> i;
 
@@ -107,30 +108,27 @@ void Log::SetColor(bool stdout_stream, Color color)
 {
 #if PLATFORM == PLATFORM_WINDOWS
 
-    static WORD WinColorFG[Color_count] =
-    {
-        0,                                                  // BLACK
-        FOREGROUND_RED,                                     // RED
-        FOREGROUND_GREEN,                                   // GREEN
-        FOREGROUND_RED | FOREGROUND_GREEN,                  // BROWN
-        FOREGROUND_BLUE,                                    // BLUE
-        FOREGROUND_RED |                    FOREGROUND_BLUE,// MAGENTA
-        FOREGROUND_GREEN | FOREGROUND_BLUE,                 // CYAN
-        FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE,// WHITE
-        // YELLOW
-        FOREGROUND_RED | FOREGROUND_GREEN |                   FOREGROUND_INTENSITY,
-        // RED_BOLD
-        FOREGROUND_RED |                                      FOREGROUND_INTENSITY,
-        // GREEN_BOLD
-        FOREGROUND_GREEN |                   FOREGROUND_INTENSITY,
-        FOREGROUND_BLUE | FOREGROUND_INTENSITY,             // BLUE_BOLD
-        // MAGENTA_BOLD
-        FOREGROUND_RED |                    FOREGROUND_BLUE | FOREGROUND_INTENSITY,
-        // CYAN_BOLD
-        FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY,
-        // WHITE_BOLD
-        FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY
-    };
+    static WORD WinColorFG[Color_count] = {0,                                                   // BLACK
+                                           FOREGROUND_RED,                                      // RED
+                                           FOREGROUND_GREEN,                                    // GREEN
+                                           FOREGROUND_RED | FOREGROUND_GREEN,                   // BROWN
+                                           FOREGROUND_BLUE,                                     // BLUE
+                                           FOREGROUND_RED | FOREGROUND_BLUE,                    // MAGENTA
+                                           FOREGROUND_GREEN | FOREGROUND_BLUE,                  // CYAN
+                                           FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, // WHITE
+                                           // YELLOW
+                                           FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY,
+                                           // RED_BOLD
+                                           FOREGROUND_RED | FOREGROUND_INTENSITY,
+                                           // GREEN_BOLD
+                                           FOREGROUND_GREEN | FOREGROUND_INTENSITY,
+                                           FOREGROUND_BLUE | FOREGROUND_INTENSITY, // BLUE_BOLD
+                                           // MAGENTA_BOLD
+                                           FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY,
+                                           // CYAN_BOLD
+                                           FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY,
+                                           // WHITE_BOLD
+                                           FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY};
 
     HANDLE hConsole = GetStdHandle(stdout_stream ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE);
     SetConsoleTextAttribute(hConsole, WinColorFG[color]);
@@ -146,36 +144,49 @@ void Log::SetColor(bool stdout_stream, Color color)
 
     enum ANSIFgTextAttr
     {
-        FG_BLACK = 30, FG_RED,  FG_GREEN, FG_BROWN, FG_BLUE,
-        FG_MAGENTA,  FG_CYAN, FG_WHITE, FG_YELLOW
+        FG_BLACK = 30,
+        FG_RED,
+        FG_GREEN,
+        FG_BROWN,
+        FG_BLUE,
+        FG_MAGENTA,
+        FG_CYAN,
+        FG_WHITE,
+        FG_YELLOW
     };
 
     enum ANSIBgTextAttr
     {
-        BG_BLACK = 40, BG_RED,  BG_GREEN, BG_BROWN, BG_BLUE,
-        BG_MAGENTA,  BG_CYAN, BG_WHITE
+        BG_BLACK = 40,
+        BG_RED,
+        BG_GREEN,
+        BG_BROWN,
+        BG_BLUE,
+        BG_MAGENTA,
+        BG_CYAN,
+        BG_WHITE
     };
 
-    static uint8 UnixColorFG[Color_count] =
-    {
-        FG_BLACK,                                           // BLACK
-        FG_RED,                                             // RED
-        FG_GREEN,                                           // GREEN
-        FG_BROWN,                                           // BROWN
-        FG_BLUE,                                            // BLUE
-        FG_MAGENTA,                                         // MAGENTA
-        FG_CYAN,                                            // CYAN
-        FG_WHITE,                                           // WHITE
-        FG_YELLOW,                                          // YELLOW
-        FG_RED,                                             // LRED
-        FG_GREEN,                                           // LGREEN
-        FG_BLUE,                                            // LBLUE
-        FG_MAGENTA,                                         // LMAGENTA
-        FG_CYAN,                                            // LCYAN
-        FG_WHITE                                            // LWHITE
+    static uint8 UnixColorFG[Color_count] = {
+        FG_BLACK,   // BLACK
+        FG_RED,     // RED
+        FG_GREEN,   // GREEN
+        FG_BROWN,   // BROWN
+        FG_BLUE,    // BLUE
+        FG_MAGENTA, // MAGENTA
+        FG_CYAN,    // CYAN
+        FG_WHITE,   // WHITE
+        FG_YELLOW,  // YELLOW
+        FG_RED,     // LRED
+        FG_GREEN,   // LGREEN
+        FG_BLUE,    // LBLUE
+        FG_MAGENTA, // LMAGENTA
+        FG_CYAN,    // LCYAN
+        FG_WHITE    // LWHITE
     };
 
-    fprintf((stdout_stream ? stdout : stderr), "\x1b[%d%sm", UnixColorFG[color], (color >= YELLOW && color < Color_count ? ";1" : ""));
+    fprintf((stdout_stream ? stdout : stderr), "\x1b[%d%sm", UnixColorFG[color],
+            (color >= YELLOW && color < Color_count ? ";1" : ""));
 #endif
 }
 
@@ -189,9 +200,9 @@ void Log::ResetColor(bool stdout_stream)
 #endif
 }
 
-void Log::SetLogLevel(char* level)
+void Log::SetLogLevel(char *level)
 {
-    int32 newLevel = atoi((char*)level);
+    int32 newLevel = atoi((char *)level);
 
     if (newLevel < LOG_LVL_MINIMAL)
         newLevel = LOG_LVL_MINIMAL;
@@ -203,9 +214,9 @@ void Log::SetLogLevel(char* level)
     printf("LogLevel is %u\n", m_logLevel);
 }
 
-void Log::SetLogFileLevel(char* level)
+void Log::SetLogFileLevel(char *level)
 {
-    int32 newLevel = atoi((char*)level);
+    int32 newLevel = atoi((char *)level);
 
     if (newLevel < LOG_LVL_MINIMAL)
         newLevel = LOG_LVL_MINIMAL;
@@ -272,8 +283,8 @@ void Log::Initialize()
     customLogFile = openLogFile("CustomLogFile", nullptr, "a");
 
     // Main log file settings
-    m_includeTime  = sConfig.GetBoolDefault("LogTime", false);
-    m_logLevel     = LogLevel(sConfig.GetIntDefault("LogLevel", 0));
+    m_includeTime = sConfig.GetBoolDefault("LogTime", false);
+    m_logLevel = LogLevel(sConfig.GetIntDefault("LogLevel", 0));
     m_logFileLevel = LogLevel(sConfig.GetIntDefault("LogFileLevel", 0));
     InitColors(sConfig.GetStringDefault("LogColors"));
 
@@ -287,7 +298,7 @@ void Log::Initialize()
     m_charLog_Dump = sConfig.GetBoolDefault("CharLogDump", false);
 }
 
-FILE* Log::openLogFile(char const* configFileName, char const* configTimeStampFlag, char const* mode)
+FILE *Log::openLogFile(char const *configFileName, char const *configTimeStampFlag, char const *mode)
 {
     std::string logfn = sConfig.GetStringDefault(configFileName);
     if (logfn.empty())
@@ -305,7 +316,7 @@ FILE* Log::openLogFile(char const* configFileName, char const* configTimeStampFl
     return fopen((m_logsDir + logfn).c_str(), mode);
 }
 
-FILE* Log::openGmlogPerAccount(uint32 account)
+FILE *Log::openGmlogPerAccount(uint32 account)
 {
     if (m_gmlog_filename_format.empty())
         return nullptr;
@@ -315,23 +326,24 @@ FILE* Log::openGmlogPerAccount(uint32 account)
     return fopen(namebuf, "a");
 }
 
-void Log::outTimestamp(FILE* file)
+void Log::outTimestamp(FILE *file)
 {
     time_t t = time(nullptr);
-    tm* aTm = localtime(&t);
+    tm *aTm = localtime(&t);
     //       YYYY   year
     //       MM     month (2 digits 01-12)
     //       DD     day (2 digits 01-31)
     //       HH     hour (2 digits 00-23)
     //       MM     minutes (2 digits 00-59)
     //       SS     seconds (2 digits 00-59)
-    fprintf(file, "%-4d-%02d-%02d %02d:%02d:%02d ", aTm->tm_year + 1900, aTm->tm_mon + 1, aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec);
+    fprintf(file, "%-4d-%02d-%02d %02d:%02d:%02d ", aTm->tm_year + 1900, aTm->tm_mon + 1, aTm->tm_mday, aTm->tm_hour,
+            aTm->tm_min, aTm->tm_sec);
 }
 
 void Log::outTime() const
 {
     time_t t = time(nullptr);
-    tm* aTm = localtime(&t);
+    tm *aTm = localtime(&t);
     //       YYYY   year
     //       MM     month (2 digits 01-12)
     //       DD     day (2 digits 01-31)
@@ -344,7 +356,7 @@ void Log::outTime() const
 std::string Log::GetTimestampStr()
 {
     time_t t = time(nullptr);
-    tm* aTm = localtime(&t);
+    tm *aTm = localtime(&t);
     //       YYYY   year
     //       MM     month (2 digits 01-12)
     //       DD     day (2 digits 01-31)
@@ -352,7 +364,8 @@ std::string Log::GetTimestampStr()
     //       MM     minutes (2 digits 00-59)
     //       SS     seconds (2 digits 00-59)
     char buf[20];
-    int snRes = snprintf(buf, 20, "%04d-%02d-%02d_%02d-%02d-%02d", aTm->tm_year + 1900, aTm->tm_mon + 1, aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec);
+    int snRes = snprintf(buf, 20, "%04d-%02d-%02d_%02d-%02d-%02d", aTm->tm_year + 1900, aTm->tm_mon + 1, aTm->tm_mday,
+                         aTm->tm_hour, aTm->tm_min, aTm->tm_sec);
     if (snRes < 0 || snRes >= sizeof(buf))
         return "";
     return std::string(buf);
@@ -374,7 +387,7 @@ void Log::outString()
     fflush(stdout);
 }
 
-void Log::outString(const char* str, ...)
+void Log::outString(const char *str, ...)
 {
     if (!str)
         return;
@@ -413,7 +426,7 @@ void Log::outString(const char* str, ...)
     fflush(stdout);
 }
 
-void Log::outError(const char* err, ...)
+void Log::outError(const char *err, ...)
 {
     if (!err)
         return;
@@ -478,7 +491,7 @@ void Log::outErrorDb()
     fflush(stderr);
 }
 
-void Log::outErrorDb(const char* err, ...)
+void Log::outErrorDb(const char *err, ...)
 {
     if (!err)
         return;
@@ -557,7 +570,7 @@ void Log::outErrorEventAI()
     fflush(stderr);
 }
 
-void Log::outErrorEventAI(const char* err, ...)
+void Log::outErrorEventAI(const char *err, ...)
 {
     if (!err)
         return;
@@ -609,7 +622,7 @@ void Log::outErrorEventAI(const char* err, ...)
     fflush(stderr);
 }
 
-void Log::outBasic(const char* str, ...)
+void Log::outBasic(const char *str, ...)
 {
     if (!str)
         return;
@@ -648,7 +661,7 @@ void Log::outBasic(const char* str, ...)
     fflush(stdout);
 }
 
-void Log::outDetail(const char* str, ...)
+void Log::outDetail(const char *str, ...)
 {
     if (!str)
         return;
@@ -689,7 +702,7 @@ void Log::outDetail(const char* str, ...)
     fflush(stdout);
 }
 
-void Log::outDebug(const char* str, ...)
+void Log::outDebug(const char *str, ...)
 {
     if (!str)
         return;
@@ -730,7 +743,7 @@ void Log::outDebug(const char* str, ...)
     fflush(stdout);
 }
 
-void Log::outCommand(uint32 account, const char* str, ...)
+void Log::outCommand(uint32 account, const char *str, ...)
 {
     if (!str)
         return;
@@ -768,7 +781,7 @@ void Log::outCommand(uint32 account, const char* str, ...)
 
     if (m_gmlog_per_account)
     {
-        if (FILE* per_file = openGmlogPerAccount(account))
+        if (FILE *per_file = openGmlogPerAccount(account))
         {
             va_list ap;
             outTimestamp(per_file);
@@ -793,7 +806,7 @@ void Log::outCommand(uint32 account, const char* str, ...)
     fflush(stdout);
 }
 
-void Log::outChar(const char* str, ...)
+void Log::outChar(const char *str, ...)
 {
     if (!str)
         return;
@@ -839,7 +852,7 @@ void Log::outErrorScriptLib()
     fflush(stderr);
 }
 
-void Log::outErrorScriptLib(const char* err, ...)
+void Log::outErrorScriptLib(const char *err, ...)
 {
     if (!err)
         return;
@@ -894,7 +907,8 @@ void Log::outErrorScriptLib(const char* err, ...)
     fflush(stderr);
 }
 
-void Log::outWorldPacketDump(const char* socket, uint32 opcode, char const* opcodeName, ByteBuffer const& packet, bool incoming)
+void Log::outWorldPacketDump(const char *socket, uint32 opcode, char const *opcodeName, ByteBuffer const &packet,
+                             bool incoming)
 {
     if (!worldLogfile)
         return;
@@ -903,8 +917,7 @@ void Log::outWorldPacketDump(const char* socket, uint32 opcode, char const* opco
 
     outTimestamp(worldLogfile);
 
-    fprintf(worldLogfile, "\n%s:\nSOCKET: %s\nLENGTH: %u\nOPCODE: %s (0x%.4X)\nDATA:\n",
-            incoming ? "CLIENT" : "SERVER",
+    fprintf(worldLogfile, "\n%s:\nSOCKET: %s\nLENGTH: %u\nOPCODE: %s (0x%.4X)\nDATA:\n", incoming ? "CLIENT" : "SERVER",
             socket, static_cast<uint32>(packet.size()), opcodeName, opcode);
 
     size_t p = 0;
@@ -920,18 +933,21 @@ void Log::outWorldPacketDump(const char* socket, uint32 opcode, char const* opco
     fflush(worldLogfile);
 }
 
-void Log::outCharDump(const char* str, uint32 account_id, uint32 guid, const char* name)
+void Log::outCharDump(const char *str, uint32 account_id, uint32 guid, const char *name)
 {
     std::lock_guard<std::mutex> guard(m_worldLogMtx);
 
     if (charLogfile)
     {
-        fprintf(charLogfile, "== START DUMP == (account: %u guid: %u name: %s )\n%s\n== END DUMP ==\n", account_id, guid, name, str);
+        fprintf(charLogfile,
+                "== START DUMP == (account: %u guid: %u name: %s )\n%s\n== END "
+                "DUMP ==\n",
+                account_id, guid, name, str);
         fflush(charLogfile);
     }
 }
 
-void Log::outRALog(const char* str, ...)
+void Log::outRALog(const char *str, ...)
 {
     if (!str)
         return;
@@ -951,7 +967,7 @@ void Log::outRALog(const char* str, ...)
     fflush(stdout);
 }
 
-void Log::outCustomLog(const char* str, ...)
+void Log::outCustomLog(const char *str, ...)
 {
     if (!str)
         return;
@@ -994,7 +1010,7 @@ void Log::WaitBeforeContinueIfNeed()
     }
 }
 
-void Log::setScriptLibraryErrorFile(char const* fname, char const* libName)
+void Log::setScriptLibraryErrorFile(char const *fname, char const *libName)
 {
     m_scriptLibName = libName;
 
@@ -1017,7 +1033,7 @@ void outstring_log()
     sLog.outString();
 }
 
-void outstring_log(const char* str, ...)
+void outstring_log(const char *str, ...)
 {
     if (!str)
         return;
@@ -1031,7 +1047,7 @@ void outstring_log(const char* str, ...)
     sLog.outString("%s", buf);
 }
 
-void detail_log(const char* str, ...)
+void detail_log(const char *str, ...)
 {
     if (!str)
         return;
@@ -1045,7 +1061,7 @@ void detail_log(const char* str, ...)
     sLog.outDetail("%s", buf);
 }
 
-void debug_log(const char* str, ...)
+void debug_log(const char *str, ...)
 {
     if (!str)
         return;
@@ -1059,7 +1075,7 @@ void debug_log(const char* str, ...)
     DEBUG_LOG("%s", buf);
 }
 
-void error_log(const char* str, ...)
+void error_log(const char *str, ...)
 {
     if (!str)
         return;
@@ -1073,7 +1089,7 @@ void error_log(const char* str, ...)
     sLog.outError("%s", buf);
 }
 
-void error_db_log(const char* str, ...)
+void error_db_log(const char *str, ...)
 {
     if (!str)
         return;
@@ -1087,12 +1103,12 @@ void error_db_log(const char* str, ...)
     sLog.outErrorDb("%s", buf);
 }
 
-void setScriptLibraryErrorFile(char const* fname, char const* libName)
+void setScriptLibraryErrorFile(char const *fname, char const *libName)
 {
     sLog.setScriptLibraryErrorFile(fname, libName);
 }
 
-void script_error_log(const char* str, ...)
+void script_error_log(const char *str, ...)
 {
     if (!str)
         return;
@@ -1123,6 +1139,7 @@ std::string Log::GetTraceLog()
 {
     std::lock_guard<std::mutex> guard(m_traceLogMtx);
     std::stringstream ss;
-    ss << boost::stacktrace::stacktrace(); // warning - not async-safe - hence the locking
+    ss << boost::stacktrace::stacktrace(); // warning - not async-safe - hence
+                                           // the locking
     return ss.str();
 }

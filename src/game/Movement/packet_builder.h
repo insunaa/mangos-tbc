@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,14 +25,14 @@ class WorldPacket;
 
 namespace Movement
 {
-    class MoveSpline;
-    class PacketBuilder
-    {
-            static void WriteCommonMonsterMovePart(const MoveSpline& move_spline, WorldPacket& data);
-        public:
+class MoveSpline;
+class PacketBuilder
+{
+    static void WriteCommonMonsterMovePart(const MoveSpline &move_spline, WorldPacket &data);
 
-            static void WriteMonsterMove(const MoveSpline& move_spline, WorldPacket& data);
-            static void WriteCreate(const MoveSpline& move_spline, ByteBuffer& data);
-    };
-}
+  public:
+    static void WriteMonsterMove(const MoveSpline &move_spline, WorldPacket &data);
+    static void WriteCreate(const MoveSpline &move_spline, ByteBuffer &data);
+};
+} // namespace Movement
 #endif // MANGOSSERVER_PACKET_BUILDER_H

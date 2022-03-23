@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,49 +22,45 @@
 
 #include "Utilities/LinkedReference/Reference.h"
 
-template<class OBJECT> class GridRefManager;
+template <class OBJECT> class GridRefManager;
 
-template<class OBJECT>
-class GridReference : public Reference<GridRefManager<OBJECT>, OBJECT>
+template <class OBJECT> class GridReference : public Reference<GridRefManager<OBJECT>, OBJECT>
 {
-    protected:
+  protected:
+    void targetObjectBuildLink() override
+    {
+        // called from link()
+        this->getTarget()->insertFirst(this);
+        this->getTarget()->incSize();
+    }
 
-        void targetObjectBuildLink() override
-        {
-            // called from link()
-            this->getTarget()->insertFirst(this);
-            this->getTarget()->incSize();
-        }
-
-        void targetObjectDestroyLink() override
-        {
-            // called from unlink()
-            if (this->isValid())
-                this->getTarget()->decSize();
-        }
-
-        void sourceObjectDestroyLink() override
-        {
-            // called from invalidate()
+    void targetObjectDestroyLink() override
+    {
+        // called from unlink()
+        if (this->isValid())
             this->getTarget()->decSize();
-        }
+    }
 
-    public:
+    void sourceObjectDestroyLink() override
+    {
+        // called from invalidate()
+        this->getTarget()->decSize();
+    }
 
-        GridReference()
-            : Reference<GridRefManager<OBJECT>, OBJECT>()
-        {
-        }
+  public:
+    GridReference() : Reference<GridRefManager<OBJECT>, OBJECT>()
+    {
+    }
 
-        ~GridReference()
-        {
-            this->unlink();
-        }
+    ~GridReference()
+    {
+        this->unlink();
+    }
 
-        GridReference* next()
-        {
-            return (GridReference*)Reference<GridRefManager<OBJECT>, OBJECT>::next();
-        }
+    GridReference *next()
+    {
+        return (GridReference *)Reference<GridRefManager<OBJECT>, OBJECT>::next();
+    }
 };
 
 #endif

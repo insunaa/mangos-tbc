@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,21 +18,22 @@
  */
 
 #include "Grids/GridNotifiers.h"
-#include "WorldPacket.h"
-#include "Server/WorldSession.h"
-#include "Entities/UpdateData.h"
-#include "Maps/MapPersistentStateMgr.h"
-#include "Maps/Map.h"
-#include "Entities/Transports.h"
-#include "Globals/ObjectAccessor.h"
-#include "BattleGround/BattleGroundMgr.h"
+
 #include "AI/BaseAI/UnitAI.h"
+#include "BattleGround/BattleGroundMgr.h"
+#include "Entities/Transports.h"
+#include "Entities/UpdateData.h"
+#include "Globals/ObjectAccessor.h"
+#include "Maps/Map.h"
+#include "Maps/MapPersistentStateMgr.h"
+#include "Server/WorldSession.h"
+#include "WorldPacket.h"
 
 using namespace MaNGOS;
 
-void VisibleChangesNotifier::Visit(CameraMapType& m)
+void VisibleChangesNotifier::Visit(CameraMapType &m)
 {
-    for (auto& iter : m)
+    for (auto &iter : m)
     {
         iter.getSource()->UpdateVisibilityOf(&i_object);
         m_unvisitedGuids.erase(iter.getSource()->GetOwner()->GetObjectGuid());
@@ -40,10 +42,11 @@ void VisibleChangesNotifier::Visit(CameraMapType& m)
 
 void VisibleNotifier::Notify()
 {
-    Player& player = *i_camera.GetOwner();
-    // at this moment i_clientGUIDs have guids that not iterate at grid level checks
-    // but exist one case when this possible and object not out of range: transports
-    if (GenericTransport* transport = player.GetTransport())
+    Player &player = *i_camera.GetOwner();
+    // at this moment i_clientGUIDs have guids that not iterate at grid level
+    // checks but exist one case when this possible and object not out of range:
+    // transports
+    if (GenericTransport *transport = player.GetTransport())
     {
         for (auto itr : transport->GetPassengers())
         {
@@ -51,7 +54,7 @@ void VisibleNotifier::Notify()
             {
                 // ignore far sight case
                 if (itr->IsPlayer())
-                    static_cast<Player*>(itr)->UpdateVisibilityOf(static_cast<Player*>(itr), &player);
+                    static_cast<Player *>(itr)->UpdateVisibilityOf(static_cast<Player *>(itr), &player);
                 player.UpdateVisibilityOf(&player, itr, i_data, i_visibleNow);
                 i_clientGUIDs.erase(itr->GetObjectGuid());
             }
@@ -62,7 +65,7 @@ void VisibleNotifier::Notify()
     for (GuidSet::iterator itr = i_clientGUIDs.begin(); itr != i_clientGUIDs.end();)
     {
         GuidSet::iterator current = itr++;
-        if (WorldObject* obj = player.GetMap()->GetWorldObject(*current))
+        if (WorldObject *obj = player.GetMap()->GetWorldObject(*current))
         {
             if (!obj->GetVisibilityData().IsVisibilityOverridden())
                 continue;
@@ -76,15 +79,17 @@ void VisibleNotifier::Notify()
     i_data.AddOutOfRangeGUID(i_clientGUIDs);
     for (GuidSet::iterator itr = i_clientGUIDs.begin(); itr != i_clientGUIDs.end(); ++itr)
     {
-        if (WorldObject* target = player.GetMap()->GetWorldObject(*itr))
+        if (WorldObject *target = player.GetMap()->GetWorldObject(*itr))
         {
             if (target->GetTypeId() == TYPEID_UNIT)
-                player.BeforeVisibilityDestroy(static_cast<Creature*>(target));
+                player.BeforeVisibilityDestroy(static_cast<Creature *>(target));
             player.RemoveAtClient(target);
         }
         else
-            sLog.outCustomLog("Object was %s in current map.", player.GetMap()->m_objRemoveList.find(*itr) == player.GetMap()->m_objRemoveList.end() ? "not found" : "found");
-        
+            sLog.outCustomLog("Object was %s in current map.",
+                              player.GetMap()->m_objRemoveList.find(*itr) == player.GetMap()->m_objRemoveList.end()
+                                  ? "not found"
+                                  : "found");
 
         DEBUG_FILTER_LOG(LOG_FILTER_VISIBILITY_CHANGES, "%s is out of range (no in active cells set) now for %s",
                          itr->GetString().c_str(), player.GetGuidStr().c_str());
@@ -92,7 +97,8 @@ void VisibleNotifier::Notify()
 
     if (i_data.HasData())
     {
-        // send create/outofrange packet to player (except player create updates that already sent using SendUpdateToPlayer)
+        // send create/outofrange packet to player (except player create updates
+        // that already sent using SendUpdateToPlayer)
         for (size_t i = 0; i < i_data.GetPacketCount(); ++i)
         {
             WorldPacket packet = i_data.BuildPacket(i);
@@ -100,107 +106,107 @@ void VisibleNotifier::Notify()
         }
 
         // send out of range to other players if need
-        GuidSet const& oor = i_data.GetOutOfRangeGUIDs();
+        GuidSet const &oor = i_data.GetOutOfRangeGUIDs();
         for (auto iter : oor)
         {
             if (!iter.IsPlayer())
                 continue;
 
-            if (Player* plr = ObjectAccessor::FindPlayer(iter))
+            if (Player *plr = ObjectAccessor::FindPlayer(iter))
                 plr->UpdateVisibilityOf(plr->GetCamera().GetBody(), &player);
         }
     }
 
-    // Now do operations that required done at object visibility change to visible
+    // Now do operations that required done at object visibility change to
+    // visible
 
     // send data at target visibility change (adding to client)
     for (auto vItr : i_visibleNow)
     {
-        // target aura duration for caster show only if target exist at caster client
+        // target aura duration for caster show only if target exist at caster
+        // client
         if (vItr != &player && vItr->isType(TYPEMASK_UNIT))
-            player.SendAuraDurationsForTarget((Unit*)vItr);
+            player.SendAuraDurationsForTarget((Unit *)vItr);
     }
 }
 
-void MessageDeliverer::Visit(CameraMapType& m)
+void MessageDeliverer::Visit(CameraMapType &m)
 {
-    for (auto& iter : m)
+    for (auto &iter : m)
     {
-        Player* owner = iter.getSource()->GetOwner();
+        Player *owner = iter.getSource()->GetOwner();
 
         if (i_toSelf || owner != &i_player)
         {
-            if (WorldSession* session = owner->GetSession())
+            if (WorldSession *session = owner->GetSession())
                 session->SendPacket(i_message);
         }
     }
 }
 
-void MessageDelivererExcept::Visit(CameraMapType& m)
+void MessageDelivererExcept::Visit(CameraMapType &m)
 {
-    for (auto& iter : m)
+    for (auto &iter : m)
     {
-        Player* owner = iter.getSource()->GetOwner();
+        Player *owner = iter.getSource()->GetOwner();
 
         if (owner == i_skipped_receiver)
             continue;
 
-        if (WorldSession* session = owner->GetSession())
+        if (WorldSession *session = owner->GetSession())
             session->SendPacket(i_message);
     }
 }
 
-void ObjectMessageDeliverer::Visit(CameraMapType& m)
+void ObjectMessageDeliverer::Visit(CameraMapType &m)
 {
-    for (auto& iter : m)
+    for (auto &iter : m)
     {
-        if (WorldSession* session = iter.getSource()->GetOwner()->GetSession())
+        if (WorldSession *session = iter.getSource()->GetOwner()->GetSession())
             session->SendPacket(i_message);
     }
 }
 
-void MessageDistDeliverer::Visit(CameraMapType& m)
+void MessageDistDeliverer::Visit(CameraMapType &m)
 {
-    for (auto& iter : m)
+    for (auto &iter : m)
     {
-        Player* owner = iter.getSource()->GetOwner();
+        Player *owner = iter.getSource()->GetOwner();
 
-        if ((i_toSelf || owner != &i_player) &&
-                (!i_ownTeamOnly || owner->GetTeam() == i_player.GetTeam()) &&
-                (!i_dist || iter.getSource()->GetBody()->IsWithinDist(&i_player, i_dist)))
+        if ((i_toSelf || owner != &i_player) && (!i_ownTeamOnly || owner->GetTeam() == i_player.GetTeam()) &&
+            (!i_dist || iter.getSource()->GetBody()->IsWithinDist(&i_player, i_dist)))
         {
-            if (WorldSession* session = owner->GetSession())
+            if (WorldSession *session = owner->GetSession())
                 session->SendPacket(i_message);
         }
     }
 }
 
-void ObjectMessageDistDeliverer::Visit(CameraMapType& m)
+void ObjectMessageDistDeliverer::Visit(CameraMapType &m)
 {
-    for (auto& iter : m)
+    for (auto &iter : m)
     {
         if (!i_dist || iter.getSource()->GetBody()->IsWithinDist(&i_object, i_dist))
         {
-            if (WorldSession* session = iter.getSource()->GetOwner()->GetSession())
+            if (WorldSession *session = iter.getSource()->GetOwner()->GetSession())
                 session->SendPacket(i_message);
         }
     }
 }
 
-template<class T>
-void ObjectUpdater::Visit(GridRefManager<T>& m)
+template <class T> void ObjectUpdater::Visit(GridRefManager<T> &m)
 {
-    for (auto& iter : m)
+    for (auto &iter : m)
         m_objectToUpdateSet.emplace(iter.getSource());
 }
 
-bool CannibalizeObjectCheck::operator()(Corpse* u)
+bool CannibalizeObjectCheck::operator()(Corpse *u)
 {
     // ignore bones
     if (u->GetType() == CORPSE_BONES)
         return false;
 
-    Player* owner = ObjectAccessor::FindPlayer(u->GetOwnerGuid());
+    Player *owner = ObjectAccessor::FindPlayer(u->GetOwnerGuid());
 
     if (!owner || i_fobj->CanAssist(owner))
         return false;
@@ -208,13 +214,13 @@ bool CannibalizeObjectCheck::operator()(Corpse* u)
     return i_fobj->IsWithinDistInMap(u, i_range);
 }
 
-bool TauntFlagObjectCheck::operator()(Corpse* u)
+bool TauntFlagObjectCheck::operator()(Corpse *u)
 {
     // ignore bones
     if (u->GetType() == CORPSE_BONES)
         return false;
 
-    Player* owner = ObjectAccessor::FindPlayer(u->GetOwnerGuid());
+    Player *owner = ObjectAccessor::FindPlayer(u->GetOwnerGuid());
 
     if (!owner || i_fobj->CanAssist(owner))
         return false;
@@ -222,14 +228,14 @@ bool TauntFlagObjectCheck::operator()(Corpse* u)
     return i_fobj->IsWithinDistInMap(u, i_range);
 }
 
-void MaNGOS::RespawnDo::operator()(Creature* u) const
+void MaNGOS::RespawnDo::operator()(Creature *u) const
 {
     // prevent respawn creatures for not active BG event
-    Map* map = u->GetMap();
+    Map *map = u->GetMap();
     if (map->IsBattleGroundOrArena())
     {
         BattleGroundEventIdx eventId = sBattleGroundMgr.GetCreatureEventIndex(u->GetDbGuid());
-        if (!((BattleGroundMap*)map)->GetBG()->IsActiveEvent(eventId.event1, eventId.event2))
+        if (!((BattleGroundMap *)map)->GetBG()->IsActiveEvent(eventId.event1, eventId.event2))
             return;
     }
 
@@ -244,21 +250,21 @@ void MaNGOS::RespawnDo::operator()(Creature* u) const
         u->Respawn();
 }
 
-void MaNGOS::RespawnDo::operator()(GameObject* u) const
+void MaNGOS::RespawnDo::operator()(GameObject *u) const
 {
     // prevent respawn gameobject for not active BG event
-    Map* map = u->GetMap();
+    Map *map = u->GetMap();
     if (map->IsBattleGroundOrArena())
     {
         BattleGroundEventIdx eventId = sBattleGroundMgr.GetGameObjectEventIndex(u->GetDbGuid());
-        if (!((BattleGroundMap*)map)->GetBG()->IsActiveEvent(eventId.event1, eventId.event2))
+        if (!((BattleGroundMap *)map)->GetBG()->IsActiveEvent(eventId.event1, eventId.event2))
             return;
     }
 
     u->Respawn();
 }
 
-void MaNGOS::CallOfHelpCreatureInRangeDo::operator()(Creature* u)
+void MaNGOS::CallOfHelpCreatureInRangeDo::operator()(Creature *u)
 {
     if (u == i_funit)
         return;
@@ -278,7 +284,7 @@ void MaNGOS::CallOfHelpCreatureInRangeDo::operator()(Creature* u)
         u->AI()->OnCallForHelp(i_funit, i_enemy);
 }
 
-bool MaNGOS::AnyAssistCreatureInRangeCheck::operator()(Creature* u)
+bool MaNGOS::AnyAssistCreatureInRangeCheck::operator()(Creature *u)
 {
     if (u == i_funit)
         return false;
@@ -297,5 +303,5 @@ bool MaNGOS::AnyAssistCreatureInRangeCheck::operator()(Creature* u)
     return true;
 }
 
-template void ObjectUpdater::Visit<GameObject>(GameObjectMapType&);
-template void ObjectUpdater::Visit<DynamicObject>(DynamicObjectMapType&);
+template void ObjectUpdater::Visit<GameObject>(GameObjectMapType &);
+template void ObjectUpdater::Visit<DynamicObject>(DynamicObjectMapType &);

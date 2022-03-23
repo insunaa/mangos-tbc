@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -33,26 +33,33 @@ EndContentData */
 
 enum
 {
-    SPELL_YENNIKUS_RELEASE      = 3607,
+    SPELL_YENNIKUS_RELEASE = 3607,
 
-    QUEST_ID_SAVING_YENNIKU     = 592,
+    QUEST_ID_SAVING_YENNIKU = 592,
 
-    FACTION_ID_HORDE_GENERIC    = 83,                       // Note: faction may not be correct!
+    FACTION_ID_HORDE_GENERIC = 83, // Note: faction may not be correct!
 };
 
 struct mob_yennikuAI : public ScriptedAI
 {
-    mob_yennikuAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    mob_yennikuAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiResetTimer;
 
-    void Reset() override { m_uiResetTimer = 0; }
+    void Reset() override
+    {
+        m_uiResetTimer = 0;
+    }
 
-    void SpellHit(Unit* pCaster, const SpellEntry* pSpell) override
+    void SpellHit(Unit *pCaster, const SpellEntry *pSpell) override
     {
         if (pSpell->Id == SPELL_YENNIKUS_RELEASE && pCaster->GetTypeId() == TYPEID_PLAYER)
         {
-            if (!m_uiResetTimer && ((Player*)pCaster)->GetQuestStatus(QUEST_ID_SAVING_YENNIKU) == QUEST_STATUS_INCOMPLETE)
+            if (!m_uiResetTimer &&
+                ((Player *)pCaster)->GetQuestStatus(QUEST_ID_SAVING_YENNIKU) == QUEST_STATUS_INCOMPLETE)
             {
                 m_uiResetTimer = 60000;
                 EnterEvadeMode();
@@ -98,7 +105,7 @@ struct mob_yennikuAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_mob_yenniku(Creature* _Creature)
+UnitAI *GetAI_mob_yenniku(Creature *_Creature)
 {
     return new mob_yennikuAI(_Creature);
 }
@@ -109,7 +116,7 @@ UnitAI* GetAI_mob_yenniku(Creature* _Creature)
 
 void AddSC_stranglethorn_vale()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "mob_yenniku";
     pNewScript->GetAI = &GetAI_mob_yenniku;
     pNewScript->RegisterSelf();

@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,21 +17,22 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "VMapFactory.h"
-#include "VMapManager2.h"
-#include "VMapDefinitions.h"
-#include "WorldModel.h"
+#include "GameObjectModel.h"
 
 #include "Entities/GameObject.h"
-#include "World/World.h"
-#include "GameObjectModel.h"
-#include "Server/DBCStores.h"
 #include "ModelInstance.h"
+#include "Server/DBCStores.h"
+#include "VMapDefinitions.h"
+#include "VMapFactory.h"
+#include "VMapManager2.h"
+#include "World/World.h"
+#include "WorldModel.h"
 
 struct GameobjectModelData
 {
-    GameobjectModelData(const std::string& name_, const G3D::AABox& box) :
-        name(name_), bound(box) {}
+    GameobjectModelData(const std::string &name_, const G3D::AABox &box) : name(name_), bound(box)
+    {
+    }
 
     std::string name;
     G3D::AABox bound;
@@ -41,7 +43,7 @@ ModelList model_list;
 
 void LoadGameObjectModelList()
 {
-    FILE* model_list_file = fopen((sWorld.GetDataPath() + "vmaps/" + VMAP::GAMEOBJECT_MODELS).c_str(), "rb");
+    FILE *model_list_file = fopen((sWorld.GetDataPath() + "vmaps/" + VMAP::GAMEOBJECT_MODELS).c_str(), "rb");
     if (!model_list_file)
         return;
 
@@ -63,7 +65,8 @@ void LoadGameObjectModelList()
         fread(&v1, sizeof(Vector3), 1, model_list_file);
         fread(&v2, sizeof(Vector3), 1, model_list_file);
 
-        model_list.insert(ModelList::value_type(displayId, GameobjectModelData(std::string(buff, name_length), AABox(v1, v2))));
+        model_list.insert(
+            ModelList::value_type(displayId, GameobjectModelData(std::string(buff, name_length), AABox(v1, v2))));
     }
     fclose(model_list_file);
 }
@@ -71,10 +74,10 @@ void LoadGameObjectModelList()
 GameObjectModel::~GameObjectModel()
 {
     if (iModel)
-        ((VMAP::VMapManager2*)VMAP::VMapFactory::createOrGetVMapManager())->releaseModelInstance(name);
+        ((VMAP::VMapManager2 *)VMAP::VMapFactory::createOrGetVMapManager())->releaseModelInstance(name);
 }
 
-bool GameObjectModel::initialize(const GameObject* const pGo, const GameObjectDisplayInfoEntry* const pDisplayInfo)
+bool GameObjectModel::initialize(const GameObject *const pGo, const GameObjectDisplayInfoEntry *const pDisplayInfo)
 {
     ModelList::const_iterator it = model_list.find(pDisplayInfo->Displayid);
     if (it == model_list.end())
@@ -88,7 +91,8 @@ bool GameObjectModel::initialize(const GameObject* const pGo, const GameObjectDi
         return false;
     }
 
-    iModel = ((VMAP::VMapManager2*)VMAP::VMapFactory::createOrGetVMapManager())->acquireModelInstance(sWorld.GetDataPath() + "vmaps/", it->second.name);
+    iModel = ((VMAP::VMapManager2 *)VMAP::VMapFactory::createOrGetVMapManager())
+                 ->acquireModelInstance(sWorld.GetDataPath() + "vmaps/", it->second.name);
 
     if (!iModel)
         return false;
@@ -117,7 +121,8 @@ bool GameObjectModel::initialize(const GameObject* const pGo, const GameObjectDi
     for (int i = 0; i < 8; ++i)
     {
         Vector3 pos(iBound.corner(i));
-        if (Creature* c = const_cast<GameObject*>(pGo)->SummonCreature(24440, pos.x, pos.y, pos.z, 0, TEMPSPAWN_MANUAL_DESPAWN, 0))
+        if (Creature *c = const_cast<GameObject *>(pGo)->SummonCreature(24440, pos.x, pos.y, pos.z, 0,
+                                                                        TEMPSPAWN_MANUAL_DESPAWN, 0))
         {
             c->setFaction(35);
             c->SetObjectScale(0.1f);
@@ -128,13 +133,13 @@ bool GameObjectModel::initialize(const GameObject* const pGo, const GameObjectDi
     return true;
 }
 
-GameObjectModel* GameObjectModel::construct(const GameObject* const pGo)
+GameObjectModel *GameObjectModel::construct(const GameObject *const pGo)
 {
-    const GameObjectDisplayInfoEntry* info = sGameObjectDisplayInfoStore.LookupEntry(pGo->GetDisplayId());
+    const GameObjectDisplayInfoEntry *info = sGameObjectDisplayInfoStore.LookupEntry(pGo->GetDisplayId());
     if (!info)
         return nullptr;
 
-    GameObjectModel* mdl = new GameObjectModel();
+    GameObjectModel *mdl = new GameObjectModel();
     if (!mdl->initialize(pGo, info))
     {
         delete mdl;
@@ -144,7 +149,7 @@ GameObjectModel* GameObjectModel::construct(const GameObject* const pGo)
     return mdl;
 }
 
-bool GameObjectModel::intersectRay(const G3D::Ray& ray, float& MaxDist, bool StopAtFirstHit, bool ignoreM2Model) const
+bool GameObjectModel::intersectRay(const G3D::Ray &ray, float &MaxDist, bool StopAtFirstHit, bool ignoreM2Model) const
 {
     if (!collision_enabled)
         return false;
@@ -166,7 +171,7 @@ bool GameObjectModel::intersectRay(const G3D::Ray& ray, float& MaxDist, bool Sto
     return hit;
 }
 
-bool GameObjectModel::Relocate(GameObject const& go)
+bool GameObjectModel::Relocate(GameObject const &go)
 {
     if (!iModel)
         return false;
@@ -199,7 +204,7 @@ bool GameObjectModel::Relocate(GameObject const& go)
     for (int i = 0; i < 8; ++i)
     {
         Vector3 pos(iBound.corner(i));
-        Creature* c = ((GameObject*)&go)->SummonCreature(1, pos.x, pos.y, pos.z, 0, TEMPSUMMON_TIMED_DESPAWN, 4000);
+        Creature *c = ((GameObject *)&go)->SummonCreature(1, pos.x, pos.y, pos.z, 0, TEMPSUMMON_TIMED_DESPAWN, 4000);
         c->SetFly(true);
         c->SendHeartBeat();
     }

@@ -1,5 +1,6 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +17,11 @@
  */
 
 #include "PacketLog.h"
-#include "Timer.h"
-#include "WorldPacket.h"
+
 #include "Config/Config.h"
 #include "Globals/SharedDefines.h"
+#include "Timer.h"
+#include "WorldPacket.h"
 
 #pragma pack(push, 1)
 
@@ -70,7 +72,7 @@ PacketLog::~PacketLog()
     _file = nullptr;
 }
 
-PacketLog* PacketLog::instance()
+PacketLog *PacketLog::instance()
 {
     static PacketLog instance;
     return &instance;
@@ -91,11 +93,16 @@ void PacketLog::Initialize()
         _file = fopen((logsDir + logname).c_str(), "wb");
 
         LogHeader header;
-        header.Signature[0] = 'P'; header.Signature[1] = 'K'; header.Signature[2] = 'T';
+        header.Signature[0] = 'P';
+        header.Signature[1] = 'K';
+        header.Signature[2] = 'T';
         header.FormatVersion = 0x0301;
         header.SnifferId = 'T';
         header.Build = buildVersion[0];
-        header.Locale[0] = 'e'; header.Locale[1] = 'n'; header.Locale[2] = 'U'; header.Locale[3] = 'S';
+        header.Locale[0] = 'e';
+        header.Locale[1] = 'n';
+        header.Locale[2] = 'U';
+        header.Locale[3] = 'S';
         std::memset(header.SessionKey, 0, sizeof(header.SessionKey));
         header.SniffStartUnixtime = time(nullptr);
         header.SniffStartTicks = WorldTimer::getMSTime();
@@ -117,7 +124,8 @@ void PacketLog::Reinitialize()
     Initialize();
 }
 
-void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost::asio::ip::address const& addr, uint16 port)
+void PacketLog::LogPacket(WorldPacket const &packet, Direction direction, boost::asio::ip::address const &addr,
+                          uint16 port)
 {
     std::lock_guard<std::mutex> lock(_logPacketLock);
 

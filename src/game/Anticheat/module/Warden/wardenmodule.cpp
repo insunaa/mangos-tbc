@@ -7,16 +7,16 @@
 
 #include "WardenModule.hpp"
 
-#include "Platform/Define.h"
-#include "SARC4.hpp"
-
-#include <zlib.h>
 #include <openssl/md5.h>
+#include <zlib.h>
 
+#include <exception>
+#include <fstream>
 #include <string>
 #include <vector>
-#include <fstream>
-#include <exception>
+
+#include "Platform/Define.h"
+#include "SARC4.hpp"
 
 WardenModule::WardenModule(std::string const &bin, std::string const &kf, std::string const &cr)
 {

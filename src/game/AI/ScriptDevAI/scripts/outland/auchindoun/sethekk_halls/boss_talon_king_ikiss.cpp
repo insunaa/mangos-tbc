@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -21,34 +21,34 @@ SDComment:
 SDCategory: Auchindoun, Sethekk Halls
 EndScriptData */
 
-#include "AI/ScriptDevAI/include/sc_common.h"
 #include "AI/ScriptDevAI/base/CombatAI.h"
+#include "AI/ScriptDevAI/include/sc_common.h"
 #include "sethekk_halls.h"
 
 enum
 {
-    SAY_INTRO                   = -1556007,
-    SAY_AGGRO_1                 = -1556008,
-    SAY_AGGRO_2                 = -1556009,
-    SAY_AGGRO_3                 = -1556010,
-    SAY_SLAY_1                  = -1556011,
-    SAY_SLAY_2                  = -1556012,
-    SAY_DEATH                   = -1556013,
-    EMOTE_ARCANE_EXP            = -1556015,
+    SAY_INTRO = -1556007,
+    SAY_AGGRO_1 = -1556008,
+    SAY_AGGRO_2 = -1556009,
+    SAY_AGGRO_3 = -1556010,
+    SAY_SLAY_1 = -1556011,
+    SAY_SLAY_2 = -1556012,
+    SAY_DEATH = -1556013,
+    EMOTE_ARCANE_EXP = -1556015,
 
-    SPELL_BLINK                 = 38194,
-    SPELL_MANA_SHIELD           = 38151,
-    SPELL_ARCANE_BUBBLE         = 9438,
-    SPELL_SLOW_H                = 35032,
+    SPELL_BLINK = 38194,
+    SPELL_MANA_SHIELD = 38151,
+    SPELL_ARCANE_BUBBLE = 9438,
+    SPELL_SLOW_H = 35032,
 
-    SPELL_POLYMORPH             = 38245,
-    SPELL_POLYMORPH_H           = 43309,
+    SPELL_POLYMORPH = 38245,
+    SPELL_POLYMORPH_H = 43309,
 
-    SPELL_ARCANE_VOLLEY         = 35059,
-    SPELL_ARCANE_VOLLEY_H       = 40424,
+    SPELL_ARCANE_VOLLEY = 35059,
+    SPELL_ARCANE_VOLLEY_H = 40424,
 
-    SPELL_ARCANE_EXPLOSION      = 38197,
-    SPELL_ARCANE_EXPLOSION_H    = 40425,
+    SPELL_ARCANE_EXPLOSION = 38197,
+    SPELL_ARCANE_EXPLOSION_H = 40425,
 };
 
 enum TalonKingIkissActions // order based on priority
@@ -64,9 +64,11 @@ enum TalonKingIkissActions // order based on priority
 
 struct boss_talon_king_ikissAI : public CombatAI
 {
-    boss_talon_king_ikissAI(Creature* creature) : CombatAI(creature, TALON_KING_IKISS_ACTION_MAX),
-        m_instance(static_cast<ScriptedInstance*>(creature->GetInstanceData())), m_isRegularMode(creature->GetMap()->IsRegularDifficulty()),
-            m_Intro(false), m_uiBlinkPhase(0), m_HealthPercent(80.f)
+    boss_talon_king_ikissAI(Creature *creature)
+        : CombatAI(creature, TALON_KING_IKISS_ACTION_MAX),
+          m_instance(static_cast<ScriptedInstance *>(creature->GetInstanceData())),
+          m_isRegularMode(creature->GetMap()->IsRegularDifficulty()), m_Intro(false), m_uiBlinkPhase(0),
+          m_HealthPercent(80.f)
     {
         AddTimerlessCombatAction(TALON_KING_IKISS_MANA_SHIELD, true);
         AddTimerlessCombatAction(TALON_KING_IKISS_BLINK_START, true);
@@ -76,7 +78,7 @@ struct boss_talon_king_ikissAI : public CombatAI
         AddCustomAction(TALON_KING_IKISS_BLINK, true, [&]() { HandleBlink(); });
     }
 
-    ScriptedInstance* m_instance;
+    ScriptedInstance *m_instance;
     bool m_isRegularMode;
 
     bool m_Intro;
@@ -98,14 +100,18 @@ struct boss_talon_king_ikissAI : public CombatAI
     {
         switch (action)
         {
-            case TALON_KING_IKISS_ACTION_SLOW: return urand(15000, 20000);
-            case TALON_KING_IKISS_ACTION_POLYMORPH: return urand(10000, 15000);
-            case TALON_KING_IKISS_ACTION_ARCANE_VOLLEY: return urand(8000, 12000);
-            default: return 0; // never occurs but for compiler
+        case TALON_KING_IKISS_ACTION_SLOW:
+            return urand(15000, 20000);
+        case TALON_KING_IKISS_ACTION_POLYMORPH:
+            return urand(10000, 15000);
+        case TALON_KING_IKISS_ACTION_ARCANE_VOLLEY:
+            return urand(8000, 12000);
+        default:
+            return 0; // never occurs but for compiler
         }
     }
 
-    void MoveInLineOfSight(Unit* pWho) override
+    void MoveInLineOfSight(Unit *pWho) override
     {
         if (!m_creature->GetVictim() && m_creature->CanAttackOnSight(pWho) && pWho->isInAccessablePlaceFor(m_creature))
         {
@@ -119,20 +125,26 @@ struct boss_talon_king_ikissAI : public CombatAI
         ScriptedAI::MoveInLineOfSight(pWho);
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         switch (urand(0, 2))
         {
-            case 0: DoScriptText(SAY_AGGRO_1, m_creature); break;
-            case 1: DoScriptText(SAY_AGGRO_2, m_creature); break;
-            case 2: DoScriptText(SAY_AGGRO_3, m_creature); break;
+        case 0:
+            DoScriptText(SAY_AGGRO_1, m_creature);
+            break;
+        case 1:
+            DoScriptText(SAY_AGGRO_2, m_creature);
+            break;
+        case 2:
+            DoScriptText(SAY_AGGRO_3, m_creature);
+            break;
         }
 
         if (m_instance)
             m_instance->SetData(TYPE_IKISS, IN_PROGRESS);
     }
 
-    void JustDied(Unit* /*pKiller*/) override
+    void JustDied(Unit * /*pKiller*/) override
     {
         DoScriptText(SAY_DEATH, m_creature);
 
@@ -146,7 +158,7 @@ struct boss_talon_king_ikissAI : public CombatAI
             m_instance->SetData(TYPE_IKISS, FAIL);
     }
 
-    void KilledUnit(Unit* /*pVctim*/) override
+    void KilledUnit(Unit * /*pVctim*/) override
     {
         DoScriptText(urand(0, 1) ? SAY_SLAY_1 : SAY_SLAY_2, m_creature);
     }
@@ -165,61 +177,66 @@ struct boss_talon_king_ikissAI : public CombatAI
     {
         switch (action)
         {
-            case TALON_KING_IKISS_MANA_SHIELD:
-                if (m_creature->GetHealthPercent() < 15.0f)
-                    if (DoCastSpellIfCan(nullptr, SPELL_MANA_SHIELD) == CAST_OK)
-                        DisableCombatAction(action);
-                break;
-            case TALON_KING_IKISS_BLINK_START:
-                if (m_creature->GetHealthPercent() < m_HealthPercent)
+        case TALON_KING_IKISS_MANA_SHIELD:
+            if (m_creature->GetHealthPercent() < 15.0f)
+                if (DoCastSpellIfCan(nullptr, SPELL_MANA_SHIELD) == CAST_OK)
+                    DisableCombatAction(action);
+            break;
+        case TALON_KING_IKISS_BLINK_START:
+            if (m_creature->GetHealthPercent() < m_HealthPercent)
+            {
+                if (DoCastSpellIfCan(m_creature, SPELL_BLINK, CAST_INTERRUPT_PREVIOUS) == CAST_OK)
                 {
-                    if (DoCastSpellIfCan(m_creature, SPELL_BLINK, CAST_INTERRUPT_PREVIOUS) == CAST_OK)
+                    SetMeleeEnabled(false);
+                    SetCombatMovement(false);
+                    SetCombatScriptStatus(true);
+                    ResetTimer(TALON_KING_IKISS_BLINK, 1000);
+                    DoScriptText(EMOTE_ARCANE_EXP, m_creature);
+
+                    // There is no relationship between the health percentages
+                    switch (m_uiBlinkPhase)
                     {
-                        SetMeleeEnabled(false);
-                        SetCombatMovement(false);
-                        SetCombatScriptStatus(true);
-                        ResetTimer(TALON_KING_IKISS_BLINK, 1000);
-                        DoScriptText(EMOTE_ARCANE_EXP, m_creature);
-
-                        // There is no relationship between the health percentages
-                        switch (m_uiBlinkPhase)
-                        {
-                            case 0: m_HealthPercent = 50.0f; break;
-                            case 1: m_HealthPercent = 25.0f; break;
-                            case 2: m_HealthPercent = 0.0f; break;
-                        }
-
-                        ++m_uiBlinkPhase;
+                    case 0:
+                        m_HealthPercent = 50.0f;
+                        break;
+                    case 1:
+                        m_HealthPercent = 25.0f;
+                        break;
+                    case 2:
+                        m_HealthPercent = 0.0f;
+                        break;
                     }
+
+                    ++m_uiBlinkPhase;
                 }
-                break;
-            case TALON_KING_IKISS_ACTION_SLOW:
-            {
-                if (!m_isRegularMode)
-                    if (DoCastSpellIfCan(nullptr, SPELL_SLOW_H) == CAST_OK)
-                        ResetCombatAction(action, GetSubsequentActionTimer(action));
-                break;
-            }
-            case TALON_KING_IKISS_ACTION_POLYMORPH:
-            {
-                if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, nullptr, SELECT_FLAG_PLAYER | SELECT_FLAG_NOT_AURA | SELECT_FLAG_SKIP_TANK))
-                    if (DoCastSpellIfCan(target, m_isRegularMode ? SPELL_POLYMORPH : SPELL_POLYMORPH_H) == CAST_OK)
-                        ResetCombatAction(action, GetSubsequentActionTimer(action));
-                break;
-            }
-            case TALON_KING_IKISS_ACTION_ARCANE_VOLLEY:
-            {
-                if (DoCastSpellIfCan(nullptr, m_isRegularMode ? SPELL_ARCANE_VOLLEY : SPELL_ARCANE_VOLLEY_H) == CAST_OK)
-                    ResetCombatAction(action, GetSubsequentActionTimer(action));
             }
             break;
+        case TALON_KING_IKISS_ACTION_SLOW: {
+            if (!m_isRegularMode)
+                if (DoCastSpellIfCan(nullptr, SPELL_SLOW_H) == CAST_OK)
+                    ResetCombatAction(action, GetSubsequentActionTimer(action));
+            break;
+        }
+        case TALON_KING_IKISS_ACTION_POLYMORPH: {
+            if (Unit *target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, nullptr,
+                                                                 SELECT_FLAG_PLAYER | SELECT_FLAG_NOT_AURA |
+                                                                     SELECT_FLAG_SKIP_TANK))
+                if (DoCastSpellIfCan(target, m_isRegularMode ? SPELL_POLYMORPH : SPELL_POLYMORPH_H) == CAST_OK)
+                    ResetCombatAction(action, GetSubsequentActionTimer(action));
+            break;
+        }
+        case TALON_KING_IKISS_ACTION_ARCANE_VOLLEY: {
+            if (DoCastSpellIfCan(nullptr, m_isRegularMode ? SPELL_ARCANE_VOLLEY : SPELL_ARCANE_VOLLEY_H) == CAST_OK)
+                ResetCombatAction(action, GetSubsequentActionTimer(action));
+        }
+        break;
         }
     }
 };
 
 void AddSC_boss_talon_king_ikiss()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_talon_king_ikiss";
     pNewScript->GetAI = &GetNewAIInstance<boss_talon_king_ikissAI>;
     pNewScript->RegisterSelf();

@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,52 +28,54 @@
 enum
 {
     // npcs
-    NPC_SILITHUS_DUST_QUEST_ALLIANCE    = 17090,        // dummy npcs for quest credit
-    NPC_SILITHUS_DUST_QUEST_HORDE       = 18199,
+    NPC_SILITHUS_DUST_QUEST_ALLIANCE = 17090, // dummy npcs for quest credit
+    NPC_SILITHUS_DUST_QUEST_HORDE = 18199,
 
     // game objects
-    GO_SILITHYST_MOUND                  = 181597,       // created when a player drops the flag
-    GO_SILITHYST_GEYSER                 = 181598,       // spawn on the map by default
+    GO_SILITHYST_MOUND = 181597,  // created when a player drops the flag
+    GO_SILITHYST_GEYSER = 181598, // spawn on the map by default
 
     // spells
-    //SPELL_SILITHYST_OBJECT            = 29518,        // unknown, related to the GO
-    SPELL_SILITHYST                     = 29519,        // buff received when you are carrying a silithyst
-    SPELL_TRACES_OF_SILITHYST           = 29534,        // individual buff received when successfully delivered a silithyst
-    SPELL_CENARION_FAVOR                = 30754,        // zone buff received when a team gathers 200 silithyst
-    SPELL_SILITHYST_FLAG_DROP           = 29533,        // drop the flag
+    // SPELL_SILITHYST_OBJECT            = 29518,        // unknown, related to
+    // the GO
+    SPELL_SILITHYST = 29519,           // buff received when you are carrying a silithyst
+    SPELL_TRACES_OF_SILITHYST = 29534, // individual buff received when
+                                       // successfully delivered a silithyst
+    SPELL_CENARION_FAVOR = 30754,      // zone buff received when a team gathers 200 silithyst
+    SPELL_SILITHYST_FLAG_DROP = 29533, // drop the flag
 
     // quests
-    QUEST_SCOURING_DESERT_ALLIANCE      = 9419,
-    QUEST_SCOURING_DESERT_HORDE         = 9422,
+    QUEST_SCOURING_DESERT_ALLIANCE = 9419,
+    QUEST_SCOURING_DESERT_HORDE = 9422,
 
     // area triggers
-    AREATRIGGER_SILITHUS_ALLIANCE       = 4162,
-    AREATRIGGER_SILITHUS_HORDE          = 4168,
+    AREATRIGGER_SILITHUS_ALLIANCE = 4162,
+    AREATRIGGER_SILITHUS_HORDE = 4168,
 
     // misc
-    FACTION_CENARION_CIRCLE             = 609,
-    HONOR_REWARD_SILITHYST              = 19,
-    REPUTATION_REWARD_SILITHYST         = 20,
-    MAX_SILITHYST                       = 200,
+    FACTION_CENARION_CIRCLE = 609,
+    HONOR_REWARD_SILITHYST = 19,
+    REPUTATION_REWARD_SILITHYST = 20,
+    MAX_SILITHYST = 200,
 };
 
 class OutdoorPvPSI : public OutdoorPvP
 {
-    public:
-        OutdoorPvPSI();
+  public:
+    OutdoorPvPSI();
 
-        void HandlePlayerEnterZone(Player* player, bool isMainZone) override;
-        void HandlePlayerLeaveZone(Player* player, bool isMainZone) override;
-        void FillInitialWorldStates(WorldPacket& data, uint32& count) override;
+    void HandlePlayerEnterZone(Player *player, bool isMainZone) override;
+    void HandlePlayerLeaveZone(Player *player, bool isMainZone) override;
+    void FillInitialWorldStates(WorldPacket &data, uint32 &count) override;
 
-        bool HandleAreaTrigger(Player* player, uint32 triggerId) override;
-        bool HandleGameObjectUse(Player* player, GameObject* go) override;
-        bool HandleDropFlag(Player* player, uint32 spellId) override;
+    bool HandleAreaTrigger(Player *player, uint32 triggerId) override;
+    bool HandleGameObjectUse(Player *player, GameObject *go) override;
+    bool HandleDropFlag(Player *player, uint32 spellId) override;
 
-    private:
-        uint8 m_resourcesAlliance;
-        uint8 m_resourcesHorde;
-        Team m_zoneOwner;
+  private:
+    uint8 m_resourcesAlliance;
+    uint8 m_resourcesHorde;
+    Team m_zoneOwner;
 };
 
 #endif

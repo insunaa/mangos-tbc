@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -15,10 +15,10 @@
  */
 
 #include "AI/ScriptDevAI/include/sc_common.h"
-#include "World/WorldState.h"
 #include "Spells/Scripts/SpellScript.h"
+#include "World/WorldState.h"
 
-bool QuestRewarded_suns_reach_reclamation(Player* player, Creature* creature, Quest const* quest)
+bool QuestRewarded_suns_reach_reclamation(Player *player, Creature *creature, Quest const *quest)
 {
     sWorldState.AddSunsReachProgress(quest->GetQuestId());
     sWorldState.AddSunwellGateProgress(quest->GetQuestId());
@@ -35,23 +35,24 @@ enum
 
 struct DawnbladeAttack : public SpellScript
 {
-    void OnInit(Spell* spell) const override
+    void OnInit(Spell *spell) const override
     {
         spell->SetMaxAffectedTargets(1);
     }
 
-    bool OnCheckTarget(const Spell* spell, Unit* target, SpellEffectIndex /*eff*/) const override
+    bool OnCheckTarget(const Spell *spell, Unit *target, SpellEffectIndex /*eff*/) const override
     {
-        if (!spell->GetCaster()->IsWithinLOSInMap(target, true) || target->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
+        if (!spell->GetCaster()->IsWithinLOSInMap(target, true) ||
+            target->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
             return false;
 
         return true;
     }
 
-    void OnEffectExecute(Spell* spell, SpellEffectIndex /*effIdx*/) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex /*effIdx*/) const override
     {
         if (urand(0, 1) == 0)
-            if (Unit* target = spell->GetUnitTarget())
+            if (Unit *target = spell->GetUnitTarget())
                 target->AI()->DoCastSpellIfCan(spell->GetCaster(), SPELL_SHOOT);
     }
 };
@@ -59,9 +60,9 @@ struct DawnbladeAttack : public SpellScript
 // spell used elsewhere as well
 struct QuelDanasShoot : public SpellScript
 {
-    void OnHit(Spell* spell, SpellMissInfo /*missInfo*/) const override
+    void OnHit(Spell *spell, SpellMissInfo /*missInfo*/) const override
     {
-        if (Unit* target = spell->GetUnitTarget())
+        if (Unit *target = spell->GetUnitTarget())
         {
             if (!target->IsCreature() || !target->HasAura(SPELL_DAWNBLADE_ATTACK))
                 return;
@@ -73,7 +74,7 @@ struct QuelDanasShoot : public SpellScript
 
 void AddSC_suns_reach_reclamation()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "npc_suns_reach_reclamation";
     pNewScript->pQuestRewardedNPC = &QuestRewarded_suns_reach_reclamation;
     pNewScript->RegisterSelf();

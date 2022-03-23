@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,21 +18,19 @@
  */
 
 #include "OutdoorPvPTF.h"
-#include "WorldPacket.h"
-#include "World/World.h"
-#include "Globals/ObjectMgr.h"
-#include "Entities/Object.h"
+
 #include "Entities/Creature.h"
 #include "Entities/GameObject.h"
+#include "Entities/Object.h"
 #include "Entities/Player.h"
+#include "Globals/ObjectMgr.h"
+#include "World/World.h"
+#include "WorldPacket.h"
 
-OutdoorPvPTF::OutdoorPvPTF() : OutdoorPvP(),
-    m_zoneWorldState(WORLD_STATE_TF_TOWERS_CONTROLLED),
-    m_zoneOwner(TEAM_NONE),
-    //m_zoneUpdateTimer(TIMER_TF_UPDATE_TIME),
-    m_zoneLockTimer(0),
-    m_towersAlliance(0),
-    m_towersHorde(0)
+OutdoorPvPTF::OutdoorPvPTF()
+    : OutdoorPvP(), m_zoneWorldState(WORLD_STATE_TF_TOWERS_CONTROLLED), m_zoneOwner(TEAM_NONE),
+      // m_zoneUpdateTimer(TIMER_TF_UPDATE_TIME),
+      m_zoneLockTimer(0), m_towersAlliance(0), m_towersHorde(0)
 {
     m_towerWorldState[0] = WORLD_STATE_TF_WEST_TOWER_NEUTRAL;
     m_towerWorldState[1] = WORLD_STATE_TF_NORTH_TOWER_NEUTRAL;
@@ -39,11 +38,11 @@ OutdoorPvPTF::OutdoorPvPTF() : OutdoorPvP(),
     m_towerWorldState[3] = WORLD_STATE_TF_SOUTH_EAST_TOWER_NEUTRAL;
     m_towerWorldState[4] = WORLD_STATE_TF_SOUTH_TOWER_NEUTRAL;
 
-    for (auto& i : m_towerOwner)
+    for (auto &i : m_towerOwner)
         i = TEAM_NONE;
 }
 
-void OutdoorPvPTF::FillInitialWorldStates(WorldPacket& data, uint32& count)
+void OutdoorPvPTF::FillInitialWorldStates(WorldPacket &data, uint32 &count)
 {
     FillInitialWorldState(data, count, m_zoneWorldState, WORLD_STATE_ADD);
     if (m_zoneWorldState == WORLD_STATE_TF_TOWERS_CONTROLLED)
@@ -64,7 +63,7 @@ void OutdoorPvPTF::FillInitialWorldStates(WorldPacket& data, uint32& count)
     }
 }
 
-void OutdoorPvPTF::SendRemoveWorldStates(Player* player)
+void OutdoorPvPTF::SendRemoveWorldStates(Player *player)
 {
     player->SendUpdateWorldState(m_zoneWorldState, WORLD_STATE_REMOVE);
 
@@ -72,11 +71,12 @@ void OutdoorPvPTF::SendRemoveWorldStates(Player* player)
         player->SendUpdateWorldState(i, WORLD_STATE_REMOVE);
 }
 
-void OutdoorPvPTF::HandlePlayerEnterZone(Player* player, bool isMainZone)
+void OutdoorPvPTF::HandlePlayerEnterZone(Player *player, bool isMainZone)
 {
     OutdoorPvP::HandlePlayerEnterZone(player, isMainZone);
 
-    // remove the buff from the player first because there are some issues at relog
+    // remove the buff from the player first because there are some issues at
+    // relog
     player->RemoveAurasDueToSpell(SPELL_AUCHINDOUN_BLESSING);
 
     // Handle the buffs
@@ -84,7 +84,7 @@ void OutdoorPvPTF::HandlePlayerEnterZone(Player* player, bool isMainZone)
         player->CastSpell(player, SPELL_AUCHINDOUN_BLESSING, TRIGGERED_OLD_TRIGGERED);
 }
 
-void OutdoorPvPTF::HandlePlayerLeaveZone(Player* player, bool isMainZone)
+void OutdoorPvPTF::HandlePlayerLeaveZone(Player *player, bool isMainZone)
 {
     // remove the buff from the player
     player->RemoveAurasDueToSpell(SPELL_AUCHINDOUN_BLESSING);
@@ -92,38 +92,38 @@ void OutdoorPvPTF::HandlePlayerLeaveZone(Player* player, bool isMainZone)
     OutdoorPvP::HandlePlayerLeaveZone(player, isMainZone);
 }
 
-void OutdoorPvPTF::HandleGameObjectCreate(GameObject* go)
+void OutdoorPvPTF::HandleGameObjectCreate(GameObject *go)
 {
     OutdoorPvP::HandleGameObjectCreate(go);
 
     switch (go->GetEntry())
     {
-        case GO_TOWER_BANNER_WEST:
-            m_towerBanners[0] = go->GetObjectGuid();
-            go->SetGoArtKit(GetBannerArtKit(m_towerOwner[0]));
-            break;
-        case GO_TOWER_BANNER_NORTH:
-            m_towerBanners[1] = go->GetObjectGuid();
-            go->SetGoArtKit(GetBannerArtKit(m_towerOwner[1]));
-            break;
-        case GO_TOWER_BANNER_EAST:
-            m_towerBanners[2] = go->GetObjectGuid();
-            go->SetGoArtKit(GetBannerArtKit(m_towerOwner[2]));
-            break;
-        case GO_TOWER_BANNER_SOUTH_EAST:
-            m_towerBanners[3] = go->GetObjectGuid();
-            go->SetGoArtKit(GetBannerArtKit(m_towerOwner[3]));
-            break;
-        case GO_TOWER_BANNER_SOUTH:
-            m_towerBanners[4] = go->GetObjectGuid();
-            go->SetGoArtKit(GetBannerArtKit(m_towerOwner[4]));
-            break;
+    case GO_TOWER_BANNER_WEST:
+        m_towerBanners[0] = go->GetObjectGuid();
+        go->SetGoArtKit(GetBannerArtKit(m_towerOwner[0]));
+        break;
+    case GO_TOWER_BANNER_NORTH:
+        m_towerBanners[1] = go->GetObjectGuid();
+        go->SetGoArtKit(GetBannerArtKit(m_towerOwner[1]));
+        break;
+    case GO_TOWER_BANNER_EAST:
+        m_towerBanners[2] = go->GetObjectGuid();
+        go->SetGoArtKit(GetBannerArtKit(m_towerOwner[2]));
+        break;
+    case GO_TOWER_BANNER_SOUTH_EAST:
+        m_towerBanners[3] = go->GetObjectGuid();
+        go->SetGoArtKit(GetBannerArtKit(m_towerOwner[3]));
+        break;
+    case GO_TOWER_BANNER_SOUTH:
+        m_towerBanners[4] = go->GetObjectGuid();
+        go->SetGoArtKit(GetBannerArtKit(m_towerOwner[4]));
+        break;
     }
 }
 
-void OutdoorPvPTF::HandleObjectiveComplete(uint32 eventId, const std::list<Player*>& players, Team team)
+void OutdoorPvPTF::HandleObjectiveComplete(uint32 eventId, const std::list<Player *> &players, Team team)
 {
-    for (const auto& terokkarTowerEvent : terokkarTowerEvents)
+    for (const auto &terokkarTowerEvent : terokkarTowerEvents)
     {
         for (uint8 j = 0; j < 4; ++j)
         {
@@ -132,7 +132,8 @@ void OutdoorPvPTF::HandleObjectiveComplete(uint32 eventId, const std::list<Playe
                 for (auto player : players)
                 {
                     if (player && player->GetTeam() == team)
-                        player->AreaExploredOrEventHappens(team == ALLIANCE ? QUEST_SPIRITS_OF_AUCHINDOUM_ALLIANCE : QUEST_SPIRITS_OF_AUCHINDOUM_HORDE);
+                        player->AreaExploredOrEventHappens(team == ALLIANCE ? QUEST_SPIRITS_OF_AUCHINDOUM_ALLIANCE
+                                                                            : QUEST_SPIRITS_OF_AUCHINDOUM_HORDE);
                 }
                 return;
             }
@@ -141,7 +142,7 @@ void OutdoorPvPTF::HandleObjectiveComplete(uint32 eventId, const std::list<Playe
 }
 
 // process the capture events
-bool OutdoorPvPTF::HandleEvent(uint32 eventId, GameObject* go, Unit* /*invoker*/)
+bool OutdoorPvPTF::HandleEvent(uint32 eventId, GameObject *go, Unit * /*invoker*/)
 {
     for (uint8 i = 0; i < MAX_TF_TOWERS; ++i)
     {
@@ -151,12 +152,14 @@ bool OutdoorPvPTF::HandleEvent(uint32 eventId, GameObject* go, Unit* /*invoker*/
             {
                 if (terokkarTowerEvents[i][j].eventEntry == eventId)
                 {
-                    // prevent processing if the owner did not change (happens if progress event is called after contest event)
+                    // prevent processing if the owner did not change (happens if
+                    // progress event is called after contest event)
                     if (terokkarTowerEvents[i][j].team != m_towerOwner[i])
                     {
                         sWorld.SendDefenseMessage(ZONE_ID_TEROKKAR_FOREST, terokkarTowerEvents[i][j].defenseMessage);
 
-                        return ProcessCaptureEvent(go, i, terokkarTowerEvents[i][j].team, terokkarTowerEvents[i][j].worldState);
+                        return ProcessCaptureEvent(go, i, terokkarTowerEvents[i][j].team,
+                                                   terokkarTowerEvents[i][j].worldState);
                     }
                     // no need to iterate other events or towers
                     return false;
@@ -170,7 +173,7 @@ bool OutdoorPvPTF::HandleEvent(uint32 eventId, GameObject* go, Unit* /*invoker*/
     return false;
 }
 
-bool OutdoorPvPTF::ProcessCaptureEvent(GameObject* go, uint32 towerId, Team team, uint32 newWorldState)
+bool OutdoorPvPTF::ProcessCaptureEvent(GameObject *go, uint32 towerId, Team team, uint32 newWorldState)
 {
     if (team == ALLIANCE)
     {
@@ -239,7 +242,7 @@ bool OutdoorPvPTF::ProcessCaptureEvent(GameObject* go, uint32 towerId, Team team
 }
 
 // Handle the zone lock when the timer is activated
-void OutdoorPvPTF::LockZone(GameObject* go, uint32 towerId, Team team, uint32 newWorldState)
+void OutdoorPvPTF::LockZone(GameObject *go, uint32 towerId, Team team, uint32 newWorldState)
 {
     SendUpdateWorldState(m_zoneWorldState, WORLD_STATE_REMOVE);
     m_zoneWorldState = team == ALLIANCE ? WORLD_STATE_TF_LOCKED_ALLIANCE : WORLD_STATE_TF_LOCKED_HORDE;
@@ -254,7 +257,8 @@ void OutdoorPvPTF::LockZone(GameObject* go, uint32 towerId, Team team, uint32 ne
     // lock the towers
     LockTowers(go);
 
-    sWorld.SendDefenseMessage(ZONE_ID_TEROKKAR_FOREST, team == ALLIANCE ? LANG_OPVP_TF_CAPTURE_ALL_TOWERS_A : LANG_OPVP_TF_CAPTURE_ALL_TOWERS_H);
+    sWorld.SendDefenseMessage(ZONE_ID_TEROKKAR_FOREST,
+                              team == ALLIANCE ? LANG_OPVP_TF_CAPTURE_ALL_TOWERS_A : LANG_OPVP_TF_CAPTURE_ALL_TOWERS_H);
 
     // remove tower states when zone has been captured and locked
     for (unsigned int i : m_towerWorldState)
@@ -293,11 +297,12 @@ void OutdoorPvPTF::UnlockZone()
 
     for (GuidZoneMap::const_iterator itr = m_zonePlayers.begin(); itr != m_zonePlayers.end(); ++itr)
     {
-        // Find player who is in main zone (Terokkar Forest) to get correct map reference
+        // Find player who is in main zone (Terokkar Forest) to get correct map
+        // reference
         if (!itr->second)
             continue;
 
-        if (Player* player = sObjectMgr.GetPlayer(itr->first))
+        if (Player *player = sObjectMgr.GetPlayer(itr->first))
         {
             ResetTowers(player);
             break;
@@ -316,7 +321,8 @@ void OutdoorPvPTF::Update(uint32 diff)
         }
         else
         {
-            // update timer - if OutdoorPvPMgr update timer interval needs to be lowered replace this line with the commented-out ones below
+            // update timer - if OutdoorPvPMgr update timer interval needs to be
+            // lowered replace this line with the commented-out ones below
             UpdateTimerWorldState();
 
             /*if (m_zoneUpdateTimer < diff)
@@ -344,7 +350,7 @@ void OutdoorPvPTF::UpdateTimerWorldState()
     SendUpdateWorldState(WORLD_STATE_TF_TIME_HOURS, hoursLeft);
 }
 
-void OutdoorPvPTF::CalculateTimerWorldStateValues(uint32& firstDigit, uint32& secondDigit, uint32& hoursLeft)
+void OutdoorPvPTF::CalculateTimerWorldStateValues(uint32 &firstDigit, uint32 &secondDigit, uint32 &hoursLeft)
 {
     uint32 minutesLeft = m_zoneLockTimer / 60000;
     hoursLeft = minutesLeft / 60;
@@ -354,11 +360,11 @@ void OutdoorPvPTF::CalculateTimerWorldStateValues(uint32& firstDigit, uint32& se
 }
 
 // Handle the Terokkar towers lock during the update timer
-void OutdoorPvPTF::LockTowers(const WorldObject* objRef)
+void OutdoorPvPTF::LockTowers(const WorldObject *objRef)
 {
     for (uint8 i = 0; i < MAX_TF_TOWERS; ++i)
     {
-        if (GameObject* go = objRef->GetMap()->GetGameObject(m_towerBanners[i]))
+        if (GameObject *go = objRef->GetMap()->GetGameObject(m_towerBanners[i]))
             go->SetLootState(GO_JUST_DEACTIVATED);
         else
         {
@@ -370,14 +376,15 @@ void OutdoorPvPTF::LockTowers(const WorldObject* objRef)
 }
 
 // Handle towers reset when the timer expires
-void OutdoorPvPTF::ResetTowers(const WorldObject* objRef)
+void OutdoorPvPTF::ResetTowers(const WorldObject *objRef)
 {
     for (uint8 i = 0; i < MAX_TF_TOWERS; ++i)
     {
-        if (GameObject* go = objRef->GetMap()->GetGameObject(m_towerBanners[i]))
+        if (GameObject *go = objRef->GetMap()->GetGameObject(m_towerBanners[i]))
         {
             go->SetCapturePointSlider(CAPTURE_SLIDER_MIDDLE, false);
-            // visual update needed because banner still has artkit from previous owner
+            // visual update needed because banner still has artkit from previous
+            // owner
             SetBannerVisual(go, CAPTURE_ARTKIT_NEUTRAL, CAPTURE_ANIM_NEUTRAL);
         }
         else

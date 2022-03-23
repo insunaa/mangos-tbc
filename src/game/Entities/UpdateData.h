@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,24 +28,24 @@ class WorldSession;
 
 enum ObjectUpdateType
 {
-    UPDATETYPE_VALUES               = 0,
-    UPDATETYPE_MOVEMENT             = 1,
-    UPDATETYPE_CREATE_OBJECT        = 2,
-    UPDATETYPE_CREATE_OBJECT2       = 3,
+    UPDATETYPE_VALUES = 0,
+    UPDATETYPE_MOVEMENT = 1,
+    UPDATETYPE_CREATE_OBJECT = 2,
+    UPDATETYPE_CREATE_OBJECT2 = 3,
     UPDATETYPE_OUT_OF_RANGE_OBJECTS = 4,
-    UPDATETYPE_NEAR_OBJECTS         = 5
+    UPDATETYPE_NEAR_OBJECTS = 5
 };
 
 enum ObjectUpdateFlags
 {
-    UPDATEFLAG_NONE                 = 0x0000,
-    UPDATEFLAG_SELF                 = 0x0001,
-    UPDATEFLAG_TRANSPORT            = 0x0002,
+    UPDATEFLAG_NONE = 0x0000,
+    UPDATEFLAG_SELF = 0x0001,
+    UPDATEFLAG_TRANSPORT = 0x0002,
     UPDATEFLAG_HAS_ATTACKING_TARGET = 0x0004,
-    UPDATEFLAG_LOWGUID              = 0x0008,
-    UPDATEFLAG_HIGHGUID             = 0x0010,
-    UPDATEFLAG_LIVING               = 0x0020,
-    UPDATEFLAG_HAS_POSITION         = 0x0040,
+    UPDATEFLAG_LOWGUID = 0x0008,
+    UPDATEFLAG_HIGHGUID = 0x0010,
+    UPDATEFLAG_LIVING = 0x0020,
+    UPDATEFLAG_HAS_POSITION = 0x0040,
 };
 
 struct BufferPair
@@ -55,26 +56,36 @@ struct BufferPair
 
 class UpdateData
 {
-    public:
-        UpdateData();
+  public:
+    UpdateData();
 
-        void AddOutOfRangeGUID(GuidSet& guids);
-        void AddOutOfRangeGUID(ObjectGuid const& guid);
-        void AddUpdateBlock(const ByteBuffer& block);
-        WorldPacket BuildPacket(size_t index, bool hasTransport = false); // Copy Elision is a thing
-        bool HasData() const { return m_data[0].m_buffer.size() > 0 || !m_outOfRangeGUIDs.empty(); }
-        size_t GetPacketCount() const { return m_data.size(); }
-        void Clear();
+    void AddOutOfRangeGUID(GuidSet &guids);
+    void AddOutOfRangeGUID(ObjectGuid const &guid);
+    void AddUpdateBlock(const ByteBuffer &block);
+    WorldPacket BuildPacket(size_t index,
+                            bool hasTransport = false); // Copy Elision is a thing
+    bool HasData() const
+    {
+        return m_data[0].m_buffer.size() > 0 || !m_outOfRangeGUIDs.empty();
+    }
+    size_t GetPacketCount() const
+    {
+        return m_data.size();
+    }
+    void Clear();
 
-        GuidSet const& GetOutOfRangeGUIDs() const { return m_outOfRangeGUIDs; }
+    GuidSet const &GetOutOfRangeGUIDs() const
+    {
+        return m_outOfRangeGUIDs;
+    }
 
-        void SendData(WorldSession& session);
+    void SendData(WorldSession &session);
 
-    protected:
-        GuidSet m_outOfRangeGUIDs;
-        std::vector<BufferPair> m_data;
-        uint32 m_currentIndex;
+  protected:
+    GuidSet m_outOfRangeGUIDs;
+    std::vector<BufferPair> m_data;
+    uint32 m_currentIndex;
 
-        static void Compress(void* dst, uint32* dst_size, void* src, int src_size);
+    static void Compress(void *dst, uint32 *dst_size, void *src, int src_size);
 };
 #endif

@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +22,7 @@
 
 struct SpiritOfRedemptionHeal : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx == EFFECT_INDEX_0)
             spell->SetDamage(spell->GetCaster()->GetMaxHealth());
@@ -35,7 +36,7 @@ enum
 
 struct ConsumeMagic : public SpellScript
 {
-    SpellCastResult OnCheckCast(Spell* spell, bool strict) const override
+    SpellCastResult OnCheckCast(Spell *spell, bool strict) const override
     {
         if (strict)
         {
@@ -61,7 +62,7 @@ struct ConsumeMagic : public SpellScript
             return SPELL_CAST_OK;
     }
 
-    void OnEffectExecute(Spell* spell, SpellEffectIndex /*effIdx*/) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex /*effIdx*/) const override
     {
         spell->GetCaster()->RemoveAurasDueToSpell(spell->GetScriptValue());
     }
@@ -69,11 +70,12 @@ struct ConsumeMagic : public SpellScript
 
 struct PowerInfusion : public SpellScript
 {
-    SpellCastResult OnCheckCast(Spell* spell, bool/* strict*/) const override
+    SpellCastResult OnCheckCast(Spell *spell, bool /* strict*/) const override
     {
         // Patch 1.10.2 (2006-05-02):
-        // Power Infusion: This aura will no longer stack with Arcane Power. If you attempt to cast it on someone with Arcane Power, the spell will fail.
-        if (Unit* target = spell->m_targets.getUnitTarget())
+        // Power Infusion: This aura will no longer stack with Arcane Power. If you
+        // attempt to cast it on someone with Arcane Power, the spell will fail.
+        if (Unit *target = spell->m_targets.getUnitTarget())
             if (target->GetAuraCount(12042))
                 return SPELL_FAILED_AURA_BOUNCED;
 
@@ -83,7 +85,7 @@ struct PowerInfusion : public SpellScript
 
 struct ShadowWordDeath : public SpellScript
 {
-    void OnHit(Spell* spell, SpellMissInfo /*missInfo*/) const override
+    void OnHit(Spell *spell, SpellMissInfo /*missInfo*/) const override
     {
         int32 swdDamage = spell->GetTotalTargetDamage();
         spell->GetCaster()->CastCustomSpell(nullptr, 32409, &swdDamage, nullptr, nullptr, TRIGGERED_OLD_TRIGGERED);
@@ -92,7 +94,7 @@ struct ShadowWordDeath : public SpellScript
 
 struct Blackout : public AuraScript
 {
-    bool OnCheckProc(Aura* /*aura*/, ProcExecutionData& data) const override
+    bool OnCheckProc(Aura * /*aura*/, ProcExecutionData &data) const override
     {
         if (!data.damage || data.isHeal)
             return false;
@@ -102,7 +104,7 @@ struct Blackout : public AuraScript
 
 struct Shadowguard : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex /*effIdx*/) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex /*effIdx*/) const override
     {
         if (!spell->GetTriggeredByAuraSpellInfo())
             return;
@@ -110,18 +112,33 @@ struct Shadowguard : public SpellScript
         uint32 spellId = 0;
         switch (spell->GetTriggeredByAuraSpellInfo()->Id)
         {
-            default:
-            case 18137: spellId = 28377; break;   // Rank 1
-            case 19308: spellId = 28378; break;   // Rank 2
-            case 19309: spellId = 28379; break;   // Rank 3
-            case 19310: spellId = 28380; break;   // Rank 4
-            case 19311: spellId = 28381; break;   // Rank 5
-            case 19312: spellId = 28382; break;   // Rank 6
-            case 25477: spellId = 28385; break;   // Rank 7
+        default:
+        case 18137:
+            spellId = 28377;
+            break; // Rank 1
+        case 19308:
+            spellId = 28378;
+            break; // Rank 2
+        case 19309:
+            spellId = 28379;
+            break; // Rank 3
+        case 19310:
+            spellId = 28380;
+            break; // Rank 4
+        case 19311:
+            spellId = 28381;
+            break; // Rank 5
+        case 19312:
+            spellId = 28382;
+            break; // Rank 6
+        case 25477:
+            spellId = 28385;
+            break; // Rank 7
         }
 
         if (spellId)
-            spell->GetCaster()->CastSpell(spell->GetUnitTarget(), spellId, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CURRENT_CASTED_SPELL);
+            spell->GetCaster()->CastSpell(spell->GetUnitTarget(), spellId,
+                                          TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CURRENT_CASTED_SPELL);
     }
 };
 
@@ -132,7 +149,7 @@ enum
 
 struct Shadowfiend : public SpellScript
 {
-    void OnSummon(Spell* spell, Creature* summon) const override
+    void OnSummon(Spell *spell, Creature *summon) const override
     {
         summon->CastSpell(summon, MANA_LEECH_PASSIVE, TRIGGERED_OLD_TRIGGERED);
         summon->AI()->AttackStart(spell->m_targets.getUnitTarget());
@@ -142,18 +159,19 @@ struct Shadowfiend : public SpellScript
 struct PrayerOfMending : public SpellScript
 {
     // not needed in wotlk
-    SpellCastResult OnCheckCast(Spell* spell, bool strict) const override
+    SpellCastResult OnCheckCast(Spell *spell, bool strict) const override
     {
-        Unit* target = spell->m_targets.getUnitTarget();
+        Unit *target = spell->m_targets.getUnitTarget();
         if (!target)
             return SPELL_FAILED_BAD_TARGETS;
         if (strict)
         {
-            if (Aura* aura = target->GetAura(41635, EFFECT_INDEX_0))
+            if (Aura *aura = target->GetAura(41635, EFFECT_INDEX_0))
             {
                 uint32 value = 0;
                 value = spell->CalculateSpellEffectValue(EFFECT_INDEX_0, target, true, false);
-                value = spell->GetCaster()->SpellHealingBonusDone(target, sSpellTemplate.LookupEntry<SpellEntry>(41635), value, HEAL);
+                value = spell->GetCaster()->SpellHealingBonusDone(target, sSpellTemplate.LookupEntry<SpellEntry>(41635),
+                                                                  value, HEAL);
                 if (aura->GetModifier()->m_amount > (int32)value)
                     return SPELL_FAILED_AURA_BOUNCED;
             }
@@ -161,12 +179,13 @@ struct PrayerOfMending : public SpellScript
         return SPELL_CAST_OK;
     }
 
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx != EFFECT_INDEX_0)
             return;
         uint32 value = spell->GetDamage();
-        value = spell->GetCaster()->SpellHealingBonusDone(spell->GetUnitTarget(), sSpellTemplate.LookupEntry<SpellEntry>(41635), value, HEAL);
+        value = spell->GetCaster()->SpellHealingBonusDone(spell->GetUnitTarget(),
+                                                          sSpellTemplate.LookupEntry<SpellEntry>(41635), value, HEAL);
         spell->SetDamage(value);
     }
 };
@@ -178,10 +197,11 @@ enum
 
 struct PainSuppression : public AuraScript
 {
-    void OnApply(Aura* aura, bool apply) const override
+    void OnApply(Aura *aura, bool apply) const override
     {
         if (apply)
-            aura->GetTarget()->CastSpell(aura->GetTarget(), SPELL_PAIN_SUPPRESSION_THREAT_REDUCTION, TRIGGERED_OLD_TRIGGERED, nullptr, aura, aura->GetCasterGuid());
+            aura->GetTarget()->CastSpell(aura->GetTarget(), SPELL_PAIN_SUPPRESSION_THREAT_REDUCTION,
+                                         TRIGGERED_OLD_TRIGGERED, nullptr, aura, aura->GetCasterGuid());
     }
 };
 

@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -14,9 +14,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "AI/ScriptDevAI/base/CombatAI.h"
 #include "AI/ScriptDevAI/include/sc_common.h"
 #include "World/WorldState.h"
-#include "AI/ScriptDevAI/base/CombatAI.h"
 
 enum
 {
@@ -30,7 +30,10 @@ enum
 
 struct go_bonfire : GameObjectAI
 {
-    go_bonfire(GameObject* go) : GameObjectAI(go), m_state(true){ m_go->SetGoArtKit(121); }
+    go_bonfire(GameObject *go) : GameObjectAI(go), m_state(true)
+    {
+        m_go->SetGoArtKit(121);
+    }
 
     bool m_alliance;
     bool m_state;
@@ -59,7 +62,7 @@ struct go_bonfire : GameObjectAI
     }
 };
 
-bool QuestRewardedBonfireDesecrate(Player* player, GameObject* go, Quest const* quest)
+bool QuestRewardedBonfireDesecrate(Player *player, GameObject *go, Quest const *quest)
 {
     player->CastSpell(nullptr, SPELL_STAMP_OUT_BONFIRE, TRIGGERED_NONE);
     player->CastSpell(nullptr, SPELL_STAMP_OUT_BONFIRE_ART_KIT, TRIGGERED_NONE);
@@ -68,7 +71,7 @@ bool QuestRewardedBonfireDesecrate(Player* player, GameObject* go, Quest const* 
 
 struct LightBonfire : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx != EFFECT_INDEX_0)
             return;
@@ -79,12 +82,13 @@ struct LightBonfire : public SpellScript
 
 struct BonfireArtkit : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx != EFFECT_INDEX_0 || !spell->GetGOTarget())
             return;
 
-        spell->GetGOTarget()->AI()->ReceiveAIEvent(spell->m_spellInfo->Id == SPELL_STAMP_OUT_BONFIRE_ART_KIT ? AI_EVENT_CUSTOM_A : AI_EVENT_CUSTOM_B);
+        spell->GetGOTarget()->AI()->ReceiveAIEvent(
+            spell->m_spellInfo->Id == SPELL_STAMP_OUT_BONFIRE_ART_KIT ? AI_EVENT_CUSTOM_A : AI_EVENT_CUSTOM_B);
     }
 };
 
@@ -113,26 +117,27 @@ enum
 
 struct TestRibbonPoleChannelTrigger : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex /*effIdx*/) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex /*effIdx*/) const override
     {
-        static std::vector<uint32> spellIds = { 29705, 29726, 29727 };
+        static std::vector<uint32> spellIds = {29705, 29726, 29727};
         spell->GetCaster()->CastSpell(nullptr, spellIds[urand(0, 2)], TRIGGERED_NONE);
     }
 };
 
 struct TestRibbonPoleChannel : public AuraScript
 {
-    void OnApply(Aura* aura, bool apply) const override
+    void OnApply(Aura *aura, bool apply) const override
     {
         if (apply)
-            aura->GetTarget()->CastSpell(nullptr, SPELL_HOLIDAY_MIDSUMMER_RIBBON_POLE_PERIODIC_VISUAL, TRIGGERED_OLD_TRIGGERED);
+            aura->GetTarget()->CastSpell(nullptr, SPELL_HOLIDAY_MIDSUMMER_RIBBON_POLE_PERIODIC_VISUAL,
+                                         TRIGGERED_OLD_TRIGGERED);
         else
             aura->GetTarget()->RemoveAurasDueToSpell(SPELL_HOLIDAY_MIDSUMMER_RIBBON_POLE_PERIODIC_VISUAL);
     }
 
-    void OnPeriodicTickEnd(Aura* aura) const override
+    void OnPeriodicTickEnd(Aura *aura) const override
     {
-        if (SpellAuraHolder* holder = aura->GetTarget()->GetSpellAuraHolder(SPELL_RIBBON_DANCE))
+        if (SpellAuraHolder *holder = aura->GetTarget()->GetSpellAuraHolder(SPELL_RIBBON_DANCE))
         {
             if (holder->GetAuraMaxDuration() < 3600000)
             {
@@ -148,18 +153,20 @@ struct TestRibbonPoleChannel : public AuraScript
 
 struct RevelerApplauseCheer : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex /*effIdx*/) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex /*effIdx*/) const override
     {
-        if (Unit* target = spell->GetUnitTarget())
+        if (Unit *target = spell->GetUnitTarget())
         {
-            if (Unit* caster = spell->GetCaster())
+            if (Unit *caster = spell->GetCaster())
             {
                 if (caster->GetEntry() == NPC_FIRE_EATER || caster->GetEntry() == NPC_FLAME_EATER)
                 {
                     caster->SetFacingToObject(spell->GetUnitTarget());
                     target->SetFacingToObject(caster);
-                    caster->GetMap()->ScriptsStart(sRelayScripts, RELAY_SCRIPT_ID_DELAY_RESET_ORIENTATION, caster, caster);
-                    target->GetMap()->ScriptsStart(sRelayScripts, RELAY_SCRIPT_ID_DELAY_RESET_ORIENTATION, target, target);
+                    caster->GetMap()->ScriptsStart(sRelayScripts, RELAY_SCRIPT_ID_DELAY_RESET_ORIENTATION, caster,
+                                                   caster);
+                    target->GetMap()->ScriptsStart(sRelayScripts, RELAY_SCRIPT_ID_DELAY_RESET_ORIENTATION, target,
+                                                   target);
                     caster->HandleEmote(EMOTE_ONESHOT_BOW);
                 }
             }
@@ -171,7 +178,7 @@ struct RevelerApplauseCheer : public SpellScript
 
 struct RibbonPoleDancerCheckAura : public AuraScript
 {
-    void OnPeriodicDummy(Aura* aura) const override
+    void OnPeriodicDummy(Aura *aura) const override
     {
         aura->GetTarget()->CastSpell(nullptr, SPELL_RIBBON_POLE_DANCER_CHECK, TRIGGERED_OLD_TRIGGERED);
     }
@@ -179,7 +186,7 @@ struct RibbonPoleDancerCheckAura : public AuraScript
 
 struct RibbonPoleDancerCheck : public SpellScript
 {
-    bool OnCheckTarget(const Spell* /*spell*/, Unit* target, SpellEffectIndex /*eff*/) const override
+    bool OnCheckTarget(const Spell * /*spell*/, Unit *target, SpellEffectIndex /*eff*/) const override
     {
         if (target->HasAura(29705) || target->HasAura(29726) || target->HasAura(29727))
             return true;
@@ -187,27 +194,27 @@ struct RibbonPoleDancerCheck : public SpellScript
         return false;
     }
 
-    // TODO: Extend this to be more random 
-    void OnCast(Spell* spell) const override
+    // TODO: Extend this to be more random
+    void OnCast(Spell *spell) const override
     {
-        Unit* caster = spell->GetCaster();
-        auto& targets = spell->GetTargetList();
+        Unit *caster = spell->GetCaster();
+        auto &targets = spell->GetTargetList();
         if (targets.size() >= 1)
         {
             switch (urand(0, 3))
             {
-                case 0:
-                    caster->CastSpell(nullptr, SPELL_GROUND_FLOWER, TRIGGERED_OLD_TRIGGERED);
-                    break;
-                case 1:
-                    caster->CastSpell(nullptr, SPELL_BIG_FLAME_DANCER, TRIGGERED_OLD_TRIGGERED);
-                    break;
-                case 2:
-                    caster->CastSpell(nullptr, SPELL_SUMMON_RIBBON_POLE_FIRE_SPIRAL_VISUAL, TRIGGERED_OLD_TRIGGERED);
-                    break;
-                case 3:
-                    caster->CastSpell(nullptr, SPELL_RIBBON_POLE_FIREWORK_LAUNCHER_AURA, TRIGGERED_OLD_TRIGGERED);
-                    break;
+            case 0:
+                caster->CastSpell(nullptr, SPELL_GROUND_FLOWER, TRIGGERED_OLD_TRIGGERED);
+                break;
+            case 1:
+                caster->CastSpell(nullptr, SPELL_BIG_FLAME_DANCER, TRIGGERED_OLD_TRIGGERED);
+                break;
+            case 2:
+                caster->CastSpell(nullptr, SPELL_SUMMON_RIBBON_POLE_FIRE_SPIRAL_VISUAL, TRIGGERED_OLD_TRIGGERED);
+                break;
+            case 3:
+                caster->CastSpell(nullptr, SPELL_RIBBON_POLE_FIREWORK_LAUNCHER_AURA, TRIGGERED_OLD_TRIGGERED);
+                break;
             }
         }
     }
@@ -215,7 +222,7 @@ struct RibbonPoleDancerCheck : public SpellScript
 
 struct SummonRibbonPoleCritter : public SpellScript
 {
-    void OnDestTarget(Spell* spell) const override
+    void OnDestTarget(Spell *spell) const override
     {
         spell->m_targets.m_destPos.z += 6.5f;
     }
@@ -233,7 +240,7 @@ enum
 
 struct TorchTossingTargetBunnyControllerAI : public CombatAI
 {
-    TorchTossingTargetBunnyControllerAI(Creature* creature) : CombatAI(creature, 0)
+    TorchTossingTargetBunnyControllerAI(Creature *creature) : CombatAI(creature, 0)
     {
         AddCustomAction(1, 3000u, [&]() { HandleTargetChange(); });
     }
@@ -247,7 +254,7 @@ struct TorchTossingTargetBunnyControllerAI : public CombatAI
 
 struct TorchToss : public SpellScript
 {
-    bool OnCheckTarget(const Spell* /*spell*/, Unit* target, SpellEffectIndex /*eff*/) const override
+    bool OnCheckTarget(const Spell * /*spell*/, Unit *target, SpellEffectIndex /*eff*/) const override
     {
         if (target->HasAura(SPELL_TARGET_INDICATOR))
             return true;
@@ -255,7 +262,7 @@ struct TorchToss : public SpellScript
         return false;
     }
 
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         spell->GetUnitTarget()->CastSpell(spell->GetCaster(), SPELL_BRAZIERS_HIT, TRIGGERED_OLD_TRIGGERED);
     }
@@ -263,13 +270,13 @@ struct TorchToss : public SpellScript
 
 struct BraziersHit : public AuraScript
 {
-    void OnApply(Aura* aura, bool apply) const override
+    void OnApply(Aura *aura, bool apply) const override
     {
-        Unit* target = aura->GetTarget();
+        Unit *target = aura->GetTarget();
         if (!target->IsPlayer())
             return;
 
-        Player* player = static_cast<Player*>(target);
+        Player *player = static_cast<Player *>(target);
         if (apply)
         {
             if (aura->GetStackAmount() >= 20)
@@ -294,7 +301,7 @@ struct BraziersHit : public AuraScript
 
 struct TorchTargetPicker : public SpellScript
 {
-    bool OnCheckTarget(const Spell* /*spell*/, Unit* target, SpellEffectIndex /*eff*/) const override
+    bool OnCheckTarget(const Spell * /*spell*/, Unit *target, SpellEffectIndex /*eff*/) const override
     {
         if (target->HasAura(SPELL_TARGET_INDICATOR))
             return false;
@@ -302,7 +309,7 @@ struct TorchTargetPicker : public SpellScript
         return true;
     }
 
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (!spell->GetUnitTarget())
             return;
@@ -314,12 +321,12 @@ struct TorchTargetPicker : public SpellScript
 
 struct FlignTorch : public SpellScript
 {
-    void OnDestTarget(Spell* spell) const override
+    void OnDestTarget(Spell *spell) const override
     {
         float radius = 10.f;
         radius *= sqrtf(rand_norm_f());
         float angle = 2.0f * M_PI_F * rand_norm_f();
-        Unit* caster = spell->GetCaster();
+        Unit *caster = spell->GetCaster();
         Position pos = caster->GetPosition();
         Position destPos = spell->m_targets.m_destPos;
         caster->MovePositionToFirstCollision(pos, radius, angle);
@@ -331,9 +338,9 @@ struct FlignTorch : public SpellScript
         spell->m_targets.setDestination(pos.x, pos.y, pos.z);
     }
 
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
-        Unit* caster = spell->GetCaster();
+        Unit *caster = spell->GetCaster();
         Position pos = spell->m_targets.m_destPos;
         caster->CastSpell(pos.x, pos.y, pos.z, 46105, TRIGGERED_OLD_TRIGGERED);
         caster->CastSpell(pos.x, pos.y, pos.z, 45669, TRIGGERED_OLD_TRIGGERED | TRIGGERED_INSTANT_CAST);
@@ -342,7 +349,7 @@ struct FlignTorch : public SpellScript
 
 struct JuggleTorchCatchQuest : public SpellScript
 {
-    bool OnCheckTarget(const Spell* spell, Unit* target, SpellEffectIndex /*eff*/) const override
+    bool OnCheckTarget(const Spell *spell, Unit *target, SpellEffectIndex /*eff*/) const override
     {
         if (spell->GetCaster() == target)
             return true;
@@ -350,19 +357,19 @@ struct JuggleTorchCatchQuest : public SpellScript
         return false;
     }
 
-    void OnCast(Spell* spell) const override
+    void OnCast(Spell *spell) const override
     {
-        auto& targets = spell->GetTargetList();
+        auto &targets = spell->GetTargetList();
         if (targets.size() == 0) // failure
         {
-            Unit* caster = spell->GetCaster();
+            Unit *caster = spell->GetCaster();
             Position pos = spell->m_targets.m_destPos;
             caster->CastSpell(pos.x, pos.y, pos.z, 45676, TRIGGERED_OLD_TRIGGERED);
             caster->RemoveAurasDueToSpell(45693);
         }
     }
 
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         spell->GetCaster()->CastSpell(spell->GetUnitTarget(), 45693, TRIGGERED_OLD_TRIGGERED);
     }
@@ -370,13 +377,13 @@ struct JuggleTorchCatchQuest : public SpellScript
 
 struct TorchesCaught : public AuraScript
 {
-    void OnApply(Aura* aura, bool apply) const override
+    void OnApply(Aura *aura, bool apply) const override
     {
-        Unit* target = aura->GetTarget();
+        Unit *target = aura->GetTarget();
         if (!target->IsPlayer())
             return;
 
-        Player* player = static_cast<Player*>(target);
+        Player *player = static_cast<Player *>(target);
         if (apply)
         {
             if (aura->GetStackAmount() >= 10)
@@ -404,7 +411,7 @@ struct TorchesCaught : public AuraScript
 
 void AddSC_midsummer_festival()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "go_midsummer_bonfire";
     pNewScript->GetGameObjectAI = &GetNewAIInstance<go_bonfire>;
     pNewScript->pQuestRewardedGO = &QuestRewardedBonfireDesecrate;

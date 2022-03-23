@@ -2,36 +2,38 @@
 #ifndef PCHDEF_H
 #define PCHDEF_H
 
-#include "Platform/Define.h"
+#include <assert.h>
+#include <errno.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
+#include <algorithm>
+#include <boost/asio.hpp>
+#include <chrono>
 #include <cmath>
-#include <errno.h>
-#include <signal.h>
-#include <assert.h>
-#include <set>
 #include <list>
-#include <string>
 #include <map>
 #include <queue>
+#include <set>
 #include <sstream>
-#include <algorithm>
+#include <string>
+#include <thread>
 #include <unordered_map>
 #include <unordered_set>
-#include <chrono>
-#include "Errors.h"
-#include "Threading.h"
-#include <thread>
-#include <boost/asio.hpp>
-#include "Common.h"
-#include "Log.h"
+
 #include "ByteBuffer.h"
-#include "ProgressBar.h"
-#include "WorldPacket.h"
+#include "Common.h"
 #include "Config/Config.h"
 #include "Database/DatabaseEnv.h"
 #include "Database/SQLStorage.h"
+#include "Errors.h"
+#include "Log.h"
+#include "Platform/Define.h"
+#include "ProgressBar.h"
+#include "Threading.h"
+#include "WorldPacket.h"
 
 #endif // PCHDEF_H

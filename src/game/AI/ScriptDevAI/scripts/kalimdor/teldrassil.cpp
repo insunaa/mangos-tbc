@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -25,8 +25,8 @@ EndScriptData */
 npc_mist
 EndContentData */
 
-#include "AI/ScriptDevAI/include/sc_common.h"
 #include "AI/ScriptDevAI/base/follower_ai.h"
+#include "AI/ScriptDevAI/include/sc_common.h"
 
 /*####
 # npc_mist
@@ -34,20 +34,25 @@ EndContentData */
 
 enum
 {
-    SAY_AT_HOME             = -1000323,
-    EMOTE_AT_HOME           = -1000324,
-    QUEST_MIST              = 938,
-    NPC_ARYNIA              = 3519,
-    FACTION_DARNASSUS       = 79
+    SAY_AT_HOME = -1000323,
+    EMOTE_AT_HOME = -1000324,
+    QUEST_MIST = 938,
+    NPC_ARYNIA = 3519,
+    FACTION_DARNASSUS = 79
 };
 
 struct npc_mistAI : public FollowerAI
 {
-    npc_mistAI(Creature* pCreature) : FollowerAI(pCreature) { Reset(); }
+    npc_mistAI(Creature *pCreature) : FollowerAI(pCreature)
+    {
+        Reset();
+    }
 
-    void Reset() override { }
+    void Reset() override
+    {
+    }
 
-    void MoveInLineOfSight(Unit* pWho) override
+    void MoveInLineOfSight(Unit *pWho) override
     {
         FollowerAI::MoveInLineOfSight(pWho);
 
@@ -65,13 +70,14 @@ struct npc_mistAI : public FollowerAI
     {
         DoScriptText(EMOTE_AT_HOME, m_creature);
 
-        if (Player* pPlayer = GetLeaderForFollower())
+        if (Player *pPlayer = GetLeaderForFollower())
         {
             if (pPlayer->GetQuestStatus(QUEST_MIST) == QUEST_STATUS_INCOMPLETE)
                 pPlayer->RewardPlayerAndGroupAtEventExplored(QUEST_MIST, m_creature);
         }
 
-        // The follow is over (and for later development, run off to the woods before really end)
+        // The follow is over (and for later development, run off to the woods
+        // before really end)
         SetFollowComplete();
     }
 
@@ -85,16 +91,16 @@ struct npc_mistAI : public FollowerAI
     }*/
 };
 
-UnitAI* GetAI_npc_mist(Creature* pCreature)
+UnitAI *GetAI_npc_mist(Creature *pCreature)
 {
     return new npc_mistAI(pCreature);
 }
 
-bool QuestAccept_npc_mist(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+bool QuestAccept_npc_mist(Player *pPlayer, Creature *pCreature, const Quest *pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_MIST)
     {
-        if (npc_mistAI* pMistAI = dynamic_cast<npc_mistAI*>(pCreature->AI()))
+        if (npc_mistAI *pMistAI = dynamic_cast<npc_mistAI *>(pCreature->AI()))
             pMistAI->StartFollow(pPlayer, FACTION_DARNASSUS, pQuest);
     }
 
@@ -103,7 +109,7 @@ bool QuestAccept_npc_mist(Player* pPlayer, Creature* pCreature, const Quest* pQu
 
 void AddSC_teldrassil()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "npc_mist";
     pNewScript->GetAI = &GetAI_npc_mist;
     pNewScript->pQuestAcceptNPC = &QuestAccept_npc_mist;

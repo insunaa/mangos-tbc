@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,52 +33,62 @@ struct SpellEntry;
 
 class HostileRefManager : public RefManager<Unit, ThreatManager>
 {
-    public:
-        explicit HostileRefManager(Unit* owner);
-        ~HostileRefManager();
+  public:
+    explicit HostileRefManager(Unit *owner);
+    ~HostileRefManager();
 
-        Unit* getOwner() const { return iOwner; }
+    Unit *getOwner() const
+    {
+        return iOwner;
+    }
 
-        // send threat to all my hateres for the pVictim
-        // The pVictim is hated than by them as well
-        // use for buffs and healing threat functionality
-        void threatAssist(Unit* victim, float threat, SpellEntry const* threatSpell = nullptr, bool singleTarget = false, bool ignoreTimer = false);
-        void threatTemporaryFade(Unit* victim, float threat, bool apply);
+    // send threat to all my hateres for the pVictim
+    // The pVictim is hated than by them as well
+    // use for buffs and healing threat functionality
+    void threatAssist(Unit *victim, float threat, SpellEntry const *threatSpell = nullptr, bool singleTarget = false,
+                      bool ignoreTimer = false);
+    void threatTemporaryFade(Unit *victim, float threat, bool apply);
 
-        void addThreatPercent(int32 threatPercent);
+    void addThreatPercent(int32 threatPercent);
 
-        // The references are not needed anymore
-        // tell the source to remove them from the list and free the mem
-        void deleteReferences();
+    // The references are not needed anymore
+    // tell the source to remove them from the list and free the mem
+    void deleteReferences();
 
-        // Remove specific faction references
-        void deleteReferencesForFaction(uint32 faction);
+    // Remove specific faction references
+    void deleteReferencesForFaction(uint32 faction);
 
-        HostileReference* getFirst();
+    HostileReference *getFirst();
 
-        void updateThreatTables();
+    void updateThreatTables();
 
-        void setOnlineOfflineState(bool isOnline);
-        void updateOnlineOfflineState(bool pIsOnline);
+    void setOnlineOfflineState(bool isOnline);
+    void updateOnlineOfflineState(bool pIsOnline);
 
-        // set state for one reference, defined by Unit
-        void setOnlineOfflineState(Unit* victim, bool isOnline);
+    // set state for one reference, defined by Unit
+    void setOnlineOfflineState(Unit *victim, bool isOnline);
 
-        // delete one reference, defined by Unit
-        void deleteReference(Unit* victim);
+    // delete one reference, defined by Unit
+    void deleteReference(Unit *victim);
 
-        // redirection threat data
-        void SetThreatRedirection(ObjectGuid guid) { m_redirectionTargetGuid = guid; }
-        void ResetThreatRedirection() { m_redirectionTargetGuid.Clear(); }
-        Unit* GetThreatRedirectionTarget() const;
+    // redirection threat data
+    void SetThreatRedirection(ObjectGuid guid)
+    {
+        m_redirectionTargetGuid = guid;
+    }
+    void ResetThreatRedirection()
+    {
+        m_redirectionTargetGuid.Clear();
+    }
+    Unit *GetThreatRedirectionTarget() const;
 
-        // Suppression
-        void HandleSuppressed(bool apply, bool immunity = false);
+    // Suppression
+    void HandleSuppressed(bool apply, bool immunity = false);
 
-    private:
-        Unit* iOwner;                                       // owner of manager variable, back ref. to it, always exist
+  private:
+    Unit *iOwner; // owner of manager variable, back ref. to it, always exist
 
-        ObjectGuid m_redirectionTargetGuid;                 // in 2.x redirected only full threat
+    ObjectGuid m_redirectionTargetGuid; // in 2.x redirected only full threat
 };
 //=================================================
 #endif

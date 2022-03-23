@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -17,9 +17,8 @@
 /* ScriptData
 SDName: Western_Plaguelands
 SD%Complete: 90
-SDComment: Quest support: 5216, 5219, 5222, 5225, 5229, 5231, 5233, 5235, 5862, 5944, 9446.
-SDCategory: Western Plaguelands
-EndScriptData */
+SDComment: Quest support: 5216, 5219, 5222, 5225, 5229, 5231, 5233, 5235, 5862,
+5944, 9446. SDCategory: Western Plaguelands EndScriptData */
 
 /* ContentData
 npc_the_scourge_cauldron
@@ -29,8 +28,8 @@ npc_isillien
 npc_tirion_fordring
 EndContentData */
 
-#include "AI/ScriptDevAI/include/sc_common.h"
 #include "AI/ScriptDevAI/base/escort_ai.h"
+#include "AI/ScriptDevAI/include/sc_common.h"
 #include "Spells/Scripts/SpellScript.h"
 
 /*######
@@ -39,9 +38,14 @@ EndContentData */
 
 struct npc_the_scourge_cauldronAI : public ScriptedAI
 {
-    npc_the_scourge_cauldronAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+    npc_the_scourge_cauldronAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
-    void Reset() override {}
+    void Reset() override
+    {
+    }
 
     void DoDie()
     {
@@ -53,7 +57,7 @@ struct npc_the_scourge_cauldronAI : public ScriptedAI
             m_creature->SetRespawnDelay(600);
     }
 
-    void MoveInLineOfSight(Unit* who) override
+    void MoveInLineOfSight(Unit *who) override
     {
         if (!who || who->GetTypeId() != TYPEID_PLAYER)
             return;
@@ -62,44 +66,48 @@ struct npc_the_scourge_cauldronAI : public ScriptedAI
         {
             switch (m_creature->GetAreaId())
             {
-                case 199:                                   // felstone
-                    if (((Player*)who)->GetQuestStatus(5216) == QUEST_STATUS_INCOMPLETE ||
-                            ((Player*)who)->GetQuestStatus(5229) == QUEST_STATUS_INCOMPLETE)
-                    {
-                        m_creature->SummonCreature(11075, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 600000);
-                        DoDie();
-                    }
-                    break;
-                case 200:                                   // dalson
-                    if (((Player*)who)->GetQuestStatus(5219) == QUEST_STATUS_INCOMPLETE ||
-                            ((Player*)who)->GetQuestStatus(5231) == QUEST_STATUS_INCOMPLETE)
-                    {
-                        m_creature->SummonCreature(11077, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 600000);
-                        DoDie();
-                    }
-                    break;
-                case 201:                                   // gahrron
-                    if (((Player*)who)->GetQuestStatus(5225) == QUEST_STATUS_INCOMPLETE ||
-                            ((Player*)who)->GetQuestStatus(5235) == QUEST_STATUS_INCOMPLETE)
-                    {
-                        m_creature->SummonCreature(11078, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 600000);
-                        DoDie();
-                    }
-                    break;
-                case 202:                                   // writhing
-                    if (((Player*)who)->GetQuestStatus(5222) == QUEST_STATUS_INCOMPLETE ||
-                            ((Player*)who)->GetQuestStatus(5233) == QUEST_STATUS_INCOMPLETE)
-                    {
-                        m_creature->SummonCreature(11076, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 600000);
-                        DoDie();
-                    }
-                    break;
+            case 199: // felstone
+                if (((Player *)who)->GetQuestStatus(5216) == QUEST_STATUS_INCOMPLETE ||
+                    ((Player *)who)->GetQuestStatus(5229) == QUEST_STATUS_INCOMPLETE)
+                {
+                    m_creature->SummonCreature(11075, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN,
+                                               600000);
+                    DoDie();
+                }
+                break;
+            case 200: // dalson
+                if (((Player *)who)->GetQuestStatus(5219) == QUEST_STATUS_INCOMPLETE ||
+                    ((Player *)who)->GetQuestStatus(5231) == QUEST_STATUS_INCOMPLETE)
+                {
+                    m_creature->SummonCreature(11077, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN,
+                                               600000);
+                    DoDie();
+                }
+                break;
+            case 201: // gahrron
+                if (((Player *)who)->GetQuestStatus(5225) == QUEST_STATUS_INCOMPLETE ||
+                    ((Player *)who)->GetQuestStatus(5235) == QUEST_STATUS_INCOMPLETE)
+                {
+                    m_creature->SummonCreature(11078, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN,
+                                               600000);
+                    DoDie();
+                }
+                break;
+            case 202: // writhing
+                if (((Player *)who)->GetQuestStatus(5222) == QUEST_STATUS_INCOMPLETE ||
+                    ((Player *)who)->GetQuestStatus(5233) == QUEST_STATUS_INCOMPLETE)
+                {
+                    m_creature->SummonCreature(11076, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN,
+                                               600000);
+                    DoDie();
+                }
+                break;
             }
         }
     }
 };
 
-UnitAI* GetAI_npc_the_scourge_cauldron(Creature* creature)
+UnitAI *GetAI_npc_the_scourge_cauldron(Creature *creature)
 {
     return new npc_the_scourge_cauldronAI(creature);
 }
@@ -110,40 +118,45 @@ UnitAI* GetAI_npc_the_scourge_cauldron(Creature* creature)
 
 enum
 {
-    SAY_BEGIN                   = -1000910,
-    SAY_FIRST_STOP              = -1000911,
-    SAY_CONTINUE                = -1000912,
-    SAY_FIRST_ATTACK            = -1000913,
-    SAY_PURITY                  = -1000914,
-    SAY_SECOND_ATTACK           = -1000915,
-    SAY_CLEANSE                 = -1000916,
-    SAY_WELCOME                 = -1000917,
-    SAY_EPILOGUE_1              = -1000918,
-    SAY_EPILOGUE_2              = -1000919,
+    SAY_BEGIN = -1000910,
+    SAY_FIRST_STOP = -1000911,
+    SAY_CONTINUE = -1000912,
+    SAY_FIRST_ATTACK = -1000913,
+    SAY_PURITY = -1000914,
+    SAY_SECOND_ATTACK = -1000915,
+    SAY_CLEANSE = -1000916,
+    SAY_WELCOME = -1000917,
+    SAY_EPILOGUE_1 = -1000918,
+    SAY_EPILOGUE_2 = -1000919,
 
-    NPC_PRIEST_THELDANIS        = 1854,
-    NPC_HUNGERING_WRAITH        = 1802,
-    NPC_HAUNDING_VISION         = 4472,
-    NPC_BLIGHTED_ZOMBIE         = 4475,
-    NPC_GHOST_OF_UTHER          = 17233,
+    NPC_PRIEST_THELDANIS = 1854,
+    NPC_HUNGERING_WRAITH = 1802,
+    NPC_HAUNDING_VISION = 4472,
+    NPC_BLIGHTED_ZOMBIE = 4475,
+    NPC_GHOST_OF_UTHER = 17233,
 
-    QUEST_ID_TOMB_LIGHTBRINGER  = 9446,
+    QUEST_ID_TOMB_LIGHTBRINGER = 9446,
 };
 
-struct npc_anchorite_truuenAI: public npc_escortAI
+struct npc_anchorite_truuenAI : public npc_escortAI
 {
-    npc_anchorite_truuenAI(Creature* pCreature): npc_escortAI(pCreature) { Reset(); }
+    npc_anchorite_truuenAI(Creature *pCreature) : npc_escortAI(pCreature)
+    {
+        Reset();
+    }
 
     ObjectGuid m_utherGhostGuid;
 
-    void Reset() override { }
+    void Reset() override
+    {
+    }
 
-    void ReceiveAIEvent(AIEventType eventType, Unit* /*pSender*/, Unit* pInvoker, uint32 uiMiscValue) override
+    void ReceiveAIEvent(AIEventType eventType, Unit * /*pSender*/, Unit *pInvoker, uint32 uiMiscValue) override
     {
         if (eventType == AI_EVENT_START_ESCORT && pInvoker->GetTypeId() == TYPEID_PLAYER)
         {
             DoScriptText(SAY_BEGIN, m_creature);
-            Start(false, (Player*)pInvoker, GetQuestTemplateStore(uiMiscValue));
+            Start(false, (Player *)pInvoker, GetQuestTemplateStore(uiMiscValue));
         }
     }
 
@@ -151,61 +164,68 @@ struct npc_anchorite_truuenAI: public npc_escortAI
     {
         switch (uiPointId)
         {
-            case 5:
-                DoScriptText(SAY_FIRST_STOP, m_creature);
-                break;
-            case 6:
-                DoScriptText(SAY_CONTINUE, m_creature);
-                break;
-            case 11:
-                DoScriptText(SAY_FIRST_ATTACK, m_creature);
-                // spawn first attacker wave
-                m_creature->SummonCreature(NPC_HAUNDING_VISION, 1045.26f, -1576.50f, 62.42f, 2.82f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 30000);
-                m_creature->SummonCreature(NPC_HUNGERING_WRAITH, 1021.74f, -1547.49f, 63.44f, 5.24f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 30000);
-                break;
-            case 12:
-                DoScriptText(SAY_PURITY, m_creature);
-                break;
-            case 22:
-                DoScriptText(SAY_SECOND_ATTACK, m_creature);
-                // spawn second attacker wave
-                m_creature->SummonCreature(NPC_BLIGHTED_ZOMBIE, 1123.08f, -1738.70f, 61.65f, 3.63f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 30000);
-                m_creature->SummonCreature(NPC_BLIGHTED_ZOMBIE, 1117.07f, -1763.47f, 62.72f, 1.83f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 30000);
-                m_creature->SummonCreature(NPC_BLIGHTED_ZOMBIE, 1096.79f, -1719.14f, 62.69f, 4.88f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 30000);
-                m_creature->SummonCreature(NPC_BLIGHTED_ZOMBIE, 1068.92f, -1739.68f, 62.23f, 6.21f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 30000);
-                break;
-            case 23:
-                DoScriptText(SAY_CLEANSE, m_creature);
-                break;
-            case 36:
-                if (Creature* pPriest = GetClosestCreatureWithEntry(m_creature, NPC_PRIEST_THELDANIS, 60.0f))
-                    DoScriptText(SAY_WELCOME, pPriest);
-                break;
-            case 39:
-                m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
-                m_creature->SummonCreature(NPC_GHOST_OF_UTHER, 972.96f, -1824.82f, 82.54f, 0.27f, TEMPSPAWN_TIMED_DESPAWN, 45000);
-                // complete the quest - the event continues with the dialogue
-                if (Player* pPlayer = GetPlayerForEscort())
-                    pPlayer->RewardPlayerAndGroupAtEventExplored(QUEST_ID_TOMB_LIGHTBRINGER, m_creature);
-                break;
-            case 40:
-                if (Creature* pUther = m_creature->GetMap()->GetCreature(m_utherGhostGuid))
-                {
-                    pUther->SetFacingToObject(m_creature);
-                    DoScriptText(SAY_EPILOGUE_1, pUther);
-                }
-                break;
-            case 41:
-                if (Creature* pUther = m_creature->GetMap()->GetCreature(m_utherGhostGuid))
-                    DoScriptText(SAY_EPILOGUE_2, pUther);
-                break;
-            case 42:
-                m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-                break;
+        case 5:
+            DoScriptText(SAY_FIRST_STOP, m_creature);
+            break;
+        case 6:
+            DoScriptText(SAY_CONTINUE, m_creature);
+            break;
+        case 11:
+            DoScriptText(SAY_FIRST_ATTACK, m_creature);
+            // spawn first attacker wave
+            m_creature->SummonCreature(NPC_HAUNDING_VISION, 1045.26f, -1576.50f, 62.42f, 2.82f,
+                                       TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 30000);
+            m_creature->SummonCreature(NPC_HUNGERING_WRAITH, 1021.74f, -1547.49f, 63.44f, 5.24f,
+                                       TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 30000);
+            break;
+        case 12:
+            DoScriptText(SAY_PURITY, m_creature);
+            break;
+        case 22:
+            DoScriptText(SAY_SECOND_ATTACK, m_creature);
+            // spawn second attacker wave
+            m_creature->SummonCreature(NPC_BLIGHTED_ZOMBIE, 1123.08f, -1738.70f, 61.65f, 3.63f,
+                                       TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 30000);
+            m_creature->SummonCreature(NPC_BLIGHTED_ZOMBIE, 1117.07f, -1763.47f, 62.72f, 1.83f,
+                                       TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 30000);
+            m_creature->SummonCreature(NPC_BLIGHTED_ZOMBIE, 1096.79f, -1719.14f, 62.69f, 4.88f,
+                                       TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 30000);
+            m_creature->SummonCreature(NPC_BLIGHTED_ZOMBIE, 1068.92f, -1739.68f, 62.23f, 6.21f,
+                                       TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 30000);
+            break;
+        case 23:
+            DoScriptText(SAY_CLEANSE, m_creature);
+            break;
+        case 36:
+            if (Creature *pPriest = GetClosestCreatureWithEntry(m_creature, NPC_PRIEST_THELDANIS, 60.0f))
+                DoScriptText(SAY_WELCOME, pPriest);
+            break;
+        case 39:
+            m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
+            m_creature->SummonCreature(NPC_GHOST_OF_UTHER, 972.96f, -1824.82f, 82.54f, 0.27f, TEMPSPAWN_TIMED_DESPAWN,
+                                       45000);
+            // complete the quest - the event continues with the dialogue
+            if (Player *pPlayer = GetPlayerForEscort())
+                pPlayer->RewardPlayerAndGroupAtEventExplored(QUEST_ID_TOMB_LIGHTBRINGER, m_creature);
+            break;
+        case 40:
+            if (Creature *pUther = m_creature->GetMap()->GetCreature(m_utherGhostGuid))
+            {
+                pUther->SetFacingToObject(m_creature);
+                DoScriptText(SAY_EPILOGUE_1, pUther);
+            }
+            break;
+        case 41:
+            if (Creature *pUther = m_creature->GetMap()->GetCreature(m_utherGhostGuid))
+                DoScriptText(SAY_EPILOGUE_2, pUther);
+            break;
+        case 42:
+            m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+            break;
         }
     }
 
-    void JustSummoned(Creature* pSummoned) override
+    void JustSummoned(Creature *pSummoned) override
     {
         if (pSummoned->GetEntry() != NPC_GHOST_OF_UTHER)
             pSummoned->AI()->AttackStart(m_creature);
@@ -214,12 +234,12 @@ struct npc_anchorite_truuenAI: public npc_escortAI
     }
 };
 
-UnitAI* GetAI_npc_anchorite_truuen(Creature* pCreature)
+UnitAI *GetAI_npc_anchorite_truuen(Creature *pCreature)
 {
     return new npc_anchorite_truuenAI(pCreature);
 }
 
-bool QuestAccept_npc_anchorite_truuen(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+bool QuestAccept_npc_anchorite_truuen(Player *pPlayer, Creature *pCreature, const Quest *pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_ID_TOMB_LIGHTBRINGER)
         pCreature->AI()->SendAIEvent(AI_EVENT_START_ESCORT, pPlayer, pCreature, pQuest->GetQuestId());
@@ -234,123 +254,122 @@ bool QuestAccept_npc_anchorite_truuen(Player* pPlayer, Creature* pCreature, cons
 enum
 {
     // scarlet end quest texts
-    SAY_SCARLET_COMPLETE_1          = -1001076,
-    SAY_SCARLET_COMPLETE_2          = -1001077,
+    SAY_SCARLET_COMPLETE_1 = -1001076,
+    SAY_SCARLET_COMPLETE_2 = -1001077,
 
     // escort text
-    SAY_ESCORT_START                = -1001078,
-    SAY_EXIT_KEEP                   = -1001079,
-    EMOTE_MOUNT                     = -1001080,
-    SAY_REACH_TOWER                 = -1001081,
-    SAY_ISILLIEN_1                  = -1001082,
-    SAY_ISILLIEN_2                  = -1001083,
-    SAY_ISILLIEN_3                  = -1001084,
-    SAY_ISILLIEN_4                  = -1001085,
-    SAY_ISILLIEN_5                  = -1001086,
-    SAY_ISILLIEN_6                  = -1001087,
-    EMOTE_ISILLIEN_ATTACK           = -1001088,
-    SAY_ISILLIEN_ATTACK             = -1001089,
-    SAY_KILL_TAELAN_1               = -1001090,
-    EMOTE_ISILLIEN_LAUGH            = -1001091,
-    SAY_KILL_TAELAN_2               = -1001092,
-    EMOTE_ATTACK_PLAYER             = -1001093,
-    SAY_TIRION_1                    = -1001094,
-    SAY_TIRION_2                    = -1001095,
-    SAY_TIRION_3                    = -1001096,
-    SAY_TIRION_4                    = -1001097,
-    SAY_TIRION_5                    = -1001098,
-    SAY_EPILOG_1                    = -1001099,
-    EMOTE_KNEEL                     = -1001100,
-    SAY_EPILOG_2                    = -1001101,
-    EMOTE_HOLD_TAELAN               = -1001102,
-    SAY_EPILOG_3                    = -1001103,
-    SAY_EPILOG_4                    = -1001104,
-    SAY_EPILOG_5                    = -1001105,
+    SAY_ESCORT_START = -1001078,
+    SAY_EXIT_KEEP = -1001079,
+    EMOTE_MOUNT = -1001080,
+    SAY_REACH_TOWER = -1001081,
+    SAY_ISILLIEN_1 = -1001082,
+    SAY_ISILLIEN_2 = -1001083,
+    SAY_ISILLIEN_3 = -1001084,
+    SAY_ISILLIEN_4 = -1001085,
+    SAY_ISILLIEN_5 = -1001086,
+    SAY_ISILLIEN_6 = -1001087,
+    EMOTE_ISILLIEN_ATTACK = -1001088,
+    SAY_ISILLIEN_ATTACK = -1001089,
+    SAY_KILL_TAELAN_1 = -1001090,
+    EMOTE_ISILLIEN_LAUGH = -1001091,
+    SAY_KILL_TAELAN_2 = -1001092,
+    EMOTE_ATTACK_PLAYER = -1001093,
+    SAY_TIRION_1 = -1001094,
+    SAY_TIRION_2 = -1001095,
+    SAY_TIRION_3 = -1001096,
+    SAY_TIRION_4 = -1001097,
+    SAY_TIRION_5 = -1001098,
+    SAY_EPILOG_1 = -1001099,
+    EMOTE_KNEEL = -1001100,
+    SAY_EPILOG_2 = -1001101,
+    EMOTE_HOLD_TAELAN = -1001102,
+    SAY_EPILOG_3 = -1001103,
+    SAY_EPILOG_4 = -1001104,
+    SAY_EPILOG_5 = -1001105,
 
     // spells
-    SPELL_DEVOTION_AURA             = 17232,
-    SPELL_CRUSADER_STRIKE           = 14518,
-    SPELL_HOLY_STRIKE               = 17143,
-    SPELL_HOLY_CLEAVE               = 18819,
-    SPELL_HOLY_LIGHT                = 15493,
-    SPELL_LAY_ON_HANDS              = 17233,
-    SPELL_TAELAN_SUFFERING          = 18810,
+    SPELL_DEVOTION_AURA = 17232,
+    SPELL_CRUSADER_STRIKE = 14518,
+    SPELL_HOLY_STRIKE = 17143,
+    SPELL_HOLY_CLEAVE = 18819,
+    SPELL_HOLY_LIGHT = 15493,
+    SPELL_LAY_ON_HANDS = 17233,
+    SPELL_TAELAN_SUFFERING = 18810,
 
     // isillen spells
-    SPELL_DOMINATE_MIND             = 14515,
-    SPELL_FLASH_HEAL                = 10917,
-    SPELL_GREATER_HEAL              = 10965,
-    SPELL_MANA_BURN                 = 15800,
-    SPELL_MIND_BLAST                = 17194,
-    SPELL_MIND_FLAY                 = 17165,
-    SPELL_TAELAN_DEATH              = 18969,
+    SPELL_DOMINATE_MIND = 14515,
+    SPELL_FLASH_HEAL = 10917,
+    SPELL_GREATER_HEAL = 10965,
+    SPELL_MANA_BURN = 15800,
+    SPELL_MIND_BLAST = 17194,
+    SPELL_MIND_FLAY = 17165,
+    SPELL_TAELAN_DEATH = 18969,
 
     // npcs
-    NPC_TAELAN_FORDRING             = 1842,
-    NPC_SCARLET_CAVALIER            = 1836,
-    NPC_ISILLIEN                    = 1840,
-    NPC_TIRION_FORDRING             = 12126,
-    NPC_CRIMSON_ELITE               = 12128,
+    NPC_TAELAN_FORDRING = 1842,
+    NPC_SCARLET_CAVALIER = 1836,
+    NPC_ISILLIEN = 1840,
+    NPC_TIRION_FORDRING = 12126,
+    NPC_CRIMSON_ELITE = 12128,
 
-    MODEL_TAELAN_MOUNT              = 239,
+    MODEL_TAELAN_MOUNT = 239,
 
     // quests
-    QUEST_ID_SCARLET_SUBTERFUGE     = 5862,
-    QUEST_ID_IN_DREAMS              = 5944,
+    QUEST_ID_SCARLET_SUBTERFUGE = 5862,
+    QUEST_ID_IN_DREAMS = 5944,
 
-    TIRION_KNEELS_1                 = 1,
+    TIRION_KNEELS_1 = 1,
 };
 
-static const int32 aCavalierYells[] = { -1001072, -1001073, -1001074, -1001075 };
+static const int32 aCavalierYells[] = {-1001072, -1001073, -1001074, -1001075};
 
-static const DialogueEntry aScarletDialogue[] =
-{
+static const DialogueEntry aScarletDialogue[] = {
     // Scarlet Subterfuge ending dialogue
-    {NPC_SCARLET_CAVALIER,          0,                          3000},
-    {QUEST_ID_SCARLET_SUBTERFUGE,   0,                          7000},
-    {SAY_SCARLET_COMPLETE_1,        NPC_TAELAN_FORDRING,        2000},
-    {QUEST_ID_IN_DREAMS,            0,                          0},
-    {SPELL_DEVOTION_AURA,           0,                          3000},
-    {SAY_SCARLET_COMPLETE_2,        NPC_TAELAN_FORDRING,        0},
+    {NPC_SCARLET_CAVALIER, 0, 3000},
+    {QUEST_ID_SCARLET_SUBTERFUGE, 0, 7000},
+    {SAY_SCARLET_COMPLETE_1, NPC_TAELAN_FORDRING, 2000},
+    {QUEST_ID_IN_DREAMS, 0, 0},
+    {SPELL_DEVOTION_AURA, 0, 3000},
+    {SAY_SCARLET_COMPLETE_2, NPC_TAELAN_FORDRING, 0},
     // In Dreams event dialogue
-    {SAY_EXIT_KEEP,                 NPC_TAELAN_FORDRING,        6000},
-    {EMOTE_MOUNT,                   NPC_TAELAN_FORDRING,        4000},
-    {MODEL_TAELAN_MOUNT,            0,                          0},
-    {SAY_REACH_TOWER,               NPC_TAELAN_FORDRING,        2000},
-    {SAY_ISILLIEN_1,                NPC_ISILLIEN,               5000},
-    {SAY_ISILLIEN_2,                NPC_TAELAN_FORDRING,        4000},
-    {SAY_ISILLIEN_3,                NPC_TAELAN_FORDRING,        10000},
-    {SAY_ISILLIEN_4,                NPC_ISILLIEN,               7000},
-    {SAY_ISILLIEN_5,                NPC_ISILLIEN,               5000},
-    {SAY_ISILLIEN_6,                NPC_ISILLIEN,               6000},
-    {EMOTE_ISILLIEN_ATTACK,         NPC_ISILLIEN,               3000},
-    {SAY_ISILLIEN_ATTACK,           NPC_ISILLIEN,               3000},
-    {SPELL_CRUSADER_STRIKE,         0,                          0},
-    {SAY_KILL_TAELAN_1,             NPC_ISILLIEN,               1000},
-    {EMOTE_ISILLIEN_LAUGH,          NPC_ISILLIEN,               4000},
-    {SAY_KILL_TAELAN_2,             NPC_ISILLIEN,               10000},
-    {EMOTE_ATTACK_PLAYER,           NPC_ISILLIEN,               0},
-    {NPC_TIRION_FORDRING,           0,                          5000},
-    {NPC_ISILLIEN,                  0,                          10000},
-    {SAY_TIRION_1,                  NPC_TIRION_FORDRING,        4000},
-    {SAY_TIRION_2,                  NPC_ISILLIEN,               6000},
-    {SAY_TIRION_3,                  NPC_TIRION_FORDRING,        4000},
-    {SAY_TIRION_4,                  NPC_TIRION_FORDRING,        3000},
-    {SAY_TIRION_5,                  NPC_ISILLIEN,               0},
-    {SAY_EPILOG_1,                  NPC_TIRION_FORDRING,        3000},
-    {TIRION_KNEELS_1,               0,                          3000},
-    {EMOTE_KNEEL,                   NPC_TIRION_FORDRING,        4000},
-    {SAY_EPILOG_2,                  NPC_TIRION_FORDRING,        5000},
-    {EMOTE_HOLD_TAELAN,             NPC_TIRION_FORDRING,        5000},
-    {SAY_EPILOG_3,                  NPC_TIRION_FORDRING,        6000},
-    {SAY_EPILOG_4,                  NPC_TIRION_FORDRING,        7000},
-    {SAY_EPILOG_5,                  NPC_TIRION_FORDRING,        0},
+    {SAY_EXIT_KEEP, NPC_TAELAN_FORDRING, 6000},
+    {EMOTE_MOUNT, NPC_TAELAN_FORDRING, 4000},
+    {MODEL_TAELAN_MOUNT, 0, 0},
+    {SAY_REACH_TOWER, NPC_TAELAN_FORDRING, 2000},
+    {SAY_ISILLIEN_1, NPC_ISILLIEN, 5000},
+    {SAY_ISILLIEN_2, NPC_TAELAN_FORDRING, 4000},
+    {SAY_ISILLIEN_3, NPC_TAELAN_FORDRING, 10000},
+    {SAY_ISILLIEN_4, NPC_ISILLIEN, 7000},
+    {SAY_ISILLIEN_5, NPC_ISILLIEN, 5000},
+    {SAY_ISILLIEN_6, NPC_ISILLIEN, 6000},
+    {EMOTE_ISILLIEN_ATTACK, NPC_ISILLIEN, 3000},
+    {SAY_ISILLIEN_ATTACK, NPC_ISILLIEN, 3000},
+    {SPELL_CRUSADER_STRIKE, 0, 0},
+    {SAY_KILL_TAELAN_1, NPC_ISILLIEN, 1000},
+    {EMOTE_ISILLIEN_LAUGH, NPC_ISILLIEN, 4000},
+    {SAY_KILL_TAELAN_2, NPC_ISILLIEN, 10000},
+    {EMOTE_ATTACK_PLAYER, NPC_ISILLIEN, 0},
+    {NPC_TIRION_FORDRING, 0, 5000},
+    {NPC_ISILLIEN, 0, 10000},
+    {SAY_TIRION_1, NPC_TIRION_FORDRING, 4000},
+    {SAY_TIRION_2, NPC_ISILLIEN, 6000},
+    {SAY_TIRION_3, NPC_TIRION_FORDRING, 4000},
+    {SAY_TIRION_4, NPC_TIRION_FORDRING, 3000},
+    {SAY_TIRION_5, NPC_ISILLIEN, 0},
+    {SAY_EPILOG_1, NPC_TIRION_FORDRING, 3000},
+    {TIRION_KNEELS_1, 0, 3000},
+    {EMOTE_KNEEL, NPC_TIRION_FORDRING, 4000},
+    {SAY_EPILOG_2, NPC_TIRION_FORDRING, 5000},
+    {EMOTE_HOLD_TAELAN, NPC_TIRION_FORDRING, 5000},
+    {SAY_EPILOG_3, NPC_TIRION_FORDRING, 6000},
+    {SAY_EPILOG_4, NPC_TIRION_FORDRING, 7000},
+    {SAY_EPILOG_5, NPC_TIRION_FORDRING, 0},
     {0, 0, 0},
 };
 
-struct npc_taelan_fordringAI: public npc_escortAI, private DialogueHelper
+struct npc_taelan_fordringAI : public npc_escortAI, private DialogueHelper
 {
-    npc_taelan_fordringAI(Creature* creature): npc_escortAI(creature), DialogueHelper(aScarletDialogue)
+    npc_taelan_fordringAI(Creature *creature) : npc_escortAI(creature), DialogueHelper(aScarletDialogue)
     {
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
@@ -379,11 +398,11 @@ struct npc_taelan_fordringAI: public npc_escortAI, private DialogueHelper
     {
         m_holyCleaveTimer = urand(11000, 15000);
         m_holyStrikeTimer = urand(6000, 8000);
-        m_crusaderStrike  = urand(1000, 5000);
-        m_holyLightTimer  = 0;
+        m_crusaderStrike = urand(1000, 5000);
+        m_holyLightTimer = 0;
     }
 
-    void Aggro(Unit* /*who*/) override
+    void Aggro(Unit * /*who*/) override
     {
         if (m_hasMount)
             m_creature->Unmount();
@@ -391,7 +410,7 @@ struct npc_taelan_fordringAI: public npc_escortAI, private DialogueHelper
         DoCastSpellIfCan(m_creature, SPELL_DEVOTION_AURA);
     }
 
-    void MoveInLineOfSight(Unit* who) override
+    void MoveInLineOfSight(Unit *who) override
     {
         if (m_taelanDead)
             return;
@@ -439,23 +458,27 @@ struct npc_taelan_fordringAI: public npc_escortAI, private DialogueHelper
         }
     }
 
-    void ReceiveAIEvent(AIEventType eventType, Unit* /*sender*/, Unit* invoker, uint32 miscValue) override
+    void ReceiveAIEvent(AIEventType eventType, Unit * /*sender*/, Unit *invoker, uint32 miscValue) override
     {
         if (eventType == AI_EVENT_START_ESCORT && invoker->GetTypeId() == TYPEID_PLAYER)
         {
-            Start(false, (Player*)invoker, GetQuestTemplateStore(miscValue));
+            Start(false, (Player *)invoker, GetQuestTemplateStore(miscValue));
             DoScriptText(SAY_ESCORT_START, m_creature);
             m_creature->SetFactionTemporary(FACTION_ESCORT_N_FRIEND_PASSIVE, TEMPFACTION_RESTORE_RESPAWN);
         }
-        else if (eventType == AI_EVENT_CUSTOM_A && invoker->GetTypeId() == TYPEID_PLAYER && miscValue == QUEST_ID_SCARLET_SUBTERFUGE)
+        else if (eventType == AI_EVENT_CUSTOM_A && invoker->GetTypeId() == TYPEID_PLAYER &&
+                 miscValue == QUEST_ID_SCARLET_SUBTERFUGE)
             StartNextDialogueText(NPC_SCARLET_CAVALIER);
         else if (eventType == AI_EVENT_CUSTOM_B && invoker->GetEntry() == NPC_ISILLIEN)
         {
             StartNextDialogueText(NPC_TIRION_FORDRING);
-            if (Creature* tirion = m_creature->SummonCreature(NPC_TIRION_FORDRING, 2620.273f, -1920.917f, 74.25f, 0, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 15 * MINUTE * IN_MILLISECONDS))
+            if (Creature *tirion =
+                    m_creature->SummonCreature(NPC_TIRION_FORDRING, 2620.273f, -1920.917f, 74.25f, 0,
+                                               TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 15 * MINUTE * IN_MILLISECONDS))
             {
                 tirion->SetWalk(false);
-                tirion->SetImmuneToNPC(true);  // Temporary make Tirion immune to nearby Scarlet NPCs so the script can run smoothly
+                tirion->SetImmuneToNPC(true); // Temporary make Tirion immune to nearby Scarlet NPCs
+                                              // so the script can run smoothly
             }
         }
     }
@@ -464,42 +487,44 @@ struct npc_taelan_fordringAI: public npc_escortAI, private DialogueHelper
     {
         switch (pointId)
         {
-            case 26:
-                SetEscortPaused(true);
-                StartNextDialogueText(SAY_EXIT_KEEP);
-                break;
-            case 56:
-                SetEscortPaused(true);
-                m_creature->GetMotionMaster()->Clear();
-                m_creature->GetMotionMaster()->MoveIdle();
-                StartNextDialogueText(SAY_REACH_TOWER);
-                break;
+        case 26:
+            SetEscortPaused(true);
+            StartNextDialogueText(SAY_EXIT_KEEP);
+            break;
+        case 56:
+            SetEscortPaused(true);
+            m_creature->GetMotionMaster()->Clear();
+            m_creature->GetMotionMaster()->MoveIdle();
+            StartNextDialogueText(SAY_REACH_TOWER);
+            break;
         }
     }
 
-    void JustSummoned(Creature* summoned) override
+    void JustSummoned(Creature *summoned) override
     {
         switch (summoned->GetEntry())
         {
-            case NPC_ISILLIEN:
-                SendAIEvent(AI_EVENT_START_ESCORT, m_creature, summoned);
-                m_isillenGuid = summoned->GetObjectGuid();
+        case NPC_ISILLIEN:
+            SendAIEvent(AI_EVENT_START_ESCORT, m_creature, summoned);
+            m_isillenGuid = summoned->GetObjectGuid();
 
-                // summon additional crimson elites
-                float fX, fY, fZ;
-                summoned->GetNearPoint(summoned, fX, fY, fZ, 0, 5.0f, M_PI_F * 1.25f);
-                summoned->SummonCreature(NPC_CRIMSON_ELITE, fX, fY, fZ, summoned->GetOrientation(), TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 15 * MINUTE * IN_MILLISECONDS);
-                summoned->GetNearPoint(summoned, fX, fY, fZ, 0, 5.0f, 0);
-                summoned->SummonCreature(NPC_CRIMSON_ELITE, fX, fY, fZ, summoned->GetOrientation(), TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 15 * MINUTE * IN_MILLISECONDS);
-                break;
-            case NPC_TIRION_FORDRING:
-                m_tirionGuid = summoned->GetObjectGuid();
-                SendAIEvent(AI_EVENT_START_ESCORT, m_creature, summoned);
-                break;
+            // summon additional crimson elites
+            float fX, fY, fZ;
+            summoned->GetNearPoint(summoned, fX, fY, fZ, 0, 5.0f, M_PI_F * 1.25f);
+            summoned->SummonCreature(NPC_CRIMSON_ELITE, fX, fY, fZ, summoned->GetOrientation(),
+                                     TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 15 * MINUTE * IN_MILLISECONDS);
+            summoned->GetNearPoint(summoned, fX, fY, fZ, 0, 5.0f, 0);
+            summoned->SummonCreature(NPC_CRIMSON_ELITE, fX, fY, fZ, summoned->GetOrientation(),
+                                     TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 15 * MINUTE * IN_MILLISECONDS);
+            break;
+        case NPC_TIRION_FORDRING:
+            m_tirionGuid = summoned->GetObjectGuid();
+            SendAIEvent(AI_EVENT_START_ESCORT, m_creature, summoned);
+            break;
         }
     }
 
-    void SummonedMovementInform(Creature* summoned, uint32 /*motionType*/, uint32 pointId) override
+    void SummonedMovementInform(Creature *summoned, uint32 /*motionType*/, uint32 pointId) override
     {
         if (summoned->GetEntry() != NPC_TIRION_FORDRING)
             return;
@@ -518,191 +543,199 @@ struct npc_taelan_fordringAI: public npc_escortAI, private DialogueHelper
     {
         switch (entry)
         {
-            case NPC_SCARLET_CAVALIER:
+        case NPC_SCARLET_CAVALIER: {
+            // kneel and make everyone worried
+            m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
+            m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+
+            CreatureList lCavaliersInRange;
+            GetCreatureListWithEntryInGrid(lCavaliersInRange, m_creature, NPC_SCARLET_CAVALIER, 10.0f);
+
+            uint8 index = 0;
+            for (auto *cavalier : lCavaliersInRange)
             {
-                // kneel and make everyone worried
-                m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
-                m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-
-                CreatureList lCavaliersInRange;
-                GetCreatureListWithEntryInGrid(lCavaliersInRange, m_creature, NPC_SCARLET_CAVALIER, 10.0f);
-
-                uint8 index = 0;
-                for (auto* cavalier : lCavaliersInRange)
+                if (cavalier->IsAlive() && !cavalier->IsInCombat() &&
+                    cavalier->GetPositionZ() > 164.0f) // Prevent picking NPC from another floor
                 {
-                    if (cavalier->IsAlive() && !cavalier->IsInCombat() && cavalier->GetPositionZ() > 164.0f) // Prevent picking NPC from another floor
-                    {
-                        m_lCavalierGuids.push_back(cavalier->GetObjectGuid());
-                        cavalier->SetFacingToObject(m_creature);
-                        DoScriptText(aCavalierYells[index], cavalier);
-                        ++index;
-                    }
+                    m_lCavalierGuids.push_back(cavalier->GetObjectGuid());
+                    cavalier->SetFacingToObject(m_creature);
+                    DoScriptText(aCavalierYells[index], cavalier);
+                    ++index;
                 }
-                break;
             }
-            case QUEST_ID_SCARLET_SUBTERFUGE:
+            break;
+        }
+        case QUEST_ID_SCARLET_SUBTERFUGE: {
+            float fX, fY, fZ;
+            for (GuidList::const_iterator itr = m_lCavalierGuids.begin(); itr != m_lCavalierGuids.end(); ++itr)
             {
-                float fX, fY, fZ;
-                for (GuidList::const_iterator itr = m_lCavalierGuids.begin(); itr != m_lCavalierGuids.end(); ++itr)
+                if (Creature *cavalier = m_creature->GetMap()->GetCreature(*itr))
                 {
-                    if (Creature* cavalier = m_creature->GetMap()->GetCreature(*itr))
-                    {
-                        m_creature->GetContactPoint(cavalier, fX, fY, fZ);
-                        cavalier->GetMotionMaster()->MovePoint(0, fX, fY, fZ);
-                    }
+                    m_creature->GetContactPoint(cavalier, fX, fY, fZ);
+                    cavalier->GetMotionMaster()->MovePoint(0, fX, fY, fZ);
                 }
-                break;
             }
-            case SAY_SCARLET_COMPLETE_1:
-                // stand up and knock down effect
-                m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-                DoCastSpellIfCan(m_creature, SPELL_TAELAN_SUFFERING);
-                break;
-            case QUEST_ID_IN_DREAMS:
-                // force attack
-                m_creature->SetFactionTemporary(FACTION_ESCORT_N_FRIEND_PASSIVE, TEMPFACTION_RESTORE_RESPAWN);
-                for (GuidList::const_iterator itr = m_lCavalierGuids.begin(); itr != m_lCavalierGuids.end(); ++itr)
-                {
-                    if (Creature* cavalier = m_creature->GetMap()->GetCreature(*itr))
-                        cavalier->AI()->AttackStart(m_creature);
-                }
-                m_scarletComplete = true;
-                break;
-            case SAY_SCARLET_COMPLETE_2:
-                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                break;
-            case MODEL_TAELAN_MOUNT:
-                // mount when outside
-                m_hasMount = true;
-                SetEscortPaused(false);
-                m_creature->Mount(MODEL_TAELAN_MOUNT);
-                break;
-            case SAY_REACH_TOWER:
-                // start fight event
-                if (Player* player = GetPlayerForEscort())
-                    m_creature->SetFacingToObject(player);
-                m_creature->SummonCreature(NPC_ISILLIEN, 2693.12f, -1943.04f, 72.04f, 2.11f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 15 * MINUTE * IN_MILLISECONDS);
-                break;
-            case SAY_ISILLIEN_2:
-                if (Creature* isillien = m_creature->GetMap()->GetCreature(m_isillenGuid))
-                    m_creature->SetFacingToObject(isillien);
-                break;
-            case SAY_ISILLIEN_3:
-                m_creature->Unmount();
-                break;
-            case SPELL_CRUSADER_STRIKE:
+            break;
+        }
+        case SAY_SCARLET_COMPLETE_1:
+            // stand up and knock down effect
+            m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+            DoCastSpellIfCan(m_creature, SPELL_TAELAN_SUFFERING);
+            break;
+        case QUEST_ID_IN_DREAMS:
+            // force attack
+            m_creature->SetFactionTemporary(FACTION_ESCORT_N_FRIEND_PASSIVE, TEMPFACTION_RESTORE_RESPAWN);
+            for (GuidList::const_iterator itr = m_lCavalierGuids.begin(); itr != m_lCavalierGuids.end(); ++itr)
             {
-                float fX, fY, fZ;
-                // spawn 3 additional elites
-                if (Creature* elite = m_creature->SummonCreature(NPC_CRIMSON_ELITE, 2711.32f, -1882.67f, 67.89f, 3.2f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 15 * MINUTE * IN_MILLISECONDS))
-                {
-                    elite->SetWalk(false);
-                    m_creature->GetContactPoint(elite, fX, fY, fZ);
-                    elite->GetMotionMaster()->MovePoint(0, fX, fY, fZ);
-                }
-                if (Creature* elite = m_creature->SummonCreature(NPC_CRIMSON_ELITE, 2710.93f, -1878.90f, 67.97f, 3.2f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 15 * MINUTE * IN_MILLISECONDS))
-                {
-                    elite->SetWalk(false);
-                    m_creature->GetContactPoint(elite, fX, fY, fZ);
-                    elite->GetMotionMaster()->MovePoint(0, fX, fY, fZ);
-                }
-                if (Creature* elite = m_creature->SummonCreature(NPC_CRIMSON_ELITE, 2710.53f, -1875.28f, 67.90f, 3.2f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 15 * MINUTE * IN_MILLISECONDS))
-                {
-                    elite->SetWalk(false);
-                    m_creature->GetContactPoint(elite, fX, fY, fZ);
-                    elite->GetMotionMaster()->MovePoint(0, fX, fY, fZ);
-                }
-
-                // Isillien only attacks Taelan
-                if (Creature* isillien = m_creature->GetMap()->GetCreature(m_isillenGuid))
-                {
-                    isillien->AI()->AttackStart(m_creature);
-                    AttackStart(isillien);
-                }
-
-                m_fightStarted = true;
-                break;
+                if (Creature *cavalier = m_creature->GetMap()->GetCreature(*itr))
+                    cavalier->AI()->AttackStart(m_creature);
             }
-            case SAY_KILL_TAELAN_1:
-                // Kill Taelan and attack players
-                if (Creature* isillien = m_creature->GetMap()->GetCreature(m_isillenGuid))
-                    SendAIEvent(AI_EVENT_CUSTOM_A, m_creature, isillien);
-                break;
-            case EMOTE_ATTACK_PLAYER:
-                // Attack players
-                if (Creature* isillien = m_creature->GetMap()->GetCreature(m_isillenGuid))
-                {
-                    if (Player* player = GetPlayerForEscort())
-                        isillien->AI()->AttackStart(player);
-                }
-                break;
-            // Tirion event
-            case SAY_TIRION_1:
-                if (Creature* tirion = m_creature->GetMap()->GetCreature(m_tirionGuid))
-                {
-                    tirion->SetStandState(UNIT_STAND_STATE_STAND);
-                    if (Creature* isillien = m_creature->GetMap()->GetCreature(m_isillenGuid))
-                    {
-                        tirion->SetFacingToObject(isillien);
-                        isillien->CombatStop();
-                    }
-                }
-                break;
-            case SAY_TIRION_5:
-                if (Creature* isillien = m_creature->GetMap()->GetCreature(m_isillenGuid))
-                {
-                    if (Creature* tirion = m_creature->GetMap()->GetCreature(m_tirionGuid))
-                    {
-                        tirion->SetImmuneToNPC(false);
-                        tirion->AI()->AttackStart(isillien);
-                        isillien->AI()->AttackStart(tirion);
-                    }
-                }
-                break;
-            // Epilogue dialogue
-            case SAY_EPILOG_1:
-                if (Creature* isillien = m_creature->GetMap()->GetCreature(m_isillenGuid))
-                {
-                    if (Creature* tirion = m_creature->GetMap()->GetCreature(m_tirionGuid))
-                        tirion->SetFacingToObject(isillien);
-                }
-                break;
-            case TIRION_KNEELS_1:
-                if (Creature* tirion = m_creature->GetMap()->GetCreature(m_tirionGuid))
-                    tirion->SetFacingToObject(m_creature);
-                break;
-            case EMOTE_HOLD_TAELAN:
-                if (Creature* tirion = m_creature->GetMap()->GetCreature(m_tirionGuid))
-                    tirion->SetStandState(UNIT_STAND_STATE_KNEEL);
-                break;
-            case SAY_EPILOG_4:
-                if (Creature* tirion = m_creature->GetMap()->GetCreature(m_tirionGuid))
-                    tirion->SetStandState(UNIT_STAND_STATE_STAND);
-                break;
-            case SAY_EPILOG_5:
-                if (Creature* tirion = m_creature->GetMap()->GetCreature(m_tirionGuid))
-                {
-                    if (Player* player = GetPlayerForEscort())
-                        player->RewardPlayerAndGroupAtEventExplored(QUEST_ID_IN_DREAMS, m_creature);
+            m_scarletComplete = true;
+            break;
+        case SAY_SCARLET_COMPLETE_2:
+            m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            break;
+        case MODEL_TAELAN_MOUNT:
+            // mount when outside
+            m_hasMount = true;
+            SetEscortPaused(false);
+            m_creature->Mount(MODEL_TAELAN_MOUNT);
+            break;
+        case SAY_REACH_TOWER:
+            // start fight event
+            if (Player *player = GetPlayerForEscort())
+                m_creature->SetFacingToObject(player);
+            m_creature->SummonCreature(NPC_ISILLIEN, 2693.12f, -1943.04f, 72.04f, 2.11f,
+                                       TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 15 * MINUTE * IN_MILLISECONDS);
+            break;
+        case SAY_ISILLIEN_2:
+            if (Creature *isillien = m_creature->GetMap()->GetCreature(m_isillenGuid))
+                m_creature->SetFacingToObject(isillien);
+            break;
+        case SAY_ISILLIEN_3:
+            m_creature->Unmount();
+            break;
+        case SPELL_CRUSADER_STRIKE: {
+            float fX, fY, fZ;
+            // spawn 3 additional elites
+            if (Creature *elite =
+                    m_creature->SummonCreature(NPC_CRIMSON_ELITE, 2711.32f, -1882.67f, 67.89f, 3.2f,
+                                               TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 15 * MINUTE * IN_MILLISECONDS))
+            {
+                elite->SetWalk(false);
+                m_creature->GetContactPoint(elite, fX, fY, fZ);
+                elite->GetMotionMaster()->MovePoint(0, fX, fY, fZ);
+            }
+            if (Creature *elite =
+                    m_creature->SummonCreature(NPC_CRIMSON_ELITE, 2710.93f, -1878.90f, 67.97f, 3.2f,
+                                               TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 15 * MINUTE * IN_MILLISECONDS))
+            {
+                elite->SetWalk(false);
+                m_creature->GetContactPoint(elite, fX, fY, fZ);
+                elite->GetMotionMaster()->MovePoint(0, fX, fY, fZ);
+            }
+            if (Creature *elite =
+                    m_creature->SummonCreature(NPC_CRIMSON_ELITE, 2710.53f, -1875.28f, 67.90f, 3.2f,
+                                               TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 15 * MINUTE * IN_MILLISECONDS))
+            {
+                elite->SetWalk(false);
+                m_creature->GetContactPoint(elite, fX, fY, fZ);
+                elite->GetMotionMaster()->MovePoint(0, fX, fY, fZ);
+            }
 
-                    tirion->ForcedDespawn(3 * MINUTE * IN_MILLISECONDS);
-                    tirion->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            // Isillien only attacks Taelan
+            if (Creature *isillien = m_creature->GetMap()->GetCreature(m_isillenGuid))
+            {
+                isillien->AI()->AttackStart(m_creature);
+                AttackStart(isillien);
+            }
+
+            m_fightStarted = true;
+            break;
+        }
+        case SAY_KILL_TAELAN_1:
+            // Kill Taelan and attack players
+            if (Creature *isillien = m_creature->GetMap()->GetCreature(m_isillenGuid))
+                SendAIEvent(AI_EVENT_CUSTOM_A, m_creature, isillien);
+            break;
+        case EMOTE_ATTACK_PLAYER:
+            // Attack players
+            if (Creature *isillien = m_creature->GetMap()->GetCreature(m_isillenGuid))
+            {
+                if (Player *player = GetPlayerForEscort())
+                    isillien->AI()->AttackStart(player);
+            }
+            break;
+        // Tirion event
+        case SAY_TIRION_1:
+            if (Creature *tirion = m_creature->GetMap()->GetCreature(m_tirionGuid))
+            {
+                tirion->SetStandState(UNIT_STAND_STATE_STAND);
+                if (Creature *isillien = m_creature->GetMap()->GetCreature(m_isillenGuid))
+                {
+                    tirion->SetFacingToObject(isillien);
+                    isillien->CombatStop();
                 }
-                m_creature->ForcedDespawn(3 * MINUTE * IN_MILLISECONDS);
-                break;
+            }
+            break;
+        case SAY_TIRION_5:
+            if (Creature *isillien = m_creature->GetMap()->GetCreature(m_isillenGuid))
+            {
+                if (Creature *tirion = m_creature->GetMap()->GetCreature(m_tirionGuid))
+                {
+                    tirion->SetImmuneToNPC(false);
+                    tirion->AI()->AttackStart(isillien);
+                    isillien->AI()->AttackStart(tirion);
+                }
+            }
+            break;
+        // Epilogue dialogue
+        case SAY_EPILOG_1:
+            if (Creature *isillien = m_creature->GetMap()->GetCreature(m_isillenGuid))
+            {
+                if (Creature *tirion = m_creature->GetMap()->GetCreature(m_tirionGuid))
+                    tirion->SetFacingToObject(isillien);
+            }
+            break;
+        case TIRION_KNEELS_1:
+            if (Creature *tirion = m_creature->GetMap()->GetCreature(m_tirionGuid))
+                tirion->SetFacingToObject(m_creature);
+            break;
+        case EMOTE_HOLD_TAELAN:
+            if (Creature *tirion = m_creature->GetMap()->GetCreature(m_tirionGuid))
+                tirion->SetStandState(UNIT_STAND_STATE_KNEEL);
+            break;
+        case SAY_EPILOG_4:
+            if (Creature *tirion = m_creature->GetMap()->GetCreature(m_tirionGuid))
+                tirion->SetStandState(UNIT_STAND_STATE_STAND);
+            break;
+        case SAY_EPILOG_5:
+            if (Creature *tirion = m_creature->GetMap()->GetCreature(m_tirionGuid))
+            {
+                if (Player *player = GetPlayerForEscort())
+                    player->RewardPlayerAndGroupAtEventExplored(QUEST_ID_IN_DREAMS, m_creature);
+
+                tirion->ForcedDespawn(3 * MINUTE * IN_MILLISECONDS);
+                tirion->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            }
+            m_creature->ForcedDespawn(3 * MINUTE * IN_MILLISECONDS);
+            break;
         }
     }
 
-    Creature* GetSpeakerByEntry(uint32 entry) override
+    Creature *GetSpeakerByEntry(uint32 entry) override
     {
         switch (entry)
         {
-            case NPC_TAELAN_FORDRING:   return m_creature;
-            case NPC_ISILLIEN:          return m_creature->GetMap()->GetCreature(m_isillenGuid);
-            case NPC_TIRION_FORDRING:   return m_creature->GetMap()->GetCreature(m_tirionGuid);
+        case NPC_TAELAN_FORDRING:
+            return m_creature;
+        case NPC_ISILLIEN:
+            return m_creature->GetMap()->GetCreature(m_isillenGuid);
+        case NPC_TIRION_FORDRING:
+            return m_creature->GetMap()->GetCreature(m_tirionGuid);
 
-            default:
-                return nullptr;
+        default:
+            return nullptr;
         }
     }
 
@@ -751,7 +784,7 @@ struct npc_taelan_fordringAI: public npc_escortAI, private DialogueHelper
         {
             if (m_holyLightTimer < diff)
             {
-                if (Unit* target = DoSelectLowestHpFriendly(50.0f))
+                if (Unit *target = DoSelectLowestHpFriendly(50.0f))
                 {
                     if (DoCastSpellIfCan(target, SPELL_HOLY_LIGHT) == CAST_OK)
                         m_holyLightTimer = urand(10000, 15000);
@@ -768,12 +801,12 @@ struct npc_taelan_fordringAI: public npc_escortAI, private DialogueHelper
     }
 };
 
-UnitAI* GetAI_npc_taelan_fordring(Creature* creature)
+UnitAI *GetAI_npc_taelan_fordring(Creature *creature)
 {
     return new npc_taelan_fordringAI(creature);
 }
 
-bool QuestAccept_npc_taelan_fordring(Player* player, Creature* creature, const Quest* quest)
+bool QuestAccept_npc_taelan_fordring(Player *player, Creature *creature, const Quest *quest)
 {
     if (quest->GetQuestId() == QUEST_ID_IN_DREAMS)
         creature->AI()->SendAIEvent(AI_EVENT_START_ESCORT, player, creature, quest->GetQuestId());
@@ -781,7 +814,7 @@ bool QuestAccept_npc_taelan_fordring(Player* player, Creature* creature, const Q
     return true;
 }
 
-bool QuestRewarded_npc_taelan_fordring(Player* player, Creature* creature, const Quest* quest)
+bool QuestRewarded_npc_taelan_fordring(Player *player, Creature *creature, const Quest *quest)
 {
     if (quest->GetQuestId() == QUEST_ID_SCARLET_SUBTERFUGE)
         creature->AI()->SendAIEvent(AI_EVENT_CUSTOM_A, player, creature, quest->GetQuestId());
@@ -789,14 +822,15 @@ bool QuestRewarded_npc_taelan_fordring(Player* player, Creature* creature, const
     return true;
 }
 
-bool EffectDummyCreature_npc_taelan_fordring(Unit* caster, uint32 spellId, SpellEffectIndex effIndex, Creature* creatureTarget, ObjectGuid /*originalCasterGuid*/)
+bool EffectDummyCreature_npc_taelan_fordring(Unit *caster, uint32 spellId, SpellEffectIndex effIndex,
+                                             Creature *creatureTarget, ObjectGuid /*originalCasterGuid*/)
 {
     // always check spellid and effectindex
     if (spellId == SPELL_TAELAN_DEATH && effIndex == EFFECT_INDEX_0 && caster->GetEntry() == NPC_ISILLIEN)
     {
         creatureTarget->AI()->EnterEvadeMode();
         caster->SetFacingToObject(creatureTarget);
-        ((Creature*)caster)->AI()->EnterEvadeMode();
+        ((Creature *)caster)->AI()->EnterEvadeMode();
 
         return true;
     }
@@ -808,9 +842,9 @@ bool EffectDummyCreature_npc_taelan_fordring(Unit* caster, uint32 spellId, Spell
 ## npc_isillien
 ######*/
 
-struct npc_isillienAI: public npc_escortAI
+struct npc_isillienAI : public npc_escortAI
 {
-    npc_isillienAI(Creature* creature): npc_escortAI(creature)
+    npc_isillienAI(Creature *creature) : npc_escortAI(creature)
     {
         m_tirionSpawned = false;
         m_taelanDead = false;
@@ -834,15 +868,15 @@ struct npc_isillienAI: public npc_escortAI
 
     void Reset() override
     {
-        m_manaBurnTimer   = urand(7000, 12000);
-        m_flashHealTimer   = urand(10000, 15000);
-        m_dominateTimer   = urand(10000, 14000);
-        m_mindBlastTimer  = urand(0, 1000);
-        m_mindFlayTimer   = urand(3000, 7000);
+        m_manaBurnTimer = urand(7000, 12000);
+        m_flashHealTimer = urand(10000, 15000);
+        m_dominateTimer = urand(10000, 14000);
+        m_mindBlastTimer = urand(0, 1000);
+        m_mindFlayTimer = urand(3000, 7000);
         m_greaterHealTimer = 0;
     }
 
-    void MoveInLineOfSight(Unit* /*who*/) override
+    void MoveInLineOfSight(Unit * /*who*/) override
     {
         // attack only on request
     }
@@ -864,7 +898,7 @@ struct npc_isillienAI: public npc_escortAI
             npc_escortAI::EnterEvadeMode();
     }
 
-    void ReceiveAIEvent(AIEventType eventType, Unit* sender, Unit* invoker, uint32 /*miscValue*/) override
+    void ReceiveAIEvent(AIEventType eventType, Unit *sender, Unit *invoker, uint32 /*miscValue*/) override
     {
         if (sender->GetEntry() != NPC_TAELAN_FORDRING)
             return;
@@ -877,7 +911,7 @@ struct npc_isillienAI: public npc_escortAI
             // kill Taelan
             DoCastSpellIfCan(invoker, SPELL_TAELAN_DEATH, CAST_INTERRUPT_PREVIOUS);
             m_taelanDead = true;
-            m_summonTirionTimer = 120000;      // 2 minutes wait before Tirion arrives
+            m_summonTirionTimer = 120000; // 2 minutes wait before Tirion arrives
             m_taelanGuid = invoker->GetObjectGuid();
         }
     }
@@ -886,18 +920,19 @@ struct npc_isillienAI: public npc_escortAI
     {
         switch (pointId)
         {
-            case 3:
-                SetEscortPaused(true);
-                break;
+        case 3:
+            SetEscortPaused(true);
+            break;
         }
     }
 
     void UpdateEscortAI(const uint32 diff) override
     {
         // Start event epilogue
-        if (!m_tirionSpawned && ((m_summonTirionTimer != 0 && m_summonTirionTimer < diff) || m_creature->GetHealthPercent() < 20.0f))
+        if (!m_tirionSpawned &&
+            ((m_summonTirionTimer != 0 && m_summonTirionTimer < diff) || m_creature->GetHealthPercent() < 20.0f))
         {
-            if (Creature* taelan = m_creature->GetMap()->GetCreature(m_taelanGuid))
+            if (Creature *taelan = m_creature->GetMap()->GetCreature(m_taelanGuid))
                 SendAIEvent(AI_EVENT_CUSTOM_B, m_creature, taelan);
             m_tirionSpawned = true;
         }
@@ -934,7 +969,8 @@ struct npc_isillienAI: public npc_escortAI
 
         if (m_dominateTimer < diff)
         {
-            if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, SPELL_DOMINATE_MIND, SELECT_FLAG_PLAYER))
+            if (Unit *target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, SPELL_DOMINATE_MIND,
+                                                                 SELECT_FLAG_PLAYER))
             {
                 if (DoCastSpellIfCan(target, SPELL_DOMINATE_MIND) == CAST_OK)
                     m_dominateTimer = urand(25000, 30000);
@@ -945,7 +981,7 @@ struct npc_isillienAI: public npc_escortAI
 
         if (m_flashHealTimer < diff)
         {
-            if (Unit* target = DoSelectLowestHpFriendly(50.0f))
+            if (Unit *target = DoSelectLowestHpFriendly(50.0f))
             {
                 if (DoCastSpellIfCan(target, SPELL_FLASH_HEAL) == CAST_OK)
                     m_flashHealTimer = urand(10000, 15000);
@@ -969,7 +1005,7 @@ struct npc_isillienAI: public npc_escortAI
     }
 };
 
-UnitAI* GetAI_npc_isillien(Creature* creature)
+UnitAI *GetAI_npc_isillien(Creature *creature)
 {
     return new npc_isillienAI(creature);
 }
@@ -978,9 +1014,12 @@ UnitAI* GetAI_npc_isillien(Creature* creature)
 ## npc_tirion_fordring
 ######*/
 
-struct npc_tirion_fordringAI: public npc_escortAI
+struct npc_tirion_fordringAI : public npc_escortAI
 {
-    npc_tirion_fordringAI(Creature* creature): npc_escortAI(creature) { Reset(); }
+    npc_tirion_fordringAI(Creature *creature) : npc_escortAI(creature)
+    {
+        Reset();
+    }
 
     ObjectGuid m_taelanGuid;
 
@@ -992,15 +1031,15 @@ struct npc_tirion_fordringAI: public npc_escortAI
     {
         m_holyCleaveTimer = urand(11000, 15000);
         m_holyStrikeTimer = urand(6000, 8000);
-        m_crusaderStrike  = urand(1000, 5000);
+        m_crusaderStrike = urand(1000, 5000);
     }
 
-    void Aggro(Unit* /*who*/) override
+    void Aggro(Unit * /*who*/) override
     {
         DoCastSpellIfCan(m_creature, SPELL_DEVOTION_AURA);
     }
 
-    void MoveInLineOfSight(Unit* /*who*/) override
+    void MoveInLineOfSight(Unit * /*who*/) override
     {
         // attack only on request
     }
@@ -1012,7 +1051,7 @@ struct npc_tirion_fordringAI: public npc_escortAI
         m_creature->SetLootRecipient(nullptr);
 
         // on evade go to Taelan
-        if (Creature* taelan = m_creature->GetMap()->GetCreature(m_taelanGuid))
+        if (Creature *taelan = m_creature->GetMap()->GetCreature(m_taelanGuid))
         {
             float fX, fY, fZ;
             taelan->GetContactPoint(m_creature, fX, fY, fZ);
@@ -1022,7 +1061,7 @@ struct npc_tirion_fordringAI: public npc_escortAI
         Reset();
     }
 
-    void ReceiveAIEvent(AIEventType eventType, Unit* sender, Unit* invoker, uint32 /*miscValue*/) override
+    void ReceiveAIEvent(AIEventType eventType, Unit *sender, Unit *invoker, uint32 /*miscValue*/) override
     {
         if (sender->GetEntry() != NPC_TAELAN_FORDRING)
             return;
@@ -1038,20 +1077,20 @@ struct npc_tirion_fordringAI: public npc_escortAI
     {
         switch (pointId)
         {
-            case 3:
-                SetEscortPaused(true);
+        case 3:
+            SetEscortPaused(true);
 
-                // unmount and go to Taelan
-                m_creature->Unmount();
-                m_creature->GetMotionMaster()->Clear();
-                m_creature->GetMotionMaster()->MoveIdle();
-                if (Creature* taelan = m_creature->GetMap()->GetCreature(m_taelanGuid))
-                {
-                    float fX, fY, fZ;
-                    taelan->GetContactPoint(m_creature, fX, fY, fZ);
-                    m_creature->GetMotionMaster()->MovePoint(100, fX, fY, fZ);
-                }
-                break;
+            // unmount and go to Taelan
+            m_creature->Unmount();
+            m_creature->GetMotionMaster()->Clear();
+            m_creature->GetMotionMaster()->MoveIdle();
+            if (Creature *taelan = m_creature->GetMap()->GetCreature(m_taelanGuid))
+            {
+                float fX, fY, fZ;
+                taelan->GetContactPoint(m_creature, fX, fY, fZ);
+                m_creature->GetMotionMaster()->MovePoint(100, fX, fY, fZ);
+            }
+            break;
         }
     }
 
@@ -1098,7 +1137,7 @@ struct npc_tirion_fordringAI: public npc_escortAI
     }
 };
 
-UnitAI* GetAI_npc_tirion_fordring(Creature* creature)
+UnitAI *GetAI_npc_tirion_fordring(Creature *creature)
 {
     return new npc_tirion_fordringAI(creature);
 }
@@ -1109,7 +1148,7 @@ UnitAI* GetAI_npc_tirion_fordring(Creature* creature)
 
 struct spell_placing_beacon_torch : public SpellScript
 {
-    void OnRadiusCalculate(Spell* /*spell*/, SpellEffectIndex effIdx, bool /*targetB*/, float& radius) const override
+    void OnRadiusCalculate(Spell * /*spell*/, SpellEffectIndex effIdx, bool /*targetB*/, float &radius) const override
     {
         if (effIdx == EFFECT_INDEX_0)
             radius = 0.f;
@@ -1118,10 +1157,9 @@ struct spell_placing_beacon_torch : public SpellScript
     }
 };
 
-
 void AddSC_western_plaguelands()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "npc_the_scourge_cauldron";
     pNewScript->GetAI = &GetAI_npc_the_scourge_cauldron;
     pNewScript->RegisterSelf();

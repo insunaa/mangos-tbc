@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -26,25 +26,25 @@ EndScriptData */
 
 enum eEmperor
 {
-    FACTION_NEUTRAL             = 734,
-    YELL_AGGRO_1                = -1230001,
-    YELL_AGGRO_2                = -1230064,
-    YELL_AGGRO_3                = -1230065,
-    YELL_SLAY                   = -1230002,
+    FACTION_NEUTRAL = 734,
+    YELL_AGGRO_1 = -1230001,
+    YELL_AGGRO_2 = -1230064,
+    YELL_AGGRO_3 = -1230065,
+    YELL_SLAY = -1230002,
 
-    SPELL_HANDOFTHAURISSAN      = 17492,
-    SPELL_AVATAROFFLAME         = 15636
+    SPELL_HANDOFTHAURISSAN = 17492,
+    SPELL_AVATAROFFLAME = 15636
 };
 
 struct boss_emperor_dagran_thaurissanAI : public ScriptedAI
 {
-    boss_emperor_dagran_thaurissanAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_emperor_dagran_thaurissanAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (ScriptedInstance *)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    ScriptedInstance *m_pInstance;
 
     uint32 m_uiHandOfThaurissanTimer;
     uint32 m_uiAvatarOfFlameTimer;
@@ -52,26 +52,32 @@ struct boss_emperor_dagran_thaurissanAI : public ScriptedAI
     void Reset() override
     {
         m_uiHandOfThaurissanTimer = 4000;
-        m_uiAvatarOfFlameTimer    = 25000;
+        m_uiAvatarOfFlameTimer = 25000;
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         switch (urand(0, 2))
         {
-            case 0: DoScriptText(YELL_AGGRO_1, m_creature); break;
-            case 1: DoScriptText(YELL_AGGRO_2, m_creature); break;
-            case 2: DoScriptText(YELL_AGGRO_3, m_creature); break;
+        case 0:
+            DoScriptText(YELL_AGGRO_1, m_creature);
+            break;
+        case 1:
+            DoScriptText(YELL_AGGRO_2, m_creature);
+            break;
+        case 2:
+            DoScriptText(YELL_AGGRO_3, m_creature);
+            break;
         }
         m_creature->CallForHelp(VISIBLE_RANGE);
     }
 
-    void JustDied(Unit* /*pVictim*/) override
+    void JustDied(Unit * /*pVictim*/) override
     {
         if (!m_pInstance)
             return;
 
-        if (Creature* pPrincess = m_pInstance->GetSingleCreatureFromStorage(NPC_PRINCESS))
+        if (Creature *pPrincess = m_pInstance->GetSingleCreatureFromStorage(NPC_PRINCESS))
         {
             // check if we didn't update the entry
             if (pPrincess->GetEntry() != NPC_PRINCESS)
@@ -85,7 +91,7 @@ struct boss_emperor_dagran_thaurissanAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit* /*pVictim*/) override
+    void KilledUnit(Unit * /*pVictim*/) override
     {
         DoScriptText(YELL_SLAY, m_creature);
     }
@@ -97,7 +103,7 @@ struct boss_emperor_dagran_thaurissanAI : public ScriptedAI
 
         if (m_uiHandOfThaurissanTimer < uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+            if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_HANDOFTHAURISSAN) == CAST_OK)
                     m_uiHandOfThaurissanTimer = urand(5, 10) * 1000;
@@ -119,7 +125,7 @@ struct boss_emperor_dagran_thaurissanAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_emperor_dagran_thaurissan(Creature* pCreature)
+UnitAI *GetAI_boss_emperor_dagran_thaurissan(Creature *pCreature)
 {
     return new boss_emperor_dagran_thaurissanAI(pCreature);
 }
@@ -130,25 +136,25 @@ UnitAI* GetAI_boss_emperor_dagran_thaurissan(Creature* pCreature)
 
 enum ePrincess
 {
-    SPELL_HEAL                  = 15586,
-    SPELL_RENEW                 = 10929,
-    SPELL_SHIELD                = 10901,
-    SPELL_MINDBLAST             = 15587,
-    SPELL_SHADOWWORDPAIN        = 15654,
-    SPELL_SMITE                 = 10934,
-    SPELL_SHADOW_BOLT           = 15537,
-    SPELL_OPEN_PORTAL           = 13912
+    SPELL_HEAL = 15586,
+    SPELL_RENEW = 10929,
+    SPELL_SHIELD = 10901,
+    SPELL_MINDBLAST = 15587,
+    SPELL_SHADOWWORDPAIN = 15654,
+    SPELL_SMITE = 10934,
+    SPELL_SHADOW_BOLT = 15537,
+    SPELL_OPEN_PORTAL = 13912
 };
 
 struct boss_moira_bronzebeardAI : public ScriptedAI
 {
-    boss_moira_bronzebeardAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_moira_bronzebeardAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (ScriptedInstance *)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    ScriptedInstance *m_pInstance;
 
     uint32 m_uiHealTimer;
     uint32 m_uiMindBlastTimer;
@@ -157,10 +163,10 @@ struct boss_moira_bronzebeardAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiHealTimer           = 12000;                             // These times are probably wrong
-        m_uiMindBlastTimer      = 16000;
+        m_uiHealTimer = 12000; // These times are probably wrong
+        m_uiMindBlastTimer = 16000;
         m_uiShadowWordPainTimer = 2000;
-        m_uiSmiteTimer          = 8000;
+        m_uiSmiteTimer = 8000;
 
         m_attackDistance = 25.0f;
         m_meleeEnabled = false;
@@ -170,7 +176,7 @@ struct boss_moira_bronzebeardAI : public ScriptedAI
     {
         if (m_pInstance)
         {
-            if (Creature* pEmperor = m_pInstance->GetSingleCreatureFromStorage(NPC_EMPEROR))
+            if (Creature *pEmperor = m_pInstance->GetSingleCreatureFromStorage(NPC_EMPEROR))
             {
                 // if evade, then check if he is alive. If not, start make portal
                 if (!pEmperor->IsAlive())
@@ -215,7 +221,7 @@ struct boss_moira_bronzebeardAI : public ScriptedAI
         // Heal_Timer
         if (m_uiHealTimer < uiDiff)
         {
-            if (Creature* pEmperor = m_pInstance->GetSingleCreatureFromStorage(NPC_EMPEROR))
+            if (Creature *pEmperor = m_pInstance->GetSingleCreatureFromStorage(NPC_EMPEROR))
             {
                 if (pEmperor->IsAlive() && pEmperor->GetHealthPercent() != 100.0f)
                 {
@@ -231,14 +237,14 @@ struct boss_moira_bronzebeardAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_moira_bronzebeard(Creature* pCreature)
+UnitAI *GetAI_boss_moira_bronzebeard(Creature *pCreature)
 {
     return new boss_moira_bronzebeardAI(pCreature);
 }
 
 void AddSC_boss_draganthaurissan()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_emperor_dagran_thaurissan";
     pNewScript->GetAI = &GetAI_boss_emperor_dagran_thaurissan;
     pNewScript->RegisterSelf();

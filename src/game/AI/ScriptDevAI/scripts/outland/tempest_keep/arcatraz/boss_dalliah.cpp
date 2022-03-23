@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -26,37 +26,37 @@ EndScriptData */
 
 enum
 {
-    SAY_AGGRO                       = -1552031,
-    SAY_SOCCOTHRATES_TAUNT_1        = -1552040,
-    SAY_SOCCOTHRATES_TAUNT_2        = -1552041,
-    SAY_SOCCOTHRATES_TAUNT_3        = -1552042,
-    SAY_HEAL_1                      = -1552032,
-    SAY_HEAL_2                      = -1552033,
-    SAY_KILL_1                      = -1552034,
-    SAY_KILL_2                      = -1552035,
-    SAY_WHIRLWIND_1                 = -1552036,
-    SAY_WHIRLWIND_2                 = -1552037,
-    SAY_DEATH                       = -1552038,
+    SAY_AGGRO = -1552031,
+    SAY_SOCCOTHRATES_TAUNT_1 = -1552040,
+    SAY_SOCCOTHRATES_TAUNT_2 = -1552041,
+    SAY_SOCCOTHRATES_TAUNT_3 = -1552042,
+    SAY_HEAL_1 = -1552032,
+    SAY_HEAL_2 = -1552033,
+    SAY_KILL_1 = -1552034,
+    SAY_KILL_2 = -1552035,
+    SAY_WHIRLWIND_1 = -1552036,
+    SAY_WHIRLWIND_2 = -1552037,
+    SAY_DEATH = -1552038,
 
-    SPELL_DOUBLE_ATTACK             = 19818,
-    SPELL_GIFT_DOOMSAYER            = 36173,
-    SPELL_GIFT_DOOMSAYER_H          = 39009,
-    SPELL_HEAL                      = 36144,
-    SPELL_HEAL_H                    = 39013,
-    SPELL_WHIRLWIND                 = 36142,
-    SPELL_SHADOW_WAVE               = 39016,                // heroic spell only
+    SPELL_DOUBLE_ATTACK = 19818,
+    SPELL_GIFT_DOOMSAYER = 36173,
+    SPELL_GIFT_DOOMSAYER_H = 39009,
+    SPELL_HEAL = 36144,
+    SPELL_HEAL_H = 39013,
+    SPELL_WHIRLWIND = 36142,
+    SPELL_SHADOW_WAVE = 39016, // heroic spell only
 };
 
 struct boss_dalliahAI : public ScriptedAI
 {
-    boss_dalliahAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_dalliahAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (ScriptedInstance *)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    ScriptedInstance *m_pInstance;
     bool m_bIsRegularMode;
 
     uint32 m_uiGiftDoomsayerTimer;
@@ -68,17 +68,17 @@ struct boss_dalliahAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiGiftDoomsayerTimer  = urand(4000, 7000);
-        m_uiHealTimer           = 0;
-        m_uiWhirlwindTimer      = 15000;
-        m_uiShadowWaveTimer     = urand(9000, 13000);
+        m_uiGiftDoomsayerTimer = urand(4000, 7000);
+        m_uiHealTimer = 0;
+        m_uiWhirlwindTimer = 15000;
+        m_uiShadowWaveTimer = urand(9000, 13000);
 
-        m_bHasTaunted           = false;
+        m_bHasTaunted = false;
 
         DoCastSpellIfCan(m_creature, SPELL_DOUBLE_ATTACK, CAST_TRIGGERED | CAST_AURA_NOT_PRESENT);
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
@@ -86,12 +86,12 @@ struct boss_dalliahAI : public ScriptedAI
             m_pInstance->SetData(TYPE_DALLIAH, IN_PROGRESS);
     }
 
-    void KilledUnit(Unit* /*pVictim*/) override
+    void KilledUnit(Unit * /*pVictim*/) override
     {
         DoScriptText(urand(0, 1) ? SAY_KILL_1 : SAY_KILL_2, m_creature);
     }
 
-    void JustDied(Unit* /*pWho*/) override
+    void JustDied(Unit * /*pWho*/) override
     {
         DoScriptText(SAY_DEATH, m_creature);
 
@@ -134,7 +134,8 @@ struct boss_dalliahAI : public ScriptedAI
 
         if (m_uiGiftDoomsayerTimer < uiDiff)
         {
-            if (DoCastSpellIfCan(m_creature->GetVictim(), m_bIsRegularMode ? SPELL_GIFT_DOOMSAYER : SPELL_GIFT_DOOMSAYER_H) == CAST_OK)
+            if (DoCastSpellIfCan(m_creature->GetVictim(),
+                                 m_bIsRegularMode ? SPELL_GIFT_DOOMSAYER : SPELL_GIFT_DOOMSAYER_H) == CAST_OK)
                 m_uiGiftDoomsayerTimer = urand(14000, 19000);
         }
         else
@@ -146,7 +147,7 @@ struct boss_dalliahAI : public ScriptedAI
             {
                 DoScriptText(urand(0, 1) ? SAY_WHIRLWIND_1 : SAY_WHIRLWIND_2, m_creature);
                 m_uiWhirlwindTimer = urand(25000, 30000);
-                m_uiHealTimer      = 6000;
+                m_uiHealTimer = 6000;
             }
         }
         else
@@ -170,7 +171,8 @@ struct boss_dalliahAI : public ScriptedAI
         {
             if (m_uiShadowWaveTimer < uiDiff)
             {
-                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_FARTHEST_AWAY, 0, SPELL_SHADOW_WAVE, SELECT_FLAG_PLAYER))
+                if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_FARTHEST_AWAY, 0,
+                                                                      SPELL_SHADOW_WAVE, SELECT_FLAG_PLAYER))
                 {
                     if (DoCastSpellIfCan(pTarget, SPELL_SHADOW_WAVE) == CAST_OK)
                         m_uiShadowWaveTimer = urand(13000, 17000);
@@ -185,13 +187,19 @@ struct boss_dalliahAI : public ScriptedAI
             // Taunt if Soccothares isn't dead yet
             if (m_pInstance && m_pInstance->GetData(TYPE_SOCCOTHRATES) != DONE)
             {
-                if (Creature* pSoccothares = m_pInstance->GetSingleCreatureFromStorage(NPC_SOCCOTHRATES))
+                if (Creature *pSoccothares = m_pInstance->GetSingleCreatureFromStorage(NPC_SOCCOTHRATES))
                 {
                     switch (urand(0, 2))
                     {
-                        case 0: DoScriptText(SAY_SOCCOTHRATES_TAUNT_1, pSoccothares); break;
-                        case 1: DoScriptText(SAY_SOCCOTHRATES_TAUNT_2, pSoccothares); break;
-                        case 2: DoScriptText(SAY_SOCCOTHRATES_TAUNT_3, pSoccothares); break;
+                    case 0:
+                        DoScriptText(SAY_SOCCOTHRATES_TAUNT_1, pSoccothares);
+                        break;
+                    case 1:
+                        DoScriptText(SAY_SOCCOTHRATES_TAUNT_2, pSoccothares);
+                        break;
+                    case 2:
+                        DoScriptText(SAY_SOCCOTHRATES_TAUNT_3, pSoccothares);
+                        break;
                     }
                 }
             }
@@ -203,14 +211,14 @@ struct boss_dalliahAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_dalliah(Creature* pCreature)
+UnitAI *GetAI_boss_dalliah(Creature *pCreature)
 {
     return new boss_dalliahAI(pCreature);
 }
 
 void AddSC_boss_dalliah()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_dalliah";
     pNewScript->GetAI = &GetAI_boss_dalliah;
     pNewScript->RegisterSelf();

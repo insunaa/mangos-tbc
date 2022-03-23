@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -22,8 +22,8 @@ SDCategory: Battlegrounds
 EndScriptData */
 
 #include "AI/ScriptDevAI/include/sc_common.h"
-#include "Spells/Scripts/SpellScript.h"
 #include "OutdoorPvP/OutdoorPvP.h"
+#include "Spells/Scripts/SpellScript.h"
 
 // **** Script Info ****
 // Spiritguides in battlegrounds resurrecting many players at once
@@ -39,23 +39,25 @@ EndScriptData */
 
 enum
 {
-    SPELL_SPIRIT_HEAL_CHANNEL       = 22011,                // Spirit Heal Channel
+    SPELL_SPIRIT_HEAL_CHANNEL = 22011, // Spirit Heal Channel
 
-    SPELL_SPIRIT_HEAL               = 22012,                // Spirit Heal
-    SPELL_SPIRIT_HEAL_MANA          = 44535,                // in battlegrounds player get this no-mana-cost-buff
+    SPELL_SPIRIT_HEAL = 22012,      // Spirit Heal
+    SPELL_SPIRIT_HEAL_MANA = 44535, // in battlegrounds player get this no-mana-cost-buff
 
-    SPELL_WAITING_TO_RESURRECT      = 2584                  // players who cancel this aura don't want a resurrection
+    SPELL_WAITING_TO_RESURRECT = 2584 // players who cancel this aura don't want a resurrection
 };
 
 struct npc_spirit_guideAI : public ScriptedAI
 {
-    npc_spirit_guideAI(Creature* pCreature) : ScriptedAI(pCreature)
+    npc_spirit_guideAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
         pCreature->SetActiveObjectState(true);
         Reset();
     }
 
-    void Reset() override {}
+    void Reset() override
+    {
+    }
 
     void UpdateAI(const uint32 /*uiDiff*/) override
     {
@@ -64,7 +66,7 @@ struct npc_spirit_guideAI : public ScriptedAI
             m_creature->CastSpell(m_creature, SPELL_SPIRIT_HEAL_CHANNEL, TRIGGERED_NONE);
     }
 
-    void ReceiveAIEvent(AIEventType eventType, Unit* /*sender*/, Unit* /*invoker*/, uint32 /*miscValue*/) override
+    void ReceiveAIEvent(AIEventType eventType, Unit * /*sender*/, Unit * /*invoker*/, uint32 /*miscValue*/) override
     {
         if (eventType == AI_EVENT_CUSTOM_A)
         {
@@ -73,36 +75,38 @@ struct npc_spirit_guideAI : public ScriptedAI
         }
     }
 
-    void CorpseRemoved(uint32&) override
+    void CorpseRemoved(uint32 &) override
     {
         // TODO: would be better to cast a dummy spell
-        Map* pMap = m_creature->GetMap();
+        Map *pMap = m_creature->GetMap();
 
         if (!pMap || !pMap->IsBattleGround())
             return;
 
-        Map::PlayerList const& PlayerList = pMap->GetPlayers();
+        Map::PlayerList const &PlayerList = pMap->GetPlayers();
 
-        for (const auto& itr : PlayerList)
+        for (const auto &itr : PlayerList)
         {
-            Player* pPlayer = itr.getSource();
-            if (!pPlayer || !pPlayer->IsWithinDistInMap(m_creature, 20.0f) || !pPlayer->HasAura(SPELL_WAITING_TO_RESURRECT))
+            Player *pPlayer = itr.getSource();
+            if (!pPlayer || !pPlayer->IsWithinDistInMap(m_creature, 20.0f) ||
+                !pPlayer->HasAura(SPELL_WAITING_TO_RESURRECT))
                 continue;
 
-            // repop player again - now this node won't be counted and another node is searched
+            // repop player again - now this node won't be counted and another node
+            // is searched
             pPlayer->RepopAtGraveyard();
         }
     }
 
-    void SpellHitTarget(Unit* pUnit, const SpellEntry* pSpellEntry) override
+    void SpellHitTarget(Unit *pUnit, const SpellEntry *pSpellEntry) override
     {
-        if (pSpellEntry->Id == SPELL_SPIRIT_HEAL && pUnit->GetTypeId() == TYPEID_PLAYER
-                && pUnit->HasAura(SPELL_WAITING_TO_RESURRECT))
+        if (pSpellEntry->Id == SPELL_SPIRIT_HEAL && pUnit->GetTypeId() == TYPEID_PLAYER &&
+            pUnit->HasAura(SPELL_WAITING_TO_RESURRECT))
             pUnit->CastSpell(pUnit, SPELL_SPIRIT_HEAL_MANA, TRIGGERED_OLD_TRIGGERED);
     }
 };
 
-bool GossipHello_npc_spirit_guide(Player* pPlayer, Creature* /*pCreature*/)
+bool GossipHello_npc_spirit_guide(Player *pPlayer, Creature * /*pCreature*/)
 {
     pPlayer->CastSpell(pPlayer, SPELL_WAITING_TO_RESURRECT, TRIGGERED_OLD_TRIGGERED);
     return true;
@@ -115,7 +119,7 @@ enum
 
 struct OpeningCapping : public SpellScript
 {
-    void OnSuccessfulStart(Spell* spell) const
+    void OnSuccessfulStart(Spell *spell) const
     {
         spell->GetCaster()->CastSpell(nullptr, SPELL_OPENING_ANIM, TRIGGERED_OLD_TRIGGERED);
     }
@@ -123,47 +127,48 @@ struct OpeningCapping : public SpellScript
 
 struct InactiveBattleground : public SpellScript
 {
-    SpellCastResult OnCheckCast(Spell* spell, bool /*strict*/) const override
+    SpellCastResult OnCheckCast(Spell *spell, bool /*strict*/) const override
     {
-        Player* player = spell->GetCaster()->GetBeneficiaryPlayer();
+        Player *player = spell->GetCaster()->GetBeneficiaryPlayer();
         return player && player->InBattleGround() ? SPELL_CAST_OK : SPELL_FAILED_ONLY_BATTLEGROUNDS;
     }
 };
 
 struct ArenaPreparation : public AuraScript
 {
-    void OnApply(Aura* aura, bool apply) const override
+    void OnApply(Aura *aura, bool apply) const override
     {
         if (aura->GetEffIndex() == EFFECT_INDEX_1)
             if (apply)
-                if (Unit* target = aura->GetTarget())
+                if (Unit *target = aura->GetTarget())
                     if (target->IsPlayer())
-                        if (Player* p = static_cast<Player*>(target))
-                            if (p->InArena() && p->GetBattleGround() && p->GetBGTeam() == HORDE && p->GetBattleGround()->GetStatus() == STATUS_WAIT_JOIN)
-                                aura->GetModifier()->m_miscvalue = 5; // make teams invisible to eachother during prep phase (default value is 4)
+                        if (Player *p = static_cast<Player *>(target))
+                            if (p->InArena() && p->GetBattleGround() && p->GetBGTeam() == HORDE &&
+                                p->GetBattleGround()->GetStatus() == STATUS_WAIT_JOIN)
+                                aura->GetModifier()->m_miscvalue = 5; // make teams invisible to eachother during prep
+                                                                      // phase (default value is 4)
     }
 };
 
 /*#####
 # spell_battleground_banner_trigger
 #
-# These are generic spells that handle player click on battleground banners; All spells are triggered by GO type 10
-# Contains following spells:
-# Arathi Basin: 23932, 23935, 23936, 23937, 23938
-# Alterac Valley: 24677
+# These are generic spells that handle player click on battleground banners;
+All spells are triggered by GO type 10 # Contains following spells: # Arathi
+Basin: 23932, 23935, 23936, 23937, 23938 # Alterac Valley: 24677
 #####*/
 struct spell_battleground_banner_trigger : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         // TODO: Fix when go casting is fixed
-        WorldObject* obj = spell->GetAffectiveCasterObject();
+        WorldObject *obj = spell->GetAffectiveCasterObject();
 
         if (obj->IsGameObject() && spell->GetUnitTarget()->IsPlayer())
         {
-            Player* player = static_cast<Player*>(spell->GetUnitTarget());
-            if (BattleGround* bg = player->GetBattleGround())
-                bg->HandlePlayerClickedOnFlag(player, static_cast<GameObject*>(obj));
+            Player *player = static_cast<Player *>(spell->GetUnitTarget());
+            if (BattleGround *bg = player->GetBattleGround())
+                bg->HandlePlayerClickedOnFlag(player, static_cast<GameObject *>(obj));
         }
     }
 };
@@ -171,29 +176,30 @@ struct spell_battleground_banner_trigger : public SpellScript
 /*#####
 # spell_outdoor_pvp_banner_trigger
 #
-# These are generic spells that handle player click on outdoor PvP banners; All spells are triggered by GO type 10
-# Contains following spells used in Zangarmarsh: 32433, 32438
+# These are generic spells that handle player click on outdoor PvP banners; All
+spells are triggered by GO type 10 # Contains following spells used in
+Zangarmarsh: 32433, 32438
 #####*/
 struct spell_outdoor_pvp_banner_trigger : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         // TODO: Fix when go casting is fixed
-        WorldObject* obj = spell->GetAffectiveCasterObject();
+        WorldObject *obj = spell->GetAffectiveCasterObject();
 
         if (obj->IsGameObject() && spell->GetUnitTarget()->IsPlayer())
         {
-            Player* player = static_cast<Player*>(spell->GetUnitTarget());
+            Player *player = static_cast<Player *>(spell->GetUnitTarget());
 
-            if (OutdoorPvP* outdoorPvP = sOutdoorPvPMgr.GetScript(player->GetCachedZoneId()))
-                outdoorPvP->HandleGameObjectUse(player, static_cast<GameObject*>(obj));
+            if (OutdoorPvP *outdoorPvP = sOutdoorPvPMgr.GetScript(player->GetCachedZoneId()))
+                outdoorPvP->HandleGameObjectUse(player, static_cast<GameObject *>(obj));
         }
     }
 };
 
 void AddSC_battleground()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "npc_spirit_guide";
     pNewScript->GetAI = &GetNewAIInstance<npc_spirit_guideAI>;
     pNewScript->pGossipHello = &GossipHello_npc_spirit_guide;

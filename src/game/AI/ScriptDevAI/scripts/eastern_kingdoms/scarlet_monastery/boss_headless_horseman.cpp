@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
-* This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -14,17 +14,16 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
- /* ScriptData
- SDName: boss_headless_horseman
- SD%Complete: 90
- SDComment: Intro and epilog are handled by DB. Script might require some fine-tune.
- SDCategory: Scarlet Monastery
- EndScriptData */
+/* ScriptData
+SDName: boss_headless_horseman
+SD%Complete: 90
+SDComment: Intro and epilog are handled by DB. Script might require some
+fine-tune. SDCategory: Scarlet Monastery EndScriptData */
 
 #include "AI/ScriptDevAI/include/sc_common.h"
+#include "AI/ScriptDevAI/scripts/eastern_kingdoms/scarlet_monastery/scarlet_monastery.h"
 #include "Entities/TemporarySpawn.h"
 #include "Spells/Scripts/SpellScript.h"
-#include "AI/ScriptDevAI/scripts/eastern_kingdoms/scarlet_monastery/scarlet_monastery.h"
 
 enum
 {
@@ -46,62 +45,63 @@ enum
     // SAY_PLAYER4              = -1189034,
 
     // normal phase spells
-    SPELL_BODY_HEAD_VISUAL = 42413,            // head visual
-    SPELL_JACK_LANTERNED = 44185,            // on killed player
+    SPELL_BODY_HEAD_VISUAL = 42413, // head visual
+    SPELL_JACK_LANTERNED = 44185,   // on killed player
     SPELL_HORSEMAN_CLEAVE = 42587,
-    SPELL_CONFLAGRATION = 45342,            // triggers 42381
-    SPELL_SUMMON_PUMPKIN = 52236,            // triggers 42394
-    SPELL_HORSEMAN_SUMMON = 42394,            // triggered spell - used to do the text
+    SPELL_CONFLAGRATION = 45342,   // triggers 42381
+    SPELL_SUMMON_PUMPKIN = 52236,  // triggers 42394
+    SPELL_HORSEMAN_SUMMON = 42394, // triggered spell - used to do the text
     SPELL_CONFLAGRATION_SOUND = 48149,
-    SPELL_BODY_STAGE_1 = 42547,            // phase control spells
+    SPELL_BODY_STAGE_1 = 42547, // phase control spells
     SPELL_BODY_STAGE_2 = 42548,
     SPELL_BODY_STAGE_3 = 42549,
 
     // headless body spells
-    SPELL_SEND_HEAD = 42399,            // send event 15394 - toss head
-    SPELL_WHIRLWIND = 43116,            // triggers 43118
-    SPELL_BODY_REGEN_PROC = 42556,            // procs 42587; also adds immunity
-    SPELL_BODY_REGEN = 42403,            // change model to headless
-    SPELL_BODY_REGEN_CONFUSE = 43105,            // confuse spell
+    SPELL_SEND_HEAD = 42399,          // send event 15394 - toss head
+    SPELL_WHIRLWIND = 43116,          // triggers 43118
+    SPELL_BODY_REGEN_PROC = 42556,    // procs 42587; also adds immunity
+    SPELL_BODY_REGEN = 42403,         // change model to headless
+    SPELL_BODY_REGEN_CONFUSE = 43105, // confuse spell
 
     // head spells
     SPELL_HEAD_VISUAL = 44241,
-    SPELL_HEAL_BODY = 43306,            // heal body to 100% on rejoin
+    SPELL_HEAL_BODY = 43306, // heal body to 100% on rejoin
     SPELL_REQUEST_BODY = 43101,
-    SPELL_HORSEMAN_HEAD_LANDS = 42400,            // head land visual
-    // SPELL_HEAD_INVISIBLE     = 44312,            // purpose unk
-    // SPELL_HEADS_BREATH       = 43207,            // purpose unk
+    SPELL_HORSEMAN_HEAD_LANDS = 42400, // head land visual
+                                       // SPELL_HEAD_INVISIBLE     = 44312,            // purpose unk
+                                       // SPELL_HEADS_BREATH       = 43207,            // purpose unk
 
     // pumpkin spells
-    SPELL_PUMPKIN_LIFE_CYCLE = 42280,            // visual root aura
-    SPELL_PUMPKIN_AURA = 42294,            // visual green aura
-    SPELL_SPROUTING = 42281,            // sprout delay
-    SPELL_PUMPKIN_DEATH = 42291,            // visual on sprout
-    SPELL_SPROUT_BODY = 42285,            // visual moving aura
+    SPELL_PUMPKIN_LIFE_CYCLE = 42280, // visual root aura
+    SPELL_PUMPKIN_AURA = 42294,       // visual green aura
+    SPELL_SPROUTING = 42281,          // sprout delay
+    SPELL_PUMPKIN_DEATH = 42291,      // visual on sprout
+    SPELL_SPROUT_BODY = 42285,        // visual moving aura
     SPELL_SQUASH_SOUL = 42514,
 
     // event end spells
-    SPELL_HEAD_IS_DEAD = 42428,            // send event 15407; triggers 42566
-    SPELL_BODY_DEAD = 42429,            // send event 15331
-    SPELL_BODY_LEAVE_COMBAT = 43805,            // send event 15407; trigger spell 42556
+    SPELL_HEAD_IS_DEAD = 42428,      // send event 15407; triggers 42566
+    SPELL_BODY_DEAD = 42429,         // send event 15331
+    SPELL_BODY_LEAVE_COMBAT = 43805, // send event 15407; trigger spell 42556
 
     // spells used for the intro or epilog (handled by DB)
     // SPELL_LAUGH                 = 43881,         // play sound 11965
     // SPELL_LAUGH_MANIACAL        = 43885,         // play sound 11975
     // SPELL_LAUGH_LOW             = 43894,         // play sound 11976
-    // SPELL_RHYME_SHAKE_MEDIUM    = 42909,         // shake effect on event start
+    // SPELL_RHYME_SHAKE_MEDIUM    = 42909,         // shake effect on event
+    // start
     // SPELL_RHYME_SHAKE_SMALL     = 42910,
     // SPELL_WISP_ESCAPE_MISSILE   = 43034,
     // SPELL_WISP_FLIGHT_MISSILE   = 42821,         // triggers 42818
     // SPELL_WISP_INVISIBLE        = 42823,
-    SPELL_ON_KILL_PROC = 43877,            // procs 13567 - use unk
-    // SPELL_ENRAGE_VISUAL         = 42438,         // use unk
+    SPELL_ON_KILL_PROC = 43877, // procs 13567 - use unk
+                                // SPELL_ENRAGE_VISUAL         = 42438,         // use unk
     SPELL_YELL_TIMER = 42432,
     SPELL_MANIACAL_LAUGHT_DELAYED_9 = 43893,
     SPELL_HORSEMAN_SPEAKS = 43129,
     SPELL_HEAD_STUN = 42408,
-    SPELL_RHYME_AURA = 42879,            // Used for rhymes at start
-    SPELL_COMMAND_HEAD_REPOSITIONS = 42410,         // cast by horseman on head
+    SPELL_RHYME_AURA = 42879,               // Used for rhymes at start
+    SPELL_COMMAND_HEAD_REPOSITIONS = 42410, // cast by horseman on head
     SPELL_HEAD_REPOSITIONS = 42409,
     SPELL_HEAD_PERIODIC = 42603,
     SPELL_RAIN_OF_TREATS = 43344,
@@ -110,8 +110,9 @@ enum
     // creatures
     NPC_HEADLESS_HORSEMAN = 23682,
     NPC_HEAD_OF_HORSEMAN = 23775,
-    NPC_PULSING_PUMPKIN = 23694,            // summoned by spell 42277
-    // NPC_HORSEMAN_WISP_INV    = 24034,            // probably used for the epilog
+    NPC_PULSING_PUMPKIN = 23694, // summoned by spell 42277
+                                 // NPC_HORSEMAN_WISP_INV    = 24034, // probably
+                                 // used for the epilog
 };
 
 enum HorsemanPhase
@@ -124,7 +125,8 @@ enum HorsemanPhase
 
 struct boss_headless_horsemanAI : public ScriptedAI
 {
-    boss_headless_horsemanAI(Creature* creature) : ScriptedAI(creature), m_instance(static_cast<ScriptedInstance*>(creature->GetInstanceData()))
+    boss_headless_horsemanAI(Creature *creature)
+        : ScriptedAI(creature), m_instance(static_cast<ScriptedInstance *>(creature->GetInstanceData()))
     {
         m_creature->SetWalk(false);
         m_creature->SetLevitate(true);
@@ -144,7 +146,7 @@ struct boss_headless_horsemanAI : public ScriptedAI
     uint32 m_uiConflagrationTimer;
     uint32 m_uiPumpkinTimer;
 
-    ScriptedInstance* m_instance;
+    ScriptedInstance *m_instance;
 
     void Reset() override
     {
@@ -161,13 +163,13 @@ struct boss_headless_horsemanAI : public ScriptedAI
         m_bHeadRequested = false;
     }
 
-    void MoveInLineOfSight(Unit* pWho) override
+    void MoveInLineOfSight(Unit *pWho) override
     {
         if (m_bHorsemanLanded)
             ScriptedAI::MoveInLineOfSight(pWho);
     }
 
-    void KilledUnit(Unit* pVictim) override
+    void KilledUnit(Unit *pVictim) override
     {
         if (pVictim->GetTypeId() == TYPEID_PLAYER)
         {
@@ -176,7 +178,7 @@ struct boss_headless_horsemanAI : public ScriptedAI
         }
     }
 
-    void JustSummoned(Creature* pSummoned) override
+    void JustSummoned(Creature *pSummoned) override
     {
         if (pSummoned->GetEntry() == NPC_HEAD_OF_HORSEMAN)
             m_headGuid = pSummoned->GetObjectGuid();
@@ -189,7 +191,8 @@ struct boss_headless_horsemanAI : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* /*dealer*/, uint32& damage, DamageEffectType /*damagetype*/, SpellEntry const* /*spellInfo*/) override
+    void DamageTaken(Unit * /*dealer*/, uint32 &damage, DamageEffectType /*damagetype*/,
+                     SpellEntry const * /*spellInfo*/) override
     {
         if (m_fightPhase != PHASE_HEAD_TOSS && damage >= m_creature->GetHealth())
         {
@@ -198,16 +201,16 @@ struct boss_headless_horsemanAI : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* /*pCaster*/, const SpellEntry* pSpell) override
+    void SpellHit(Unit * /*pCaster*/, const SpellEntry *pSpell) override
     {
         if (pSpell->Id == SPELL_HORSEMAN_SUMMON)
             DoScriptText(SAY_SPROUTING_PUMPKINS, m_creature);
     }
 
-    void JustDied(Unit* /*pKiller*/) override
+    void JustDied(Unit * /*pKiller*/) override
     {
         DoScriptText(SAY_DEATH, m_creature);
-        if (Creature* head = m_creature->GetMap()->GetCreature(m_headGuid))
+        if (Creature *head = m_creature->GetMap()->GetCreature(m_headGuid))
             head->ForcedDespawn();
     }
 
@@ -215,7 +218,7 @@ struct boss_headless_horsemanAI : public ScriptedAI
     {
         // cleanup
         m_creature->ForcedDespawn();
-        if (Creature* head = m_creature->GetMap()->GetCreature(m_headGuid))
+        if (Creature *head = m_creature->GetMap()->GetCreature(m_headGuid))
             head->ForcedDespawn();
     }
 
@@ -224,7 +227,7 @@ struct boss_headless_horsemanAI : public ScriptedAI
         ScriptedAI::JustRespawned();
         m_creature->GetMotionMaster()->MovePath(0);
         if (m_instance)
-            if (Creature* bunny = m_instance->GetSingleCreatureFromStorage(NPC_HEADLESS_HORSEMAN_EARTHQUAKE_BUNNY))
+            if (Creature *bunny = m_instance->GetSingleCreatureFromStorage(NPC_HEADLESS_HORSEMAN_EARTHQUAKE_BUNNY))
                 bunny->CastSpell(nullptr, SPELL_EARTH_EXPLOSION, TRIGGERED_OLD_TRIGGERED);
     }
 
@@ -237,12 +240,12 @@ struct boss_headless_horsemanAI : public ScriptedAI
             m_creature->SetLevitate(false);
             m_creature->SetHover(false);
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PLAYER);
-            if (Unit* spawner = m_creature->GetSpawner())
+            if (Unit *spawner = m_creature->GetSpawner())
                 AttackStart(spawner);
         }
     }
 
-    void ReceiveAIEvent(AIEventType eventType, Unit* /*pSender*/, Unit* pInvoker, uint32 /*uiMiscValue*/) override
+    void ReceiveAIEvent(AIEventType eventType, Unit * /*pSender*/, Unit *pInvoker, uint32 /*uiMiscValue*/) override
     {
         // rejoin head on request
         if (eventType == AI_EVENT_CUSTOM_A && pInvoker->GetEntry() == NPC_HEAD_OF_HORSEMAN)
@@ -257,12 +260,15 @@ struct boss_headless_horsemanAI : public ScriptedAI
     {
         // in the first transition; spawn the head
         if (m_creature->HasAura(SPELL_BODY_STAGE_1))
-            m_creature->SummonCreature(NPC_HEAD_OF_HORSEMAN, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSPAWN_DEAD_DESPAWN, 0);
+            m_creature->SummonCreature(NPC_HEAD_OF_HORSEMAN, m_creature->GetPositionX(), m_creature->GetPositionY(),
+                                       m_creature->GetPositionZ(), 0, TEMPSPAWN_DEAD_DESPAWN, 0);
 
         // make head available
-        if (Creature* head = m_creature->GetMap()->GetCreature(m_headGuid))
+        if (Creature *head = m_creature->GetMap()->GetCreature(m_headGuid))
         {
-            head->CastSpell(m_creature, SPELL_HEAD_REPOSITIONS, TRIGGERED_OLD_TRIGGERED); // also should use SPELL_COMMAND_HEAD_REPOSITIONS
+            head->CastSpell(m_creature, SPELL_HEAD_REPOSITIONS,
+                            TRIGGERED_OLD_TRIGGERED); // also should use
+                                                      // SPELL_COMMAND_HEAD_REPOSITIONS
             DoCastSpellIfCan(head, SPELL_SEND_HEAD, CAST_TRIGGERED);
         }
 
@@ -316,68 +322,69 @@ struct boss_headless_horsemanAI : public ScriptedAI
 
         switch (m_fightPhase)
         {
-            case PHASE_PUMPKINS:
+        case PHASE_PUMPKINS:
 
-                if (m_uiPumpkinTimer < uiDiff)
+            if (m_uiPumpkinTimer < uiDiff)
+            {
+                if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_PUMPKIN) == CAST_OK)
+                    m_uiPumpkinTimer = urand(35000, 40000);
+            }
+            else
+                m_uiPumpkinTimer -= uiDiff;
+
+            // no break;
+        case PHASE_CONFLAGRATION:
+
+            // conflagration not happening during pumpkin phase
+            if (m_fightPhase != PHASE_PUMPKINS)
+            {
+                if (m_uiConflagrationTimer < uiDiff)
                 {
-                    if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_PUMPKIN) == CAST_OK)
-                        m_uiPumpkinTimer = urand(35000, 40000);
-                }
-                else
-                    m_uiPumpkinTimer -= uiDiff;
-
-                // no break;
-            case PHASE_CONFLAGRATION:
-
-                // conflagration not happening during pumpkin phase
-                if (m_fightPhase != PHASE_PUMPKINS)
-                {
-                    if (m_uiConflagrationTimer < uiDiff)
+                    if (Unit *pTarget =
+                            m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, nullptr, SELECT_FLAG_PLAYER))
                     {
-                        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, nullptr, SELECT_FLAG_PLAYER))
+                        if (DoCastSpellIfCan(pTarget, SPELL_CONFLAGRATION) == CAST_OK)
                         {
-                            if (DoCastSpellIfCan(pTarget, SPELL_CONFLAGRATION) == CAST_OK)
-                            {
-                                DoScriptText(SAY_CONFLAGRATION, m_creature);
-                                m_uiConflagrationTimer = urand(15000, 20000);
-                            }
+                            DoScriptText(SAY_CONFLAGRATION, m_creature);
+                            m_uiConflagrationTimer = urand(15000, 20000);
                         }
                     }
-                    else
-                        m_uiConflagrationTimer -= uiDiff;
-                }
-
-                // no break;
-            case PHASE_HORSEMAN:
-
-                // cleave - all phases
-                if (m_uiCleaveTimer < uiDiff)
-                {
-                    if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_HORSEMAN_CLEAVE) == CAST_OK)
-                        m_uiCleaveTimer = 5000;
                 }
                 else
-                    m_uiCleaveTimer -= uiDiff;
+                    m_uiConflagrationTimer -= uiDiff;
+            }
 
-                DoMeleeAttackIfReady();
-                break;
-            case PHASE_HEAD_TOSS:
-                // rejoin head by force at 100% hp
-                if (!m_bHeadRequested && m_creature->GetHealthPercent() == 100.0f)
-                {
-                    if (Creature* pHead = m_creature->GetMap()->GetCreature(m_headGuid))
-                        SendAIEvent(AI_EVENT_CUSTOM_B, m_creature, pHead);
+            // no break;
+        case PHASE_HORSEMAN:
 
-                    m_bHeadRequested = true;
-                }
-                break;
+            // cleave - all phases
+            if (m_uiCleaveTimer < uiDiff)
+            {
+                if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_HORSEMAN_CLEAVE) == CAST_OK)
+                    m_uiCleaveTimer = 5000;
+            }
+            else
+                m_uiCleaveTimer -= uiDiff;
+
+            DoMeleeAttackIfReady();
+            break;
+        case PHASE_HEAD_TOSS:
+            // rejoin head by force at 100% hp
+            if (!m_bHeadRequested && m_creature->GetHealthPercent() == 100.0f)
+            {
+                if (Creature *pHead = m_creature->GetMap()->GetCreature(m_headGuid))
+                    SendAIEvent(AI_EVENT_CUSTOM_B, m_creature, pHead);
+
+                m_bHeadRequested = true;
+            }
+            break;
         }
     }
 };
 
 struct boss_head_of_horsemanAI : public ScriptedAI
 {
-    boss_head_of_horsemanAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_head_of_horsemanAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
         m_uiHeadPhase = 1;
         Reset();
@@ -386,12 +393,18 @@ struct boss_head_of_horsemanAI : public ScriptedAI
 
     uint8 m_uiHeadPhase;
 
-    void Reset() override { }
+    void Reset() override
+    {
+    }
 
-    void AttackStart(Unit* /*pWho*/) override { }
-    void MoveInLineOfSight(Unit* /*pWho*/) override { }
+    void AttackStart(Unit * /*pWho*/) override
+    {
+    }
+    void MoveInLineOfSight(Unit * /*pWho*/) override
+    {
+    }
 
-    void DamageTaken(Unit* dealer, uint32& damage, DamageEffectType damagetype, SpellEntry const* spellInfo) override
+    void DamageTaken(Unit *dealer, uint32 &damage, DamageEffectType damagetype, SpellEntry const *spellInfo) override
     {
         // allow him to die the last phase
         if (m_uiHeadPhase >= 3)
@@ -408,14 +421,14 @@ struct boss_head_of_horsemanAI : public ScriptedAI
         }
     }
 
-    void JustPreventedDeath(Unit* killer) override
+    void JustPreventedDeath(Unit *killer) override
     {
         DoCastSpellIfCan(m_creature, SPELL_HEAD_IS_DEAD, CAST_TRIGGERED);
 
         // end the event
         if (m_creature->IsTemporarySummon())
         {
-            if (Unit* pHorseman = m_creature->GetMap()->GetUnit(m_creature->GetSpawnerGuid()))
+            if (Unit *pHorseman = m_creature->GetMap()->GetUnit(m_creature->GetSpawnerGuid()))
             {
                 pHorseman->CastSpell(pHorseman, SPELL_BODY_LEAVE_COMBAT, TRIGGERED_OLD_TRIGGERED);
                 pHorseman->CastSpell(pHorseman, SPELL_BODY_DEAD, TRIGGERED_OLD_TRIGGERED);
@@ -431,7 +444,7 @@ struct boss_head_of_horsemanAI : public ScriptedAI
         m_creature->CastSpell(nullptr, SPELL_RAIN_OF_TREATS, TRIGGERED_OLD_TRIGGERED);
     }
 
-    void ReceiveAIEvent(AIEventType eventType, Unit* /*pSender*/, Unit* pInvoker, uint32 /*uiMiscValue*/) override
+    void ReceiveAIEvent(AIEventType eventType, Unit * /*pSender*/, Unit *pInvoker, uint32 /*uiMiscValue*/) override
     {
         if (!pInvoker || pInvoker->GetEntry() != NPC_HEADLESS_HORSEMAN)
             return;
@@ -448,7 +461,8 @@ struct boss_head_of_horsemanAI : public ScriptedAI
 
             // run around the graveyard
             m_creature->SetWalk(false);
-            m_creature->GetMotionMaster()->MoveRandomAroundPoint(pInvoker->GetPositionX(), pInvoker->GetPositionY(), pInvoker->GetPositionZ(), 40.0f);
+            m_creature->GetMotionMaster()->MoveRandomAroundPoint(pInvoker->GetPositionX(), pInvoker->GetPositionY(),
+                                                                 pInvoker->GetPositionZ(), 40.0f);
             SetDeathPrevention(true);
         }
         // rejoin head by force - body healed
@@ -472,18 +486,20 @@ struct boss_head_of_horsemanAI : public ScriptedAI
             DoCastSpellIfCan(m_creature, SPELL_HEAL_BODY, CAST_TRIGGERED);
     }
 
-    void UpdateAI(const uint32 /*uiDiff*/) override { }
+    void UpdateAI(const uint32 /*uiDiff*/) override
+    {
+    }
 };
 
 struct SendHead : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
-        Unit* unitTarget = spell->GetUnitTarget();
+        Unit *unitTarget = spell->GetUnitTarget();
         if (unitTarget->GetTypeId() != TYPEID_UNIT || effIdx != EFFECT_INDEX_0)
             return;
 
-        Creature* creatureTarget = static_cast<Creature*>(unitTarget);
+        Creature *creatureTarget = static_cast<Creature *>(unitTarget);
 
         if (creatureTarget->GetEntry() == 23775)
             creatureTarget->AI()->SendAIEvent(AI_EVENT_CUSTOM_A, spell->GetCaster(), creatureTarget);
@@ -492,13 +508,13 @@ struct SendHead : public SpellScript
 
 struct HeadRequestsBody : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
-        Unit* unitTarget = spell->GetUnitTarget();
+        Unit *unitTarget = spell->GetUnitTarget();
         if (unitTarget->GetTypeId() != TYPEID_UNIT || effIdx != EFFECT_INDEX_0)
             return;
 
-        Creature* creatureTarget = static_cast<Creature*>(unitTarget);
+        Creature *creatureTarget = static_cast<Creature *>(unitTarget);
 
         if (creatureTarget->GetEntry() == 23682)
             creatureTarget->AI()->SendAIEvent(AI_EVENT_CUSTOM_A, spell->GetCaster(), creatureTarget);
@@ -507,7 +523,7 @@ struct HeadRequestsBody : public SpellScript
 
 void AddSC_boss_headless_horseman()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_headless_horseman";
     pNewScript->GetAI = GetNewAIInstance<boss_headless_horsemanAI>;
     pNewScript->RegisterSelf();

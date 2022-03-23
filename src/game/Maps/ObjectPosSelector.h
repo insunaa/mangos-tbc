@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,15 +20,19 @@
 #ifndef _OBJECT_POS_SELECTOR_H
 #define _OBJECT_POS_SELECTOR_H
 
-#include<Common.h>
+#include <Common.h>
 
-#include<map>
+#include <map>
 
 class WorldObject;
 
-enum UsedAreaSide { USED_POS_PLUS, USED_POS_MINUS };
+enum UsedAreaSide
+{
+    USED_POS_PLUS,
+    USED_POS_MINUS
+};
 
-inline UsedAreaSide operator ~(UsedAreaSide side)
+inline UsedAreaSide operator~(UsedAreaSide side)
 {
     return side == USED_POS_PLUS ? USED_POS_MINUS : USED_POS_PLUS;
 }
@@ -41,40 +46,46 @@ struct ObjectPosSelector
 {
     struct OccupiedArea
     {
-        OccupiedArea(float _angleOffset, WorldObject const* obj) : angleOffset(_angleOffset), occupyingObj(obj) {}
+        OccupiedArea(float _angleOffset, WorldObject const *obj) : angleOffset(_angleOffset), occupyingObj(obj)
+        {
+        }
         float angleOffset;
-        WorldObject const* occupyingObj;
+        WorldObject const *occupyingObj;
     };
     // angle pos -> OccupiedArea
     typedef std::multimap<float, OccupiedArea> UsedAreaList;
     typedef UsedAreaList::value_type UsedArea;
 
-    ObjectPosSelector(float x, float y, float dist, float searchedForSize, WorldObject const* searchPosFor);
+    ObjectPosSelector(float x, float y, float dist, float searchedForSize, WorldObject const *searchPosFor);
 
-    void AddUsedArea(WorldObject const* obj, float angle, float dist);
+    void AddUsedArea(WorldObject const *obj, float angle, float dist);
 
     bool CheckOriginalAngle() const;
 
     void InitializeAngle();
 
-    bool NextAngle(float& angle);
-    bool NextUsedAngle(float& angle);
+    bool NextAngle(float &angle);
+    bool NextUsedAngle(float &angle);
 
-    bool CheckAngle(UsedArea const& usedArea, UsedAreaSide side, float angle) const;
+    bool CheckAngle(UsedArea const &usedArea, UsedAreaSide side, float angle) const;
     void InitializeAngle(UsedAreaSide side);
-    bool NextSideAngle(UsedAreaSide side, float& angle);
+    bool NextSideAngle(UsedAreaSide side, float &angle);
 
     float m_centerX;
     float m_centerY;
-    float m_searcherDist;                                   // distance for searching pos
-    float m_searchedForReqHAngle;                           // angle size/2 of searcher object (at dist distance)
+    float m_searcherDist;         // distance for searching pos
+    float m_searchedForReqHAngle; // angle size/2 of searcher object (at dist
+                                  // distance)
 
-    UsedAreaList m_UsedAreaLists[2];                        // list left/right side used angles (with angle size)
+    UsedAreaList m_UsedAreaLists[2]; // list left/right side used angles (with angle size)
 
-    UsedAreaList::const_iterator m_nextUsedAreaItr[2];      // next used used areas for check at left/right side, possible angles selected in range m_smallStepAngle..m_nextUsedAreaItr
+    UsedAreaList::const_iterator m_nextUsedAreaItr[2]; // next used used areas for check at left/right
+                                                       // side, possible angles selected in range
+                                                       // m_smallStepAngle..m_nextUsedAreaItr
 
-    float m_stepAngle[2];                                   // current checked angle position at sides (less m_nextUsedArea), positive value
+    float m_stepAngle[2]; // current checked angle position at sides (less
+                          // m_nextUsedArea), positive value
 
-    WorldObject const* m_searchPosFor;                      // For whom a position is searched (can be nullptr)
+    WorldObject const *m_searchPosFor; // For whom a position is searched (can be nullptr)
 };
 #endif

@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +18,13 @@
  */
 
 #include "Common.h"
-#include "Server/Opcodes.h"
-#include "Log.h"
 #include "Entities/Player.h"
-#include "WorldPacket.h"
+#include "Log.h"
+#include "Server/Opcodes.h"
 #include "Server/WorldSession.h"
+#include "WorldPacket.h"
 
-void WorldSession::HandleLearnTalentOpcode(WorldPacket& recv_data)
+void WorldSession::HandleLearnTalentOpcode(WorldPacket &recv_data)
 {
     uint32 talent_id, requested_rank;
     recv_data >> talent_id >> requested_rank;
@@ -35,16 +36,18 @@ void WorldSession::HandleLearnTalentOpcode(WorldPacket& recv_data)
         _player->GetPet()->CastOwnerTalentAuras();
 }
 
-void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recv_data)
+void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket &recv_data)
 {
     DETAIL_LOG("MSG_TALENT_WIPE_CONFIRM");
     ObjectGuid guid;
     recv_data >> guid;
 
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
+    Creature *unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
     if (!unit)
     {
-        DEBUG_LOG("WORLD: HandleTalentWipeConfirmOpcode - %s not found or you can't interact with him.", guid.GetString().c_str());
+        DEBUG_LOG("WORLD: HandleTalentWipeConfirmOpcode - %s not found or you "
+                  "can't interact with him.",
+                  guid.GetString().c_str());
         return;
     }
 
@@ -53,28 +56,32 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recv_data)
 
     if (!(_player->resetTalents()))
     {
-        WorldPacket data(MSG_TALENT_WIPE_CONFIRM, 8 + 4);   // you have not any talent
+        WorldPacket data(MSG_TALENT_WIPE_CONFIRM,
+                         8 + 4); // you have not any talent
         data << uint64(0);
         data << uint32(0);
         SendPacket(data);
         return;
     }
 
-    unit->CastSpell(_player, 14867, TRIGGERED_OLD_TRIGGERED);                  // spell: "Untalent Visual Effect"
+    unit->CastSpell(_player, 14867,
+                    TRIGGERED_OLD_TRIGGERED); // spell: "Untalent Visual Effect"
 
     if (_player->GetPet())
         _player->GetPet()->CastOwnerTalentAuras();
 }
 
-void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recv_data)
+void WorldSession::HandleUnlearnSkillOpcode(WorldPacket &recv_data)
 {
     uint32 skill_id;
     recv_data >> skill_id;
 
-    Player* player = GetPlayer();
+    Player *player = GetPlayer();
 
     // Check if unlearnable
-    if (!player->GetSkillInfo(uint16(skill_id), ([] (SkillRaceClassInfoEntry const& entry) { return (entry.flags & SKILL_FLAG_CAN_UNLEARN); })))
+    if (!player->GetSkillInfo(uint16(skill_id), ([](SkillRaceClassInfoEntry const &entry) {
+                                  return (entry.flags & SKILL_FLAG_CAN_UNLEARN);
+                              })))
         return;
 
     player->SetSkillStep(uint16(skill_id), 0);

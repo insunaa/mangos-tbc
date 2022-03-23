@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -25,19 +25,22 @@ EndScriptData */
 
 enum
 {
-    SAY_AGGRO                   = -1189019,
-    SAY_SPECIALAE               = -1189020,
+    SAY_AGGRO = -1189019,
+    SAY_SPECIALAE = -1189020,
 
-    SPELL_POLYMORPH             = 13323,
-    SPELL_SILENCE               = 8988,
-    SPELL_ARCANE_EXPLOSION      = 9433,
-    SPELL_DETONATION            = 9435,
-    SPELL_ARCANE_BUBBLE         = 9438,
+    SPELL_POLYMORPH = 13323,
+    SPELL_SILENCE = 8988,
+    SPELL_ARCANE_EXPLOSION = 9433,
+    SPELL_DETONATION = 9435,
+    SPELL_ARCANE_BUBBLE = 9438,
 };
 
 struct boss_arcanist_doanAI : public ScriptedAI
 {
-    boss_arcanist_doanAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+    boss_arcanist_doanAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiPolymorphTimer;
     uint32 m_uiSilenceTimer;
@@ -47,14 +50,14 @@ struct boss_arcanist_doanAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiPolymorphTimer       = 15000;
-        m_uiSilenceTimer         = 7500;
+        m_uiPolymorphTimer = 15000;
+        m_uiSilenceTimer = 7500;
         m_uiArcaneExplosionTimer = urand(1000, 3000);
-        m_uiDetonationTimer      = 0;
-        bShielded                = false;
+        m_uiDetonationTimer = 0;
+        bShielded = false;
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
@@ -94,7 +97,7 @@ struct boss_arcanist_doanAI : public ScriptedAI
 
         if (m_uiPolymorphTimer < uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
+            if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_POLYMORPH) == CAST_OK)
                     m_uiPolymorphTimer = 20000;
@@ -125,14 +128,14 @@ struct boss_arcanist_doanAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_arcanist_doan(Creature* pCreature)
+UnitAI *GetAI_boss_arcanist_doan(Creature *pCreature)
 {
     return new boss_arcanist_doanAI(pCreature);
 }
 
 void AddSC_boss_arcanist_doan()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_arcanist_doan";
     pNewScript->GetAI = &GetAI_boss_arcanist_doan;
     pNewScript->RegisterSelf();

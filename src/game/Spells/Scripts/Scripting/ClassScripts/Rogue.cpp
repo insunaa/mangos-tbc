@@ -1,42 +1,46 @@
 /*
-* This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #include "Spells/Scripts/SpellScript.h"
 
 // 14185 - Preparation
 struct Preparation : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (spell->GetCaster()->IsPlayer())
         {
             // immediately finishes the cooldown on certain Rogue abilities
-            auto cdCheck = [](SpellEntry const & spellEntry) -> bool { return (spellEntry.SpellFamilyName == SPELLFAMILY_ROGUE && (spellEntry.SpellFamilyFlags & uint64(0x0000026000000860))); };
-            static_cast<Player*>(spell->GetCaster())->RemoveSomeCooldown(cdCheck);
+            auto cdCheck = [](SpellEntry const &spellEntry) -> bool {
+                return (spellEntry.SpellFamilyName == SPELLFAMILY_ROGUE &&
+                        (spellEntry.SpellFamilyFlags & uint64(0x0000026000000860)));
+            };
+            static_cast<Player *>(spell->GetCaster())->RemoveSomeCooldown(cdCheck);
         }
     }
 };
 
 enum
 {
-    SPELL_DISTRACT      = 1725,
-    SPELL_EARTHBIND     = 3600,
-    SPELL_MASS_DISPEL   = 39897,
+    SPELL_DISTRACT = 1725,
+    SPELL_EARTHBIND = 3600,
+    SPELL_MASS_DISPEL = 39897,
     SPELL_MASS_DISPEL_2 = 32592,
 };
 
@@ -44,33 +48,34 @@ enum
 // 1784 - Stealth
 struct Stealth : public AuraScript
 {
-    bool OnCheckProc(Aura* /*aura*/, ProcExecutionData& data) const override // per 1.12.0 patch notes - no other indication of how it works
+    bool OnCheckProc(Aura * /*aura*/, ProcExecutionData &data)
+        const override // per 1.12.0 patch notes - no other indication of how it works
     {
         if (data.spell)
         {
             switch (data.spell->m_spellInfo->Id)
             {
-                case SPELL_DISTRACT:
-                case SPELL_EARTHBIND:
-                case SPELL_MASS_DISPEL:
-                case SPELL_MASS_DISPEL_2:
-                    return false;
+            case SPELL_DISTRACT:
+            case SPELL_EARTHBIND:
+            case SPELL_MASS_DISPEL:
+            case SPELL_MASS_DISPEL_2:
+                return false;
             }
         }
         return true;
     }
 };
 
-void CastHighestStealthRank(Unit* caster)
+void CastHighestStealthRank(Unit *caster)
 {
     if (!caster->IsPlayer())
         return;
 
     // get highest rank of the Stealth spell
-    uint32 spellId = static_cast<Player*>(caster)->LookupHighestLearnedRank(1784);
+    uint32 spellId = static_cast<Player *>(caster)->LookupHighestLearnedRank(1784);
     if (!spellId)
         return;
-    SpellEntry const* stealthSpellEntry = sSpellTemplate.LookupEntry<SpellEntry>(spellId);
+    SpellEntry const *stealthSpellEntry = sSpellTemplate.LookupEntry<SpellEntry>(spellId);
     // no Stealth spell found
     if (!stealthSpellEntry)
         return;
@@ -85,7 +90,7 @@ void CastHighestStealthRank(Unit* caster)
 // 1856 - Vanish
 struct VanishRogue : public SpellScript
 {
-    void OnCast(Spell* spell) const override
+    void OnCast(Spell *spell) const override
     {
         CastHighestStealthRank(spell->GetCaster());
     }
@@ -94,7 +99,7 @@ struct VanishRogue : public SpellScript
 // 13983 - Setup
 struct SetupRogue : public AuraScript
 {
-    bool OnCheckProc(Aura* /*aura*/, ProcExecutionData& data) const override
+    bool OnCheckProc(Aura * /*aura*/, ProcExecutionData &data) const override
     {
         return data.victim->GetTarget() == data.attacker;
     }

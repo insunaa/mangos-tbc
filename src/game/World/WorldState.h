@@ -1,119 +1,121 @@
 /*
-* This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-*/
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
 
 #ifndef WORLD_STATE_H
 #define WORLD_STATE_H
 
-#include "Policies/Singleton.h"
-#include "Globals/ObjectMgr.h"
-#include "Entities/GameObject.h"
-#include "Entities/Player.h"
-#include "Globals/SharedDefines.h"
 #include <atomic>
 #include <functional>
 #include <string>
 
+#include "Entities/GameObject.h"
+#include "Entities/Player.h"
+#include "Globals/ObjectMgr.h"
+#include "Globals/SharedDefines.h"
+#include "Policies/Singleton.h"
+
 enum ZoneIds
 {
-    ZONEID_DUN_MOROGH           = 1,
-    ZONEID_ELWYNN_FOREST        = 12,
-    ZONEID_AZUREMYST_ISLE       = 3524,
-    ZONEID_DUROTAR              = 14,
-    ZONEID_TIRISFAL_GLADES      = 85,
-    ZONEID_EVERSONG_WOODS       = 3430,
+    ZONEID_DUN_MOROGH = 1,
+    ZONEID_ELWYNN_FOREST = 12,
+    ZONEID_AZUREMYST_ISLE = 3524,
+    ZONEID_DUROTAR = 14,
+    ZONEID_TIRISFAL_GLADES = 85,
+    ZONEID_EVERSONG_WOODS = 3430,
 
-    ZONEID_WINTERSPRING         = 618,
-    ZONEID_AZSHARA              = 16,
-    ZONEID_EASTERN_PLAGUELANDS  = 139,
-    ZONEID_BLASTED_LANDS        = 4,
-    ZONEID_BURNING_STEPPES      = 46,
-    ZONEID_TANARIS              = 440,
-    ZONEID_UNDERCITY_A          = 1497,
+    ZONEID_WINTERSPRING = 618,
+    ZONEID_AZSHARA = 16,
+    ZONEID_EASTERN_PLAGUELANDS = 139,
+    ZONEID_BLASTED_LANDS = 4,
+    ZONEID_BURNING_STEPPES = 46,
+    ZONEID_TANARIS = 440,
+    ZONEID_UNDERCITY_A = 1497,
 
-    ZONEID_STORMWIND_CITY       = 1519,
-    ZONEID_DARNASSUS            = 1657,
-    ZONEID_IRONFORGE            = 1537,
-    ZONEID_ORGRIMMAR            = 1637,
-    ZONEID_THUNDER_BLUFF        = 1638,
-    ZONEID_UNDERCITY            = 1497,
+    ZONEID_STORMWIND_CITY = 1519,
+    ZONEID_DARNASSUS = 1657,
+    ZONEID_IRONFORGE = 1537,
+    ZONEID_ORGRIMMAR = 1637,
+    ZONEID_THUNDER_BLUFF = 1638,
+    ZONEID_UNDERCITY = 1497,
 
-    ZONEID_HELLFIRE_PENINSULA   = 3483,
-    ZONEID_HELLFIRE_RAMPARTS    = 3562,
-    ZONEID_HELLFIRE_CITADEL     = 3563,
-    ZONEID_BLOOD_FURNACE        = 3713,
-    ZONEID_SHATTERED_HALLS      = 3714,
-    ZONEID_MAGTHERIDON_LAIR     = 3836,
+    ZONEID_HELLFIRE_PENINSULA = 3483,
+    ZONEID_HELLFIRE_RAMPARTS = 3562,
+    ZONEID_HELLFIRE_CITADEL = 3563,
+    ZONEID_BLOOD_FURNACE = 3713,
+    ZONEID_SHATTERED_HALLS = 3714,
+    ZONEID_MAGTHERIDON_LAIR = 3836,
 
-    ZONEID_SHATTRATH    = 3703,
-    ZONEID_BOTANICA     = 3847,
-    ZONEID_ARCATRAZ     = 3848,
-    ZONEID_MECHANAR     = 3849,
+    ZONEID_SHATTRATH = 3703,
+    ZONEID_BOTANICA = 3847,
+    ZONEID_ARCATRAZ = 3848,
+    ZONEID_MECHANAR = 3849,
 
-    ZONEID_ISLE_OF_QUEL_DANAS   = 4080,
-    ZONEID_MAGISTERS_TERRACE    = 4131,
-    ZONEID_SUNWELL_PLATEAU      = 4075,
+    ZONEID_ISLE_OF_QUEL_DANAS = 4080,
+    ZONEID_MAGISTERS_TERRACE = 4131,
+    ZONEID_SUNWELL_PLATEAU = 4075,
 
     ZONEID_ZANGARMARSH = 3521,
 };
 
 enum AreaIds
 {
-    AREAID_SKYGUARD_OUTPOST     = 3964,
+    AREAID_SKYGUARD_OUTPOST = 3964,
     AREAID_SHARTUUL_TRANSPORTER = 4008,
-    AREAID_DEATHS_DOOR          = 3831,
-    AREAID_THERAMORE_ISLE       = 513,
+    AREAID_DEATHS_DOOR = 3831,
+    AREAID_THERAMORE_ISLE = 513,
 
-    AREAID_GOLDSHIRE            = 87,
-    AREAID_KHARANOS             = 131,
-    AREAID_AZURE_WATCH          = 3576,
-    AREAID_BRILL                = 159,
-    AREAID_RAZOR_HILL           = 362,
-    AREAID_FALCONWING_SQUARE    = 3665,
+    AREAID_GOLDSHIRE = 87,
+    AREAID_KHARANOS = 131,
+    AREAID_AZURE_WATCH = 3576,
+    AREAID_BRILL = 159,
+    AREAID_RAZOR_HILL = 362,
+    AREAID_FALCONWING_SQUARE = 3665,
 };
 
 enum SpellId
 {
-    SPELL_TROLLBANES_COMMAND    = 39911,
-    SPELL_NAZGRELS_FAVOR        = 39913,
+    SPELL_TROLLBANES_COMMAND = 39911,
+    SPELL_NAZGRELS_FAVOR = 39913,
 
-    SPELL_ADAL_SONG_OF_BATTLE   = 39953,
+    SPELL_ADAL_SONG_OF_BATTLE = 39953,
 
-    SPELL_KIRU_SONG_OF_VICTORY  = 46302,
+    SPELL_KIRU_SONG_OF_VICTORY = 46302,
 
-    SPELL_BONFIRES_BLESSING     = 45444,
+    SPELL_BONFIRES_BLESSING = 45444,
 };
 
 enum GoId
 {
-    OBJECT_MAGTHERIDONS_HEAD    = 184640,
-    OBJECT_EVENT_TRAP_THRALL    = 181088,
-    OBJECT_EVENT_TRAP_BOLVAR    = 181089,
-    OBJECT_EVENT_TRAP_MAGNI     = 181090,
-    OBJECT_EVENT_TRAP_TYRANDE   = 181091,
-    OBJECT_EVENT_TRAP_CAIRNE    = 181092,
-    OBJECT_EVENT_TRAP_SYLVANAS  = 181093,
+    OBJECT_MAGTHERIDONS_HEAD = 184640,
+    OBJECT_EVENT_TRAP_THRALL = 181088,
+    OBJECT_EVENT_TRAP_BOLVAR = 181089,
+    OBJECT_EVENT_TRAP_MAGNI = 181090,
+    OBJECT_EVENT_TRAP_TYRANDE = 181091,
+    OBJECT_EVENT_TRAP_CAIRNE = 181092,
+    OBJECT_EVENT_TRAP_SYLVANAS = 181093,
 };
 
 enum Conditions
 {
     ORGRIMMAR_UNDERCITY = 164871,
-    GROMGOL_ORGRIMMAR   = 175080,
-    GROMGOL_UNDERCITY   = 176495,
+    GROMGOL_ORGRIMMAR = 175080,
+    GROMGOL_UNDERCITY = 176495,
 
     WAR_EFFORT_DAYS_LEFT = 2113,
 };
@@ -150,7 +152,7 @@ enum GameEvents
     GAME_EVENT_SPIRIT_OF_COMPETITION = 85,
 
     GAME_EVENT_BREWFEST_DARK_IRON_ATTACK = 86,
-    GAME_EVENT_BREWFEST_KEG_TAPPING      = 87,
+    GAME_EVENT_BREWFEST_KEG_TAPPING = 87,
 
     // Prepatch event
     GAME_EVENT_BEFORE_THE_STORM = 100,
@@ -168,34 +170,34 @@ enum GameEvents
     GAME_EVENT_AHN_QIRAJ_EFFORT_PHASE_5 = 124,
 
     // Scourge Invasion
-    GAME_EVENT_SCOURGE_INVASION                         = 17,
-    GAME_EVENT_SCOURGE_INVASION_WINTERSPRING            = 90,
-    GAME_EVENT_SCOURGE_INVASION_TANARIS                 = 91,
-    GAME_EVENT_SCOURGE_INVASION_AZSHARA                 = 92,
-    GAME_EVENT_SCOURGE_INVASION_BLASTED_LANDS           = 93,
-    GAME_EVENT_SCOURGE_INVASION_EASTERN_PLAGUELANDS     = 94,
-    GAME_EVENT_SCOURGE_INVASION_BURNING_STEPPES         = 95,
-    GAME_EVENT_SCOURGE_INVASION_50_INVASIONS            = 96,
-    GAME_EVENT_SCOURGE_INVASION_100_INVASIONS           = 97,
-    GAME_EVENT_SCOURGE_INVASION_150_INVASIONS           = 98,
-    GAME_EVENT_SCOURGE_INVASION_INVASIONS_DONE          = 99,
+    GAME_EVENT_SCOURGE_INVASION = 17,
+    GAME_EVENT_SCOURGE_INVASION_WINTERSPRING = 90,
+    GAME_EVENT_SCOURGE_INVASION_TANARIS = 91,
+    GAME_EVENT_SCOURGE_INVASION_AZSHARA = 92,
+    GAME_EVENT_SCOURGE_INVASION_BLASTED_LANDS = 93,
+    GAME_EVENT_SCOURGE_INVASION_EASTERN_PLAGUELANDS = 94,
+    GAME_EVENT_SCOURGE_INVASION_BURNING_STEPPES = 95,
+    GAME_EVENT_SCOURGE_INVASION_50_INVASIONS = 96,
+    GAME_EVENT_SCOURGE_INVASION_100_INVASIONS = 97,
+    GAME_EVENT_SCOURGE_INVASION_150_INVASIONS = 98,
+    GAME_EVENT_SCOURGE_INVASION_INVASIONS_DONE = 99,
 
     // Isle phases
-    GAME_EVENT_QUEL_DANAS_PHASE_1               = 301,
-    GAME_EVENT_QUEL_DANAS_PHASE_2_ONLY          = 302,
-    GAME_EVENT_QUEL_DANAS_PHASE_2_PERMANENT     = 303,
-    GAME_EVENT_QUEL_DANAS_PHASE_2_NO_PORTAL     = 304,
-    GAME_EVENT_QUEL_DANAS_PHASE_2_PORTAL        = 305,
-    GAME_EVENT_QUEL_DANAS_PHASE_3_ONLY          = 306,
-    GAME_EVENT_QUEL_DANAS_PHASE_3_PERMANENT     = 307,
-    GAME_EVENT_QUEL_DANAS_PHASE_3_NO_ANVIL      = 308,
-    GAME_EVENT_QUEL_DANAS_PHASE_3_ANVIL         = 309,
-    GAME_EVENT_QUEL_DANAS_PHASE_4               = 310,
-    GAME_EVENT_QUEL_DANAS_PHASE_4_NO_MONUMENT   = 311,
-    GAME_EVENT_QUEL_DANAS_PHASE_4_MONUMENT      = 312,
-    GAME_EVENT_QUEL_DANAS_PHASE_4_NO_ALCHEMY_LAB= 313,
-    GAME_EVENT_QUEL_DANAS_PHASE_4_ALCHEMY_LAB   = 314,
-    GAME_EVENT_QUEL_DANAS_PHASE_4_KIRU          = 315,
+    GAME_EVENT_QUEL_DANAS_PHASE_1 = 301,
+    GAME_EVENT_QUEL_DANAS_PHASE_2_ONLY = 302,
+    GAME_EVENT_QUEL_DANAS_PHASE_2_PERMANENT = 303,
+    GAME_EVENT_QUEL_DANAS_PHASE_2_NO_PORTAL = 304,
+    GAME_EVENT_QUEL_DANAS_PHASE_2_PORTAL = 305,
+    GAME_EVENT_QUEL_DANAS_PHASE_3_ONLY = 306,
+    GAME_EVENT_QUEL_DANAS_PHASE_3_PERMANENT = 307,
+    GAME_EVENT_QUEL_DANAS_PHASE_3_NO_ANVIL = 308,
+    GAME_EVENT_QUEL_DANAS_PHASE_3_ANVIL = 309,
+    GAME_EVENT_QUEL_DANAS_PHASE_4 = 310,
+    GAME_EVENT_QUEL_DANAS_PHASE_4_NO_MONUMENT = 311,
+    GAME_EVENT_QUEL_DANAS_PHASE_4_MONUMENT = 312,
+    GAME_EVENT_QUEL_DANAS_PHASE_4_NO_ALCHEMY_LAB = 313,
+    GAME_EVENT_QUEL_DANAS_PHASE_4_ALCHEMY_LAB = 314,
+    GAME_EVENT_QUEL_DANAS_PHASE_4_KIRU = 315,
     // SWP Phases
     GAME_EVENT_SWP_GATES_PHASE_0 = 316, // All Gates Closed
     GAME_EVENT_SWP_GATES_PHASE_1 = 317, // First Gate Open
@@ -372,10 +374,10 @@ enum SunsReachPhases
 
 enum SunsReachSubPhases
 {
-    SUBPHASE_PORTAL         = 0x01,
-    SUBPHASE_ANVIL          = 0x02,
-    SUBPHASE_ALCHEMY_LAB    = 0x04,
-    SUBPHASE_MONUMENT       = 0x08,
+    SUBPHASE_PORTAL = 0x01,
+    SUBPHASE_ANVIL = 0x02,
+    SUBPHASE_ALCHEMY_LAB = 0x04,
+    SUBPHASE_MONUMENT = 0x08,
     SUBPHASE_ALL = SUBPHASE_PORTAL + SUBPHASE_ANVIL + SUBPHASE_ALCHEMY_LAB + SUBPHASE_MONUMENT,
 };
 
@@ -419,7 +421,10 @@ struct SunsReachReclamationData
     uint32 m_gateCounters[COUNTERS_MAX_GATES];
     GuidVector m_sunsReachReclamationPlayers;
     std::mutex m_sunsReachReclamationMutex;
-    SunsReachReclamationData() : m_phase(SUNS_REACH_PHASE_1_STAGING_AREA), m_subphaseMask(0), m_gate(SUNWELL_ARCHONISUS_GATE3_OPEN) // optional - all SWP gates open by default in 2.4.3
+    SunsReachReclamationData()
+        : m_phase(SUNS_REACH_PHASE_1_STAGING_AREA), m_subphaseMask(0),
+          m_gate(SUNWELL_ARCHONISUS_GATE3_OPEN) // optional - all SWP gates open
+                                                // by default in 2.4.3
     {
         memset(m_sunsReachReclamationCounters, 0, sizeof(m_sunsReachReclamationCounters));
         memset(m_gateCounters, 0, sizeof(m_gateCounters));
@@ -445,203 +450,214 @@ enum LoveIsInTheAirLeaders
 
 struct LoveIsInTheAir
 {
-    uint32 counters[LOVE_LEADER_MAX]; // potential race condition which wont cause anything critical
+    uint32 counters[LOVE_LEADER_MAX]; // potential race condition which wont
+                                      // cause anything critical
 };
 
-// Intended for implementing server wide scripts, note: all behaviour must be safeguarded towards multithreading
+// Intended for implementing server wide scripts, note: all behaviour must be
+// safeguarded towards multithreading
 class WorldState
 {
-    public:
-        WorldState();
-        virtual ~WorldState();
+  public:
+    WorldState();
+    virtual ~WorldState();
 
-        void Load();
-        void Save(SaveIds saveId);
-        void SaveHelper(std::string& stringToSave, SaveIds saveId);
+    void Load();
+    void Save(SaveIds saveId);
+    void SaveHelper(std::string &stringToSave, SaveIds saveId);
 
-        // Called when a gameobject is created or removed
-        void HandleGameObjectUse(GameObject* go, Unit* user);
-        void HandleGameObjectRevertState(GameObject* go);
+    // Called when a gameobject is created or removed
+    void HandleGameObjectUse(GameObject *go, Unit *user);
+    void HandleGameObjectRevertState(GameObject *go);
 
-        void HandlePlayerEnterZone(Player* player, uint32 zoneId);
-        void HandlePlayerLeaveZone(Player* player, uint32 zoneId);
+    void HandlePlayerEnterZone(Player *player, uint32 zoneId);
+    void HandlePlayerLeaveZone(Player *player, uint32 zoneId);
 
-        void HandlePlayerEnterArea(Player* player, uint32 areaId);
-        void HandlePlayerLeaveArea(Player* player, uint32 areaId);
+    void HandlePlayerEnterArea(Player *player, uint32 areaId);
+    void HandlePlayerLeaveArea(Player *player, uint32 areaId);
 
-        bool IsConditionFulfilled(uint32 conditionId, uint32 state) const;
-        void HandleConditionStateChange(uint32 conditionId, uint32 state);
+    bool IsConditionFulfilled(uint32 conditionId, uint32 state) const;
+    void HandleConditionStateChange(uint32 conditionId, uint32 state);
 
-        void HandleExternalEvent(uint32 eventId, uint32 param);
-        void ExecuteOnAreaPlayers(uint32 areaId, std::function<void(Player*)> executor);
-        void ExecuteOnZonePlayers(uint32 zoneId, std::function<void(Player*)> executor);
+    void HandleExternalEvent(uint32 eventId, uint32 param);
+    void ExecuteOnAreaPlayers(uint32 areaId, std::function<void(Player *)> executor);
+    void ExecuteOnZonePlayers(uint32 zoneId, std::function<void(Player *)> executor);
 
-        void Update(const uint32 diff);
+    void Update(const uint32 diff);
 
-        void SendWorldstateUpdate(std::mutex& mutex, GuidVector const& guids, uint32 value, uint32 worldStateId);
+    void SendWorldstateUpdate(std::mutex &mutex, GuidVector const &guids, uint32 value, uint32 worldStateId);
 
-        // vanilla section
+    // vanilla section
 
-        uint32 GetLoveIsInTheAirCounter(LoveIsInTheAirLeaders leader) { return m_loveIsInTheAirData.counters[leader]; }
+    uint32 GetLoveIsInTheAirCounter(LoveIsInTheAirLeaders leader)
+    {
+        return m_loveIsInTheAirData.counters[leader];
+    }
 
-        void AddWarEffortProgress(AQResources resource, uint32 count);
-        void HandleWarEffortPhaseTransition(uint32 newPhase);
-        void StartWarEffortEvent();
-        void StopWarEffortEvent();
-        void SpawnWarEffortGos();
-        void ChangeWarEffortGoSpawns(AQResources resource, int32 forcedTier = -1);
-        void ChangeWarEffortPhase2Tier(uint32 remainingDays);
-        void DespawnWarEffortGuids(std::set<std::pair<uint32, Team>>& guids);
-        AQPhase GetAqPhase() { return (AQPhase)m_aqData.m_phase; }
-        std::pair<AQResourceGroup, Team> GetResourceInfo(AQResources resource);
-        std::pair<uint32, uint32> GetResourceCounterAndMax(AQResourceGroup group, Team team);
-        std::string GetAQPrintout();
+    void AddWarEffortProgress(AQResources resource, uint32 count);
+    void HandleWarEffortPhaseTransition(uint32 newPhase);
+    void StartWarEffortEvent();
+    void StopWarEffortEvent();
+    void SpawnWarEffortGos();
+    void ChangeWarEffortGoSpawns(AQResources resource, int32 forcedTier = -1);
+    void ChangeWarEffortPhase2Tier(uint32 remainingDays);
+    void DespawnWarEffortGuids(std::set<std::pair<uint32, Team>> &guids);
+    AQPhase GetAqPhase()
+    {
+        return (AQPhase)m_aqData.m_phase;
+    }
+    std::pair<AQResourceGroup, Team> GetResourceInfo(AQResources resource);
+    std::pair<uint32, uint32> GetResourceCounterAndMax(AQResourceGroup group, Team team);
+    std::string GetAQPrintout();
 
-        void SetScourgeInvasionState(SIState state);
-        void StartScourgeInvasion();
-        void StopScourgeInvasion();
-        uint32 GetSIRemaining(SIRemaining remaining) const;
-        uint32 GetSIRemainingByZone(uint32 zoneId) const;
-        void SetSIRemaining(SIRemaining remaining, uint32 value);
-        TimePoint GetSITimer(SITimers timer);
-        void SetSITimer(SITimers timer, TimePoint timePoint);
-        uint32 GetBattlesWon();
-        void AddBattlesWon(int32 count);
-        uint32 GetLastAttackZone();
-        void SetLastAttackZone(uint32 zoneId);
-        void BroadcastSIWorldstates();
-        void HandleDefendedZones();
+    void SetScourgeInvasionState(SIState state);
+    void StartScourgeInvasion();
+    void StopScourgeInvasion();
+    uint32 GetSIRemaining(SIRemaining remaining) const;
+    uint32 GetSIRemainingByZone(uint32 zoneId) const;
+    void SetSIRemaining(SIRemaining remaining, uint32 value);
+    TimePoint GetSITimer(SITimers timer);
+    void SetSITimer(SITimers timer, TimePoint timePoint);
+    uint32 GetBattlesWon();
+    void AddBattlesWon(int32 count);
+    uint32 GetLastAttackZone();
+    void SetLastAttackZone(uint32 zoneId);
+    void BroadcastSIWorldstates();
+    void HandleDefendedZones();
 
-        void StartZoneEvent(SIZoneIds eventId);
-        void StartNewInvasionIfTime(uint32 attackTimeVar, uint32 zoneId);
-        void StartNewCityAttackIfTime(uint32 attackTimeVar, uint32 zoneId);
-        void StartNewInvasion(uint32 zoneId);
-        void StartNewCityAttack(uint32 zoneId);
-        bool ResumeInvasion(ScourgeInvasionData::InvasionZone& zone);
-        bool SummonMouth(Map* map, ScourgeInvasionData::InvasionZone& zone, Position position, bool newInvasion);
-        bool SummonPallid(Map* map, ScourgeInvasionData::CityAttack& zone, Position position, uint32 spawnLoc);
-        void HandleActiveZone(uint32 attackTimeVar, uint32 zoneId, uint32 remainingVar, TimePoint now);
+    void StartZoneEvent(SIZoneIds eventId);
+    void StartNewInvasionIfTime(uint32 attackTimeVar, uint32 zoneId);
+    void StartNewCityAttackIfTime(uint32 attackTimeVar, uint32 zoneId);
+    void StartNewInvasion(uint32 zoneId);
+    void StartNewCityAttack(uint32 zoneId);
+    bool ResumeInvasion(ScourgeInvasionData::InvasionZone &zone);
+    bool SummonMouth(Map *map, ScourgeInvasionData::InvasionZone &zone, Position position, bool newInvasion);
+    bool SummonPallid(Map *map, ScourgeInvasionData::CityAttack &zone, Position position, uint32 spawnLoc);
+    void HandleActiveZone(uint32 attackTimeVar, uint32 zoneId, uint32 remainingVar, TimePoint now);
 
-        Map* GetMap(uint32 mapId, Position const& invZone);
-        bool IsActiveZone(uint32 zoneId);
-        uint32 GetActiveZones();
-        uint32 GetTimerIdForZone(uint32 zoneId);
+    Map *GetMap(uint32 mapId, Position const &invZone);
+    bool IsActiveZone(uint32 zoneId);
+    uint32 GetActiveZones();
+    uint32 GetTimerIdForZone(uint32 zoneId);
 
-        void SetPallidGuid(uint32 zoneId, ObjectGuid guid);
-        void SetMouthGuid(uint32 zoneId, ObjectGuid guid);
-        void AddPendingInvasion(uint32 zoneId);
-        void RemovePendingInvasion(uint32 zoneId);
-        void AddPendingPallid(uint32 zoneId);
-        void RemovePendingPallid(uint32 zoneId);
+    void SetPallidGuid(uint32 zoneId, ObjectGuid guid);
+    void SetMouthGuid(uint32 zoneId, ObjectGuid guid);
+    void AddPendingInvasion(uint32 zoneId);
+    void RemovePendingInvasion(uint32 zoneId);
+    void AddPendingPallid(uint32 zoneId);
+    void RemovePendingPallid(uint32 zoneId);
 
-        void OnEnable(ScourgeInvasionData::InvasionZone& zone);
-        void OnDisable(ScourgeInvasionData::InvasionZone& zone);
-        void OnDisable(ScourgeInvasionData::CityAttack& zone);
+    void OnEnable(ScourgeInvasionData::InvasionZone &zone);
+    void OnDisable(ScourgeInvasionData::InvasionZone &zone);
+    void OnDisable(ScourgeInvasionData::CityAttack &zone);
 
-        // tbc section
-        void BuffMagtheridonTeam(Team team);
-        void DispelMagtheridonTeam(Team team);
+    // tbc section
+    void BuffMagtheridonTeam(Team team);
+    void DispelMagtheridonTeam(Team team);
 
-        void BuffAdalsSongOfBattle();
-        void DispelAdalsSongOfBattle();
+    void BuffAdalsSongOfBattle();
+    void DispelAdalsSongOfBattle();
 
-        // Release events
-        uint8 GetExpansion() const { return m_expansion; }
-        bool SetExpansion(uint8 expansion);
+    // Release events
+    uint8 GetExpansion() const
+    {
+        return m_expansion;
+    }
+    bool SetExpansion(uint8 expansion);
 
-        // Sun's Reach Reclamation
-        void AddSunsReachProgress(uint32 questId);
-        void HandleSunsReachPhaseTransition(uint32 newPhase);
-        void HandleSunsReachSubPhaseTransition(int32 subPhaseMask, bool initial = false);
-        void SetSunsReachCounter(SunsReachCounters index, uint32 value);
-        void StopSunsReachPhase(bool forward);
-        void StartSunsReachPhase(bool initial = false);
-        std::string GetSunsReachPrintout();
-        void AddSunwellGateProgress(uint32 questId);
-        void HandleSunwellGateTransition(uint32 newGate);
-        void SetSunwellGateCounter(SunwellGateCounters index, uint32 value);
-        void StopSunwellGatePhase();
-        void StartSunwellGatePhase();
+    // Sun's Reach Reclamation
+    void AddSunsReachProgress(uint32 questId);
+    void HandleSunsReachPhaseTransition(uint32 newPhase);
+    void HandleSunsReachSubPhaseTransition(int32 subPhaseMask, bool initial = false);
+    void SetSunsReachCounter(SunsReachCounters index, uint32 value);
+    void StopSunsReachPhase(bool forward);
+    void StartSunsReachPhase(bool initial = false);
+    std::string GetSunsReachPrintout();
+    void AddSunwellGateProgress(uint32 questId);
+    void HandleSunwellGateTransition(uint32 newGate);
+    void SetSunwellGateCounter(SunwellGateCounters index, uint32 value);
+    void StopSunwellGatePhase();
+    void StartSunwellGatePhase();
 
-        // Midsummer
-        uint32 IsBonfireInZone(Team team, uint32 zoneId);
-        bool IsBonfireActive(uint32 entry);
-        void SetBonfireActive(uint32 entry, bool team, bool apply);
-        void SetBonfireZone(uint32 entry, uint32 zoneId, bool team);
+    // Midsummer
+    uint32 IsBonfireInZone(Team team, uint32 zoneId);
+    bool IsBonfireActive(uint32 entry);
+    void SetBonfireActive(uint32 entry, bool team, bool apply);
+    void SetBonfireZone(uint32 entry, uint32 zoneId, bool team);
 
-        void FillInitialWorldStates(ByteBuffer& data, uint32& count, uint32 zoneId, uint32 areaId);
+    void FillInitialWorldStates(ByteBuffer &data, uint32 &count, uint32 zoneId, uint32 areaId);
 
-        // helper functions for world state list fill
-        inline void FillInitialWorldStateData(ByteBuffer& data, uint32& count, uint32 state, uint32 value)
-        {
-            data << uint32(state);
-            data << uint32(value);
-            ++count;
-        }
+    // helper functions for world state list fill
+    inline void FillInitialWorldStateData(ByteBuffer &data, uint32 &count, uint32 state, uint32 value)
+    {
+        data << uint32(state);
+        data << uint32(value);
+        ++count;
+    }
 
-        inline void FillInitialWorldStateData(ByteBuffer& data, uint32& count, uint32 state, int32 value)
-        {
-            data << uint32(state);
-            data << int32(value);
-            ++count;
-        }
-    private:
-        std::map<uint32, GuidVector> m_areaPlayers;
-        std::map<uint32, GuidVector> m_zonePlayers;
-        std::map<uint32, std::atomic<uint32>> m_transportStates; // atomic to avoid having to lock
+    inline void FillInitialWorldStateData(ByteBuffer &data, uint32 &count, uint32 state, int32 value)
+    {
+        data << uint32(state);
+        data << int32(value);
+        ++count;
+    }
 
-        std::mutex m_mutex; // all World State operations are thread unsafe
-        uint32 m_saveTimer;
+  private:
+    std::map<uint32, GuidVector> m_areaPlayers;
+    std::map<uint32, GuidVector> m_zonePlayers;
+    std::map<uint32, std::atomic<uint32>> m_transportStates; // atomic to avoid having to lock
 
-        // vanilla section
-        bool IsDragonSpawned(uint32 entry);
-        void RespawnEmeraldDragons();
+    std::mutex m_mutex; // all World State operations are thread unsafe
+    uint32 m_saveTimer;
 
-        uint8 m_emeraldDragonsState;
-        uint32 m_emeraldDragonsTimer;
-        std::vector<uint32> m_emeraldDragonsChosenPositions;
-        AhnQirajData m_aqData;
-        std::map<uint32, AQResources> m_aqWorldstateMapReverse;
+    // vanilla section
+    bool IsDragonSpawned(uint32 entry);
+    void RespawnEmeraldDragons();
 
-        LoveIsInTheAir m_loveIsInTheAirData;
-        GuidVector m_loveIsInTheAirCapitalsPlayers;
+    uint8 m_emeraldDragonsState;
+    uint32 m_emeraldDragonsTimer;
+    std::vector<uint32> m_emeraldDragonsChosenPositions;
+    AhnQirajData m_aqData;
+    std::map<uint32, AQResources> m_aqWorldstateMapReverse;
 
-        std::mutex m_loveIsInTheAirMutex; // capital cities optimization
+    LoveIsInTheAir m_loveIsInTheAirData;
+    GuidVector m_loveIsInTheAirCapitalsPlayers;
 
-        ScourgeInvasionData m_siData;
+    std::mutex m_loveIsInTheAirMutex; // capital cities optimization
 
-        // tbc section
-        bool m_isMagtheridonHeadSpawnedHorde;
-        bool m_isMagtheridonHeadSpawnedAlliance;
-        ObjectGuid m_guidMagtheridonHeadHorde;
-        ObjectGuid m_guidMagtheridonHeadAlliance;
-        GuidVector m_magtheridonHeadPlayers;
+    ScourgeInvasionData m_siData;
 
-        GuidVector m_adalSongOfBattlePlayers;
-        uint32 m_adalSongOfBattleTimer;
+    // tbc section
+    bool m_isMagtheridonHeadSpawnedHorde;
+    bool m_isMagtheridonHeadSpawnedAlliance;
+    ObjectGuid m_guidMagtheridonHeadHorde;
+    ObjectGuid m_guidMagtheridonHeadAlliance;
+    GuidVector m_magtheridonHeadPlayers;
 
-        SunsReachReclamationData m_sunsReachData;
+    GuidVector m_adalSongOfBattlePlayers;
+    uint32 m_adalSongOfBattleTimer;
 
-        std::map<uint32, bool> m_midsummerBonfireStates;
-        std::map<uint32, uint32> m_midsummerZoneIds[2];
-        std::map<uint32, uint32> m_midsummerGoToZone;
-        std::map<uint32, GuidVector> m_midsummerZonePlayers;
+    SunsReachReclamationData m_sunsReachData;
 
-        std::mutex m_midsummerMutex;
+    std::map<uint32, bool> m_midsummerBonfireStates;
+    std::map<uint32, uint32> m_midsummerZoneIds[2];
+    std::map<uint32, uint32> m_midsummerGoToZone;
+    std::map<uint32, GuidVector> m_midsummerZonePlayers;
 
-        // Release Events
-        void StartExpansionEvent();
+    std::mutex m_midsummerMutex;
 
-        std::atomic<uint8> m_expansion;
+    // Release Events
+    void StartExpansionEvent();
 
-        void RespawnHighlordKruul();
+    std::atomic<uint8> m_expansion;
 
-        bool m_highlordKruulSpawned;
-        uint32 m_highlordKruulTimer;
-        uint8 m_highlordKruulChosenPosition;
+    void RespawnHighlordKruul();
+
+    bool m_highlordKruulSpawned;
+    uint32 m_highlordKruulTimer;
+    uint8 m_highlordKruulChosenPosition;
 };
 
 #define sWorldState MaNGOS::Singleton<WorldState>::Instance()
 
 #endif
-

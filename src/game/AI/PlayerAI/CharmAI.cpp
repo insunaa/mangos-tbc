@@ -1,23 +1,24 @@
 /*
-* This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-#include "PlayerAI.h"
 #include "Entities/Player.h"
+#include "PlayerAI.h"
 
 enum PriestSpells
 {
@@ -28,7 +29,7 @@ enum PriestSpells
 
 struct PriestAI : public PlayerAI
 {
-    PriestAI(Player* player) : PlayerAI(player)
+    PriestAI(Player *player) : PlayerAI(player)
     {
         if (uint32 mindBlast = m_player->LookupHighestLearnedRank(SPELL_MIND_BLAST))
             AddPlayerSpellAction(mindBlast);
@@ -48,7 +49,7 @@ enum MageSpells
 
 struct MageAI : public PlayerAI
 {
-    MageAI(Player* player) : PlayerAI(player)
+    MageAI(Player *player) : PlayerAI(player)
     {
         if (uint32 fireball = m_player->LookupHighestLearnedRank(SPELL_FIREBALL))
             AddPlayerSpellAction(fireball);
@@ -68,7 +69,7 @@ enum WarlockSpells
 
 struct WarlockAI : public PlayerAI
 {
-    WarlockAI(Player* player) : PlayerAI(player)
+    WarlockAI(Player *player) : PlayerAI(player)
     {
         if (uint32 shadowBolt = m_player->LookupHighestLearnedRank(SPELL_SHADOW_BOLT))
             AddPlayerSpellAction(shadowBolt);
@@ -88,7 +89,7 @@ enum RogueSpells
 
 struct RogueAI : public PlayerAI
 {
-    RogueAI(Player* player) : PlayerAI(player)
+    RogueAI(Player *player) : PlayerAI(player)
     {
         if (uint32 sinisterStrike = m_player->LookupHighestLearnedRank(SPELL_SINISTER_STRIKE))
             AddPlayerSpellAction(sinisterStrike);
@@ -108,7 +109,7 @@ enum DruidSpells
 
 struct DruidAI : public PlayerAI
 {
-    DruidAI(Player* player) : PlayerAI(player)
+    DruidAI(Player *player) : PlayerAI(player)
     {
         if (uint32 moonfire = m_player->LookupHighestLearnedRank(SPELL_MOONFIRE))
             AddPlayerSpellAction(moonfire);
@@ -129,7 +130,7 @@ enum ShamanSpells
 
 struct ShamanAI : public PlayerAI
 {
-    ShamanAI(Player* player) : PlayerAI(player)
+    ShamanAI(Player *player) : PlayerAI(player)
     {
         if (uint32 flameShock = m_player->LookupHighestLearnedRank(SPELL_FLAME_SHOCK))
             AddPlayerSpellAction(flameShock);
@@ -151,7 +152,7 @@ enum HunterSpells
 
 struct HunterAI : public PlayerAI
 {
-    HunterAI(Player* player) : PlayerAI(player)
+    HunterAI(Player *player) : PlayerAI(player)
     {
         if (uint32 raptorStrike = m_player->LookupHighestLearnedRank(SPELL_RAPTOR_STRIKE))
             AddPlayerSpellAction(raptorStrike);
@@ -171,7 +172,7 @@ enum WarriorSpells
 
 struct WarriorAI : public PlayerAI
 {
-    WarriorAI(Player* player) : PlayerAI(player)
+    WarriorAI(Player *player) : PlayerAI(player)
     {
         if (uint32 heroicStrike = m_player->LookupHighestLearnedRank(SPELL_HEROIC_STRIKE))
             AddPlayerSpellAction(heroicStrike);
@@ -191,7 +192,7 @@ enum PaladinSpells
 
 struct PaladinAI : public PlayerAI
 {
-    PaladinAI(Player* player) : PlayerAI(player)
+    PaladinAI(Player *player) : PlayerAI(player)
     {
         if (uint32 spell = m_player->LookupHighestLearnedRank(SPELL_FLASH_OF_LIGHT))
             AddPlayerSpellAction(spell);
@@ -202,19 +203,29 @@ struct PaladinAI : public PlayerAI
     }
 };
 
-UnitAI* GetClassAI(Classes playerClass, Player* player)
+UnitAI *GetClassAI(Classes playerClass, Player *player)
 {
     switch (playerClass)
     {
-        case CLASS_WARRIOR: return new WarriorAI(player);
-        case CLASS_PALADIN: return new PaladinAI(player);
-        case CLASS_HUNTER:  return new HunterAI(player);
-        case CLASS_ROGUE:   return new RogueAI(player);
-        case CLASS_PRIEST:  return new PriestAI(player);
-        case CLASS_SHAMAN:  return new ShamanAI(player);
-        case CLASS_MAGE:    return new MageAI(player);
-        case CLASS_WARLOCK: return new WarlockAI(player);
-        case CLASS_DRUID:   return new DruidAI(player);
-        default: return new PlayerAI(player);
+    case CLASS_WARRIOR:
+        return new WarriorAI(player);
+    case CLASS_PALADIN:
+        return new PaladinAI(player);
+    case CLASS_HUNTER:
+        return new HunterAI(player);
+    case CLASS_ROGUE:
+        return new RogueAI(player);
+    case CLASS_PRIEST:
+        return new PriestAI(player);
+    case CLASS_SHAMAN:
+        return new ShamanAI(player);
+    case CLASS_MAGE:
+        return new MageAI(player);
+    case CLASS_WARLOCK:
+        return new WarlockAI(player);
+    case CLASS_DRUID:
+        return new DruidAI(player);
+    default:
+        return new PlayerAI(player);
     }
 }

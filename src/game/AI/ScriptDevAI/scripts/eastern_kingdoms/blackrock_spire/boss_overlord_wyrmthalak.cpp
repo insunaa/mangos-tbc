@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -25,29 +25,29 @@ EndScriptData */
 
 enum
 {
-    SPELL_BLASTWAVE            = 11130,
-    SPELL_SHOUT                = 23511,
-    SPELL_CLEAVE               = 20691,
-    SPELL_KNOCKAWAY            = 20686,
+    SPELL_BLASTWAVE = 11130,
+    SPELL_SHOUT = 23511,
+    SPELL_CLEAVE = 20691,
+    SPELL_KNOCKAWAY = 20686,
 
-    NPC_SPIRESTONE_WARLORD     = 9216,
+    NPC_SPIRESTONE_WARLORD = 9216,
     NPC_SMOLDERTHORN_BERSERKER = 9268,
-    NPC_BLOODAXE_VETERAN       = 9583
+    NPC_BLOODAXE_VETERAN = 9583
 };
 
 const uint32 uSummons[3] = {NPC_BLOODAXE_VETERAN, NPC_SMOLDERTHORN_BERSERKER, NPC_SPIRESTONE_WARLORD};
 
-const float afLocations[4][4] =
-{
-    { -51.6805f, -439.831f, 78.2874f, 4.657f},              // spawn points
-    { -54.4554f, -439.679f, 78.2884f, 4.657f},
-    { -39.355381f, -513.456482f, 88.472046f, 4.679872f},    // destination
-    { -49.875881f, -511.896942f, 88.195160f, 4.613114f}
-};
+const float afLocations[4][4] = {{-51.6805f, -439.831f, 78.2874f, 4.657f}, // spawn points
+                                 {-54.4554f, -439.679f, 78.2884f, 4.657f},
+                                 {-39.355381f, -513.456482f, 88.472046f, 4.679872f}, // destination
+                                 {-49.875881f, -511.896942f, 88.195160f, 4.613114f}};
 
 struct boss_overlordwyrmthalakAI : public ScriptedAI
 {
-    boss_overlordwyrmthalakAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+    boss_overlordwyrmthalakAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiBlastWaveTimer;
     uint32 m_uiShoutTimer;
@@ -58,20 +58,21 @@ struct boss_overlordwyrmthalakAI : public ScriptedAI
     void Reset() override
     {
         m_uiBlastWaveTimer = 20000;
-        m_uiShoutTimer     = 2000;
-        m_uiCleaveTimer    = 6000;
+        m_uiShoutTimer = 2000;
+        m_uiCleaveTimer = 6000;
         m_uiKnockawayTimer = 12000;
         m_bSummoned = false;
     }
 
-    void JustSummoned(Creature* pSummoned) override
+    void JustSummoned(Creature *pSummoned) override
     {
-        if (pSummoned->GetEntry() != NPC_SPIRESTONE_WARLORD && pSummoned->GetEntry() != NPC_SMOLDERTHORN_BERSERKER && pSummoned->GetEntry() != NPC_BLOODAXE_VETERAN)
+        if (pSummoned->GetEntry() != NPC_SPIRESTONE_WARLORD && pSummoned->GetEntry() != NPC_SMOLDERTHORN_BERSERKER &&
+            pSummoned->GetEntry() != NPC_BLOODAXE_VETERAN)
             return;
 
         if (m_creature->GetVictim())
         {
-            Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
+            Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
             pSummoned->AI()->AttackStart(pTarget ? pTarget : m_creature->GetVictim());
         }
     }
@@ -121,8 +122,12 @@ struct boss_overlordwyrmthalakAI : public ScriptedAI
         // Summon two Beserks
         if (!m_bSummoned && m_creature->GetHealthPercent() < 51.0f)
         {
-            Creature* pGuard1 = m_creature->SummonCreature(uSummons[urand(0, 2)], afLocations[0][0], afLocations[0][1], afLocations[0][2], afLocations[0][3], TEMPSPAWN_TIMED_DESPAWN, 300000);
-            Creature* pGuard2 = m_creature->SummonCreature(uSummons[urand(0, 2)], afLocations[1][0], afLocations[1][1], afLocations[1][2], afLocations[1][3], TEMPSPAWN_TIMED_DESPAWN, 300000);
+            Creature *pGuard1 =
+                m_creature->SummonCreature(uSummons[urand(0, 2)], afLocations[0][0], afLocations[0][1],
+                                           afLocations[0][2], afLocations[0][3], TEMPSPAWN_TIMED_DESPAWN, 300000);
+            Creature *pGuard2 =
+                m_creature->SummonCreature(uSummons[urand(0, 2)], afLocations[1][0], afLocations[1][1],
+                                           afLocations[1][2], afLocations[1][3], TEMPSPAWN_TIMED_DESPAWN, 300000);
             if (pGuard1)
             {
                 pGuard1->SetWalk(false);
@@ -141,14 +146,14 @@ struct boss_overlordwyrmthalakAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_overlordwyrmthalak(Creature* pCreature)
+UnitAI *GetAI_boss_overlordwyrmthalak(Creature *pCreature)
 {
     return new boss_overlordwyrmthalakAI(pCreature);
 }
 
 void AddSC_boss_overlordwyrmthalak()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_overlord_wyrmthalak";
     pNewScript->GetAI = &GetAI_boss_overlordwyrmthalak;
     pNewScript->RegisterSelf();

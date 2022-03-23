@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,23 +20,25 @@
 #ifndef __NPCHANDLER_H
 #define __NPCHANDLER_H
 
-// GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
-#if defined( __GNUC__ )
+// GCC have alternative #pragma pack(N) syntax and old gcc version not support
+// pack(push,N), also any gcc version not support it at some platform
+#if defined(__GNUC__)
 #pragma pack(1)
 #else
-#pragma pack(push,1)
+#pragma pack(push, 1)
 #endif
 
 struct PageText
 {
     uint32 Page_ID;
-    char* Text;
+    char *Text;
 
     uint32 Next_Page;
 };
 
-// GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
-#if defined( __GNUC__ )
+// GCC have alternative #pragma pack() syntax and old gcc version not support
+// pack(pop), also any gcc version not support it at some platform
+#if defined(__GNUC__)
 #pragma pack()
 #else
 #pragma pack(pop)
@@ -48,10 +51,14 @@ struct PageTextLocale
 
 struct NpcTextLocale
 {
-    NpcTextLocale() { Text_0.resize(8); Text_1.resize(8); }
+    NpcTextLocale()
+    {
+        Text_0.resize(8);
+        Text_1.resize(8);
+    }
 
-    std::vector<std::vector<std::string> > Text_0;
-    std::vector<std::vector<std::string> > Text_1;
+    std::vector<std::vector<std::string>> Text_0;
+    std::vector<std::vector<std::string>> Text_1;
 };
 
 struct QEmote

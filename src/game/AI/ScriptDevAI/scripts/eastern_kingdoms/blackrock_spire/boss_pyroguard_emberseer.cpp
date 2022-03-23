@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -17,9 +17,8 @@
 /* ScriptData
 SDName: Boss_Pyroguard_Emberseer
 SD%Complete: 90
-SDComment: Dummy spells used during the transformation may need further research
-SDCategory: Blackrock Spire
-EndScriptData */
+SDComment: Dummy spells used during the transformation may need further
+research SDCategory: Blackrock Spire EndScriptData */
 
 #include "AI/ScriptDevAI/include/sc_common.h"
 #include "blackrock_spire.h"
@@ -27,38 +26,39 @@ EndScriptData */
 enum
 {
     // Intro emote/say
-    EMOTE_NEAR              = -1229001,
-    EMOTE_FULL              = -1229002,
-    SAY_FREE                = -1229003,
+    EMOTE_NEAR = -1229001,
+    EMOTE_FULL = -1229002,
+    SAY_FREE = -1229003,
 
-    MAX_GROWING_STACKS      = 20,
+    MAX_GROWING_STACKS = 20,
 
     // Intro spells
-    SPELL_ENCAGE_EMBERSEER  = 15281,                        // cast by Blackhand Incarcerator
+    SPELL_ENCAGE_EMBERSEER = 15281, // cast by Blackhand Incarcerator
 
-    SPELL_FIRE_SHIELD       = 13376,                        // not sure what's the purpose of this
-    SPELL_DESPAWN_EMBERSEER = 16078,                        // not sure what's the purpose of this
-    SPELL_FREEZE_ANIM       = 16245,                        // not sure what's the purpose of this
-    SPELL_FULL_STRENGHT     = 16047,
-    SPELL_GROWING           = 16049,                        // stacking aura
-    SPELL_BONUS_DAMAGE      = 16534,                        // triggered on full grow
-    SPELL_TRANSFORM         = 16052,
+    SPELL_FIRE_SHIELD = 13376,       // not sure what's the purpose of this
+    SPELL_DESPAWN_EMBERSEER = 16078, // not sure what's the purpose of this
+    SPELL_FREEZE_ANIM = 16245,       // not sure what's the purpose of this
+    SPELL_FULL_STRENGHT = 16047,
+    SPELL_GROWING = 16049,      // stacking aura
+    SPELL_BONUS_DAMAGE = 16534, // triggered on full grow
+    SPELL_TRANSFORM = 16052,
 
     // Combat spells
-    SPELL_FIRENOVA          = 23462,
-    SPELL_FLAMEBUFFET       = 23341,
-    SPELL_PYROBLAST         = 20228                         // guesswork, but best fitting in spells-area, was 17274 (has mana cost)
+    SPELL_FIRENOVA = 23462,
+    SPELL_FLAMEBUFFET = 23341,
+    SPELL_PYROBLAST = 20228 // guesswork, but best fitting in spells-area, was
+                            // 17274 (has mana cost)
 };
 
 struct boss_pyroguard_emberseerAI : public ScriptedAI
 {
-    boss_pyroguard_emberseerAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_pyroguard_emberseerAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (instance_blackrock_spire*) pCreature->GetInstanceData();
+        m_pInstance = (instance_blackrock_spire *)pCreature->GetInstanceData();
         Reset();
     }
 
-    instance_blackrock_spire* m_pInstance;
+    instance_blackrock_spire *m_pInstance;
 
     uint32 m_uiEncageTimer;
     uint32 m_uiFireNovaTimer;
@@ -68,17 +68,17 @@ struct boss_pyroguard_emberseerAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiEncageTimer         = 10000;
-        m_uiFireNovaTimer       = 6000;
-        m_uiFlameBuffetTimer    = 3000;
-        m_uiPyroBlastTimer      = 14000;
-        m_uiGrowingStacks       = 0;
+        m_uiEncageTimer = 10000;
+        m_uiFireNovaTimer = 6000;
+        m_uiFlameBuffetTimer = 3000;
+        m_uiPyroBlastTimer = 14000;
+        m_uiGrowingStacks = 0;
 
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PLAYER);
     }
 
-    void JustDied(Unit* /*pKiller*/) override
+    void JustDied(Unit * /*pKiller*/) override
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_EMBERSEER, DONE);
@@ -90,7 +90,7 @@ struct boss_pyroguard_emberseerAI : public ScriptedAI
             m_pInstance->SetData(TYPE_EMBERSEER, FAIL);
     }
 
-    void ReceiveAIEvent(AIEventType eventType, Unit* /*sender*/, Unit* /*invoker*/, uint32 /*miscValue*/) override
+    void ReceiveAIEvent(AIEventType eventType, Unit * /*sender*/, Unit * /*invoker*/, uint32 /*miscValue*/) override
     {
         if (eventType == AI_EVENT_CUSTOM_A)
             DoHandleEmberseerGrowing();
@@ -117,7 +117,9 @@ struct boss_pyroguard_emberseerAI : public ScriptedAI
             if (m_pInstance)
             {
                 m_pInstance->DoUseEmberseerRunes();
-                // Redundant check: if for some reason the event isn't set in progress until this point - avoid using the altar again when the boss is fully grown
+                // Redundant check: if for some reason the event isn't set in
+                // progress until this point - avoid using the altar again when the
+                // boss is fully grown
                 m_pInstance->SetData(TYPE_EMBERSEER, IN_PROGRESS);
             }
 
@@ -135,16 +137,18 @@ struct boss_pyroguard_emberseerAI : public ScriptedAI
             {
                 if (!m_pInstance)
                 {
-                    script_error_log("Instance Blackrock Spire: ERROR Failed to load instance data for this instace.");
+                    script_error_log("Instance Blackrock Spire: ERROR Failed to load "
+                                     "instance data for this instace.");
                     return;
                 }
 
                 GuidList m_lIncarceratorsGuid;
                 m_pInstance->GetIncarceratorGUIDList(m_lIncarceratorsGuid);
 
-                for (GuidList::const_iterator itr = m_lIncarceratorsGuid.begin(); itr != m_lIncarceratorsGuid.end(); ++itr)
+                for (GuidList::const_iterator itr = m_lIncarceratorsGuid.begin(); itr != m_lIncarceratorsGuid.end();
+                     ++itr)
                 {
-                    if (Creature* pIncarcerator = m_creature->GetMap()->GetCreature(*itr))
+                    if (Creature *pIncarcerator = m_creature->GetMap()->GetCreature(*itr))
                         pIncarcerator->CastSpell(m_creature, SPELL_ENCAGE_EMBERSEER, TRIGGERED_NONE);
                 }
 
@@ -179,7 +183,7 @@ struct boss_pyroguard_emberseerAI : public ScriptedAI
         // PyroBlast Timer
         if (m_uiPyroBlastTimer < uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+            if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_PYROBLAST) == CAST_OK)
                     m_uiPyroBlastTimer = 15000;
@@ -192,14 +196,14 @@ struct boss_pyroguard_emberseerAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_pyroguard_emberseer(Creature* pCreature)
+UnitAI *GetAI_boss_pyroguard_emberseer(Creature *pCreature)
 {
     return new boss_pyroguard_emberseerAI(pCreature);
 }
 
 void AddSC_boss_pyroguard_emberseer()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_pyroguard_emberseer";
     pNewScript->GetAI = &GetAI_boss_pyroguard_emberseer;
     pNewScript->RegisterSelf();

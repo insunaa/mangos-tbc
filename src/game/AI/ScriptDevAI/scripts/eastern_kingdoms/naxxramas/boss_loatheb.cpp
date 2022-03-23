@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -27,13 +27,14 @@ EndScriptData */
 
 enum
 {
-    SPELL_CORRUPTED_MIND    = 29201,            // this triggers the following spells on targets (based on class): 29185, 29194, 29196, 29198
-    SPELL_POISON_AURA       = 29865,
-    SPELL_INEVITABLE_DOOM   = 29204,
-    SPELL_SUMMON_SPORE      = 29234,
-    SPELL_REMOVE_CURSE      = 30281,
+    SPELL_CORRUPTED_MIND = 29201, // this triggers the following spells on targets
+                                  // (based on class): 29185, 29194, 29196, 29198
+    SPELL_POISON_AURA = 29865,
+    SPELL_INEVITABLE_DOOM = 29204,
+    SPELL_SUMMON_SPORE = 29234,
+    SPELL_REMOVE_CURSE = 30281,
 
-    NPC_SPORE               = 16286
+    NPC_SPORE = 16286
 };
 
 enum LoathebActions
@@ -48,7 +49,9 @@ enum LoathebActions
 
 struct boss_loathebAI : public CombatAI
 {
-    boss_loathebAI(Creature* creature) : CombatAI(creature, LOATHEB_ACTION_MAX), m_instance(static_cast<ScriptedInstance*>(creature->GetInstanceData()))
+    boss_loathebAI(Creature *creature)
+        : CombatAI(creature, LOATHEB_ACTION_MAX),
+          m_instance(static_cast<ScriptedInstance *>(creature->GetInstanceData()))
     {
         AddCombatAction(LOATHEB_POISON_AURA, 5000u);
         AddCombatAction(LOATHEB_CORRUPTED_MIND, 4000u);
@@ -57,7 +60,7 @@ struct boss_loathebAI : public CombatAI
         AddCombatAction(LOATHEB_SUMMON, 12000u);
     }
 
-    ScriptedInstance* m_instance;
+    ScriptedInstance *m_instance;
 
     uint8 m_corruptedMindCount;
 
@@ -68,13 +71,13 @@ struct boss_loathebAI : public CombatAI
         m_corruptedMindCount = 0;
     }
 
-    void Aggro(Unit* /*who*/) override
+    void Aggro(Unit * /*who*/) override
     {
         if (m_instance)
             m_instance->SetData(TYPE_LOATHEB, IN_PROGRESS);
     }
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit * /*killer*/) override
     {
         if (m_instance)
             m_instance->SetData(TYPE_LOATHEB, DONE);
@@ -88,7 +91,7 @@ struct boss_loathebAI : public CombatAI
             m_instance->SetData(TYPE_LOATHEB, NOT_STARTED);
     }
 
-    void JustSummoned(Creature* summoned) override
+    void JustSummoned(Creature *summoned) override
     {
         if (summoned->GetEntry() == NPC_SPORE)
             summoned->SetInCombatWithZone();
@@ -98,55 +101,54 @@ struct boss_loathebAI : public CombatAI
     {
         switch (action)
         {
-            case LOATHEB_INEVITABLE_DOOM:
+        case LOATHEB_INEVITABLE_DOOM: {
+            if (DoCastSpellIfCan(m_creature, SPELL_INEVITABLE_DOOM, CAST_TRIGGERED) == CAST_OK)
+                ResetCombatAction(action, ((m_corruptedMindCount <= 5) ? 30 : 15) * IN_MILLISECONDS);
+            break;
+        }
+        case LOATHEB_CORRUPTED_MIND: {
+            if (DoCastSpellIfCan(m_creature, SPELL_CORRUPTED_MIND, CAST_TRIGGERED) == CAST_OK)
             {
-                if (DoCastSpellIfCan(m_creature, SPELL_INEVITABLE_DOOM, CAST_TRIGGERED) == CAST_OK)
-                    ResetCombatAction(action, ((m_corruptedMindCount <= 5) ? 30 : 15) * IN_MILLISECONDS);
-                break;
+                ++m_corruptedMindCount;
+                ResetCombatAction(action, 60 * IN_MILLISECONDS);
             }
-            case LOATHEB_CORRUPTED_MIND:
-            {
-                if (DoCastSpellIfCan(m_creature, SPELL_CORRUPTED_MIND, CAST_TRIGGERED) == CAST_OK)
-                {
-                    ++m_corruptedMindCount;
-                    ResetCombatAction(action, 60 * IN_MILLISECONDS);
-                }
-                break;
-            }
-            case LOATHEB_SUMMON:
-            {
-                if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_SPORE, CAST_TRIGGERED) == CAST_OK)
-                    ResetCombatAction(action, 12 * IN_MILLISECONDS);
-                break;
-            }
-            case LOATHEB_POISON_AURA:
-            {
-                if (DoCastSpellIfCan(m_creature, SPELL_POISON_AURA) == CAST_OK)
-                    ResetCombatAction(action, 12 * IN_MILLISECONDS);
-                break;
-            }
-            case LOATHEB_REMOVE_CURSE:
-            {
-                SpellCastResult decurseResult = m_creature->CastSpell(m_creature, SPELL_REMOVE_CURSE, TRIGGERED_OLD_TRIGGERED);
-                if (decurseResult == SPELL_CAST_OK || decurseResult == SPELL_FAILED_NOTHING_TO_DISPEL)  // Don't throw an error if there is nothing to dispel
-                    ResetCombatAction(action, 30 * IN_MILLISECONDS);
-                break;
-            }
-            default:
-                break;
+            break;
+        }
+        case LOATHEB_SUMMON: {
+            if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_SPORE, CAST_TRIGGERED) == CAST_OK)
+                ResetCombatAction(action, 12 * IN_MILLISECONDS);
+            break;
+        }
+        case LOATHEB_POISON_AURA: {
+            if (DoCastSpellIfCan(m_creature, SPELL_POISON_AURA) == CAST_OK)
+                ResetCombatAction(action, 12 * IN_MILLISECONDS);
+            break;
+        }
+        case LOATHEB_REMOVE_CURSE: {
+            SpellCastResult decurseResult =
+                m_creature->CastSpell(m_creature, SPELL_REMOVE_CURSE, TRIGGERED_OLD_TRIGGERED);
+            if (decurseResult == SPELL_CAST_OK || decurseResult == SPELL_FAILED_NOTHING_TO_DISPEL) // Don't throw an
+                                                                                                   // error if there is
+                                                                                                   // nothing to dispel
+                ResetCombatAction(action, 30 * IN_MILLISECONDS);
+            break;
+        }
+        default:
+            break;
         }
     }
 };
 
 struct CorruptedMind : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx == EFFECT_INDEX_0)
         {
-            if (Unit* target = spell->GetUnitTarget())
+            if (Unit *target = spell->GetUnitTarget())
             {
-                // This spell only works on players as it triggers spells that override spell class scripts
+                // This spell only works on players as it triggers spells that
+                // override spell class scripts
                 if (target->GetTypeId() != TYPEID_PLAYER)
                     return;
 
@@ -154,11 +156,20 @@ struct CorruptedMind : public SpellScript
                 uint32 spellId = 0;
                 switch (target->getClass())
                 {
-                    case CLASS_PALADIN: spellId = 29196; break;
-                    case CLASS_PRIEST: spellId = 29185; break;
-                    case CLASS_SHAMAN: spellId = 29198; break;
-                    case CLASS_DRUID: spellId = 29194; break;
-                    default: break;
+                case CLASS_PALADIN:
+                    spellId = 29196;
+                    break;
+                case CLASS_PRIEST:
+                    spellId = 29185;
+                    break;
+                case CLASS_SHAMAN:
+                    spellId = 29198;
+                    break;
+                case CLASS_DRUID:
+                    spellId = 29194;
+                    break;
+                default:
+                    break;
                 }
                 if (spellId != 0)
                     spell->GetCaster()->CastSpell(target, spellId, TRIGGERED_OLD_TRIGGERED, nullptr);
@@ -169,7 +180,7 @@ struct CorruptedMind : public SpellScript
 
 void AddSC_boss_loatheb()
 {
-    Script* newScript = new Script;
+    Script *newScript = new Script;
     newScript->Name = "boss_loatheb";
     newScript->GetAI = &GetNewAIInstance<boss_loathebAI>;
     newScript->RegisterSelf();

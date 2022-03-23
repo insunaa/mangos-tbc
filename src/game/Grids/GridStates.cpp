@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,18 +18,20 @@
  */
 
 #include "Grids/GridStates.h"
+
 #include "Grids/ObjectGridLoader.h"
 #include "Log.h"
 
-void
-InvalidState::Update(Map&, NGridType&, GridInfo&, const uint32& /*x*/, const uint32& /*y*/, const uint32&) const
+void InvalidState::Update(Map &, NGridType &, GridInfo &, const uint32 & /*x*/, const uint32 & /*y*/,
+                          const uint32 &) const
 {
 }
 
-void
-ActiveState::Update(Map& m, NGridType& grid, GridInfo& info, const uint32& x, const uint32& y, const uint32& t_diff) const
+void ActiveState::Update(Map &m, NGridType &grid, GridInfo &info, const uint32 &x, const uint32 &y,
+                         const uint32 &t_diff) const
 {
-    // Only check grid activity every (grid_expiry/10) ms, because it's really useless to do it every cycle
+    // Only check grid activity every (grid_expiry/10) ms, because it's really
+    // useless to do it every cycle
     info.UpdateTimeTracker(t_diff);
     if (info.getTimeTracker().Passed())
     {
@@ -45,16 +48,15 @@ ActiveState::Update(Map& m, NGridType& grid, GridInfo& info, const uint32& x, co
     }
 }
 
-void
-IdleState::Update(Map& m, NGridType& grid, GridInfo&, const uint32& x, const uint32& y, const uint32&) const
+void IdleState::Update(Map &m, NGridType &grid, GridInfo &, const uint32 &x, const uint32 &y, const uint32 &) const
 {
     m.ResetGridExpiry(grid);
     grid.SetGridState(GRID_STATE_REMOVAL);
     DEBUG_LOG("Grid[%u,%u] on map %u moved to IDLE state", x, y, m.GetId());
 }
 
-void
-RemovalState::Update(Map& m, NGridType& grid, GridInfo& info, const uint32& x, const uint32& y, const uint32& t_diff) const
+void RemovalState::Update(Map &m, NGridType &grid, GridInfo &info, const uint32 &x, const uint32 &y,
+                          const uint32 &t_diff) const
 {
     if (!info.getUnloadLock())
     {
@@ -63,7 +65,10 @@ RemovalState::Update(Map& m, NGridType& grid, GridInfo& info, const uint32& x, c
         {
             if (!m.UnloadGrid(x, y, false))
             {
-                DEBUG_LOG("Grid[%u,%u] for map %u differed unloading due to players or active objects nearby", x, y, m.GetId());
+                DEBUG_LOG("Grid[%u,%u] for map %u differed unloading due to "
+                          "players or "
+                          "active objects nearby",
+                          x, y, m.GetId());
                 m.ResetGridExpiry(grid);
             }
         }

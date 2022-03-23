@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,21 +17,22 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "Config/Config.h"
 #include "PosixDaemon.h"
 
-#include <cstdio>
-#include <iostream>
-#include <fstream>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
+
+#include <cstdio>
+#include <fstream>
+#include <iostream>
+
+#include "Config/Config.h"
 
 pid_t parent_pid = 0, sid = 0;
 
 void daemonSignal(int s)
 {
-
     if (getpid() != parent_pid)
     {
         return;

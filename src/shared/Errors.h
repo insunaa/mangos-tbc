@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,26 +23,24 @@
 #include "Common.h"
 
 // Normal assert.
-#define WPError(CONDITION) \
-if (!(CONDITION)) \
-{ \
-    printf("%s:%i: Error: Assertion in %s failed: %s", \
-        __FILE__, __LINE__, __FUNCTION__, STRINGIZE(CONDITION)); \
-    assert(STRINGIZE(CONDITION) && 0); \
-}
+#define WPError(CONDITION)                                                                                             \
+    if (!(CONDITION))                                                                                                  \
+    {                                                                                                                  \
+        printf("%s:%i: Error: Assertion in %s failed: %s", __FILE__, __LINE__, __FUNCTION__, STRINGIZE(CONDITION));    \
+        assert(STRINGIZE(CONDITION) && 0);                                                                             \
+    }
 
 // Just warn.
-#define WPWarning(CONDITION) \
-if (!(CONDITION)) \
-{ \
-    printf("%s:%i: Warning: Assertion in %s failed: %s",\
-        __FILE__, __LINE__, __FUNCTION__, STRINGIZE(CONDITION)); \
-}
+#define WPWarning(CONDITION)                                                                                           \
+    if (!(CONDITION))                                                                                                  \
+    {                                                                                                                  \
+        printf("%s:%i: Warning: Assertion in %s failed: %s", __FILE__, __LINE__, __FUNCTION__, STRINGIZE(CONDITION));  \
+    }
 
 #ifdef MANGOS_DEBUG
-#  define MANGOS_ASSERT WPError
+#define MANGOS_ASSERT WPError
 #else
-#  define MANGOS_ASSERT WPError                             // Error even if in release mode.
+#define MANGOS_ASSERT WPError // Error even if in release mode.
 #endif
 
 #endif

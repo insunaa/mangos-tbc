@@ -1,5 +1,5 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software licensed under GPL version 2
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
 #include "AI/ScriptDevAI/include/sc_common.h"
@@ -8,7 +8,8 @@
    Function that uses a door or a button
 
    @param   guid The ObjectGuid of the Door/ Button that will be used
-   @param   uiWithRestoreTime (in seconds) if == 0 autoCloseTime will be used (if not 0 by default in *_template)
+   @param   uiWithRestoreTime (in seconds) if == 0 autoCloseTime will be used
+   (if not 0 by default in *_template)
    @param   bUseAlternativeState Use to alternative state
  */
 void ScriptedInstance::DoUseDoorOrButton(ObjectGuid guid, uint32 withRestoreTime, bool useAlternativeState)
@@ -16,7 +17,7 @@ void ScriptedInstance::DoUseDoorOrButton(ObjectGuid guid, uint32 withRestoreTime
     if (!guid)
         return;
 
-    if (GameObject* pGo = instance->GetGameObject(guid))
+    if (GameObject *pGo = instance->GetGameObject(guid))
     {
         if (pGo->GetGoType() == GAMEOBJECT_TYPE_DOOR || pGo->GetGoType() == GAMEOBJECT_TYPE_BUTTON)
         {
@@ -26,24 +27,30 @@ void ScriptedInstance::DoUseDoorOrButton(ObjectGuid guid, uint32 withRestoreTime
                 pGo->ResetDoorOrButton();
         }
         else
-            script_error_log("Script call DoUseDoorOrButton, but gameobject entry %u is type %u.", pGo->GetEntry(), pGo->GetGoType());
+            script_error_log("Script call DoUseDoorOrButton, but gameobject "
+                             "entry %u is type %u.",
+                             pGo->GetEntry(), pGo->GetGoType());
     }
 }
 
 /// Function that uses a door or button that is stored in m_goEntryGuidStore
-void ScriptedInstance::DoUseDoorOrButton(uint32 entry, uint32 withRestoreTime /*= 0*/, bool useAlternativeState /*= false*/)
+void ScriptedInstance::DoUseDoorOrButton(uint32 entry, uint32 withRestoreTime /*= 0*/,
+                                         bool useAlternativeState /*= false*/)
 {
     EntryGuidMap::iterator find = m_goEntryGuidStore.find(entry);
     if (find != m_goEntryGuidStore.end())
         DoUseDoorOrButton(find->second, withRestoreTime, useAlternativeState);
     else
-        // Output log, possible reason is not added GO to storage, or not yet loaded
-        debug_log("SD2: Script call DoUseDoorOrButton(by Entry), but no gameobject of entry %u was created yet, or it was not stored by script for map %u.", entry, instance->GetId());
+        // Output log, possible reason is not added GO to storage, or not yet
+        // loaded
+        debug_log("SD2: Script call DoUseDoorOrButton(by Entry), but no gameobject of "
+                  "entry %u was created yet, or it was not stored by script for map %u.",
+                  entry, instance->GetId());
 }
 
 void ScriptedInstance::DoUseOpenableObject(uint32 entry, bool open, uint32 withRestoreTime, bool useAlternativeState)
 {
-    if (GameObject* go = GetSingleGameObjectFromStorage(entry))
+    if (GameObject *go = GetSingleGameObjectFromStorage(entry))
         go->UseOpenableObject(open, withRestoreTime, useAlternativeState);
 }
 
@@ -51,14 +58,15 @@ void ScriptedInstance::DoUseOpenableObject(uint32 entry, bool open, uint32 withR
    Function that respawns a despawned GameObject with given time
 
    @param   guid The ObjectGuid of the GO that will be respawned
-   @param   uiTimeToDespawn (in seconds) Despawn the GO after this time, default is a minute
+   @param   uiTimeToDespawn (in seconds) Despawn the GO after this time,
+   default is a minute
  */
 void ScriptedInstance::DoRespawnGameObject(ObjectGuid guid, uint32 timeToDespawn)
 {
     if (!guid)
         return;
 
-    if (GameObject* pGo = instance->GetGameObject(guid))
+    if (GameObject *pGo = instance->GetGameObject(guid))
     {
         if (pGo->IsSpawned())
             return;
@@ -81,8 +89,12 @@ void ScriptedInstance::DoToggleGameObjectFlags(uint32 entry, uint32 GOflags, boo
     if (find != m_goEntryGuidStore.end())
         DoToggleGameObjectFlags(find->second, GOflags, apply);
     else
-        // Output log, possible reason is not added GO to storage, or not yet loaded
-        debug_log("SD2: Script call ToogleTameObjectFlags (by Entry), but no gameobject of entry %u was created yet, or it was not stored by script for map %u.", entry, instance->GetId());
+        // Output log, possible reason is not added GO to storage, or not yet
+        // loaded
+        debug_log("SD2: Script call ToogleTameObjectFlags (by Entry), but no "
+                  "gameobject of entry %u was created yet, or it was not stored by "
+                  "script for map %u.",
+                  entry, instance->GetId());
 }
 
 /**
@@ -97,7 +109,7 @@ void ScriptedInstance::DoToggleGameObjectFlags(ObjectGuid guid, uint32 GOflags, 
     if (!guid)
         return;
 
-    if (GameObject* pGo = instance->GetGameObject(guid))
+    if (GameObject *pGo = instance->GetGameObject(guid))
     {
         if (apply)
             pGo->SetFlag(GAMEOBJECT_FLAGS, GOflags);
@@ -113,25 +125,29 @@ void ScriptedInstance::DoRespawnGameObject(uint32 entry, uint32 timeToDespawn)
     if (find != m_goEntryGuidStore.end())
         DoRespawnGameObject(find->second, timeToDespawn);
     else
-        // Output log, possible reason is not added GO to storage, or not yet loaded;
-        debug_log("SD2: Script call DoRespawnGameObject(by Entry), but no gameobject of entry %u was created yet, or it was not stored by script for map %u.", entry, instance->GetId());
+        // Output log, possible reason is not added GO to storage, or not yet
+        // loaded;
+        debug_log("SD2: Script call DoRespawnGameObject(by Entry), but no gameobject of "
+                  "entry %u was created yet, or it was not stored by script for map %u.",
+                  entry, instance->GetId());
 }
 
 /**
    Helper function to update a world state for all players in the map
 
-   @param   uiStateId The WorldState that will be set for all players in the map
+   @param   uiStateId The WorldState that will be set for all players in the
+   map
    @param   uiStateData The Value to which the State will be set to
  */
 void ScriptedInstance::DoUpdateWorldState(uint32 stateId, uint32 stateData)
 {
-    Map::PlayerList const& lPlayers = instance->GetPlayers();
+    Map::PlayerList const &lPlayers = instance->GetPlayers();
 
     if (!lPlayers.isEmpty())
     {
-        for (const auto& lPlayer : lPlayers)
+        for (const auto &lPlayer : lPlayers)
         {
-            if (Player* pPlayer = lPlayer.getSource())
+            if (Player *pPlayer = lPlayer.getSource())
                 pPlayer->SendUpdateWorldState(stateId, stateData);
         }
     }
@@ -139,29 +155,34 @@ void ScriptedInstance::DoUpdateWorldState(uint32 stateId, uint32 stateData)
         debug_log("SD2: DoUpdateWorldState attempt send data but no players in map.");
 }
 
-/// Get the first found Player* (with requested properties) in the map. Can return nullptr.
-Player* ScriptedInstance::GetPlayerInMap(bool onlyAlive /*=false*/, bool canBeGamemaster /*=true*/) const
+/// Get the first found Player* (with requested properties) in the map. Can
+/// return nullptr.
+Player *ScriptedInstance::GetPlayerInMap(bool onlyAlive /*=false*/, bool canBeGamemaster /*=true*/) const
 {
-    Map::PlayerList const& players = instance->GetPlayers();
+    Map::PlayerList const &players = instance->GetPlayers();
 
-    for (const auto& playerRef : players)
+    for (const auto &playerRef : players)
     {
-        Player* player = playerRef.getSource();
-        if (player && (!onlyAlive || (player->IsAlive() && player->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && !player->IsFeigningDeathSuccessfully() && !player->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE_2))) && (canBeGamemaster || !player->IsGameMaster()))
+        Player *player = playerRef.getSource();
+        if (player &&
+            (!onlyAlive || (player->IsAlive() && player->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) &&
+                            !player->IsFeigningDeathSuccessfully() &&
+                            !player->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE_2))) &&
+            (canBeGamemaster || !player->IsGameMaster()))
             return player;
     }
 
     return nullptr;
 }
 
-void ScriptedInstance::BanPlayersIfNoGm(const std::string& reason)
+void ScriptedInstance::BanPlayersIfNoGm(const std::string &reason)
 {
     bool found = false;
-    Map::PlayerList const& players = instance->GetPlayers();
+    Map::PlayerList const &players = instance->GetPlayers();
 
-    for (const auto& playerRef : players)
+    for (const auto &playerRef : players)
     {
-        Player* player = playerRef.getSource();
+        Player *player = playerRef.getSource();
         if (player && player->GetSession()->GetSecurity() >= SEC_GAMEMASTER)
         {
             found = true;
@@ -170,9 +191,9 @@ void ScriptedInstance::BanPlayersIfNoGm(const std::string& reason)
     }
     if (!found)
     {
-        for (const auto& playerRef : players)
+        for (const auto &playerRef : players)
         {
-            Player* player = playerRef.getSource();
+            Player *player = playerRef.getSource();
             if (player && player->GetSession()->GetSecurity() < SEC_GAMEMASTER)
             {
                 player->BanPlayer(reason);
@@ -182,18 +203,18 @@ void ScriptedInstance::BanPlayersIfNoGm(const std::string& reason)
     }
 }
 
-void ScriptedInstance::DespawnGuids(GuidVector& spawns)
+void ScriptedInstance::DespawnGuids(GuidVector &spawns)
 {
-    for (ObjectGuid& guid : spawns)
+    for (ObjectGuid &guid : spawns)
     {
         if (guid.IsAnyTypeCreature())
         {
-            if (Creature* spawn = instance->GetAnyTypeCreature(guid))
+            if (Creature *spawn = instance->GetAnyTypeCreature(guid))
                 spawn->ForcedDespawn();
         }
         else if (guid.IsGameObject())
         {
-            if (GameObject* spawn = instance->GetGameObject(guid))
+            if (GameObject *spawn = instance->GetGameObject(guid))
             {
                 spawn->SetLootState(GO_JUST_DEACTIVATED);
                 spawn->SetForcedDespawn();
@@ -203,13 +224,13 @@ void ScriptedInstance::DespawnGuids(GuidVector& spawns)
     spawns.clear();
 }
 
-void ScriptedInstance::RespawnDbGuids(std::vector<uint32>& spawns, uint32 respawnDelay)
+void ScriptedInstance::RespawnDbGuids(std::vector<uint32> &spawns, uint32 respawnDelay)
 {
     for (uint32 spawn : spawns)
     {
         if (respawnDelay)
         {
-            if (Creature* creature = instance->GetCreature(spawn))
+            if (Creature *creature = instance->GetCreature(spawn))
             {
                 if (creature->IsAlive())
                 {
@@ -222,8 +243,9 @@ void ScriptedInstance::RespawnDbGuids(std::vector<uint32>& spawns, uint32 respaw
     }
 }
 
-/// Returns a pointer to a loaded GameObject that was stored in m_goEntryGuidStore. Can return nullptr
-GameObject* ScriptedInstance::GetSingleGameObjectFromStorage(uint32 entry, bool skipDebugLog /*=false*/) const
+/// Returns a pointer to a loaded GameObject that was stored in
+/// m_goEntryGuidStore. Can return nullptr
+GameObject *ScriptedInstance::GetSingleGameObjectFromStorage(uint32 entry, bool skipDebugLog /*=false*/) const
 {
     auto iter = m_goEntryGuidStore.find(entry);
     if (iter != m_goEntryGuidStore.end())
@@ -231,13 +253,16 @@ GameObject* ScriptedInstance::GetSingleGameObjectFromStorage(uint32 entry, bool 
 
     // Output log, possible reason is not added GO to map, or not yet loaded;
     if (!skipDebugLog)
-        script_error_log("Script requested gameobject with entry %u, but no gameobject of this entry was created yet, or it was not stored by script for map %u.", entry, instance->GetId());
+        script_error_log("Script requested gameobject with entry %u, but no gameobject of this "
+                         "entry was created yet, or it was not stored by script for map %u.",
+                         entry, instance->GetId());
 
     return nullptr;
 }
 
-/// Returns a pointer to a loaded Creature that was stored in m_goEntryGuidStore. Can return nullptr
-Creature* ScriptedInstance::GetSingleCreatureFromStorage(uint32 entry, bool skipDebugLog /*=false*/) const
+/// Returns a pointer to a loaded Creature that was stored in
+/// m_goEntryGuidStore. Can return nullptr
+Creature *ScriptedInstance::GetSingleCreatureFromStorage(uint32 entry, bool skipDebugLog /*=false*/) const
 {
     auto iter = m_npcEntryGuidStore.find(entry);
     if (iter != m_npcEntryGuidStore.end())
@@ -245,19 +270,24 @@ Creature* ScriptedInstance::GetSingleCreatureFromStorage(uint32 entry, bool skip
 
     // Output log, possible reason is not added GO to map, or not yet loaded;
     if (!skipDebugLog)
-        script_error_log("Script requested creature with entry %u, but no npc of this entry was created yet, or it was not stored by script for map %u.", entry, instance->GetId());
+        script_error_log("Script requested creature with entry %u, but no npc of this entry "
+                         "was "
+                         "created yet, or it was not stored by script for map %u.",
+                         entry, instance->GetId());
 
     return nullptr;
 }
 
-void ScriptedInstance::GetCreatureGuidVectorFromStorage(uint32 entry, GuidVector& entryGuidVector, bool /*skipDebugLog*/) const
+void ScriptedInstance::GetCreatureGuidVectorFromStorage(uint32 entry, GuidVector &entryGuidVector,
+                                                        bool /*skipDebugLog*/) const
 {
     auto iter = m_npcEntryGuidCollection.find(entry);
     if (iter != m_npcEntryGuidCollection.end())
         entryGuidVector = (*iter).second;
 }
 
-void ScriptedInstance::GetGameObjectGuidVectorFromStorage(uint32 entry, GuidVector& entryGuidVector, bool /*skipDebugLog*/) const
+void ScriptedInstance::GetGameObjectGuidVectorFromStorage(uint32 entry, GuidVector &entryGuidVector,
+                                                          bool /*skipDebugLog*/) const
 {
     auto iter = m_goEntryGuidCollection.find(entry);
     if (iter != m_goEntryGuidCollection.end())
@@ -267,48 +297,43 @@ void ScriptedInstance::GetGameObjectGuidVectorFromStorage(uint32 entry, GuidVect
 /**
    Constructor for DialogueHelper
 
-   @param   pDialogueArray The static const array of DialogueEntry holding the information about the dialogue. This array MUST be terminated by {0,0,0}
+   @param   pDialogueArray The static const array of DialogueEntry holding the
+   information about the dialogue. This array MUST be terminated by {0,0,0}
  */
-DialogueHelper::DialogueHelper(DialogueEntry const* dialogueArray) :
-    m_instance(nullptr),
-    m_dialogueArray(dialogueArray),
-    m_currentEntry(nullptr),
-    m_dialogueTwoSideArray(nullptr),
-    m_currentEntryTwoSide(nullptr),
-    m_timer(0),
-    m_isFirstSide(true),
-    m_canSimulate(false)
-{}
+DialogueHelper::DialogueHelper(DialogueEntry const *dialogueArray)
+    : m_instance(nullptr), m_dialogueArray(dialogueArray), m_currentEntry(nullptr), m_dialogueTwoSideArray(nullptr),
+      m_currentEntryTwoSide(nullptr), m_timer(0), m_isFirstSide(true), m_canSimulate(false)
+{
+}
 
 /**
    Constructor for DialogueHelper (Two Sides)
 
-   @param   pDialogueTwoSideArray The static const array of DialogueEntryTwoSide holding the information about the dialogue. This array MUST be terminated by {0,0,0,0,0}
+   @param   pDialogueTwoSideArray The static const array of
+   DialogueEntryTwoSide holding the information about the dialogue. This array
+   MUST be terminated by {0,0,0,0,0}
  */
-DialogueHelper::DialogueHelper(DialogueEntryTwoSide const* dialogueTwoSideArray) :
-    m_instance(nullptr),
-    m_dialogueArray(nullptr),
-    m_currentEntry(nullptr),
-    m_dialogueTwoSideArray(dialogueTwoSideArray),
-    m_currentEntryTwoSide(nullptr),
-    m_timer(0),
-    m_isFirstSide(true),
-    m_canSimulate(false)
-{}
+DialogueHelper::DialogueHelper(DialogueEntryTwoSide const *dialogueTwoSideArray)
+    : m_instance(nullptr), m_dialogueArray(nullptr), m_currentEntry(nullptr),
+      m_dialogueTwoSideArray(dialogueTwoSideArray), m_currentEntryTwoSide(nullptr), m_timer(0), m_isFirstSide(true),
+      m_canSimulate(false)
+{
+}
 
 /**
    Function to start a (part of a) dialogue
 
-   @param   iTextEntry The TextEntry of the dialogue that will be started (must be always the entry of first side)
+   @param   iTextEntry The TextEntry of the dialogue that will be started (must
+   be always the entry of first side)
  */
 void DialogueHelper::StartNextDialogueText(int32 textEntry)
 {
     // Find iTextEntry
     bool found = false;
 
-    if (m_dialogueArray)                                   // One Side
+    if (m_dialogueArray) // One Side
     {
-        for (DialogueEntry const* entry = m_dialogueArray; entry->textEntry; ++entry)
+        for (DialogueEntry const *entry = m_dialogueArray; entry->textEntry; ++entry)
         {
             if (entry->textEntry == textEntry)
             {
@@ -318,9 +343,9 @@ void DialogueHelper::StartNextDialogueText(int32 textEntry)
             }
         }
     }
-    else                                                    // Two Sides
+    else // Two Sides
     {
-        for (DialogueEntryTwoSide const* entry = m_dialogueTwoSideArray; entry->textEntry; ++entry)
+        for (DialogueEntryTwoSide const *entry = m_dialogueTwoSideArray; entry->textEntry; ++entry)
         {
             if (entry->textEntry == textEntry)
             {
@@ -333,7 +358,9 @@ void DialogueHelper::StartNextDialogueText(int32 textEntry)
 
     if (!found)
     {
-        script_error_log("Script call DialogueHelper::StartNextDialogueText, but textEntry %i is not in provided dialogue (on map id %u)", textEntry, m_instance ? m_instance->instance->GetId() : 0);
+        script_error_log("Script call DialogueHelper::StartNextDialogueText, but "
+                         "textEntry %i is not in provided dialogue (on map id %u)",
+                         textEntry, m_instance ? m_instance->instance->GetId() : 0);
         return;
     }
 
@@ -354,18 +381,21 @@ void DialogueHelper::DoNextDialogueStep()
     int32 iTextEntry = 0;
     uint32 uiSpeakerEntry = 0;
 
-    if (m_dialogueArray)                               // One Side
+    if (m_dialogueArray) // One Side
     {
         uiSpeakerEntry = m_currentEntry->sayerEntry;
         iTextEntry = m_currentEntry->textEntry;
 
         m_timer = m_currentEntry->timer;
     }
-    else                                                // Two Sides
+    else // Two Sides
     {
-        // Second Entries can be 0, if they are the entry from first side will be taken
-        uiSpeakerEntry = !m_isFirstSide && m_currentEntryTwoSide->sayerEntryAlt ? m_currentEntryTwoSide->sayerEntryAlt : m_currentEntryTwoSide->sayerEntry;
-        iTextEntry = !m_isFirstSide && m_currentEntryTwoSide->textEntryAlt ? m_currentEntryTwoSide->textEntryAlt : m_currentEntryTwoSide->textEntry;
+        // Second Entries can be 0, if they are the entry from first side will be
+        // taken
+        uiSpeakerEntry = !m_isFirstSide && m_currentEntryTwoSide->sayerEntryAlt ? m_currentEntryTwoSide->sayerEntryAlt
+                                                                                : m_currentEntryTwoSide->sayerEntry;
+        iTextEntry = !m_isFirstSide && m_currentEntryTwoSide->textEntryAlt ? m_currentEntryTwoSide->textEntryAlt
+                                                                           : m_currentEntryTwoSide->textEntry;
 
         m_timer = m_currentEntryTwoSide->timer;
     }
@@ -374,10 +404,10 @@ void DialogueHelper::DoNextDialogueStep()
     if (uiSpeakerEntry && iTextEntry < 0)
     {
         // Use Speaker if directly provided
-        Creature* pSpeaker = GetSpeakerByEntry(uiSpeakerEntry);
-        if (m_instance && !pSpeaker)                       // Get Speaker from instance
+        Creature *pSpeaker = GetSpeakerByEntry(uiSpeakerEntry);
+        if (m_instance && !pSpeaker) // Get Speaker from instance
         {
-            if (m_canSimulate)                             // Simulate case
+            if (m_canSimulate) // Simulate case
                 m_instance->DoOrSimulateScriptTextForThisInstance(iTextEntry, uiSpeakerEntry);
             else
                 pSpeaker = m_instance->GetSingleCreatureFromStorage(uiSpeakerEntry);
@@ -387,7 +417,7 @@ void DialogueHelper::DoNextDialogueStep()
             DoScriptText(iTextEntry, pSpeaker);
     }
 
-    JustDidDialogueStep(m_dialogueArray ?  m_currentEntry->textEntry : m_currentEntryTwoSide->textEntry);
+    JustDidDialogueStep(m_dialogueArray ? m_currentEntry->textEntry : m_currentEntryTwoSide->textEntry);
 
     // Increment position
     if (m_dialogueArray)
@@ -396,7 +426,8 @@ void DialogueHelper::DoNextDialogueStep()
         ++m_currentEntryTwoSide;
 }
 
-/// Call this function within any DialogueUpdate method. This is required for saying next steps in a dialogue
+/// Call this function within any DialogueUpdate method. This is required for
+/// saying next steps in a dialogue
 void DialogueHelper::DialogueUpdate(uint32 diff)
 {
     if (m_timer)

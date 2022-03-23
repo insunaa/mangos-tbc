@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -36,33 +36,34 @@ EndContentData */
 
 enum
 {
-    QUEST_ULAG      = 1819,
-    NPC_ULAG        = 6390,
-    GO_TRIGGER      = 104593,
-    GO_DOOR         = 176594
+    QUEST_ULAG = 1819,
+    NPC_ULAG = 6390,
+    GO_TRIGGER = 104593,
+    GO_DOOR = 176594
 };
 
-bool GOUse_go_mausoleum_door(Player* pPlayer, GameObject* /*pGo*/)
+bool GOUse_go_mausoleum_door(Player *pPlayer, GameObject * /*pGo*/)
 {
     if (pPlayer->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
         return false;
 
-    if (GameObject* pTrigger = GetClosestGameObjectWithEntry(pPlayer, GO_TRIGGER, 30.0f))
+    if (GameObject *pTrigger = GetClosestGameObjectWithEntry(pPlayer, GO_TRIGGER, 30.0f))
     {
         pTrigger->SetGoState(GO_STATE_READY);
-        pPlayer->SummonCreature(NPC_ULAG, 2390.26f, 336.47f, 40.01f, 2.26f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 300000);
+        pPlayer->SummonCreature(NPC_ULAG, 2390.26f, 336.47f, 40.01f, 2.26f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN,
+                                300000);
         return false;
     }
 
     return false;
 }
 
-bool GOUse_go_mausoleum_trigger(Player* pPlayer, GameObject* pGo)
+bool GOUse_go_mausoleum_trigger(Player *pPlayer, GameObject *pGo)
 {
     if (pPlayer->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
         return false;
 
-    if (GameObject* pDoor = GetClosestGameObjectWithEntry(pPlayer, GO_DOOR, 30.0f))
+    if (GameObject *pDoor = GetClosestGameObjectWithEntry(pPlayer, GO_DOOR, 30.0f))
     {
         pGo->SetGoState(GO_STATE_ACTIVE);
         pDoor->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
@@ -78,15 +79,15 @@ bool GOUse_go_mausoleum_trigger(Player* pPlayer, GameObject* pGo)
 
 enum
 {
-    SAY_COMPLETE        = -1000356,
-    SD_SPELL_DRINK      = 2639,                             // possibly not correct spell (but iconId is correct)
-    QUEST_590           = 590,
-    FACTION_HOSTILE     = 168
+    SAY_COMPLETE = -1000356,
+    SD_SPELL_DRINK = 2639, // possibly not correct spell (but iconId is correct)
+    QUEST_590 = 590,
+    FACTION_HOSTILE = 168
 };
 
 struct npc_calvin_montagueAI : public ScriptedAI
 {
-    npc_calvin_montagueAI(Creature* pCreature) : ScriptedAI(pCreature)
+    npc_calvin_montagueAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
         Reset();
     }
@@ -104,9 +105,11 @@ struct npc_calvin_montagueAI : public ScriptedAI
         m_playerGuid.Clear();
     }
 
-    void DamageTaken(Unit* dealer, uint32& damage, DamageEffectType /*damagetype*/, SpellEntry const* /*spellInfo*/) override
+    void DamageTaken(Unit *dealer, uint32 &damage, DamageEffectType /*damagetype*/,
+                     SpellEntry const * /*spellInfo*/) override
     {
-        if (damage > m_creature->GetHealth() || ((m_creature->GetHealth() - damage) * 100 / m_creature->GetMaxHealth() < 15))
+        if (damage > m_creature->GetHealth() ||
+            ((m_creature->GetHealth() - damage) * 100 / m_creature->GetMaxHealth() < 15))
         {
             damage = std::min(damage, m_creature->GetHealth() - 1);
 
@@ -134,20 +137,20 @@ struct npc_calvin_montagueAI : public ScriptedAI
 
             switch (m_uiPhase)
             {
-                case 1:
-                    DoScriptText(SAY_COMPLETE, m_creature);
-                    ++m_uiPhase;
-                    break;
-                case 2:
-                    if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_playerGuid))
-                        pPlayer->AreaExploredOrEventHappens(QUEST_590);
+            case 1:
+                DoScriptText(SAY_COMPLETE, m_creature);
+                ++m_uiPhase;
+                break;
+            case 2:
+                if (Player *pPlayer = m_creature->GetMap()->GetPlayer(m_playerGuid))
+                    pPlayer->AreaExploredOrEventHappens(QUEST_590);
 
-                    m_creature->CastSpell(m_creature, SD_SPELL_DRINK, TRIGGERED_OLD_TRIGGERED);
-                    ++m_uiPhase;
-                    break;
-                case 3:
-                    EnterEvadeMode();
-                    break;
+                m_creature->CastSpell(m_creature, SD_SPELL_DRINK, TRIGGERED_OLD_TRIGGERED);
+                ++m_uiPhase;
+                break;
+            case 3:
+                EnterEvadeMode();
+                break;
             }
 
             return;
@@ -160,12 +163,12 @@ struct npc_calvin_montagueAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_npc_calvin_montague(Creature* pCreature)
+UnitAI *GetAI_npc_calvin_montague(Creature *pCreature)
 {
     return new npc_calvin_montagueAI(pCreature);
 }
 
-bool QuestAccept_npc_calvin_montague(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+bool QuestAccept_npc_calvin_montague(Player *pPlayer, Creature *pCreature, const Quest *pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_590)
     {
@@ -178,7 +181,7 @@ bool QuestAccept_npc_calvin_montague(Player* pPlayer, Creature* pCreature, const
 
 void AddSC_tirisfal_glades()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "go_mausoleum_door";
     pNewScript->pGOUse = &GOUse_go_mausoleum_door;
     pNewScript->RegisterSelf();

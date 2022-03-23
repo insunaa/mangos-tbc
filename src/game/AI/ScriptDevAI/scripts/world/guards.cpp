@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -44,13 +44,13 @@ guard_tirisfal
 guard_undercity
 EndContentData */
 
-#include "AI/ScriptDevAI/include/sc_common.h"
 #include "AI/ScriptDevAI/base/guard_ai.h"
+#include "AI/ScriptDevAI/include/sc_common.h"
 #include "GameEvents/GameEventMgr.h"
 
 struct guard_hallows_end_helperAI : public guardAI
 {
-    guard_hallows_end_helperAI(Creature* creature) : guardAI(creature)
+    guard_hallows_end_helperAI(Creature *creature) : guardAI(creature)
     {
         Reset();
     }
@@ -67,7 +67,8 @@ struct guard_hallows_end_helperAI : public guardAI
     void Reset() override
     {
         isSpawnedForHallowsEnd = false;
-        GameEventCreatureData const* eventData = sGameEventMgr.GetCreatureUpdateDataForActiveEvent(m_creature->GetGUIDLow());
+        GameEventCreatureData const *eventData =
+            sGameEventMgr.GetCreatureUpdateDataForActiveEvent(m_creature->GetGUIDLow());
         if (eventData)
         {
             relightingFires = false;
@@ -127,9 +128,11 @@ struct guard_hallows_end_helperAI : public guardAI
                     if (checkExtinguishedTimer < diff)
                     {
                         // go home if necessary
-                        if (m_creature->GetPositionX() != spawnPos.x || m_creature->GetPositionY() != spawnPos.y || m_creature->GetPositionZ() != spawnPos.z)
+                        if (m_creature->GetPositionX() != spawnPos.x || m_creature->GetPositionY() != spawnPos.y ||
+                            m_creature->GetPositionZ() != spawnPos.z)
                         {
-                            m_creature->GetMotionMaster()->MovePoint(0, Position(spawnPos.x, spawnPos.y, spawnPos.z, spawnPos.o));
+                            m_creature->GetMotionMaster()->MovePoint(
+                                0, Position(spawnPos.x, spawnPos.y, spawnPos.z, spawnPos.o));
                             m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         }
 
@@ -137,13 +140,14 @@ struct guard_hallows_end_helperAI : public guardAI
                         extinguishedCount = 0;
                         if (lPracticeFires.size() < 3)
                         {
-                            std::list<Creature*> lPracticeFireCreatures;
-                            GetCreatureListWithEntryInGrid(lPracticeFireCreatures, m_creature, NPC_HEADLESS_HORSEMAN_FIRE, 65.f);
-                            for (auto& fire : lPracticeFireCreatures)
+                            std::list<Creature *> lPracticeFireCreatures;
+                            GetCreatureListWithEntryInGrid(lPracticeFireCreatures, m_creature,
+                                                           NPC_HEADLESS_HORSEMAN_FIRE, 65.f);
+                            for (auto &fire : lPracticeFireCreatures)
                                 lPracticeFires.push_back(fire->GetObjectGuid());
                         }
                         for (ObjectGuid fireGuid : lPracticeFires)
-                            if (Creature* fire = m_creature->GetMap()->GetCreature(fireGuid))
+                            if (Creature *fire = m_creature->GetMap()->GetCreature(fireGuid))
                                 if (!fire->HasAura(SPELL_FIRE))
                                     extinguishedCount++;
 
@@ -155,21 +159,27 @@ struct guard_hallows_end_helperAI : public guardAI
 
                             switch (m_creature->GetEntry())
                             {
-                                case NPC_DEATHGUARD_FLORENCE:
-                                    m_creature->GetMotionMaster()->MovePoint(1, Position(2242.474f, 474.683f, 36.0789f, 3.351452f));
-                                    break;
-                                case NPC_RAZOR_HILL_GRUNT:
-                                    m_creature->GetMotionMaster()->MovePoint(1, Position(277.6265f, -4563.144f, 24.1798f, 5.736432f));
-                                    break;
-                                case NPC_IRONFORGE_MOUNTAINEER:
-                                    m_creature->GetMotionMaster()->MovePoint(1, Position(-5755.2036f, -504.95849f, 397.72644f, 4.769157f));
-                                    break;
-                                case NPC_STORMWIND_GUARD:
-                                    m_creature->GetMotionMaster()->MovePoint(1, Position(-9331.7294f, 50.873886f, 60.544579f, 0.261875f));
-                                    break;
-                                default: // no movement required, already stationed close enough (should all have to move in TBC?)
-                                    relightTimer = 5000;
-                                    break;
+                            case NPC_DEATHGUARD_FLORENCE:
+                                m_creature->GetMotionMaster()->MovePoint(
+                                    1, Position(2242.474f, 474.683f, 36.0789f, 3.351452f));
+                                break;
+                            case NPC_RAZOR_HILL_GRUNT:
+                                m_creature->GetMotionMaster()->MovePoint(
+                                    1, Position(277.6265f, -4563.144f, 24.1798f, 5.736432f));
+                                break;
+                            case NPC_IRONFORGE_MOUNTAINEER:
+                                m_creature->GetMotionMaster()->MovePoint(
+                                    1, Position(-5755.2036f, -504.95849f, 397.72644f, 4.769157f));
+                                break;
+                            case NPC_STORMWIND_GUARD:
+                                m_creature->GetMotionMaster()->MovePoint(
+                                    1, Position(-9331.7294f, 50.873886f, 60.544579f, 0.261875f));
+                                break;
+                            default: // no movement required, already stationed
+                                     // close enough (should all have to move in
+                                     // TBC?)
+                                relightTimer = 5000;
+                                break;
                             }
                         }
                     }
@@ -182,32 +192,32 @@ struct guard_hallows_end_helperAI : public guardAI
     }
 };
 
-bool GossipHello_guard_hallows_end_helper(Player* player, Creature* creature)
+bool GossipHello_guard_hallows_end_helper(Player *player, Creature *creature)
 {
-    GameEventCreatureData const* eventData = sGameEventMgr.GetCreatureUpdateDataForActiveEvent(creature->GetGUIDLow());
+    GameEventCreatureData const *eventData = sGameEventMgr.GetCreatureUpdateDataForActiveEvent(creature->GetGUIDLow());
     if (eventData)
     {
         uint32 textId = 0;
         switch (creature->GetEntry())
         {
-            case NPC_RAZOR_HILL_GRUNT:
-                player->SEND_GOSSIP_MENU(TEXT_ID_RAZOR_HILL_GRUNT, creature->GetObjectGuid());
-                break;
-            case NPC_DEATHGUARD_FLORENCE:
-                player->SEND_GOSSIP_MENU(TEXT_ID_DEATHGUARD_FLORENCE, creature->GetObjectGuid());
-                break;
-            case NPC_STORMWIND_GUARD:
-                player->SEND_GOSSIP_MENU(TEXT_ID_STORMWIND_GUARD, creature->GetObjectGuid());
-                break;
-            case NPC_IRONFORGE_MOUNTAINEER:
-                player->SEND_GOSSIP_MENU(TEXT_ID_IRONFORGE_MOUNTAINEER, creature->GetObjectGuid());
-                break;
-            case NPC_SILVERMOON_GUARDIAN:
-                player->SEND_GOSSIP_MENU(TEXT_ID_SILVERMOON_GUARDIAN, creature->GetObjectGuid());
-                break;
-            case NPC_AZUREMYST_PEACEKEEPER:
-                player->SEND_GOSSIP_MENU(TEXT_ID_AZUREMYST_PEACEKEEPER, creature->GetObjectGuid());
-                break;
+        case NPC_RAZOR_HILL_GRUNT:
+            player->SEND_GOSSIP_MENU(TEXT_ID_RAZOR_HILL_GRUNT, creature->GetObjectGuid());
+            break;
+        case NPC_DEATHGUARD_FLORENCE:
+            player->SEND_GOSSIP_MENU(TEXT_ID_DEATHGUARD_FLORENCE, creature->GetObjectGuid());
+            break;
+        case NPC_STORMWIND_GUARD:
+            player->SEND_GOSSIP_MENU(TEXT_ID_STORMWIND_GUARD, creature->GetObjectGuid());
+            break;
+        case NPC_IRONFORGE_MOUNTAINEER:
+            player->SEND_GOSSIP_MENU(TEXT_ID_IRONFORGE_MOUNTAINEER, creature->GetObjectGuid());
+            break;
+        case NPC_SILVERMOON_GUARDIAN:
+            player->SEND_GOSSIP_MENU(TEXT_ID_SILVERMOON_GUARDIAN, creature->GetObjectGuid());
+            break;
+        case NPC_AZUREMYST_PEACEKEEPER:
+            player->SEND_GOSSIP_MENU(TEXT_ID_AZUREMYST_PEACEKEEPER, creature->GetObjectGuid());
+            break;
         }
     }
     else
@@ -218,67 +228,67 @@ bool GossipHello_guard_hallows_end_helper(Player* player, Creature* creature)
     return true;
 }
 
-UnitAI* GetAI_guard_azuremyst(Creature* pCreature)
+UnitAI *GetAI_guard_azuremyst(Creature *pCreature)
 {
     return new guard_hallows_end_helperAI(pCreature);
 }
 
-UnitAI* GetAI_guard_bluffwatcher(Creature* pCreature)
+UnitAI *GetAI_guard_bluffwatcher(Creature *pCreature)
 {
     return new guardAI(pCreature);
 }
 
-UnitAI* GetAI_guard_contested(Creature* pCreature)
+UnitAI *GetAI_guard_contested(Creature *pCreature)
 {
     return new guardAI(pCreature);
 }
 
-UnitAI* GetAI_guard_darnassus(Creature* pCreature)
+UnitAI *GetAI_guard_darnassus(Creature *pCreature)
 {
     return new guardAI(pCreature);
 }
 
-UnitAI* GetAI_guard_dunmorogh(Creature* pCreature)
+UnitAI *GetAI_guard_dunmorogh(Creature *pCreature)
 {
     return new guard_hallows_end_helperAI(pCreature);
 }
 
-UnitAI* GetAI_guard_durotar(Creature* pCreature)
+UnitAI *GetAI_guard_durotar(Creature *pCreature)
 {
     return new guard_hallows_end_helperAI(pCreature);
 }
 
-UnitAI* GetAI_guard_elwynnforest(Creature* pCreature)
+UnitAI *GetAI_guard_elwynnforest(Creature *pCreature)
 {
     return new guard_hallows_end_helperAI(pCreature);
 }
 
-UnitAI* GetAI_guard_eversong(Creature* pCreature)
+UnitAI *GetAI_guard_eversong(Creature *pCreature)
 {
     return new guard_hallows_end_helperAI(pCreature);
 }
 
-UnitAI* GetAI_guard_exodar(Creature* pCreature)
+UnitAI *GetAI_guard_exodar(Creature *pCreature)
 {
     return new guardAI(pCreature);
 }
 
-UnitAI* GetAI_guard_ironforge(Creature* pCreature)
+UnitAI *GetAI_guard_ironforge(Creature *pCreature)
 {
     return new guardAI(pCreature);
 }
 
-UnitAI* GetAI_guard_mulgore(Creature* pCreature)
+UnitAI *GetAI_guard_mulgore(Creature *pCreature)
 {
     return new guardAI(pCreature);
 }
 
-UnitAI* GetAI_guard_orgrimmar(Creature* pCreature)
+UnitAI *GetAI_guard_orgrimmar(Creature *pCreature)
 {
     return new guardAI_orgrimmar(pCreature);
 }
 
-UnitAI* GetAI_guard_shattrath(Creature* pCreature)
+UnitAI *GetAI_guard_shattrath(Creature *pCreature)
 {
     return new guardAI(pCreature);
 }
@@ -289,7 +299,10 @@ UnitAI* GetAI_guard_shattrath(Creature* pCreature)
 
 struct guard_shattrath_aldorAI : public guardAI
 {
-    guard_shattrath_aldorAI(Creature* pCreature) : guardAI(pCreature) { Reset(); }
+    guard_shattrath_aldorAI(Creature *pCreature) : guardAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiExile_Timer;
     uint32 m_uiBanish_Timer;
@@ -313,7 +326,7 @@ struct guard_shattrath_aldorAI : public guardAI
         {
             if (m_uiExile_Timer < uiDiff)
             {
-                if (Player* pTarget = m_creature->GetMap()->GetPlayer(m_playerGuid))
+                if (Player *pTarget = m_creature->GetMap()->GetPlayer(m_playerGuid))
                 {
                     pTarget->CastSpell(pTarget, SPELL_EXILE, TRIGGERED_OLD_TRIGGERED);
                     pTarget->CastSpell(pTarget, SPELL_BANISH_TELEPORT, TRIGGERED_OLD_TRIGGERED);
@@ -328,7 +341,7 @@ struct guard_shattrath_aldorAI : public guardAI
         }
         else if (m_uiBanish_Timer < uiDiff)
         {
-            Unit* pVictim = m_creature->GetVictim();
+            Unit *pVictim = m_creature->GetVictim();
 
             if (pVictim && pVictim->GetTypeId() == TYPEID_PLAYER)
             {
@@ -345,7 +358,7 @@ struct guard_shattrath_aldorAI : public guardAI
     }
 };
 
-UnitAI* GetAI_guard_shattrath_aldor(Creature* pCreature)
+UnitAI *GetAI_guard_shattrath_aldor(Creature *pCreature)
 {
     return new guard_shattrath_aldorAI(pCreature);
 }
@@ -356,7 +369,10 @@ UnitAI* GetAI_guard_shattrath_aldor(Creature* pCreature)
 
 struct guard_shattrath_scryerAI : public guardAI
 {
-    guard_shattrath_scryerAI(Creature* pCreature) : guardAI(pCreature) { Reset(); }
+    guard_shattrath_scryerAI(Creature *pCreature) : guardAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiExile_Timer;
     uint32 m_uiBanish_Timer;
@@ -380,7 +396,7 @@ struct guard_shattrath_scryerAI : public guardAI
         {
             if (m_uiExile_Timer < uiDiff)
             {
-                if (Player* pTarget = m_creature->GetMap()->GetPlayer(m_playerGuid))
+                if (Player *pTarget = m_creature->GetMap()->GetPlayer(m_playerGuid))
                 {
                     pTarget->CastSpell(pTarget, SPELL_EXILE, TRIGGERED_OLD_TRIGGERED);
                     pTarget->CastSpell(pTarget, SPELL_BANISH_TELEPORT, TRIGGERED_OLD_TRIGGERED);
@@ -395,7 +411,7 @@ struct guard_shattrath_scryerAI : public guardAI
         }
         else if (m_uiBanish_Timer < uiDiff)
         {
-            Unit* pVictim = m_creature->GetVictim();
+            Unit *pVictim = m_creature->GetVictim();
 
             if (pVictim && pVictim->GetTypeId() == TYPEID_PLAYER)
             {
@@ -412,26 +428,28 @@ struct guard_shattrath_scryerAI : public guardAI
     }
 };
 
-UnitAI* GetAI_guard_shattrath_scryer(Creature* pCreature)
+UnitAI *GetAI_guard_shattrath_scryer(Creature *pCreature)
 {
     return new guard_shattrath_scryerAI(pCreature);
 }
 
-UnitAI* GetAI_guard_silvermoon(Creature* pCreature)
+UnitAI *GetAI_guard_silvermoon(Creature *pCreature)
 {
     return new guardAI(pCreature);
 }
 
-enum{
+enum
+{
     SPELL_WINDSOR_INSPIRATION_EFFECT = 20275,
-    MAX_GUARD_SALUTES                = 7,
+    MAX_GUARD_SALUTES = 7,
 };
 
-static const int32 aGuardSalute[MAX_GUARD_SALUTES] = { -1000842, -1000843, -1000844, -1000845, -1000846, -1000847, -1000848};
+static const int32 aGuardSalute[MAX_GUARD_SALUTES] = {-1000842, -1000843, -1000844, -1000845,
+                                                      -1000846, -1000847, -1000848};
 
 struct guardAI_stormwind : public guardAI
 {
-    guardAI_stormwind(Creature* creature) : guardAI(creature)
+    guardAI_stormwind(Creature *creature) : guardAI(creature)
     {
         Reset();
     }
@@ -443,7 +461,7 @@ struct guardAI_stormwind : public guardAI
         m_saluteWaitTimer = 0;
     }
 
-    void SpellHit(Unit* /*caster*/, const SpellEntry* spell) override
+    void SpellHit(Unit * /*caster*/, const SpellEntry *spell) override
     {
         if (spell->Id == SPELL_WINDSOR_INSPIRATION_EFFECT && !m_saluteWaitTimer)
         {
@@ -465,36 +483,36 @@ struct guardAI_stormwind : public guardAI
         guardAI::UpdateAI(diff);
     }
 
-    void  ReceiveEmote(Player* player, uint32 textEmote) override
+    void ReceiveEmote(Player *player, uint32 textEmote) override
     {
         if (player->GetTeam() == ALLIANCE)
             DoReplyToTextEmote(textEmote);
     }
 };
 
-UnitAI* GetAI_guard_stormwind(Creature* pCreature)
+UnitAI *GetAI_guard_stormwind(Creature *pCreature)
 {
     return new guardAI_stormwind(pCreature);
 }
 
-UnitAI* GetAI_guard_teldrassil(Creature* pCreature)
+UnitAI *GetAI_guard_teldrassil(Creature *pCreature)
 {
     return new guardAI(pCreature);
 }
 
-UnitAI* GetAI_guard_tirisfal(Creature* pCreature)
+UnitAI *GetAI_guard_tirisfal(Creature *pCreature)
 {
     return new guardAI(pCreature);
 }
 
-UnitAI* GetAI_guard_undercity(Creature* pCreature)
+UnitAI *GetAI_guard_undercity(Creature *pCreature)
 {
     return new guardAI(pCreature);
 }
 
 void AddSC_guards()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "guard_azuremyst";
     pNewScript->GetAI = &GetAI_guard_azuremyst;
     pNewScript->pGossipHello = &GossipHello_guard_hallows_end_helper;

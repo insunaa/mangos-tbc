@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -26,31 +26,34 @@ EndScriptData */
 
 enum
 {
-    SAY_AGGRO                       = -1329016,
-    SAY_TRANSFORM                   = -1329017,
-    SAY_DEATH                       = -1329018,
+    SAY_AGGRO = -1329016,
+    SAY_TRANSFORM = -1329017,
+    SAY_DEATH = -1329018,
 
     // Dathrohan spells
-    SPELL_CRUSADERSHAMMER           = 17286,                // AOE stun
-    SPELL_CRUSADERSTRIKE            = 17281,
-    SPELL_HOLYSTRIKE                = 17284,                // weapon dmg +3
+    SPELL_CRUSADERSHAMMER = 17286, // AOE stun
+    SPELL_CRUSADERSTRIKE = 17281,
+    SPELL_HOLYSTRIKE = 17284, // weapon dmg +3
 
     // Transform
-    SPELL_BALNAZZARTRANSFORM        = 17288,                // restore full HP/mana, trigger spell Balnazzar Transform Stun
+    SPELL_BALNAZZARTRANSFORM = 17288, // restore full HP/mana, trigger spell Balnazzar Transform Stun
 
     // Balnazzar spells
-    SPELL_SHADOWSHOCK               = 17399,
-    SPELL_MINDBLAST                 = 17287,
-    SPELL_PSYCHICSCREAM             = 13704,
-    SPELL_SLEEP                     = 12098,
-    SPELL_MINDCONTROL               = 15690,
+    SPELL_SHADOWSHOCK = 17399,
+    SPELL_MINDBLAST = 17287,
+    SPELL_PSYCHICSCREAM = 13704,
+    SPELL_SLEEP = 12098,
+    SPELL_MINDCONTROL = 15690,
 
-    NPC_DATHROHAN                   = 10812
+    NPC_DATHROHAN = 10812
 };
 
 struct boss_dathrohan_balnazzarAI : public ScriptedAI
 {
-    boss_dathrohan_balnazzarAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+    boss_dathrohan_balnazzarAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiCrusadersHammer_Timer;
     uint32 m_uiCrusaderStrike_Timer;
@@ -78,12 +81,12 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
             m_creature->UpdateEntry(NPC_DATHROHAN);
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
 
-    void JustDied(Unit* /*Victim*/) override
+    void JustDied(Unit * /*Victim*/) override
     {
         DoScriptText(SAY_DEATH, m_creature);
     }
@@ -102,7 +105,8 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
                 DoCastSpellIfCan(m_creature->GetVictim(), SPELL_MINDBLAST);
                 m_uiMindBlast_Timer = urand(15000, 20000);
             }
-            else m_uiMindBlast_Timer -= uiDiff;
+            else
+                m_uiMindBlast_Timer -= uiDiff;
 
             // CrusadersHammer
             if (m_uiCrusadersHammer_Timer < uiDiff)
@@ -110,7 +114,8 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
                 DoCastSpellIfCan(m_creature->GetVictim(), SPELL_CRUSADERSHAMMER);
                 m_uiCrusadersHammer_Timer = 12000;
             }
-            else m_uiCrusadersHammer_Timer -= uiDiff;
+            else
+                m_uiCrusadersHammer_Timer -= uiDiff;
 
             // CrusaderStrike
             if (m_uiCrusaderStrike_Timer < uiDiff)
@@ -118,7 +123,8 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
                 DoCastSpellIfCan(m_creature->GetVictim(), SPELL_CRUSADERSTRIKE);
                 m_uiCrusaderStrike_Timer = 15000;
             }
-            else m_uiCrusaderStrike_Timer -= uiDiff;
+            else
+                m_uiCrusaderStrike_Timer -= uiDiff;
 
             // HolyStrike
             if (m_uiHolyStrike_Timer < uiDiff)
@@ -126,7 +132,8 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
                 DoCastSpellIfCan(m_creature->GetVictim(), SPELL_HOLYSTRIKE);
                 m_uiHolyStrike_Timer = 15000;
             }
-            else m_uiHolyStrike_Timer -= uiDiff;
+            else
+                m_uiHolyStrike_Timer -= uiDiff;
 
             // BalnazzarTransform
             if (m_creature->GetHealthPercent() < 40.0f)
@@ -151,7 +158,8 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
                 DoCastSpellIfCan(m_creature->GetVictim(), SPELL_MINDBLAST);
                 m_uiMindBlast_Timer = urand(15000, 20000);
             }
-            else m_uiMindBlast_Timer -= uiDiff;
+            else
+                m_uiMindBlast_Timer -= uiDiff;
 
             // ShadowShock
             if (m_uiShadowShock_Timer < uiDiff)
@@ -159,27 +167,30 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
                 DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SHADOWSHOCK);
                 m_uiShadowShock_Timer = 11000;
             }
-            else m_uiShadowShock_Timer -= uiDiff;
+            else
+                m_uiShadowShock_Timer -= uiDiff;
 
             // PsychicScream
             if (m_uiPsychicScream_Timer < uiDiff)
             {
-                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                     DoCastSpellIfCan(pTarget, SPELL_PSYCHICSCREAM);
 
                 m_uiPsychicScream_Timer = 20000;
             }
-            else m_uiPsychicScream_Timer -= uiDiff;
+            else
+                m_uiPsychicScream_Timer -= uiDiff;
 
             // DeepSleep
             if (m_uiDeepSleep_Timer < uiDiff)
             {
-                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                     DoCastSpellIfCan(pTarget, SPELL_SLEEP);
 
                 m_uiDeepSleep_Timer = 15000;
             }
-            else m_uiDeepSleep_Timer -= uiDiff;
+            else
+                m_uiDeepSleep_Timer -= uiDiff;
 
             // MindControl
             if (m_uiMindControl_Timer < uiDiff)
@@ -187,21 +198,22 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
                 DoCastSpellIfCan(m_creature->GetVictim(), SPELL_MINDCONTROL);
                 m_uiMindControl_Timer = 15000;
             }
-            else m_uiMindControl_Timer -= uiDiff;
+            else
+                m_uiMindControl_Timer -= uiDiff;
         }
 
         DoMeleeAttackIfReady();
     }
 };
 
-UnitAI* GetAI_boss_dathrohan_balnazzar(Creature* pCreature)
+UnitAI *GetAI_boss_dathrohan_balnazzar(Creature *pCreature)
 {
     return new boss_dathrohan_balnazzarAI(pCreature);
 }
 
 void AddSC_boss_dathrohan_balnazzar()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_dathrohan_balnazzar";
     pNewScript->GetAI = &GetAI_boss_dathrohan_balnazzar;
     pNewScript->RegisterSelf();

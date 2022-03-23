@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,43 +20,45 @@
 #ifndef _MAP_UPDATER_H_INCLUDED
 #define _MAP_UPDATER_H_INCLUDED
 
-#include "Platform/Define.h"
-#include "ProducerConsumerQueue.h"
-
+#include <atomic>
+#include <condition_variable>
 #include <mutex>
 #include <thread>
-#include <atomic>
 #include <vector>
-#include <condition_variable>
+
+#include "Platform/Define.h"
+#include "ProducerConsumerQueue.h"
 
 class Worker;
 
 class MapUpdater
 {
-    public:
-        MapUpdater() : _cancelationToken(false), pending_requests(0) {}
-        MapUpdater(size_t num_threads);
-        MapUpdater(const MapUpdater&) = delete;
-        
-        void activate(size_t num_threads);
-        void deactivate();
-        void wait();
-        void join();
-        bool activated();
-        void update_finished();
-        void schedule_update(Worker* worker);
+  public:
+    MapUpdater() : _cancelationToken(false), pending_requests(0)
+    {
+    }
+    MapUpdater(size_t num_threads);
+    MapUpdater(const MapUpdater &) = delete;
 
-    private:
-        ProducerConsumerQueue<Worker *> _queue;
+    void activate(size_t num_threads);
+    void deactivate();
+    void wait();
+    void join();
+    bool activated();
+    void update_finished();
+    void schedule_update(Worker *worker);
 
-        std::vector<std::thread> _workerThreads;
-        std::atomic<bool> _cancelationToken;
+  private:
+    ProducerConsumerQueue<Worker *> _queue;
 
-        std::mutex _lock;
-        std::condition_variable _condition;
-        size_t pending_requests;
+    std::vector<std::thread> _workerThreads;
+    std::atomic<bool> _cancelationToken;
 
-        void WorkerThread();
+    std::mutex _lock;
+    std::condition_variable _condition;
+    size_t pending_requests;
+
+    void WorkerThread();
 };
 
 #endif //_MAP_UPDATER_H_INCLUDED

@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -17,9 +17,8 @@
 /* ScriptData
 SDName: Stratholme
 SD%Complete: 100
-SDComment: Misc mobs for instance. GO-script to apply aura and start event for quest 8945
-SDCategory: Stratholme
-EndScriptData */
+SDComment: Misc mobs for instance. GO-script to apply aura and start event for
+quest 8945 SDCategory: Stratholme EndScriptData */
 
 /* ContentData
 go_service_gate
@@ -30,16 +29,17 @@ mobs_spectral_ghostly_citizen
 npc_aurius
 EndContentData */
 
-#include "AI/ScriptDevAI/include/sc_common.h"
 #include "stratholme.h"
+
+#include "AI/ScriptDevAI/include/sc_common.h"
 
 /*######
 ## go_service_gate
 ######*/
 
-bool GOUse_go_service_gate(Player* /*pPlayer*/, GameObject* pGo)
+bool GOUse_go_service_gate(Player * /*pPlayer*/, GameObject *pGo)
 {
-    ScriptedInstance* pInstance = (ScriptedInstance*)pGo->GetInstanceData();
+    ScriptedInstance *pInstance = (ScriptedInstance *)pGo->GetInstanceData();
 
     if (!pInstance)
         return false;
@@ -56,9 +56,9 @@ bool GOUse_go_service_gate(Player* /*pPlayer*/, GameObject* pGo)
 ## go_gauntlet_gate (this is the _first_ of the gauntlet gates, two exist)
 ######*/
 
-bool GOUse_go_gauntlet_gate(Player* pPlayer, GameObject* pGo)
+bool GOUse_go_gauntlet_gate(Player *pPlayer, GameObject *pGo)
 {
-    ScriptedInstance* pInstance = (ScriptedInstance*)pGo->GetInstanceData();
+    ScriptedInstance *pInstance = (ScriptedInstance *)pGo->GetInstanceData();
 
     if (!pInstance)
         return false;
@@ -66,11 +66,11 @@ bool GOUse_go_gauntlet_gate(Player* pPlayer, GameObject* pGo)
     if (pInstance->GetData(TYPE_BARON_RUN) != NOT_STARTED)
         return false;
 
-    if (Group* pGroup = pPlayer->GetGroup())
+    if (Group *pGroup = pPlayer->GetGroup())
     {
-        for (GroupReference* itr = pGroup->GetFirstMember(); itr != nullptr; itr = itr->next())
+        for (GroupReference *itr = pGroup->GetFirstMember(); itr != nullptr; itr = itr->next())
         {
-            Player* pGroupie = itr->getSource();
+            Player *pGroupie = itr->getSource();
             if (!pGroupie)
                 continue;
 
@@ -92,9 +92,9 @@ bool GOUse_go_gauntlet_gate(Player* pPlayer, GameObject* pGo)
 ## go_stratholme_postbox
 ######*/
 
-bool GOUse_go_stratholme_postbox(Player* pPlayer, GameObject* pGo)
+bool GOUse_go_stratholme_postbox(Player *pPlayer, GameObject *pGo)
 {
-    ScriptedInstance* pInstance = (ScriptedInstance*)pGo->GetInstanceData();
+    ScriptedInstance *pInstance = (ScriptedInstance *)pGo->GetInstanceData();
 
     if (!pInstance)
         return false;
@@ -115,7 +115,8 @@ bool GOUse_go_stratholme_postbox(Player* pPlayer, GameObject* pGo)
     float fX, fY, fZ;
     for (uint8 i = 0; i < 3; ++i)
     {
-        pPlayer->GetRandomPoint(pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 3.0f, fX, fY, fZ);
+        pPlayer->GetRandomPoint(pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 3.0f, fX, fY,
+                                fZ);
         pPlayer->SummonCreature(NPC_UNDEAD_POSTMAN, fX, fY, fZ, 0.0f, TEMPSPAWN_DEAD_DESPAWN, 0);
     }
 
@@ -129,25 +130,28 @@ bool GOUse_go_stratholme_postbox(Player* pPlayer, GameObject* pGo)
 enum
 {
     // Possibly more of these quotes around.
-    SAY_ZAPPED0     = -1329000,
-    SAY_ZAPPED1     = -1329001,
-    SAY_ZAPPED2     = -1329002,
-    SAY_ZAPPED3     = -1329003,
+    SAY_ZAPPED0 = -1329000,
+    SAY_ZAPPED1 = -1329001,
+    SAY_ZAPPED2 = -1329002,
+    SAY_ZAPPED3 = -1329003,
 
-    QUEST_RESTLESS_SOUL     = 5282,
+    QUEST_RESTLESS_SOUL = 5282,
 
-    SPELL_EGAN_BLASTER      = 17368,
-    SPELL_SOUL_FREED        = 17370,
+    SPELL_EGAN_BLASTER = 17368,
+    SPELL_SOUL_FREED = 17370,
     SPELL_SUMMON_FREED_SOUL = 17408,
 
-    NPC_RESTLESS_SOUL      = 11122,
-    NPC_FREED_SOUL         = 11136,
+    NPC_RESTLESS_SOUL = 11122,
+    NPC_FREED_SOUL = 11136,
 };
 
 // TODO - likely entirely not needed workaround
 struct mob_restless_soulAI : public ScriptedAI
 {
-    mob_restless_soulAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    mob_restless_soulAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     ObjectGuid m_taggerGuid;
     uint32 m_uiDieTimer;
@@ -160,11 +164,12 @@ struct mob_restless_soulAI : public ScriptedAI
         m_bIsTagged = false;
     }
 
-    void SpellHit(Unit* pCaster, const SpellEntry* pSpell) override
+    void SpellHit(Unit *pCaster, const SpellEntry *pSpell) override
     {
         if (pCaster->GetTypeId() == TYPEID_PLAYER)
         {
-            if (!m_bIsTagged && pSpell->Id == SPELL_EGAN_BLASTER && static_cast<Player*>(pCaster)->GetQuestStatus(QUEST_RESTLESS_SOUL) == QUEST_STATUS_INCOMPLETE)
+            if (!m_bIsTagged && pSpell->Id == SPELL_EGAN_BLASTER &&
+                static_cast<Player *>(pCaster)->GetQuestStatus(QUEST_RESTLESS_SOUL) == QUEST_STATUS_INCOMPLETE)
             {
                 m_bIsTagged = true;
                 m_taggerGuid = pCaster->GetObjectGuid();
@@ -185,13 +190,22 @@ struct mob_restless_soulAI : public ScriptedAI
                     m_creature->ForcedDespawn(60000);
                     switch (urand(0, 6)) // not always
                     {
-                        case 0: DoScriptText(SAY_ZAPPED0, m_creature); break;
-                        case 1: DoScriptText(SAY_ZAPPED1, m_creature); break;
-                        case 2: DoScriptText(SAY_ZAPPED2, m_creature); break;
-                        case 3: DoScriptText(SAY_ZAPPED3, m_creature); break;
-                        default: break;
+                    case 0:
+                        DoScriptText(SAY_ZAPPED0, m_creature);
+                        break;
+                    case 1:
+                        DoScriptText(SAY_ZAPPED1, m_creature);
+                        break;
+                    case 2:
+                        DoScriptText(SAY_ZAPPED2, m_creature);
+                        break;
+                    case 3:
+                        DoScriptText(SAY_ZAPPED3, m_creature);
+                        break;
+                    default:
+                        break;
                     }
-                    if (Player* player = m_creature->GetMap()->GetPlayer(m_taggerGuid))
+                    if (Player *player = m_creature->GetMap()->GetPlayer(m_taggerGuid))
                         player->RewardPlayerAndGroupAtEventCredit(NPC_RESTLESS_SOUL, m_creature);
                 }
                 else
@@ -201,7 +215,7 @@ struct mob_restless_soulAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_mob_restless_soul(Creature* pCreature)
+UnitAI *GetAI_mob_restless_soul(Creature *pCreature)
 {
     return new mob_restless_soulAI(pCreature);
 }
@@ -212,20 +226,22 @@ UnitAI* GetAI_mob_restless_soul(Creature* pCreature)
 
 enum
 {
-    SPELL_HAUNTING_PHANTOM  = 16336,
-    SPELL_SLAP              = 6754
+    SPELL_HAUNTING_PHANTOM = 16336,
+    SPELL_SLAP = 6754
 };
 
 struct mobs_spectral_ghostly_citizenAI : public ScriptedAI
 {
-    mobs_spectral_ghostly_citizenAI(Creature* pCreature) : ScriptedAI(pCreature), m_uiDieTimer(2000), m_bIsTagged(false) {Reset();}
+    mobs_spectral_ghostly_citizenAI(Creature *pCreature) : ScriptedAI(pCreature), m_uiDieTimer(2000), m_bIsTagged(false)
+    {
+        Reset();
+    }
 
     uint32 m_uiDieTimer;
     bool m_bIsTagged;
 
     void Reset() override
     {
-
     }
 
     void JustRespawned() override
@@ -235,7 +251,7 @@ struct mobs_spectral_ghostly_citizenAI : public ScriptedAI
         SetCombatMovement(true);
     }
 
-    void SpellHit(Unit* /*pCaster*/, const SpellEntry* pSpell) override
+    void SpellHit(Unit * /*pCaster*/, const SpellEntry *pSpell) override
     {
         if (!m_bIsTagged && pSpell->Id == SPELL_EGAN_BLASTER)
         {
@@ -268,33 +284,33 @@ struct mobs_spectral_ghostly_citizenAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void ReceiveEmote(Player* pPlayer, uint32 uiEmote) override
+    void ReceiveEmote(Player *pPlayer, uint32 uiEmote) override
     {
         switch (uiEmote)
         {
-            case TEXTEMOTE_DANCE:
-                EnterEvadeMode();
-                break;
-            case TEXTEMOTE_RUDE:
-                if (m_creature->IsWithinDistInMap(pPlayer, INTERACTION_DISTANCE))
-                    m_creature->CastSpell(pPlayer, SPELL_SLAP, TRIGGERED_NONE);
-                else
-                    m_creature->HandleEmote(EMOTE_ONESHOT_RUDE);
-                break;
-            case TEXTEMOTE_WAVE:
-                m_creature->HandleEmote(EMOTE_ONESHOT_WAVE);
-                break;
-            case TEXTEMOTE_BOW:
-                m_creature->HandleEmote(EMOTE_ONESHOT_BOW);
-                break;
-            case TEXTEMOTE_KISS:
-                m_creature->HandleEmote(EMOTE_ONESHOT_FLEX);
-                break;
+        case TEXTEMOTE_DANCE:
+            EnterEvadeMode();
+            break;
+        case TEXTEMOTE_RUDE:
+            if (m_creature->IsWithinDistInMap(pPlayer, INTERACTION_DISTANCE))
+                m_creature->CastSpell(pPlayer, SPELL_SLAP, TRIGGERED_NONE);
+            else
+                m_creature->HandleEmote(EMOTE_ONESHOT_RUDE);
+            break;
+        case TEXTEMOTE_WAVE:
+            m_creature->HandleEmote(EMOTE_ONESHOT_WAVE);
+            break;
+        case TEXTEMOTE_BOW:
+            m_creature->HandleEmote(EMOTE_ONESHOT_BOW);
+            break;
+        case TEXTEMOTE_KISS:
+            m_creature->HandleEmote(EMOTE_ONESHOT_FLEX);
+            break;
         }
     }
 };
 
-UnitAI* GetAI_mobs_spectral_ghostly_citizen(Creature* pCreature)
+UnitAI *GetAI_mobs_spectral_ghostly_citizen(Creature *pCreature)
 {
     return new mobs_spectral_ghostly_citizenAI(pCreature);
 }
@@ -305,14 +321,14 @@ UnitAI* GetAI_mobs_spectral_ghostly_citizen(Creature* pCreature)
 
 enum
 {
-    GOSSIP_TEXT_AURIUS_1  = 3755,
-    GOSSIP_TEXT_AURIUS_2  = 3756,
-    GOSSIP_TEXT_AURIUS_3  = 3757,
+    GOSSIP_TEXT_AURIUS_1 = 3755,
+    GOSSIP_TEXT_AURIUS_2 = 3756,
+    GOSSIP_TEXT_AURIUS_3 = 3757,
 };
 
-bool QuestRewarded_npc_aurius(Player* /*pPlayer*/, Creature* pCreature, const Quest* pQuest)
+bool QuestRewarded_npc_aurius(Player * /*pPlayer*/, Creature *pCreature, const Quest *pQuest)
 {
-    ScriptedInstance* pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+    ScriptedInstance *pInstance = (ScriptedInstance *)pCreature->GetInstanceData();
 
     if (!pInstance)
         return false;
@@ -326,9 +342,9 @@ bool QuestRewarded_npc_aurius(Player* /*pPlayer*/, Creature* pCreature, const Qu
     return true;
 }
 
-bool GossipHello_npc_aurius(Player* pPlayer, Creature* pCreature)
+bool GossipHello_npc_aurius(Player *pPlayer, Creature *pCreature)
 {
-    ScriptedInstance* pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+    ScriptedInstance *pInstance = (ScriptedInstance *)pCreature->GetInstanceData();
     if (!pInstance)
         return false;
 
@@ -352,7 +368,7 @@ bool GossipHello_npc_aurius(Player* pPlayer, Creature* pCreature)
 
 void AddSC_stratholme()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "go_service_gate";
     pNewScript->pGOUse = &GOUse_go_service_gate;
     pNewScript->RegisterSelf();
@@ -379,7 +395,7 @@ void AddSC_stratholme()
 
     pNewScript = new Script;
     pNewScript->Name = "npc_aurius";
-    pNewScript->pGossipHello =  &GossipHello_npc_aurius;
+    pNewScript->pGossipHello = &GossipHello_npc_aurius;
     pNewScript->pQuestRewardedNPC = &QuestRewarded_npc_aurius;
     pNewScript->RegisterSelf();
 }

@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -22,15 +22,14 @@ SDCategory: Items
 EndScriptData */
 
 /* ContentData
-item_arcane_charges                 Prevent use if player is not flying (cannot cast while on ground)
-item_flying_machine(i34060,i34061)  Engineering crafted flying machines
-item_gor_dreks_ointment(i30175)     Protecting Our Own(q10488)
+item_arcane_charges                 Prevent use if player is not flying (cannot
+cast while on ground) item_flying_machine(i34060,i34061)  Engineering crafted
+flying machines item_gor_dreks_ointment(i30175)     Protecting Our Own(q10488)
 EndContentData */
 
 #include "AI/ScriptDevAI/include/sc_common.h"
-#include "Spells/Spell.h"
 #include "Spells/Scripts/SpellScript.h"
-
+#include "Spells/Spell.h"
 
 /*#####
 # item_orb_of_draconic_energy
@@ -38,22 +37,23 @@ EndContentData */
 
 enum
 {
-    SPELL_DOMINION_SOUL     = 16053,
-    NPC_EMBERSTRIFE         = 10321
+    SPELL_DOMINION_SOUL = 16053,
+    NPC_EMBERSTRIFE = 10321
 };
 
-bool ItemUse_item_orb_of_draconic_energy(Player* pPlayer, Item* pItem, const SpellCastTargets& /*pTargets*/)
+bool ItemUse_item_orb_of_draconic_energy(Player *pPlayer, Item *pItem, const SpellCastTargets & /*pTargets*/)
 {
-    Creature* pEmberstrife = GetClosestCreatureWithEntry(pPlayer, NPC_EMBERSTRIFE, 20.0f);
+    Creature *pEmberstrife = GetClosestCreatureWithEntry(pPlayer, NPC_EMBERSTRIFE, 20.0f);
     if (!pEmberstrife)
         return false;
 
-    // If Emberstrife already mind controled or above 10% HP: force spell cast failure
+    // If Emberstrife already mind controled or above 10% HP: force spell cast
+    // failure
     if (pEmberstrife->HasAura(SPELL_DOMINION_SOUL) || pEmberstrife->GetHealthPercent() > 10.0f)
     {
         pPlayer->SendEquipError(EQUIP_ERR_NONE, pItem, nullptr);
 
-        if (const SpellEntry* pSpellInfo = GetSpellStore()->LookupEntry<SpellEntry>(SPELL_DOMINION_SOUL))
+        if (const SpellEntry *pSpellInfo = GetSpellStore()->LookupEntry<SpellEntry>(SPELL_DOMINION_SOUL))
             Spell::SendCastResult(pPlayer, pSpellInfo, 1, SPELL_FAILED_TARGET_AURASTATE);
 
         return true;
@@ -68,17 +68,17 @@ bool ItemUse_item_orb_of_draconic_energy(Player* pPlayer, Item* pItem, const Spe
 
 enum
 {
-    SPELL_ARCANE_CHARGES    = 45072
+    SPELL_ARCANE_CHARGES = 45072
 };
 
-bool ItemUse_item_arcane_charges(Player* pPlayer, Item* pItem, const SpellCastTargets& /*pTargets*/)
+bool ItemUse_item_arcane_charges(Player *pPlayer, Item *pItem, const SpellCastTargets & /*pTargets*/)
 {
     if (pPlayer->IsTaxiFlying())
         return false;
 
     pPlayer->SendEquipError(EQUIP_ERR_NONE, pItem, nullptr);
 
-    if (const SpellEntry* pSpellInfo = GetSpellStore()->LookupEntry<SpellEntry>(SPELL_ARCANE_CHARGES))
+    if (const SpellEntry *pSpellInfo = GetSpellStore()->LookupEntry<SpellEntry>(SPELL_ARCANE_CHARGES))
         Spell::SendCastResult(pPlayer, pSpellInfo, 1, SPELL_FAILED_ERROR);
 
     return true;
@@ -88,7 +88,7 @@ bool ItemUse_item_arcane_charges(Player* pPlayer, Item* pItem, const SpellCastTa
 # item_flying_machine
 #####*/
 
-bool ItemUse_item_flying_machine(Player* pPlayer, Item* pItem, const SpellCastTargets& /*pTargets*/)
+bool ItemUse_item_flying_machine(Player *pPlayer, Item *pItem, const SpellCastTargets & /*pTargets*/)
 {
     uint32 itemId = pItem->GetEntry();
 
@@ -100,7 +100,9 @@ bool ItemUse_item_flying_machine(Player* pPlayer, Item* pItem, const SpellCastTa
         if (pPlayer->GetSkillValueBase(SKILL_RIDING) == 300)
             return false;
 
-    debug_log("SD2: Player attempt to use item %u, but did not meet riding requirement", itemId);
+    debug_log("SD2: Player attempt to use item %u, but did not meet riding "
+              "requirement",
+              itemId);
     pPlayer->SendEquipError(EQUIP_ERR_CANT_EQUIP_SKILL, pItem, nullptr);
     return true;
 }
@@ -111,17 +113,18 @@ bool ItemUse_item_flying_machine(Player* pPlayer, Item* pItem, const SpellCastTa
 
 enum
 {
-    NPC_TH_DIRE_WOLF        = 20748,
+    NPC_TH_DIRE_WOLF = 20748,
     SPELL_GORDREKS_OINTMENT = 32578
 };
 
-bool ItemUse_item_gor_dreks_ointment(Player* pPlayer, Item* pItem, const SpellCastTargets& pTargets)
+bool ItemUse_item_gor_dreks_ointment(Player *pPlayer, Item *pItem, const SpellCastTargets &pTargets)
 {
-    if (pTargets.getUnitTarget() && pTargets.getUnitTarget()->GetTypeId() == TYPEID_UNIT && pTargets.getUnitTarget()->HasAura(SPELL_GORDREKS_OINTMENT))
+    if (pTargets.getUnitTarget() && pTargets.getUnitTarget()->GetTypeId() == TYPEID_UNIT &&
+        pTargets.getUnitTarget()->HasAura(SPELL_GORDREKS_OINTMENT))
     {
         pPlayer->SendEquipError(EQUIP_ERR_NONE, pItem, nullptr);
 
-        if (const SpellEntry* pSpellInfo = GetSpellStore()->LookupEntry<SpellEntry>(SPELL_GORDREKS_OINTMENT))
+        if (const SpellEntry *pSpellInfo = GetSpellStore()->LookupEntry<SpellEntry>(SPELL_GORDREKS_OINTMENT))
             Spell::SendCastResult(pPlayer, pSpellInfo, 1, SPELL_FAILED_TARGET_AURASTATE);
 
         return true;
@@ -137,13 +140,14 @@ enum
 
 struct AshbringerItemAura : public AuraScript
 {
-    void OnApply(Aura* aura, bool apply) const
+    void OnApply(Aura *aura, bool apply) const
     {
         if (apply)
         {
-            Unit* target = aura->GetTarget();
+            Unit *target = aura->GetTarget();
             int32 basepoints = ReputationRank(REP_FRIENDLY);
-            target->CastCustomSpell(nullptr, SPELL_ASHBRINGER_EFFECT_001, &basepoints, nullptr, nullptr, TRIGGERED_OLD_TRIGGERED);
+            target->CastCustomSpell(nullptr, SPELL_ASHBRINGER_EFFECT_001, &basepoints, nullptr, nullptr,
+                                    TRIGGERED_OLD_TRIGGERED);
         }
         else
             aura->GetTarget()->RemoveAurasDueToSpell(SPELL_ASHBRINGER_EFFECT_001);
@@ -157,11 +161,11 @@ enum
 
 struct X52RocketHelmetAura : public AuraScript
 {
-    void OnApply(Aura* aura, bool apply) const
+    void OnApply(Aura *aura, bool apply) const
     {
         if (!apply)
         {
-            Unit* target = aura->GetTarget();
+            Unit *target = aura->GetTarget();
             target->CastSpell(target, SPELL_PARACHUTE, TRIGGERED_OLD_TRIGGERED);
         }
     }
@@ -174,9 +178,9 @@ enum
 
 struct PowerCircleAura : public AuraScript
 {
-    void OnApply(Aura* aura, bool apply) const
+    void OnApply(Aura *aura, bool apply) const
     {
-        Unit* target = aura->GetTarget();
+        Unit *target = aura->GetTarget();
         if (apply && target->GetObjectGuid() == aura->GetCasterGuid())
             target->CastSpell(nullptr, SPELL_LIMITLESS_POWER, TRIGGERED_OLD_TRIGGERED);
         else
@@ -187,12 +191,12 @@ struct PowerCircleAura : public AuraScript
 enum
 {
     SPELL_GDR_PERIODIC_DAMAGE = 13493,
-    SPELL_GDR_DAMAGE_HIT      = 13279,
+    SPELL_GDR_DAMAGE_HIT = 13279,
 };
 
 struct GDRChannel : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx == EFFECT_INDEX_1)
             spell->GetCaster()->CastSpell(nullptr, SPELL_GDR_PERIODIC_DAMAGE, TRIGGERED_OLD_TRIGGERED);
@@ -201,29 +205,30 @@ struct GDRChannel : public SpellScript
 
 struct GDRPeriodicDamage : public AuraScript
 {
-    int32 OnAuraValueCalculate(AuraCalcData& /*data*/, int32 /*value*/) const override
+    int32 OnAuraValueCalculate(AuraCalcData & /*data*/, int32 /*value*/) const override
     {
         return urand(100, 500);
     }
 
-    void OnApply(Aura* aura, bool apply) const override
+    void OnApply(Aura *aura, bool apply) const override
     {
         if (!apply && aura->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
         {
             int32 dmg = (int32)aura->GetScriptValue();
-            aura->GetTarget()->CastCustomSpell(aura->GetTarget()->GetTarget(), SPELL_GDR_DAMAGE_HIT, &dmg, nullptr, nullptr, TRIGGERED_OLD_TRIGGERED);
+            aura->GetTarget()->CastCustomSpell(aura->GetTarget()->GetTarget(), SPELL_GDR_DAMAGE_HIT, &dmg, nullptr,
+                                               nullptr, TRIGGERED_OLD_TRIGGERED);
         }
     }
 };
 
 struct OgrilaFlasks : public AuraScript
 {
-    void OnApply(Aura* aura, bool apply) const override
+    void OnApply(Aura *aura, bool apply) const override
     {
         if (aura->GetEffIndex() != EFFECT_INDEX_0 || apply)
             return;
 
-        SpellEntry const* spellInfo = aura->GetSpellProto();
+        SpellEntry const *spellInfo = aura->GetSpellProto();
         for (uint32 i = EFFECT_INDEX_1; i < MAX_EFFECT_INDEX; ++i)
             if (uint32 triggerSpell = spellInfo->EffectTriggerSpell[i])
                 aura->GetTarget()->RemoveAurasDueToSpell(triggerSpell);
@@ -232,7 +237,7 @@ struct OgrilaFlasks : public AuraScript
 
 struct ReducedProcChancePast60 : public AuraScript
 {
-    void OnHolderInit(SpellAuraHolder* holder, WorldObject* /*caster*/) const override
+    void OnHolderInit(SpellAuraHolder *holder, WorldObject * /*caster*/) const override
     {
         holder->SetReducedProcChancePast60();
     }
@@ -240,14 +245,20 @@ struct ReducedProcChancePast60 : public AuraScript
 
 struct BanishExile : public SpellScript
 {
-    SpellCastResult OnCheckCast(Spell* spell, bool /*strict*/) const override
+    SpellCastResult OnCheckCast(Spell *spell, bool /*strict*/) const override
     {
         uint32 entry = 0;
         switch (spell->m_spellInfo->Id)
         {
-            case 4130: entry = 2760; break; // Burning Exile
-            case 4131: entry = 2761; break; // Cresting Exile
-            case 4132: entry = 2762; break; // Thundering Exile
+        case 4130:
+            entry = 2760;
+            break; // Burning Exile
+        case 4131:
+            entry = 2761;
+            break; // Cresting Exile
+        case 4132:
+            entry = 2762;
+            break; // Thundering Exile
         }
         if (ObjectGuid target = spell->m_targets.getUnitTargetGuid()) // can be cast only on this target
             if (target.GetEntry() != entry)
@@ -256,9 +267,9 @@ struct BanishExile : public SpellScript
         return SPELL_CAST_OK;
     }
 
-    void OnEffectExecute(Spell* spell, SpellEffectIndex /*effIdx*/) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex /*effIdx*/) const override
     {
-        Unit* target = spell->GetUnitTarget();
+        Unit *target = spell->GetUnitTarget();
         if (!target)
             return;
 
@@ -269,7 +280,7 @@ struct BanishExile : public SpellScript
 
 struct OrbOfDeception : public AuraScript
 {
-    void OnApply(Aura* aura, bool apply) const override
+    void OnApply(Aura *aura, bool apply) const override
     {
         if (apply)
         {
@@ -278,47 +289,88 @@ struct OrbOfDeception : public AuraScript
             uint32 resultingTemplate = 0;
             switch (orbModel)
             {
-                // Troll Female
-                case 1479: resultingModel = 10134; break;
-                // Troll Male
-                case 1478: resultingModel = 10135; break;
-                // Tauren Male
-                case 59:   resultingModel = 10136; break;
-                // Human Male
-                case 49:   resultingModel = 10137; break;
-                // Human Female
-                case 50:   resultingModel = 10138; break;
-                // Orc Male
-                case 51:   resultingModel = 10139; break;
-                // Orc Female
-                case 52:   resultingModel = 10140; break;
-                // Dwarf Male
-                case 53:   resultingModel = 10141; break;
-                // Dwarf Female
-                case 54:   resultingModel = 10142; break;
-                // NightElf Male
-                case 55:   resultingModel = 10143; break;
-                // NightElf Female
-                case 56:   resultingModel = 10144; break;
-                // Undead Female
-                case 58:   resultingModel = 10145; break;
-                // Undead Male
-                case 57:   resultingModel = 10146; break;
-                // Tauren Female
-                case 60:   resultingModel = 10147; break;
-                // Gnome Male
-                case 1563: resultingModel = 10148; break;
-                // Gnome Female
-                case 1564: resultingModel = 10149;break;
-                // BloodElf Female
-                case 15475: resultingModel = 17830;break;
-                // BloodElf Male
-                case 15476: resultingModel = 17829;break;
-                // Dranei Female
-                case 16126: resultingModel = 17828;break;
-                // Dranei Male
-                case 16125: resultingModel = 17827;break;
-                default: break;
+            // Troll Female
+            case 1479:
+                resultingModel = 10134;
+                break;
+            // Troll Male
+            case 1478:
+                resultingModel = 10135;
+                break;
+            // Tauren Male
+            case 59:
+                resultingModel = 10136;
+                break;
+            // Human Male
+            case 49:
+                resultingModel = 10137;
+                break;
+            // Human Female
+            case 50:
+                resultingModel = 10138;
+                break;
+            // Orc Male
+            case 51:
+                resultingModel = 10139;
+                break;
+            // Orc Female
+            case 52:
+                resultingModel = 10140;
+                break;
+            // Dwarf Male
+            case 53:
+                resultingModel = 10141;
+                break;
+            // Dwarf Female
+            case 54:
+                resultingModel = 10142;
+                break;
+            // NightElf Male
+            case 55:
+                resultingModel = 10143;
+                break;
+            // NightElf Female
+            case 56:
+                resultingModel = 10144;
+                break;
+            // Undead Female
+            case 58:
+                resultingModel = 10145;
+                break;
+            // Undead Male
+            case 57:
+                resultingModel = 10146;
+                break;
+            // Tauren Female
+            case 60:
+                resultingModel = 10147;
+                break;
+            // Gnome Male
+            case 1563:
+                resultingModel = 10148;
+                break;
+            // Gnome Female
+            case 1564:
+                resultingModel = 10149;
+                break;
+            // BloodElf Female
+            case 15475:
+                resultingModel = 17830;
+                break;
+            // BloodElf Male
+            case 15476:
+                resultingModel = 17829;
+                break;
+            // Dranei Female
+            case 16126:
+                resultingModel = 17828;
+                break;
+            // Dranei Male
+            case 16125:
+                resultingModel = 17827;
+                break;
+            default:
+                break;
             }
             aura->GetModifier()->m_amount = resultingModel;
         }
@@ -327,7 +379,7 @@ struct OrbOfDeception : public AuraScript
 
 void AddSC_item_scripts()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "item_orb_of_draconic_energy";
     pNewScript->pItemUse = &ItemUse_item_orb_of_draconic_energy;
     pNewScript->RegisterSelf();

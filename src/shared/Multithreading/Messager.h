@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,34 +20,34 @@
 #ifndef MANGOS_MESSAGER_H
 #define MANGOS_MESSAGER_H
 
-#include <vector>
-#include <mutex>
 #include <functional>
+#include <mutex>
+#include <vector>
 
-template <class T>
-class Messager
+template <class T> class Messager
 {
-    public:
-        void AddMessage(const std::function<void(T*)>& message)
+  public:
+    void AddMessage(const std::function<void(T *)> &message)
+    {
+        std::lock_guard<std::mutex> guard(m_messageMutex);
+        m_messageVector.push_back(message);
+    }
+    void Execute(T *object)
+    {
+        std::vector<std::function<void(T *)>> messageVectorCopy;
         {
             std::lock_guard<std::mutex> guard(m_messageMutex);
-            m_messageVector.push_back(message);
+            std::swap(m_messageVector, messageVectorCopy);
         }
-        void Execute(T* object)
-        {
-            std::vector<std::function<void(T*)>> messageVectorCopy;
-            {
-                std::lock_guard<std::mutex> guard(m_messageMutex);
-                std::swap(m_messageVector, messageVectorCopy);
-            }
-            for (auto& message : messageVectorCopy)
-                message(object);
+        for (auto &message : messageVectorCopy)
+            message(object);
 
-            messageVectorCopy.clear();
-        }
-    private:
-        std::vector<std::function<void(T*)>> m_messageVector;
-        std::mutex m_messageMutex;  
+        messageVectorCopy.clear();
+    }
+
+  private:
+    std::vector<std::function<void(T *)>> m_messageVector;
+    std::mutex m_messageMutex;
 };
 
 #endif

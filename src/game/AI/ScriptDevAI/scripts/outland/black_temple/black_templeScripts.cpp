@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -25,47 +25,49 @@ EndScriptData */
 npc_greater_shadowfiend
 EndContentData */
 
-#include "AI/ScriptDevAI/include/sc_common.h"
-#include "black_temple.h"
 #include "AI/ScriptDevAI/base/CombatAI.h"
+#include "AI/ScriptDevAI/include/sc_common.h"
 #include "Spells/Scripts/SpellScript.h"
+#include "black_temple.h"
 
 /*######
 ## npc_greater_shadowfiend
 ######*/
 
-#define SPELL_SHADOWFORM    34429
+#define SPELL_SHADOWFORM 34429
 
 struct npc_greater_shadowfiend : public ScriptedAI
 {
-    npc_greater_shadowfiend(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_greater_shadowfiend(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     void Reset() override
     {
         DoCastSpellIfCan(m_creature, SPELL_SHADOWFORM);
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         m_creature->SetInCombatWithZone();
-        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, nullptr, SELECT_FLAG_PLAYER))
+        if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, nullptr, SELECT_FLAG_PLAYER))
             m_creature->AddThreat(pTarget, 100000.f);
     }
 };
 
 enum
 {
-    SPELL_COMBAT_RAGE   = 41251,
-    SPELL_FRENZY        = 41254,
-    SPELL_ENRAGE        = 8269,
+    SPELL_COMBAT_RAGE = 41251,
+    SPELL_FRENZY = 41254,
+    SPELL_ENRAGE = 8269,
 
-    NPC_BONECHEWER_BRAWLER      = 23222,
-    NPC_BONECHEWER_COMBATANT    = 23239,
+    NPC_BONECHEWER_BRAWLER = 23222,
+    NPC_BONECHEWER_COMBATANT = 23239,
 
-
-    SAY_EMOTE_EXPIRE    = -1564143,
-    SAY_EMOTE_RISE      = -1564144,
-    SAY_KILLING_FRENZY  = -1564145,
+    SAY_EMOTE_EXPIRE = -1564143,
+    SAY_EMOTE_RISE = -1564144,
+    SAY_KILLING_FRENZY = -1564145,
 };
 
 enum BonechewerActions
@@ -79,7 +81,7 @@ enum BonechewerActions
 
 struct npc_bonechewer_brawler : public CombatAI
 {
-    npc_bonechewer_brawler(Creature* creature) : CombatAI(creature, BONECHEWER_ACTION_MAX)
+    npc_bonechewer_brawler(Creature *creature) : CombatAI(creature, BONECHEWER_ACTION_MAX)
     {
         AddTimerlessCombatAction(BONECHEWER_STOP_EVENT, true);
         AddTimerlessCombatAction(BONECHEWER_ENRAGE, true);
@@ -100,7 +102,7 @@ struct npc_bonechewer_brawler : public CombatAI
         DoScriptText(SAY_EMOTE_RISE, m_creature);
     }
 
-    void ReceiveAIEvent(AIEventType eventType, Unit* /*sender*/, Unit* invoker, uint32 /*miscValue*/) override
+    void ReceiveAIEvent(AIEventType eventType, Unit * /*sender*/, Unit *invoker, uint32 /*miscValue*/) override
     {
         if (eventType == AI_EVENT_CUSTOM_A)
         {
@@ -122,39 +124,36 @@ struct npc_bonechewer_brawler : public CombatAI
     {
         switch (action)
         {
-            case BONECHEWER_STOP_EVENT:
+        case BONECHEWER_STOP_EVENT: {
+            if (m_eventStarted && m_creature->GetHealthPercent() <= 40.f)
             {
-                if (m_eventStarted && m_creature->GetHealthPercent() <= 40.f)
-                {
-                    EnterEvadeMode();
-                }
-                break;
+                EnterEvadeMode();
             }
-            case BONECHEWER_ENRAGE:
-            {
-                if (m_creature->GetHealthPercent() > 30.f)
-                    break;
+            break;
+        }
+        case BONECHEWER_ENRAGE: {
+            if (m_creature->GetHealthPercent() > 30.f)
+                break;
 
-                if (DoCastSpellIfCan(nullptr, SPELL_ENRAGE) == CAST_OK)
-                    SetActionReadyStatus(action, false);
-                break;
-            }
-            case BONECHEWER_FRENZY:
+            if (DoCastSpellIfCan(nullptr, SPELL_ENRAGE) == CAST_OK)
+                SetActionReadyStatus(action, false);
+            break;
+        }
+        case BONECHEWER_FRENZY: {
+            if (DoCastSpellIfCan(nullptr, SPELL_FRENZY) == CAST_OK)
             {
-                if (DoCastSpellIfCan(nullptr, SPELL_FRENZY) == CAST_OK)
-                {
-                    ResetCombatAction(action, urand(21000, 28000));
-                    DoScriptText(SAY_KILLING_FRENZY, m_creature);
-                }
-                break;
+                ResetCombatAction(action, urand(21000, 28000));
+                DoScriptText(SAY_KILLING_FRENZY, m_creature);
             }
+            break;
+        }
         }
     }
 };
 
 struct npc_bonechewer_combatant : public CombatAI
 {
-    npc_bonechewer_combatant(Creature* creature) : CombatAI(creature, BONECHEWER_ACTION_MAX)
+    npc_bonechewer_combatant(Creature *creature) : CombatAI(creature, BONECHEWER_ACTION_MAX)
     {
         AddTimerlessCombatAction(BONECHEWER_STOP_EVENT, true);
         AddTimerlessCombatAction(BONECHEWER_ENRAGE, true);
@@ -181,7 +180,7 @@ struct npc_bonechewer_combatant : public CombatAI
         if (m_creature->IsInCombat())
             return;
 
-        if (Creature* brawler = GetClosestCreatureWithEntry(m_creature, NPC_BONECHEWER_BRAWLER, 30.f))
+        if (Creature *brawler = GetClosestCreatureWithEntry(m_creature, NPC_BONECHEWER_BRAWLER, 30.f))
         {
             m_creature->SetFactionTemporary(1692, TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_COMBAT_STOP);
             SendAIEvent(AI_EVENT_CUSTOM_A, m_creature, brawler);
@@ -194,29 +193,26 @@ struct npc_bonechewer_combatant : public CombatAI
     {
         switch (action)
         {
-            case BONECHEWER_STOP_EVENT:
+        case BONECHEWER_STOP_EVENT: {
+            if (m_eventStarted && m_creature->GetHealthPercent() <= 40.f)
             {
-                if (m_eventStarted && m_creature->GetHealthPercent() <= 40.f)
-                {
-                    EnterEvadeMode();
-                }
-                break;
+                EnterEvadeMode();
             }
-            case BONECHEWER_ENRAGE:
-            {
-                if (m_creature->GetHealthPercent() > 30.f)
-                    break;
+            break;
+        }
+        case BONECHEWER_ENRAGE: {
+            if (m_creature->GetHealthPercent() > 30.f)
+                break;
 
-                if (DoCastSpellIfCan(nullptr, SPELL_ENRAGE) == CAST_OK)
-                    SetActionReadyStatus(action, false);
-                break;
-            }
-            case BONECHEWER_FRENZY:
-            {
-                if (DoCastSpellIfCan(nullptr, SPELL_COMBAT_RAGE) == CAST_OK)
-                    ResetCombatAction(action, 10000);
-                break;
-            }
+            if (DoCastSpellIfCan(nullptr, SPELL_ENRAGE) == CAST_OK)
+                SetActionReadyStatus(action, false);
+            break;
+        }
+        case BONECHEWER_FRENZY: {
+            if (DoCastSpellIfCan(nullptr, SPELL_COMBAT_RAGE) == CAST_OK)
+                ResetCombatAction(action, 10000);
+            break;
+        }
         }
     }
 
@@ -227,7 +223,7 @@ struct npc_bonechewer_combatant : public CombatAI
         {
             if (m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0, nullptr, SELECT_FLAG_PLAYER))
             {
-                if (Creature* brawler = GetClosestCreatureWithEntry(m_creature, NPC_BONECHEWER_BRAWLER, 30.f))
+                if (Creature *brawler = GetClosestCreatureWithEntry(m_creature, NPC_BONECHEWER_BRAWLER, 30.f))
                 {
                     SendAIEvent(AI_EVENT_CUSTOM_B, m_creature, brawler);
                     m_creature->getThreatManager().modifyThreatPercent(brawler, -101);
@@ -247,12 +243,12 @@ enum
 
 struct SpellAbsorption : public AuraScript
 {
-    bool OnCheckProc(Aura* /*aura*/, ProcExecutionData& data) const override
+    bool OnCheckProc(Aura * /*aura*/, ProcExecutionData &data) const override
     {
-		return data.spell && !data.spell->m_spellInfo->HasAttribute(SPELL_ATTR_ABILITY);
+        return data.spell && !data.spell->m_spellInfo->HasAttribute(SPELL_ATTR_ABILITY);
     }
 
-    void OnPeriodicTrigger(Aura* aura, PeriodicTriggerData& data) const override
+    void OnPeriodicTrigger(Aura *aura, PeriodicTriggerData &data) const override
     {
         data.basePoints[0] = data.basePoints[0] * aura->GetTarget()->GetAuraCount(SPELL_CHAOTIC_CHARGE);
         if (!data.basePoints[0])
@@ -267,13 +263,13 @@ enum
 
 struct HarpoonersMark : public AuraScript
 {
-    void OnApply(Aura* aura, bool apply) const override
+    void OnApply(Aura *aura, bool apply) const override
     {
         if (apply)
             aura->GetTarget()->CastSpell(nullptr, SPELL_FOCUSED, TRIGGERED_OLD_TRIGGERED);
     }
 
-    void OnPeriodicDummy(Aura* aura) const override
+    void OnPeriodicDummy(Aura *aura) const override
     {
         aura->GetTarget()->CastSpell(nullptr, SPELL_FOCUSED, TRIGGERED_OLD_TRIGGERED);
     }
@@ -281,16 +277,16 @@ struct HarpoonersMark : public AuraScript
 
 struct AssistBT : public SpellScript
 {
-    bool OnCheckTarget(const Spell* /*spell*/, Unit* target, SpellEffectIndex /*eff*/) const override
+    bool OnCheckTarget(const Spell * /*spell*/, Unit *target, SpellEffectIndex /*eff*/) const override
     {
         if (target->HasAura(40893) || target->GetHealthPercent() < 20.f)
             return false;
         return true;
     }
 
-    void OnEffectExecute(Spell* spell, SpellEffectIndex /*effIdx*/) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex /*effIdx*/) const override
     {
-        Unit* unitTarget = spell->GetUnitTarget();
+        Unit *unitTarget = spell->GetUnitTarget();
         if (!unitTarget || !unitTarget->IsInCombat())
             return;
 
@@ -300,23 +296,24 @@ struct AssistBT : public SpellScript
 
 struct FixateBT : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx != EFFECT_INDEX_2)
             return;
 
-        Unit* unitTarget = spell->GetUnitTarget();
+        Unit *unitTarget = spell->GetUnitTarget();
         if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
             return;
 
         spell->GetCaster()->AI()->SendAIEvent(AI_EVENT_CUSTOM_EVENTAI_A, unitTarget, spell->GetCaster());
-        unitTarget->CastSpell(spell->GetCaster(), spell->m_spellInfo->CalculateSimpleValue(effIdx), TRIGGERED_OLD_TRIGGERED);
+        unitTarget->CastSpell(spell->GetCaster(), spell->m_spellInfo->CalculateSimpleValue(effIdx),
+                              TRIGGERED_OLD_TRIGGERED);
     }
 };
 
 struct StormBlink : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (!spell->GetUnitTarget() || effIdx != EFFECT_INDEX_0)
             return;
@@ -326,7 +323,7 @@ struct StormBlink : public SpellScript
 
 void AddSC_black_temple()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "npc_greater_shadowfiend";
     pNewScript->GetAI = &GetNewAIInstance<npc_greater_shadowfiend>;
     pNewScript->RegisterSelf();

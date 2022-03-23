@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +18,14 @@
  */
 
 #include "MotionGenerators/WrapperMovementGenerator.h"
-#include "Entities/Creature.h"
+
 #include "AI/BaseAI/UnitAI.h"
+#include "Entities/Creature.h"
 #include "Entities/TemporarySpawn.h"
 #include "Movement/MoveSpline.h"
 #include "Movement/MoveSplineInit.h"
 
-void AbstractWrapperMovementGenerator::Initialize(Unit& owner)
+void AbstractWrapperMovementGenerator::Initialize(Unit &owner)
 {
     // Stop any previously dispatched splines no matter the source
     if (!owner.movespline->Finalized())
@@ -42,11 +44,12 @@ void AbstractWrapperMovementGenerator::Initialize(Unit& owner)
 
     if (!owner.IsPlayerControlled())
     {
-        if (i_id != 43153 && i_id != 30751) // Lynx Rush exception | Blade Dance Charge - can be done in AI - here for research
+        if (i_id != 43153 && i_id != 30751) // Lynx Rush exception | Blade Dance Charge - can
+                                            // be done in AI - here for research
             i_useTimer = true;
         if (owner.movespline->isFacingTarget())
         {
-            if (Unit* target = ObjectAccessor::GetUnit(owner, ObjectGuid(owner.movespline->GetFacing().target)))
+            if (Unit *target = ObjectAccessor::GetUnit(owner, ObjectGuid(owner.movespline->GetFacing().target)))
             {
                 if (owner.CanAttackInCombat(target))
                 {
@@ -58,7 +61,7 @@ void AbstractWrapperMovementGenerator::Initialize(Unit& owner)
     }
 }
 
-void AbstractWrapperMovementGenerator::Finalize(Unit& owner)
+void AbstractWrapperMovementGenerator::Finalize(Unit &owner)
 {
     // Stop any previously dispatched splines no matter the source
     if (!owner.movespline->Finalized())
@@ -73,18 +76,18 @@ void AbstractWrapperMovementGenerator::Finalize(Unit& owner)
         Inform(owner);
 }
 
-void AbstractWrapperMovementGenerator::Interrupt(Unit& owner)
+void AbstractWrapperMovementGenerator::Interrupt(Unit &owner)
 {
     i_dispatched = (!i_resident || owner.movespline->Finalized());
     owner.InterruptMoving();
 }
 
-void AbstractWrapperMovementGenerator::Reset(Unit& owner)
+void AbstractWrapperMovementGenerator::Reset(Unit &owner)
 {
     Initialize(owner);
 }
 
-bool AbstractWrapperMovementGenerator::Update(Unit& owner, const uint32& diff)
+bool AbstractWrapperMovementGenerator::Update(Unit &owner, const uint32 &diff)
 {
     if (i_delayed && !i_dispatched)
     {
@@ -114,31 +117,31 @@ bool AbstractWrapperMovementGenerator::Update(Unit& owner, const uint32& diff)
     return !finalized;
 }
 
-void AbstractWrapperMovementGenerator::Inform(Unit& owner)
+void AbstractWrapperMovementGenerator::Inform(Unit &owner)
 {
     i_informed = true;
 
     const MovementGeneratorType type = GetMovementGeneratorType();
 
-    if (UnitAI* ai = owner.AI())
+    if (UnitAI *ai = owner.AI())
         ai->MovementInform(type, i_id);
 
-    if (owner.GetTypeId() == TYPEID_UNIT && static_cast<Creature&>(owner).IsTemporarySummon())
+    if (owner.GetTypeId() == TYPEID_UNIT && static_cast<Creature &>(owner).IsTemporarySummon())
     {
-        ObjectGuid const& spawnerGuid = owner.GetSpawnerGuid();
+        ObjectGuid const &spawnerGuid = owner.GetSpawnerGuid();
 
         if (spawnerGuid.IsCreatureOrPet())
         {
-            if (Creature* spawner = owner.GetMap()->GetAnyTypeCreature(spawnerGuid))
+            if (Creature *spawner = owner.GetMap()->GetAnyTypeCreature(spawnerGuid))
             {
-                if (UnitAI* ai = spawner->AI())
-                    ai->SummonedMovementInform(&static_cast<Creature&>(owner), type, i_id);
+                if (UnitAI *ai = spawner->AI())
+                    ai->SummonedMovementInform(&static_cast<Creature &>(owner), type, i_id);
             }
         }
     }
 }
 
-void EffectMovementGenerator::Initialize(Unit& owner)
+void EffectMovementGenerator::Initialize(Unit &owner)
 {
     owner.addUnitState(UNIT_STAT_ROAMING | UNIT_STAT_PROPELLED);
 
@@ -148,13 +151,13 @@ void EffectMovementGenerator::Initialize(Unit& owner)
     AbstractWrapperMovementGenerator::Initialize(owner);
 }
 
-void EffectMovementGenerator::Finalize(Unit& owner)
+void EffectMovementGenerator::Finalize(Unit &owner)
 {
     owner.clearUnitState(UNIT_STAT_ROAMING | UNIT_STAT_ROAMING_MOVE | UNIT_STAT_PROPELLED);
     AbstractWrapperMovementGenerator::Finalize(owner);
 }
 
-void EffectMovementGenerator::Interrupt(Unit& owner)
+void EffectMovementGenerator::Interrupt(Unit &owner)
 {
     owner.clearUnitState(UNIT_STAT_ROAMING_MOVE);
     AbstractWrapperMovementGenerator::Interrupt(owner);

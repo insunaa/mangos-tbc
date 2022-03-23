@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +20,8 @@
 #ifndef MANGOS_TOTEMAI_H
 #define MANGOS_TOTEMAI_H
 
-#include "CreatureAI.h"
 #include "AI/EventAI/CreatureEventAI.h"
+#include "CreatureAI.h"
 #include "Entities/ObjectGuid.h"
 #include "Timer.h"
 
@@ -29,22 +30,26 @@ class Totem;
 
 class TotemAI : public CreatureEventAI
 {
-    public:
-        explicit TotemAI(Creature* creature);
+  public:
+    explicit TotemAI(Creature *creature);
 
-        void SpellHit(Unit* unit, const SpellEntry* spellInfo) override;
-        void MoveInLineOfSight(Unit* who) override;
-        void AttackStart(Unit* who) override;
-        void EnterEvadeMode() override;
-        bool IsVisible(Unit* who) const override;
+    void SpellHit(Unit *unit, const SpellEntry *spellInfo) override;
+    void MoveInLineOfSight(Unit *who) override;
+    void AttackStart(Unit *who) override;
+    void EnterEvadeMode() override;
+    bool IsVisible(Unit *who) const override;
 
-        void UpdateAI(const uint32 diff) override;
-        static int Permissible(const Creature* creature);
-    protected:
-        std::string GetAIName() override { return "TotemAI"; }
-        Totem& getTotem() const;
+    void UpdateAI(const uint32 diff) override;
+    static int Permissible(const Creature *creature);
 
-    private:
-        ObjectGuid i_victimGuid;
+  protected:
+    std::string GetAIName() override
+    {
+        return "TotemAI";
+    }
+    Totem &getTotem() const;
+
+  private:
+    ObjectGuid i_victimGuid;
 };
 #endif

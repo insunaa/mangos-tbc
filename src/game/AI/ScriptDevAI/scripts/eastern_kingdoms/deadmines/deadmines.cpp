@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -21,12 +21,13 @@ SDComment: Contains GO for Iron Clad door event
 SDCategory: Deadmines
 EndScriptData */
 
-#include "AI/ScriptDevAI/include/sc_common.h"
 #include "deadmines.h"
 
-bool GOUse_go_defias_cannon(Player* /*pPlayer*/, GameObject* pGo)
+#include "AI/ScriptDevAI/include/sc_common.h"
+
+bool GOUse_go_defias_cannon(Player * /*pPlayer*/, GameObject *pGo)
 {
-    ScriptedInstance* pInstance = (ScriptedInstance*)pGo->GetInstanceData();
+    ScriptedInstance *pInstance = (ScriptedInstance *)pGo->GetInstanceData();
 
     if (!pInstance)
         return false;
@@ -40,23 +41,22 @@ bool GOUse_go_defias_cannon(Player* /*pPlayer*/, GameObject* pGo)
 
 struct UnarmedWoodcutter : public AuraScript
 {
-    void OnApply(Aura* aura, bool apply) const override
+    void OnApply(Aura *aura, bool apply) const override
     {
         if (aura->GetEffIndex() != EFFECT_INDEX_0)
             return;
 
         if (apply)
-            static_cast<Creature*>(aura->GetTarget())->LoadEquipment(0, true);
+            static_cast<Creature *>(aura->GetTarget())->LoadEquipment(0, true);
 
         else
-            static_cast<Creature*>(aura->GetTarget())->LoadEquipment(641, true);
-
+            static_cast<Creature *>(aura->GetTarget())->LoadEquipment(641, true);
     }
 };
 
 void AddSC_deadmines()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "go_defias_cannon";
     pNewScript->pGOUse = &GOUse_go_defias_cannon;
     pNewScript->RegisterSelf();

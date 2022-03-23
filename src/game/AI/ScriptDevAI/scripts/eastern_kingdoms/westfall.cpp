@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -22,9 +22,9 @@ SDCategory: Westfall
 EndScriptData
 */
 
-#include "AI/ScriptDevAI/include/sc_common.h"
-#include "AI/ScriptDevAI/base/escort_ai.h"
 #include "AI/ScriptDevAI/base/TimerAI.h"
+#include "AI/ScriptDevAI/base/escort_ai.h"
+#include "AI/ScriptDevAI/include/sc_common.h"
 
 /* ContentData
 npc_daphne_stilwell
@@ -38,21 +38,21 @@ EndContentData */
 
 enum
 {
-    YELL_DEFIAS_START   = -1000412,
-    YELL_DAPHNE_START   = -1000413,
-    SAY_DS_START        = -1000293,
-    SAY_WAVE_DOWN_1     = -1000294,
-    SAY_WAVE_DOWN_2     = -1000295,
-    SAY_WAVE_DOWN_3     = -1000414,
-    SAY_DS_DOWN_3       = -1000296,
-    SAY_DS_PROLOGUE     = -1000297,
+    YELL_DEFIAS_START = -1000412,
+    YELL_DAPHNE_START = -1000413,
+    SAY_DS_START = -1000293,
+    SAY_WAVE_DOWN_1 = -1000294,
+    SAY_WAVE_DOWN_2 = -1000295,
+    SAY_WAVE_DOWN_3 = -1000414,
+    SAY_DS_DOWN_3 = -1000296,
+    SAY_DS_PROLOGUE = -1000297,
 
-    SPELL_SHOOT         = 6660,
-    QUEST_TOME_VALOR    = 1651,
-    NPC_DEFIAS_RAIDER   = 6180,
-    EQUIP_ID_RIFLE      = 2511,
+    SPELL_SHOOT = 6660,
+    QUEST_TOME_VALOR = 1651,
+    NPC_DEFIAS_RAIDER = 6180,
+    EQUIP_ID_RIFLE = 2511,
 
-    DAPHNE_SHOOT_CD     = 2000
+    DAPHNE_SHOOT_CD = 2000
 };
 
 enum Wave
@@ -62,8 +62,7 @@ enum Wave
     THIRD
 };
 
-float RaiderCoords[15][3] =
-{
+float RaiderCoords[15][3] = {
     {-11428.520f, 1612.757f, 72.241f}, // Spawn1
     {-11422.998f, 1616.106f, 74.153f}, // Spawn2
     {-11430.354f, 1618.334f, 72.632f}, // Spawn3
@@ -85,7 +84,7 @@ float RaiderCoords[15][3] =
 
 struct npc_daphne_stilwellAI : public npc_escortAI
 {
-    npc_daphne_stilwellAI(Creature* creature) : npc_escortAI(creature)
+    npc_daphne_stilwellAI(Creature *creature) : npc_escortAI(creature)
     {
         AddCustomAction(1, true, [&]() { DoSendWave(); });
         Reset();
@@ -112,69 +111,61 @@ struct npc_daphne_stilwellAI : public npc_escortAI
     {
         switch (pointId)
         {
-            case 4:
-            {
-                // Start summoning the three waves (everything else is handled in DoSendWave())
-                m_wave = 0;
-                ResetTimer(1, 1 * IN_MILLISECONDS);
-                m_creature->HandleEmote(EMOTE_STATE_USESTANDING_NOSHEATHE);
-                break;
-            }
-            case 5:
-            {
-                // Take her gun
-                SetEquipmentSlots(false, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE, EQUIP_ID_RIFLE);
-                m_creature->SetSheath(SHEATH_STATE_RANGED);
-                m_creature->HandleEmote(EMOTE_STATE_STAND);
-                break;
-            }
-            case 7:
-            {
-                // Stay put and wait for the Defias to come down
-                SetRun(false);
-                DoScriptText(YELL_DAPHNE_START, m_creature);
-                SetCombatMovement(false);
-                SetEscortPaused(true);
-                break;
-            }
-            case 8:
-            {
-                // Cheer after defeating the Defias
-                DoScriptText(SAY_DS_DOWN_3, m_creature);
-                m_creature->HandleEmote(EMOTE_ONESHOT_CHEER);
-                break;
-            }
-            case 9:
-            {
-                DoScriptText(SAY_DS_PROLOGUE, m_creature);
-                SetCombatMovement(true);
-                break;
-            }
-            case 12:
-            {
-                SetEquipmentSlots(true);
-                m_creature->SetSheath(SHEATH_STATE_UNARMED);
-                m_creature->HandleEmote(EMOTE_STATE_USESTANDING);
-                break;
-            }
-            case 13:
-            {
-                m_creature->HandleEmote(EMOTE_STATE_STAND);
-                break;
-            }
-            case 16:
-            {
-                if (Player* player = GetPlayerForEscort())
-                    player->RewardPlayerAndGroupAtEventExplored(QUEST_TOME_VALOR, m_creature);
-                break;
-            }
-            case 17:
-            {
-                DoEndEscort();
-                break;
-            }
-            default:
-                break;
+        case 4: {
+            // Start summoning the three waves (everything else is handled in
+            // DoSendWave())
+            m_wave = 0;
+            ResetTimer(1, 1 * IN_MILLISECONDS);
+            m_creature->HandleEmote(EMOTE_STATE_USESTANDING_NOSHEATHE);
+            break;
+        }
+        case 5: {
+            // Take her gun
+            SetEquipmentSlots(false, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE, EQUIP_ID_RIFLE);
+            m_creature->SetSheath(SHEATH_STATE_RANGED);
+            m_creature->HandleEmote(EMOTE_STATE_STAND);
+            break;
+        }
+        case 7: {
+            // Stay put and wait for the Defias to come down
+            SetRun(false);
+            DoScriptText(YELL_DAPHNE_START, m_creature);
+            SetCombatMovement(false);
+            SetEscortPaused(true);
+            break;
+        }
+        case 8: {
+            // Cheer after defeating the Defias
+            DoScriptText(SAY_DS_DOWN_3, m_creature);
+            m_creature->HandleEmote(EMOTE_ONESHOT_CHEER);
+            break;
+        }
+        case 9: {
+            DoScriptText(SAY_DS_PROLOGUE, m_creature);
+            SetCombatMovement(true);
+            break;
+        }
+        case 12: {
+            SetEquipmentSlots(true);
+            m_creature->SetSheath(SHEATH_STATE_UNARMED);
+            m_creature->HandleEmote(EMOTE_STATE_USESTANDING);
+            break;
+        }
+        case 13: {
+            m_creature->HandleEmote(EMOTE_STATE_STAND);
+            break;
+        }
+        case 16: {
+            if (Player *player = GetPlayerForEscort())
+                player->RewardPlayerAndGroupAtEventExplored(QUEST_TOME_VALOR, m_creature);
+            break;
+        }
+        case 17: {
+            DoEndEscort();
+            break;
+        }
+        default:
+            break;
         }
     }
 
@@ -190,9 +181,13 @@ struct npc_daphne_stilwellAI : public npc_escortAI
 
         for (int counter = 0; counter < numberOfAdds; counter++)
         {
-            if (Creature* add = m_creature->SummonCreature(NPC_DEFIAS_RAIDER, RaiderCoords[counter][0], RaiderCoords[counter][1], RaiderCoords[counter][2], 0, TEMPSPAWN_TIMED_OOC_DESPAWN, 30000, false, true))
+            if (Creature *add = m_creature->SummonCreature(NPC_DEFIAS_RAIDER, RaiderCoords[counter][0],
+                                                           RaiderCoords[counter][1], RaiderCoords[counter][2], 0,
+                                                           TEMPSPAWN_TIMED_OOC_DESPAWN, 30000, false, true))
             {
-                add->GetMotionMaster()->MovePoint(counter, RaiderCoords[firstWpOffset + counter][0], RaiderCoords[firstWpOffset + counter][1], RaiderCoords[firstWpOffset + counter][2]);
+                add->GetMotionMaster()->MovePoint(counter, RaiderCoords[firstWpOffset + counter][0],
+                                                  RaiderCoords[firstWpOffset + counter][1],
+                                                  RaiderCoords[firstWpOffset + counter][2]);
                 if (!m_introIsDone)
                 {
                     DoScriptText(YELL_DEFIAS_START, add);
@@ -211,7 +206,7 @@ struct npc_daphne_stilwellAI : public npc_escortAI
             DisableTimer(1);
     }
 
-    void SummonedMovementInform(Creature* summoned, uint32 motionType, uint32 data) override
+    void SummonedMovementInform(Creature *summoned, uint32 motionType, uint32 data) override
     {
         if (summoned->GetEntry() != NPC_DEFIAS_RAIDER || motionType != POINT_MOTION_TYPE) // sanity check
             return;
@@ -219,14 +214,16 @@ struct npc_daphne_stilwellAI : public npc_escortAI
         if (data >= 0 && data <= 4)
         {
             uint8 secondWpOffset = 10;
-            summoned->GetMotionMaster()->MovePoint(5, RaiderCoords[secondWpOffset + data][0], RaiderCoords[secondWpOffset + data][1], RaiderCoords[secondWpOffset + data][2]);
+            summoned->GetMotionMaster()->MovePoint(5, RaiderCoords[secondWpOffset + data][0],
+                                                   RaiderCoords[secondWpOffset + data][1],
+                                                   RaiderCoords[secondWpOffset + data][2]);
             return;
         }
 
         summoned->GetMotionMaster()->MoveIdle();
     }
 
-    void Aggro(Unit* /*who*/) override
+    void Aggro(Unit * /*who*/) override
     {
         SetCombatMovement(false);
     }
@@ -237,13 +234,13 @@ struct npc_daphne_stilwellAI : public npc_escortAI
             m_creature->SetSheath(SHEATH_STATE_RANGED);
     }
 
-    void JustSummoned(Creature* summoned) override
+    void JustSummoned(Creature *summoned) override
     {
         if (summoned->GetEntry() == NPC_DEFIAS_RAIDER)
             m_summonedRaidersGUIDs.push_back(summoned->GetObjectGuid());
     }
 
-    void SummonedCreatureJustDied(Creature* summoned) override
+    void SummonedCreatureJustDied(Creature *summoned) override
     {
         m_summonedRaidersGUIDs.remove(summoned->GetObjectGuid());
 
@@ -259,28 +256,28 @@ struct npc_daphne_stilwellAI : public npc_escortAI
                 int32 textId;
                 switch (urand(0, 2))
                 {
-                    case 0:
-                        textId = SAY_WAVE_DOWN_1;
-                        break;
-                    case 1:
-                        textId = SAY_WAVE_DOWN_2;
-                        break;
-                    case 2:
-                        textId = SAY_WAVE_DOWN_3;
-                        break;
+                case 0:
+                    textId = SAY_WAVE_DOWN_1;
+                    break;
+                case 1:
+                    textId = SAY_WAVE_DOWN_2;
+                    break;
+                case 2:
+                    textId = SAY_WAVE_DOWN_3;
+                    break;
                 }
                 DoScriptText(textId, m_creature);
             }
         }
     }
 
-    void SummonedCreatureDespawn(Creature* summoned) override // just in case this happens somehow
+    void SummonedCreatureDespawn(Creature *summoned) override // just in case this happens somehow
     {
         if (summoned->IsAlive())
             m_summonedRaidersGUIDs.remove(summoned->GetObjectGuid());
     }
 
-    void JustDied(Unit* killer) override
+    void JustDied(Unit *killer) override
     {
         m_summonedRaidersGUIDs.clear();
 
@@ -310,20 +307,20 @@ struct npc_daphne_stilwellAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_daphne_stilwell(Player* player, Creature* creature, const Quest* quest)
+bool QuestAccept_npc_daphne_stilwell(Player *player, Creature *creature, const Quest *quest)
 {
     if (quest->GetQuestId() == QUEST_TOME_VALOR)
     {
         DoScriptText(SAY_DS_START, creature);
 
-        if (npc_daphne_stilwellAI* daphne = dynamic_cast<npc_daphne_stilwellAI*>(creature->AI()))
+        if (npc_daphne_stilwellAI *daphne = dynamic_cast<npc_daphne_stilwellAI *>(creature->AI()))
             daphne->Start(true, player, quest);
     }
 
     return true;
 }
 
-UnitAI* GetAI_npc_daphne_stilwell(Creature* creature)
+UnitAI *GetAI_npc_daphne_stilwell(Creature *creature)
 {
     return new npc_daphne_stilwellAI(creature);
 }
@@ -334,18 +331,18 @@ UnitAI* GetAI_npc_daphne_stilwell(Creature* creature)
 
 enum
 {
-    SAY_START                = -1000101,
-    SAY_PROGRESS             = -1000102,
-    SAY_END                  = -1000103,
-    SAY_AGGRO_1              = -1000104,
-    SAY_AGGRO_2              = -1000105,
+    SAY_START = -1000101,
+    SAY_PROGRESS = -1000102,
+    SAY_END = -1000103,
+    SAY_AGGRO_1 = -1000104,
+    SAY_AGGRO_2 = -1000105,
 
     QUEST_DEFIAS_BROTHERHOOD = 155
 };
 
 struct npc_defias_traitorAI : public npc_escortAI
 {
-    npc_defias_traitorAI(Creature* creature) : npc_escortAI(creature)
+    npc_defias_traitorAI(Creature *creature) : npc_escortAI(creature)
     {
         SetReactState(REACT_DEFENSIVE);
         Reset();
@@ -355,45 +352,47 @@ struct npc_defias_traitorAI : public npc_escortAI
     {
         switch (pointId)
         {
-            case 36:
-                SetRun(false);
-                break;
-            case 37:
-                if (Player* pPlayer = GetPlayerForEscort())
-                    DoScriptText(SAY_PROGRESS, m_creature, pPlayer);
-                break;
-            case 45:
-                if (Player* pPlayer = GetPlayerForEscort())
-                {
-                    DoScriptText(SAY_END, m_creature, pPlayer);
-                    pPlayer->RewardPlayerAndGroupAtEventExplored(QUEST_DEFIAS_BROTHERHOOD, m_creature);
-                }
-                break;
+        case 36:
+            SetRun(false);
+            break;
+        case 37:
+            if (Player *pPlayer = GetPlayerForEscort())
+                DoScriptText(SAY_PROGRESS, m_creature, pPlayer);
+            break;
+        case 45:
+            if (Player *pPlayer = GetPlayerForEscort())
+            {
+                DoScriptText(SAY_END, m_creature, pPlayer);
+                pPlayer->RewardPlayerAndGroupAtEventExplored(QUEST_DEFIAS_BROTHERHOOD, m_creature);
+            }
+            break;
         }
     }
 
-    void Aggro(Unit* who) override
+    void Aggro(Unit *who) override
     {
         DoScriptText(urand(0, 1) ? SAY_AGGRO_1 : SAY_AGGRO_2, m_creature, who);
     }
 
-    void Reset() override { }
+    void Reset() override
+    {
+    }
 };
 
-bool QuestAccept_npc_defias_traitor(Player* player, Creature* creature, const Quest* quest)
+bool QuestAccept_npc_defias_traitor(Player *player, Creature *creature, const Quest *quest)
 {
     if (quest->GetQuestId() == QUEST_DEFIAS_BROTHERHOOD)
     {
         DoScriptText(SAY_START, creature, player);
 
-        if (npc_defias_traitorAI* escortAI = dynamic_cast<npc_defias_traitorAI*>(creature->AI()))
+        if (npc_defias_traitorAI *escortAI = dynamic_cast<npc_defias_traitorAI *>(creature->AI()))
             escortAI->Start(true, player, quest);
     }
 
     return true;
 }
 
-UnitAI* GetAI_npc_defias_traitor(Creature* creature)
+UnitAI *GetAI_npc_defias_traitor(Creature *creature)
 {
     return new npc_defias_traitorAI(creature);
 }
@@ -409,14 +408,16 @@ enum KlavenMortwake
 
 struct npc_foreman_klaven_mortwakeAI : public ScriptedAI
 {
-    npc_foreman_klaven_mortwakeAI(Creature* creature) : ScriptedAI(creature)
+    npc_foreman_klaven_mortwakeAI(Creature *creature) : ScriptedAI(creature)
     {
         Reset();
     }
 
-    void Reset() override {}
+    void Reset() override
+    {
+    }
 
-    void OnStealthAlert(Unit* who) override
+    void OnStealthAlert(Unit *who) override
     {
         DoBroadcastText(SAY_STEALTH_ALERT_MORTWAKE, m_creature, who);
     }
@@ -424,7 +425,7 @@ struct npc_foreman_klaven_mortwakeAI : public ScriptedAI
 
 void AddSC_westfall()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "npc_daphne_stilwell";
     pNewScript->GetAI = &GetAI_npc_daphne_stilwell;
     pNewScript->pQuestAcceptNPC = &QuestAccept_npc_daphne_stilwell;

@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,18 +17,19 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "ProgressBar.h"
+
 #include <stdio.h>
 
-#include "ProgressBar.h"
 #include "Errors.h"
 
 bool BarGoLink::m_showOutput = true;
 
-char const* const BarGoLink::empty = " ";
+char const *const BarGoLink::empty = " ";
 #ifdef _WIN32
-char const* const BarGoLink::full  = "\x3D";
+char const *const BarGoLink::full = "\x3D";
 #else
-char const* const BarGoLink::full  = "*";
+char const *const BarGoLink::full = "*";
 #endif
 
 BarGoLink::BarGoLink(size_t row_count)
@@ -46,10 +48,10 @@ BarGoLink::~BarGoLink()
 
 void BarGoLink::init(size_t row_count)
 {
-    rec_no    = 0;
-    rec_pos   = 0;
+    rec_no = 0;
+    rec_pos = 0;
     indic_len = 50;
-    num_rec   = row_count;
+    num_rec = row_count;
 
     if (!m_showOutput)
         return;
@@ -59,7 +61,8 @@ void BarGoLink::init(size_t row_count)
 #else
     printf("[");
 #endif
-    for (size_t i = 0; i < indic_len; ++i) printf(empty);
+    for (size_t i = 0; i < indic_len; ++i)
+        printf(empty);
 #ifdef _WIN32
     printf("\x3D 0%%\r\x3D");
 #else
@@ -75,7 +78,8 @@ void BarGoLink::step()
 
     size_t i;
 
-    if (num_rec == 0) return;
+    if (num_rec == 0)
+        return;
     ++rec_no;
     size_t n = rec_no * indic_len / num_rec;
     if (n != rec_pos)
@@ -85,8 +89,10 @@ void BarGoLink::step()
 #else
         printf("\r[");
 #endif
-        for (i = 0; i < n; ++i) printf(full);
-        for (; i < indic_len; ++i) printf(empty);
+        for (i = 0; i < n; ++i)
+            printf(full);
+        for (; i < indic_len; ++i)
+            printf(empty);
         int percent = int((double(n) / double(indic_len)) * 100);
 #ifdef _WIN32
         printf("\x3D %i%%  \r\x3D", percent);

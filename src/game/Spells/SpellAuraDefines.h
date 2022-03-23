@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,15 +25,15 @@
 
 enum AuraFlags
 {
-    AFLAG_NONE                  = 0x00,
-    AFLAG_EFFECT_0              = 0x01,
-    AFLAG_EFFECT_1              = 0x02,
-    AFLAG_EFFECT_2              = 0x04,
-    AFLAG_UNK4                  = 0x08,     // Pre-WotLK: unused in UI
-    AFLAG_CANCELABLE            = 0x10,
-    AFLAG_NOT_CANCELABLE        = 0x20,
+    AFLAG_NONE = 0x00,
+    AFLAG_EFFECT_0 = 0x01,
+    AFLAG_EFFECT_1 = 0x02,
+    AFLAG_EFFECT_2 = 0x04,
+    AFLAG_UNK4 = 0x08, // Pre-WotLK: unused in UI
+    AFLAG_CANCELABLE = 0x10,
+    AFLAG_NOT_CANCELABLE = 0x20,
 
-    AFLAG_MASK_ALL              = 0xFF
+    AFLAG_MASK_ALL = 0xFF
 };
 
 /**
@@ -113,29 +114,29 @@ enum AuraType
     SPELL_AURA_MOD_STEALTH = 16,
     /**
      * Not handled by the Aura class, implemented in Unit::isVisibleForOrDetect
-     * which does a lot of checks to determine whether the person is visible or not,
-     * the SPELL_AURA_MOD_STEALTH seems to determine how in/visible ie a rogue is.
+     * which does a lot of checks to determine whether the person is visible or
+     * not, the SPELL_AURA_MOD_STEALTH seems to determine how in/visible ie a
+     * rogue is.
      */
     SPELL_AURA_MOD_STEALTH_DETECT = 17,
     /**
-     * Handled by Aura::HandleInvisibility, the Modifier::m_miscvalue in the struct
-     * seems to decide what kind of invisibility it is with a bitflag. the miscvalue
-     * decides which bit is set, ie: 3 would make the 3rd bit be set.
+     * Handled by Aura::HandleInvisibility, the Modifier::m_miscvalue in the
+     * struct seems to decide what kind of invisibility it is with a bitflag. the
+     * miscvalue decides which bit is set, ie: 3 would make the 3rd bit be set.
      */
     SPELL_AURA_MOD_INVISIBILITY = 18,
     /**
      * Adds one of the kinds of detections to the possible detections.
-     * As in SPEALL_AURA_MOD_INVISIBILITY the Modifier::m_miscvalue seems to decide
-     * what kind of invisibility the Unit should be able to detect.
+     * As in SPEALL_AURA_MOD_INVISIBILITY the Modifier::m_miscvalue seems to
+     * decide what kind of invisibility the Unit should be able to detect.
      */
     SPELL_AURA_MOD_INVISIBILITY_DETECTION = 19,
-    SPELL_AURA_OBS_MOD_HEALTH = 20,                         // 20,21 unofficial
+    SPELL_AURA_OBS_MOD_HEALTH = 20, // 20,21 unofficial
     SPELL_AURA_OBS_MOD_MANA = 21,
     /**
-     * Handled by Aura::HandleAuraModResistance, changes the resistance for a unit
-     * the field Modifier::m_miscvalue decides which kind of resistance that should
-     * be changed, for possible values see SpellSchools.
-     * \see SpellSchools
+     * Handled by Aura::HandleAuraModResistance, changes the resistance for a
+     * unit the field Modifier::m_miscvalue decides which kind of resistance that
+     * should be changed, for possible values see SpellSchools. \see SpellSchools
      */
     SPELL_AURA_MOD_RESISTANCE = 22,
     /**
@@ -180,9 +181,9 @@ enum AuraType
     SPELL_AURA_PROC_TRIGGER_DAMAGE = 43,
     SPELL_AURA_TRACK_CREATURES = 44,
     SPELL_AURA_TRACK_RESOURCES = 45,
-    SPELL_AURA_46 = 46,                                     // Ignore all Gear test spells
+    SPELL_AURA_46 = 46, // Ignore all Gear test spells
     SPELL_AURA_MOD_PARRY_PERCENT = 47,
-    SPELL_AURA_48 = 48,                                     // One periodic spell
+    SPELL_AURA_48 = 48, // One periodic spell
     SPELL_AURA_MOD_DODGE_PERCENT = 49,
     SPELL_AURA_MOD_BLOCK_SKILL = 50,
     SPELL_AURA_MOD_BLOCK_PERCENT = 51,
@@ -283,15 +284,15 @@ enum AuraType
     SPELL_AURA_PERSUADED = 146,
     SPELL_AURA_MECHANIC_IMMUNITY_MASK = 147,
     SPELL_AURA_RETAIN_COMBO_POINTS = 148,
-    SPELL_AURA_RESIST_PUSHBACK  = 149,                      //    Resist Pushback
+    SPELL_AURA_RESIST_PUSHBACK = 149, //    Resist Pushback
     SPELL_AURA_MOD_SHIELD_BLOCKVALUE_PCT = 150,
-    SPELL_AURA_TRACK_STEALTHED  = 151,                      //    Track Stealthed
-    SPELL_AURA_MOD_DETECTED_RANGE = 152,                    //    Mod Detected Range
-    SPELL_AURA_SPLIT_DAMAGE_FLAT = 153,                     //    Split Damage Flat
-    SPELL_AURA_MOD_STEALTH_LEVEL = 154,                     //    Stealth Level Modifier
-    SPELL_AURA_MOD_WATER_BREATHING = 155,                   //    Mod Water Breathing
-    SPELL_AURA_MOD_REPUTATION_GAIN = 156,                   //    Mod Reputation Gain
-    SPELL_AURA_PET_DAMAGE_MULTI = 157,                      //    Mod Pet Damage
+    SPELL_AURA_TRACK_STEALTHED = 151,     //    Track Stealthed
+    SPELL_AURA_MOD_DETECTED_RANGE = 152,  //    Mod Detected Range
+    SPELL_AURA_SPLIT_DAMAGE_FLAT = 153,   //    Split Damage Flat
+    SPELL_AURA_MOD_STEALTH_LEVEL = 154,   //    Stealth Level Modifier
+    SPELL_AURA_MOD_WATER_BREATHING = 155, //    Mod Water Breathing
+    SPELL_AURA_MOD_REPUTATION_GAIN = 156, //    Mod Reputation Gain
+    SPELL_AURA_PET_DAMAGE_MULTI = 157,    //    Mod Pet Damage
     SPELL_AURA_MOD_SHIELD_BLOCKVALUE = 158,
     SPELL_AURA_NO_PVP_CREDIT = 159,
     SPELL_AURA_MOD_AOE_AVOIDANCE = 160,
@@ -308,14 +309,15 @@ enum AuraType
     SPELL_AURA_MOD_SPEED_NOT_STACK = 171,
     SPELL_AURA_MOD_MOUNTED_SPEED_NOT_STACK = 172,
     SPELL_AURA_ALLOW_CHAMPION_SPELLS = 173,
-    SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT = 174,      // by defeult intelect, dependent from SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT
+    SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT = 174, // by defeult intelect, dependent from
+                                                       // SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT
     SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT = 175,
     SPELL_AURA_SPIRIT_OF_REDEMPTION = 176,
     SPELL_AURA_AOE_CHARM = 177,
     SPELL_AURA_MOD_DEBUFF_RESISTANCE = 178,
     SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE = 179,
     SPELL_AURA_MOD_FLAT_SPELL_DAMAGE_VERSUS = 180,
-    SPELL_AURA_MOD_FLAT_SPELL_CRIT_DAMAGE_VERSUS = 181,     // unused - possible flat spell crit damage versus
+    SPELL_AURA_MOD_FLAT_SPELL_CRIT_DAMAGE_VERSUS = 181, // unused - possible flat spell crit damage versus
     SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT = 182,
     SPELL_AURA_MOD_CRITICAL_THREAT = 183,
     SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE = 184,
@@ -328,9 +330,9 @@ enum AuraType
     SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED = 191,
     SPELL_AURA_MOD_MELEE_RANGED_HASTE = 192,
     SPELL_AURA_HASTE_ALL = 193,
-    SPELL_AURA_MOD_DEPRICATED_1  = 194,                     // not used now, old SPELL_AURA_MOD_SPELL_DAMAGE_OF_INTELLECT
-    SPELL_AURA_MOD_DEPRICATED_2  = 195,                     // not used now, old SPELL_AURA_MOD_SPELL_HEALING_OF_INTELLECT
-    SPELL_AURA_MOD_COOLDOWN = 196,                          // only 24818 Noxious Breath
+    SPELL_AURA_MOD_DEPRICATED_1 = 194, // not used now, old SPELL_AURA_MOD_SPELL_DAMAGE_OF_INTELLECT
+    SPELL_AURA_MOD_DEPRICATED_2 = 195, // not used now, old SPELL_AURA_MOD_SPELL_HEALING_OF_INTELLECT
+    SPELL_AURA_MOD_COOLDOWN = 196,     // only 24818 Noxious Breath
     SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE = 197,
     SPELL_AURA_MOD_ALL_WEAPON_SKILLS = 198,
     SPELL_AURA_MOD_INCREASES_SPELL_PCT_TO_HIT = 199,
@@ -413,28 +415,30 @@ enum AuraState
 {
     // (C) used in caster aura state     (T) used in target aura state
     // (c) used in caster aura state-not (t) used in target aura state-not
-    AURA_STATE_DEFENSE                      = 1,            // C   |
-    AURA_STATE_HEALTHLESS_20_PERCENT        = 2,            // CcT |
-    AURA_STATE_BERSERKING                   = 3,            // C T |
-    AURA_STATE_FROZEN                       = 4,            //  c t| frozen target
-    AURA_STATE_JUDGEMENT                    = 5,            // C   |
-    // AURA_STATE_UNKNOWN6                   = 6,           //     | not used
-    AURA_STATE_HUNTER_PARRY                 = 7,            // C   |
-    AURA_STATE_ROGUE_ATTACK_FROM_STEALTH    = 7,            // C   | FIX ME: not implemented yet!
-    // AURA_STATE_UNKNOWN7c                  = 7,           //  c  | random/focused bursts spells (?)
-    // AURA_STATE_UNKNOWN8                   = 8,           //     | not used
-    // AURA_STATE_UNKNOWN9                   = 9,           //     | not used
-    AURA_STATE_WARRIOR_VICTORY_RUSH         = 10,           // C   | warrior victory rush
-    AURA_STATE_HUNTER_CRIT_STRIKE           = 10,           // C   | hunter crit strike
-    AURA_STATE_CRIT                         = 11,           // C   |
-    AURA_STATE_FAERIE_FIRE                  = 12,           //  c t|
-    AURA_STATE_HEALTHLESS_35_PERCENT        = 13,           // C T |
-    AURA_STATE_CONFLAGRATE                  = 14,           //   T | per-caster
-    AURA_STATE_SWIFTMEND                    = 15,           //   T |
-    AURA_STATE_DEADLY_POISON                = 16,           //   T |
-    AURA_STATE_FORBEARANCE                  = 17,           //  c t|
-    AURA_STATE_WEAKENED_SOUL                = 18,           //    t|
-    AURA_STATE_HYPOTHERMIA                  = 19            //  c  |
+    AURA_STATE_DEFENSE = 1,                   // C   |
+    AURA_STATE_HEALTHLESS_20_PERCENT = 2,     // CcT |
+    AURA_STATE_BERSERKING = 3,                // C T |
+    AURA_STATE_FROZEN = 4,                    //  c t| frozen target
+    AURA_STATE_JUDGEMENT = 5,                 // C   |
+                                              // AURA_STATE_UNKNOWN6                   = 6, // |
+                                              // not used
+    AURA_STATE_HUNTER_PARRY = 7,              // C   |
+    AURA_STATE_ROGUE_ATTACK_FROM_STEALTH = 7, // C   | FIX ME: not implemented yet!
+                                              // AURA_STATE_UNKNOWN7c                  = 7,           //  c  |
+                                              // random/focused bursts spells (?) AURA_STATE_UNKNOWN8 = 8, //     |
+                                              // not used AURA_STATE_UNKNOWN9                   = 9,           // |
+                                              // not used
+    AURA_STATE_WARRIOR_VICTORY_RUSH = 10,     // C   | warrior victory rush
+    AURA_STATE_HUNTER_CRIT_STRIKE = 10,       // C   | hunter crit strike
+    AURA_STATE_CRIT = 11,                     // C   |
+    AURA_STATE_FAERIE_FIRE = 12,              //  c t|
+    AURA_STATE_HEALTHLESS_35_PERCENT = 13,    // C T |
+    AURA_STATE_CONFLAGRATE = 14,              //   T | per-caster
+    AURA_STATE_SWIFTMEND = 15,                //   T |
+    AURA_STATE_DEADLY_POISON = 16,            //   T |
+    AURA_STATE_FORBEARANCE = 17,              //  c t|
+    AURA_STATE_WEAKENED_SOUL = 18,            //    t|
+    AURA_STATE_HYPOTHERMIA = 19               //  c  |
 };
 
 /** @} */

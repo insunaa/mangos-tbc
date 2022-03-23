@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,12 +17,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "Metric.h"
+
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <functional>
 
 #include "Config/Config.h"
 #include "Log.h"
-#include "Metric.h"
 
 metric::measurement::measurement(std::string name, std::function<bool()> condition)
     : m_name(name), m_condition(std::move(condition))
@@ -34,20 +36,22 @@ metric::measurement::measurement(std::string name, std::string key, boost::any v
     add_field(key, value);
 }
 
-metric::measurement::measurement(std::string name, std::string key, boost::any value, std::map<std::string, std::string> tags, std::function<bool()> condition)
+metric::measurement::measurement(std::string name, std::string key, boost::any value,
+                                 std::map<std::string, std::string> tags, std::function<bool()> condition)
     : m_name(name), m_tags(tags), m_condition(std::move(condition))
 {
     add_field(key, value);
 }
 
-metric::measurement::measurement(std::string name, std::map<std::string, std::string> tags, std::function<bool()> condition)
+metric::measurement::measurement(std::string name, std::map<std::string, std::string> tags,
+                                 std::function<bool()> condition)
     : m_name(name), m_tags(tags), m_condition(std::move(condition))
 {
 }
 
 metric::measurement::~measurement()
 {
-    if(m_condition())
+    if (m_condition())
         metric::instance().report(m_name, m_fields, m_tags);
 }
 
@@ -84,9 +88,7 @@ metric::metric::~metric()
     if (!m_enabled)
         return;
 
-    m_writeService.post([&] {
-        m_sendTimer->cancel();
-    });
+    m_writeService.post([&] { m_sendTimer->cancel(); });
 
     m_queueServiceWork.reset();
     m_writeServiceWork.reset();
@@ -101,30 +103,23 @@ void metric::metric::initialize()
         return;
 
     m_connectionInfo = {
-        sConfig.GetStringDefault("Metric.Address", "127.0.0.1"),
-        sConfig.GetIntDefault("Metric.Port", 8086),
-        sConfig.GetStringDefault("Metric.Database", "perfd"),
-        sConfig.GetStringDefault("Metric.Username", ""),
-        sConfig.GetStringDefault("Metric.Password", "")
-    };
+        sConfig.GetStringDefault("Metric.Address", "127.0.0.1"), sConfig.GetIntDefault("Metric.Port", 8086),
+        sConfig.GetStringDefault("Metric.Database", "perfd"), sConfig.GetStringDefault("Metric.Username", ""),
+        sConfig.GetStringDefault("Metric.Password", "")};
 
     m_sendTimer.reset(new boost::asio::deadline_timer(m_writeService));
     m_queueServiceWork.reset(new boost::asio::io_service::work(m_queueService));
     m_writeServiceWork.reset(new boost::asio::io_service::work(m_writeService));
 
     // Start up service thread that will process all queued tasks
-    m_queueServiceThread = std::thread([&] {
-        m_queueService.run();
-    });
+    m_queueServiceThread = std::thread([&] { m_queueService.run(); });
 
-    m_writeServiceThread = std::thread([&] {
-        m_writeService.run();
-    });
+    m_writeServiceThread = std::thread([&] { m_writeService.run(); });
 
     schedule_timer();
 }
 
-metric::metric& metric::metric::instance()
+metric::metric &metric::metric::instance()
 {
     static metric instance;
     return instance;
@@ -138,30 +133,27 @@ void metric::metric::reload_config()
         return;
     }
 
-    m_writeService.post([&]
-    {
+    m_writeService.post([&] {
         m_connectionInfo = {
-            sConfig.GetStringDefault("Metric.Address", "127.0.0.1"),
-            sConfig.GetIntDefault("Metric.Port", 8086),
-            sConfig.GetStringDefault("Metric.Database", "perfd"),
-            sConfig.GetStringDefault("Metric.Username", ""),
-            sConfig.GetStringDefault("Metric.Password", "")
-        };
+            sConfig.GetStringDefault("Metric.Address", "127.0.0.1"), sConfig.GetIntDefault("Metric.Port", 8086),
+            sConfig.GetStringDefault("Metric.Database", "perfd"), sConfig.GetStringDefault("Metric.Username", ""),
+            sConfig.GetStringDefault("Metric.Password", "")};
     });
 }
 
-void metric::metric::report(std::string measurement, std::string key, boost::any value, std::map<std::string, std::string> tags)
+void metric::metric::report(std::string measurement, std::string key, boost::any value,
+                            std::map<std::string, std::string> tags)
 {
-    report(measurement, { { key, value } }, tags);
+    report(measurement, {{key, value}}, tags);
 }
 
-void metric::metric::report(std::string measurement, std::map<std::string, boost::any> fields, std::map<std::string, std::string> tags)
+void metric::metric::report(std::string measurement, std::map<std::string, boost::any> fields,
+                            std::map<std::string, std::string> tags)
 {
     if (!m_enabled)
         return;
 
-    m_queueService.post([&, measurement, fields, tags]
-    {
+    m_queueService.post([&, measurement, fields, tags] {
         std::lock_guard<std::mutex> guard(m_queueWriteLock);
         m_measurementQueue.push_back(std::unique_ptr<Measurement>(new Measurement(measurement, tags, fields)));
     });
@@ -178,7 +170,7 @@ void metric::metric::schedule_timer()
     m_sendTimer->async_wait(std::bind(&metric::metric::prepare_send, this, _1));
 }
 
-void metric::metric::prepare_send(const boost::system::error_code& ec)
+void metric::metric::prepare_send(const boost::system::error_code &ec)
 {
     if (ec)
     {
@@ -237,7 +229,7 @@ void metric::metric::send()
     }
 
     std::stringstream payload;
-    for (auto const& measurement : measurements)
+    for (auto const &measurement : measurements)
     {
         if (&measurement != &measurements.front())
             payload << "\n";
@@ -249,7 +241,9 @@ void metric::metric::send()
     std::ostream request_stream(&request);
 
     // Write request
-    request_stream << "POST " << "/write?db=" << m_connectionInfo.database << "&u=" << m_connectionInfo.username << "&p=" << m_connectionInfo.password << " HTTP/1.1\r\n";
+    request_stream << "POST "
+                   << "/write?db=" << m_connectionInfo.database << "&u=" << m_connectionInfo.username
+                   << "&p=" << m_connectionInfo.password << " HTTP/1.1\r\n";
     request_stream << "Host: " << m_connectionInfo.hostname << "\r\n";
     request_stream << "Content-Length:" << std::to_string(payload.tellp()) << "\r\n";
     request_stream << "Connection: close\r\n\r\n";

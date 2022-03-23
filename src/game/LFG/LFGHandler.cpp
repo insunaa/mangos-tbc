@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,27 +17,27 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "Server/WorldSession.h"
-#include "Log.h"
 #include "Globals/ObjectMgr.h"
+#include "Log.h"
+#include "Server/WorldSession.h"
 #include "World/World.h"
 
-
-static inline void LookingForGroupMakeMeetingStoneQueueLeftFor(WorldPacket& data, uint32 entry)
+static inline void LookingForGroupMakeMeetingStoneQueueLeftFor(WorldPacket &data, uint32 entry)
 {
     data.Initialize(SMSG_MEETINGSTONE_SETQUEUE);
     data << uint32(entry);
     data << uint8(0x00);
 }
 
-static inline void LookingForGroupMakeMeetingStoneQueueJoinedFor(WorldPacket& data, uint32 entry)
+static inline void LookingForGroupMakeMeetingStoneQueueJoinedFor(WorldPacket &data, uint32 entry)
 {
     data.Initialize(SMSG_MEETINGSTONE_SETQUEUE);
     data << uint32(entry);
     data << uint8(0x01);
 }
 
-static inline void LookingForGroupMakeMeetingStoneQueueMatchedFor(WorldPacket& data, uint32 entry, bool asLeader = false)
+static inline void LookingForGroupMakeMeetingStoneQueueMatchedFor(WorldPacket &data, uint32 entry,
+                                                                  bool asLeader = false)
 {
     data.Initialize(SMSG_MEETINGSTONE_SETQUEUE);
     data << uint32(entry);
@@ -44,21 +45,21 @@ static inline void LookingForGroupMakeMeetingStoneQueueMatchedFor(WorldPacket& d
     data << uint8(asLeader);
 }
 
-static inline void LookingForGroupMakeMeetingStoneMemberAdded(WorldPacket& data, ObjectGuid guid)
+static inline void LookingForGroupMakeMeetingStoneMemberAdded(WorldPacket &data, ObjectGuid guid)
 {
     data.Initialize(SMSG_MEETINGSTONE_SETQUEUE, 8);
     data << guid;
 }
 
-static inline const Player* LookingForGroupGetCurrentLeader(Player* _this)
+static inline const Player *LookingForGroupGetCurrentLeader(Player *_this)
 {
-    if (Group* group = _this->GetGroup())
+    if (Group *group = _this->GetGroup())
     {
         if (!group->IsBattleGroup() && !group->IsFull() && !group->IsLeader(_this->GetObjectGuid()))
         {
-            for (const GroupReference* itr = group->GetFirstMember(); itr; itr = itr->next())
+            for (const GroupReference *itr = group->GetFirstMember(); itr; itr = itr->next())
             {
-                if (Player* member = itr->getSource())
+                if (Player *member = itr->getSource())
                 {
                     if (group->IsLeader(member->GetObjectGuid()))
                         return member;
@@ -69,9 +70,9 @@ static inline const Player* LookingForGroupGetCurrentLeader(Player* _this)
     return _this;
 }
 
-static inline void LookingForGroupUpdateChannelStatus(Player* _this)
+static inline void LookingForGroupUpdateChannelStatus(Player *_this)
 {
-    const Player* leader = LookingForGroupGetCurrentLeader(_this);
+    const Player *leader = LookingForGroupGetCurrentLeader(_this);
 
     if (leader->m_lookingForGroup.isEmpty())
     {
@@ -80,9 +81,9 @@ static inline void LookingForGroupUpdateChannelStatus(Player* _this)
     }
 }
 
-static inline bool LookingForGroupUpdateQueueStatus(Player* _this, WorldSession* _session)
+static inline bool LookingForGroupUpdateQueueStatus(Player *_this, WorldSession *_session)
 {
-    Group* _group = _this->GetGroup();
+    Group *_group = _this->GetGroup();
 
     const bool autojoin = (_this->m_lookingForGroup.isAutoJoin() && _session->LookingForGroup_auto_join);
     const bool autofill = (_this->m_lookingForGroup.isAutoFill() && _session->LookingForGroup_auto_add);
@@ -97,9 +98,9 @@ static inline bool LookingForGroupUpdateQueueStatus(Player* _this, WorldSession*
 
     // Sync client's UI queue status
 
-    const Player* pov = LookingForGroupGetCurrentLeader(_this);
+    const Player *pov = LookingForGroupGetCurrentLeader(_this);
     const bool queued = pov->GetSession()->LookingForGroup_queue;
-    auto const& info = pov->m_lookingForGroup;
+    auto const &info = pov->m_lookingForGroup;
 
     WorldPacket data(SMSG_LFG_UPDATE_QUEUED, 1);
     data << uint8(queued);
@@ -127,9 +128,9 @@ static inline bool LookingForGroupUpdateQueueStatus(Player* _this, WorldSession*
     return true;
 }
 
-static inline void LookingForGroupUpdateUI(Player* _this, WorldSession* _session, bool completed = false)
+static inline void LookingForGroupUpdateUI(Player *_this, WorldSession *_session, bool completed = false)
 {
-    Group* _group = _this->GetGroup();
+    Group *_group = _this->GetGroup();
 
     if (!_group || !_group->IsLeader(_this->GetObjectGuid()))
     {
@@ -142,9 +143,9 @@ static inline void LookingForGroupUpdateUI(Player* _this, WorldSession* _session
         return;
     }
 
-    for (const GroupReference* itr = _group->GetFirstMember(); itr; itr = itr->next())
+    for (const GroupReference *itr = _group->GetFirstMember(); itr; itr = itr->next())
     {
-        if (Player* member = itr->getSource())
+        if (Player *member = itr->getSource())
         {
             if (completed)
                 member->GetSession()->SendMeetingStoneComplete();
@@ -156,13 +157,13 @@ static inline void LookingForGroupUpdateUI(Player* _this, WorldSession* _session
     }
 }
 
-static inline void LookingForGroupUpdate(Player* _this, WorldSession* _session, bool completed = false)
+static inline void LookingForGroupUpdate(Player *_this, WorldSession *_session, bool completed = false)
 {
     LookingForGroupUpdateQueueStatus(_this, _session);
     LookingForGroupUpdateUI(_this, _session, completed);
 }
 
-static inline void LookingForGroupClearLFG(Player* _this, WorldSession* _session)
+static inline void LookingForGroupClearLFG(Player *_this, WorldSession *_session)
 {
     if (!_this->m_lookingForGroup.isLFG())
         return;
@@ -174,7 +175,7 @@ static inline void LookingForGroupClearLFG(Player* _this, WorldSession* _session
     LookingForGroupUpdate(_this, _session);
 }
 
-static inline void LookingForGroupClearLFM(Player* _this, WorldSession* _session)
+static inline void LookingForGroupClearLFM(Player *_this, WorldSession *_session)
 {
     if (!_this->m_lookingForGroup.isLFM())
         return;
@@ -185,14 +186,15 @@ static inline void LookingForGroupClearLFM(Player* _this, WorldSession* _session
     LookingForGroupUpdate(_this, _session);
 }
 
-static inline void LookingForGroupClear(Player* _this, WorldSession* _session, bool completed = false)
+static inline void LookingForGroupClear(Player *_this, WorldSession *_session, bool completed = false)
 {
     // Unset all serverside and force client to update
     _this->m_lookingForGroup.clear();
     LookingForGroupUpdate(_this, _session, completed);
 }
 
-static inline bool LookingForGroupAddMemberFor(Player* _this, WorldSession* _session, Player* member, uint32 entry, Group*& _group)
+static inline bool LookingForGroupAddMemberFor(Player *_this, WorldSession *_session, Player *member, uint32 entry,
+                                               Group *&_group)
 {
     const bool create = !_group;
 
@@ -213,7 +215,7 @@ static inline bool LookingForGroupAddMemberFor(Player* _this, WorldSession* _ses
     const ObjectGuid _guid = member->GetObjectGuid();
 
     if (!_group->AddMember(_guid, member->GetName()))
-        return false;  
+        return false;
 
     WorldPacket data;
 
@@ -226,7 +228,7 @@ static inline bool LookingForGroupAddMemberFor(Player* _this, WorldSession* _ses
     LookingForGroupMakeMeetingStoneMemberAdded(data, _guid);
     _group->BroadcastPacket(data, true, -1, _guid);
 
-    WorldSession* session = member->GetSession();
+    WorldSession *session = member->GetSession();
 
     LookingForGroupMakeMeetingStoneQueueMatchedFor(data, entry);
     session->SendPacket(data);
@@ -242,12 +244,12 @@ static inline bool LookingForGroupAddMemberFor(Player* _this, WorldSession* _ses
     return true;
 }
 
-static void LookingForGroupTryJoin(Player* _player, bool initial = false)
+static void LookingForGroupTryJoin(Player *_player, bool initial = false)
 {
-    WorldSession* _session = _player->GetSession();  
+    WorldSession *_session = _player->GetSession();
 
     // skip not can autojoin cases and player group case
-    if (Group* _group = _player->GetGroup())
+    if (Group *_group = _player->GetGroup())
     {
         if (_group->IsBattleGroup() || _group->IsFull() || !_group->IsLeader(_player->GetObjectGuid()))
             LookingForGroupClear(_player, _session);
@@ -263,22 +265,22 @@ static void LookingForGroupTryJoin(Player* _player, bool initial = false)
     bool attempted = false;
 
     // TODO: Guard Player Map
-    HashMapHolder<Player>::MapType const& players = sObjectAccessor.GetPlayers();
+    HashMapHolder<Player>::MapType const &players = sObjectAccessor.GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator iter = players.begin(); iter != players.end(); ++iter)
     {
-        Player* plr = iter->second;
+        Player *plr = iter->second;
 
         // skip enemies and self
         if (!plr || plr == _player || plr->GetTeam() != _player->GetTeam())
             continue;
 
-        WorldSession* session = plr->GetSession();
+        WorldSession *session = plr->GetSession();
 
         // skip players not in world or reconnecting
         if (!plr->IsInWorld() || session->IsOffline())
             continue;
 
-        Group* grp = plr->GetGroup();
+        Group *grp = plr->GetGroup();
 
         // skip players in not compatinle groups and dequeue them if discovered
         if (grp && (grp->IsBattleGroup() || grp->IsFull() || !grp->IsLeader(_player->GetObjectGuid())))
@@ -297,7 +299,7 @@ static void LookingForGroupTryJoin(Player* _player, bool initial = false)
         if (!_player->m_lookingForGroup.isLFG(plr->m_lookingForGroup, true))
             continue;
 
-        Group* result = grp;
+        Group *result = grp;
 
         // stop at join success
         if (LookingForGroupAddMemberFor(plr, session, _player, plr->m_lookingForGroup.more.entry, result))
@@ -311,13 +313,14 @@ static void LookingForGroupTryJoin(Player* _player, bool initial = false)
         _session->SendMeetingStoneInProgress();
 }
 
-static void LookingForGroupTryFill(Player* _player, bool initial = false)
+static void LookingForGroupTryFill(Player *_player, bool initial = false)
 {
-    WorldSession* _session = _player->GetSession();
+    WorldSession *_session = _player->GetSession();
 
-    Group* _group = _player->GetGroup();
+    Group *_group = _player->GetGroup();
 
-    // skip non auto-join slot or player in a battleground, not group leader, group is full cases
+    // skip non auto-join slot or player in a battleground, not group leader,
+    // group is full cases
     if (_group && (_group->IsBattleGroup() || _group->IsFull() || !_group->IsLeader(_player->GetObjectGuid())))
     {
         LookingForGroupClear(_player, _session);
@@ -332,23 +335,23 @@ static void LookingForGroupTryFill(Player* _player, bool initial = false)
     bool attempted = false;
 
     // TODO: Guard Player map
-    HashMapHolder<Player>::MapType const& players = sObjectAccessor.GetPlayers();
+    HashMapHolder<Player>::MapType const &players = sObjectAccessor.GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator iter = players.begin(); iter != players.end(); ++iter)
     {
-        Player* plr = iter->second;
+        Player *plr = iter->second;
 
         // skip enemies and self
         if (!plr || plr == _player || plr->GetTeam() != _player->GetTeam())
             continue;
 
-        WorldSession* session = plr->GetSession();
+        WorldSession *session = plr->GetSession();
 
         // skip players not in world or reconnecting
         if (!plr->IsInWorld() || session->IsOffline())
             continue;
 
         // skip players in groups, dequeue and remove them from LFG if discovered
-        if (Group* grp = plr->GetGroup())
+        if (Group *grp = plr->GetGroup())
         {
             if (grp->IsBattleGroup() || grp->IsFull() || !grp->IsLeader(plr->GetObjectGuid()))
                 LookingForGroupClear(plr, session);
@@ -367,7 +370,7 @@ static void LookingForGroupTryFill(Player* _player, bool initial = false)
         if (!plr->m_lookingForGroup.isLFG(_player->m_lookingForGroup, true))
             continue;
 
-        Group* result = _group;
+        Group *result = _group;
 
         // stop at false result (full?)
         if (!LookingForGroupAddMemberFor(_player, _session, plr, _player->m_lookingForGroup.more.entry, result))
@@ -382,7 +385,7 @@ static void LookingForGroupTryFill(Player* _player, bool initial = false)
         _session->SendMeetingStoneInProgress();
 }
 
-static inline void LookingForGroupSetAutoJoin(Player* _player, WorldSession* _session, bool enabled)
+static inline void LookingForGroupSetAutoJoin(Player *_player, WorldSession *_session, bool enabled)
 {
     if (LookingForGroupUpdateQueueStatus(_player, _session))
     {
@@ -394,14 +397,14 @@ static inline void LookingForGroupSetAutoJoin(Player* _player, WorldSession* _se
     if (!enabled)
         return;
 
-    uint8 result = 0x00;                                    // No message
+    uint8 result = 0x00; // No message
 
     WorldPacket data(SMSG_MEETINGSTONE_JOINFAILED, 1);
     data << uint8(result);
     _session->SendPacket(data);
 }
 
-static inline void LookingForGroupSetAutoFill(Player* _player, WorldSession* _session, bool enabled)
+static inline void LookingForGroupSetAutoFill(Player *_player, WorldSession *_session, bool enabled)
 {
     if (LookingForGroupUpdateQueueStatus(_player, _session))
     {
@@ -413,16 +416,16 @@ static inline void LookingForGroupSetAutoFill(Player* _player, WorldSession* _se
     if (!enabled)
         return;
 
-    uint8 result = 0x00;                                    // No message
+    uint8 result = 0x00; // No message
 
-    if (Group* _group = _player->GetGroup())
+    if (Group *_group = _player->GetGroup())
     {
         if (_group->IsRaidGroup())
-            result = 0x03;                                  // NO_RAID_GROUP
+            result = 0x03; // NO_RAID_GROUP
         else if (!_group->IsLeader(_player->GetObjectGuid()))
-            result = 0x01;                                  // MUST_BE_LEADER
+            result = 0x01; // MUST_BE_LEADER
         else
-            result = 0x02;                                  // No message, failure for other reason related to groups?
+            result = 0x02; // No message, failure for other reason related to groups?
     }
 
     WorldPacket data(SMSG_MEETINGSTONE_JOINFAILED, 1);
@@ -430,19 +433,19 @@ static inline void LookingForGroupSetAutoFill(Player* _player, WorldSession* _se
     _session->SendPacket(data);
 }
 
-void WorldSession::HandleLfgSetAutoJoinOpcode(WorldPacket& /*recv_data*/)
+void WorldSession::HandleLfgSetAutoJoinOpcode(WorldPacket & /*recv_data*/)
 {
     DEBUG_LOG("CMSG_LFG_SET_AUTOJOIN");
 
     LookingForGroup_auto_join = true;
 
-    if (!_player)                                           // needed because STATUS_AUTHED
+    if (!_player) // needed because STATUS_AUTHED
         return;
 
     LookingForGroupSetAutoJoin(_player, _player->GetSession(), true);
 }
 
-void WorldSession::HandleLfgClearAutoJoinOpcode(WorldPacket& /*recv_data*/)
+void WorldSession::HandleLfgClearAutoJoinOpcode(WorldPacket & /*recv_data*/)
 {
     DEBUG_LOG("CMSG_LFG_CLEAR_AUTOJOIN");
 
@@ -451,19 +454,19 @@ void WorldSession::HandleLfgClearAutoJoinOpcode(WorldPacket& /*recv_data*/)
     LookingForGroupSetAutoJoin(_player, _player->GetSession(), false);
 }
 
-void WorldSession::HandleLfmSetAutoFillOpcode(WorldPacket& /*recv_data*/)
+void WorldSession::HandleLfmSetAutoFillOpcode(WorldPacket & /*recv_data*/)
 {
     DEBUG_LOG("CMSG_LFM_SET_AUTOFILL");
 
     LookingForGroup_auto_add = true;
 
-    if (!_player)                                           // needed because STATUS_AUTHED
+    if (!_player) // needed because STATUS_AUTHED
         return;
 
     LookingForGroupSetAutoFill(_player, _player->GetSession(), true);
 }
 
-void WorldSession::HandleLfmClearAutoFillOpcode(WorldPacket& /*recv_data*/)
+void WorldSession::HandleLfmClearAutoFillOpcode(WorldPacket & /*recv_data*/)
 {
     DEBUG_LOG("CMSG_LFM_CLEAR_AUTOFILL");
 
@@ -472,14 +475,14 @@ void WorldSession::HandleLfmClearAutoFillOpcode(WorldPacket& /*recv_data*/)
     LookingForGroupSetAutoFill(_player, _player->GetSession(), false);
 }
 
-void WorldSession::HandleLfgClearOpcode(WorldPacket& /*recv_data */)
+void WorldSession::HandleLfgClearOpcode(WorldPacket & /*recv_data */)
 {
     DEBUG_LOG("CMSG_CLEAR_LOOKING_FOR_GROUP");
 
     LookingForGroupClearLFG(_player, this);
 }
 
-void WorldSession::HandleSetLfgOpcode(WorldPacket& recv_data)
+void WorldSession::HandleSetLfgOpcode(WorldPacket &recv_data)
 {
     DEBUG_LOG("CMSG_SET_LOOKING_FOR_GROUP");
 
@@ -490,9 +493,9 @@ void WorldSession::HandleSetLfgOpcode(WorldPacket& recv_data)
     if (slot >= MAX_LOOKING_FOR_GROUP_SLOT)
         return;
 
-    if (Group* _group = _player->GetGroup())
+    if (Group *_group = _player->GetGroup())
     {
-        const Player* pov = LookingForGroupGetCurrentLeader(_player);
+        const Player *pov = LookingForGroupGetCurrentLeader(_player);
 
         if (pov != _player && pov->m_lookingForGroup.isLFM())
         {
@@ -518,14 +521,14 @@ void WorldSession::HandleSetLfgOpcode(WorldPacket& recv_data)
         LookingForGroupTryJoin(_player);
 }
 
-void WorldSession::HandleLfmClearOpcode(WorldPacket& /*recv_data */)
+void WorldSession::HandleLfmClearOpcode(WorldPacket & /*recv_data */)
 {
     DEBUG_LOG("CMSG_CLEAR_LOOKING_FOR_MORE");
 
     LookingForGroupClearLFM(_player, this);
 }
 
-void WorldSession::HandleSetLfmOpcode(WorldPacket& recv_data)
+void WorldSession::HandleSetLfmOpcode(WorldPacket &recv_data)
 {
     DEBUG_LOG("CMSG_SET_LOOKING_FOR_MORE");
 
@@ -533,7 +536,7 @@ void WorldSession::HandleSetLfmOpcode(WorldPacket& recv_data)
 
     recv_data >> data;
 
-    if (Group* _group = _player->GetGroup())
+    if (Group *_group = _player->GetGroup())
     {
         ObjectGuid _guid = _player->GetObjectGuid();
 
@@ -554,14 +557,14 @@ void WorldSession::HandleSetLfmOpcode(WorldPacket& recv_data)
     // TODO broadcast LFM preference to party as well instead of full ui update?
     LookingForGroupUpdateUI(_player, this);
 
-    LookingForGroup_queue = false;                      // FIXME: this is to cause requeue message
+    LookingForGroup_queue = false; // FIXME: this is to cause requeue message
     LookingForGroupUpdateQueueStatus(_player, this);
 
     if (LookingForGroup_auto_add)
         LookingForGroupTryFill(_player);
 }
 
-void WorldSession::HandleSetLfgCommentOpcode(WorldPacket& recv_data)
+void WorldSession::HandleSetLfgCommentOpcode(WorldPacket &recv_data)
 {
     DEBUG_LOG("CMSG_SET_LFG_COMMENT");
 
@@ -573,7 +576,7 @@ void WorldSession::HandleSetLfgCommentOpcode(WorldPacket& recv_data)
     DEBUG_LOG("LFG comment %s", comment.c_str());
 }
 
-void WorldSession::HandleLFGListQuery(WorldPacket& recv_data)
+void WorldSession::HandleLFGListQuery(WorldPacket &recv_data)
 {
     DEBUG_LOG("MSG_LOOKING_FOR_GROUP");
     uint32 type, entry, unk;
@@ -606,19 +609,19 @@ void WorldSession::SendLFGListQueryResponse(LfgType type, uint32 entry)
 {
     // start prepare packet
     WorldPacket data(MSG_LOOKING_FOR_GROUP);
-    data << uint32(type);                                   // type
-    data << uint32(entry);                                  // entry from LFGDungeons.dbc
-    data << uint32(0);                                      // displayed players count, placeholder
-    data << uint32(0);                                      // found players count, placeholder
+    data << uint32(type);  // type
+    data << uint32(entry); // entry from LFGDungeons.dbc
+    data << uint32(0);     // displayed players count, placeholder
+    data << uint32(0);     // found players count, placeholder
 
     uint32 displayed = 0;
     uint32 found = 0;
 
     // TODO: Guard Player map
-    HashMapHolder<Player>::MapType const& players = sObjectAccessor.GetPlayers();
-    for (const auto& i : players)
+    HashMapHolder<Player>::MapType const &players = sObjectAccessor.GetPlayers();
+    for (const auto &i : players)
     {
-        Player* plr = i.second;
+        Player *plr = i.second;
 
         if (!plr || plr->GetTeam() != _player->GetTeam())
             continue;
@@ -629,14 +632,15 @@ void WorldSession::SendLFGListQueryResponse(LfgType type, uint32 entry)
         if (!plr->m_lookingForGroup.isLFG(entry, type, false) && !plr->m_lookingForGroup.isLFM(entry, type))
             continue;
 
-        const Group* grp = plr->GetGroup();
+        const Group *grp = plr->GetGroup();
 
         if (grp && (grp->IsBattleGroup() || grp->IsFull() || !grp->IsLeader(plr->GetObjectGuid())))
             continue;
 
         ++found;
 
-        // Client hardcoded limitation on amount of players sent in the packet handler and UI:
+        // Client hardcoded limitation on amount of players sent in the packet
+        // handler and UI:
         if (found > 50)
             continue;
 
@@ -644,10 +648,10 @@ void WorldSession::SendLFGListQueryResponse(LfgType type, uint32 entry)
 
         const bool isLFM = plr->m_lookingForGroup.isLFM(entry, type);
 
-        data << plr->GetPackGUID();                         // packed guid
-        data << uint32(plr->GetLevel());                    // level
-        data << uint32(plr->GetZoneId());                   // current zone
-        data << uint8(isLFM);                               // 0x00 - LFG, 0x01 - LFM
+        data << plr->GetPackGUID();       // packed guid
+        data << uint32(plr->GetLevel());  // level
+        data << uint32(plr->GetZoneId()); // current zone
+        data << uint8(isLFM);             // 0x00 - LFG, 0x01 - LFM
 
         if (isLFM)
         {
@@ -663,16 +667,16 @@ void WorldSession::SendLFGListQueryResponse(LfgType type, uint32 entry)
 
         data << plr->m_lookingForGroup.comment;
 
-        data << uint32(0);                                  // other group members count, placeholder
+        data << uint32(0); // other group members count, placeholder
 
         if (grp)
         {
-            const size_t offset = (data.wpos() - 4);        // other group members count, offset
-            uint32 count = 0;                               // other group members count
+            const size_t offset = (data.wpos() - 4); // other group members count, offset
+            uint32 count = 0;                        // other group members count
 
-            for (const GroupReference* itr = grp->GetFirstMember(); itr != nullptr; itr = itr->next())
+            for (const GroupReference *itr = grp->GetFirstMember(); itr != nullptr; itr = itr->next())
             {
-                if (const Player* member = itr->getSource())
+                if (const Player *member = itr->getSource())
                 {
                     if (member->GetObjectGuid() != plr->GetObjectGuid())
                     {
@@ -683,12 +687,13 @@ void WorldSession::SendLFGListQueryResponse(LfgType type, uint32 entry)
                 }
             }
 
-            data.put<uint32>(offset, count);            // other group members count, fill the placeholder
+            data.put<uint32>(offset,
+                             count); // other group members count, fill the placeholder
         }
     }
 
     // fill count placeholders
-    data.put<uint32>(4 + 4,  displayed);
+    data.put<uint32>(4 + 4, displayed);
     data.put<uint32>(4 + 4 + 4, found);
 
     SendPacket(data);
@@ -696,8 +701,8 @@ void WorldSession::SendLFGListQueryResponse(LfgType type, uint32 entry)
 
 void WorldSession::SendLFGUpdate()
 {
-    const Player* pov = LookingForGroupGetCurrentLeader(_player);
-    auto const& info = pov->m_lookingForGroup;
+    const Player *pov = LookingForGroupGetCurrentLeader(_player);
+    auto const &info = pov->m_lookingForGroup;
     const bool queued = pov->GetSession()->LookingForGroup_queue;
     const bool isLFM = info.isLFM();
 
@@ -713,7 +718,7 @@ void WorldSession::SendLFGUpdate()
 void WorldSession::SendLFGUpdateLFG()
 {
     // Syncs player's own LFG UI selection with what we send here
-    auto const& selection = _player->m_lookingForGroup.group;
+    auto const &selection = _player->m_lookingForGroup.group;
 
     WorldPacket data(SMSG_LFG_UPDATE_LFG, (4 * MAX_LOOKING_FOR_GROUP_SLOT));
     for (uint8 i = 0; i < MAX_LOOKING_FOR_GROUP_SLOT; ++i)
@@ -724,9 +729,9 @@ void WorldSession::SendLFGUpdateLFG()
 void WorldSession::SendLFGUpdateLFM()
 {
     // Syncs player's own LFG UI selection with what we send here
-    auto const& info = _player->m_lookingForGroup;
+    auto const &info = _player->m_lookingForGroup;
     const bool isLFM = info.isLFM();
-    auto const& selection = _player->m_lookingForGroup.more;
+    auto const &selection = _player->m_lookingForGroup.more;
 
     WorldPacket data(SMSG_LFG_UPDATE_LFM);
     data << uint8(isLFM);

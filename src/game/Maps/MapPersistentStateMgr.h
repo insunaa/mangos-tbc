@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,17 +20,17 @@
 #ifndef __InstanceSaveMgr_H
 #define __InstanceSaveMgr_H
 
-#include "Common.h"
-#include "Policies/Singleton.h"
-#include "Database/DatabaseEnv.h"
-#include "Server/DBCEnums.h"
-#include "Server/DBCStores.h"
-#include "Entities/ObjectGuid.h"
-#include "Pools/PoolManager.h"
-
 #include <list>
 #include <map>
 #include <mutex>
+
+#include "Common.h"
+#include "Database/DatabaseEnv.h"
+#include "Entities/ObjectGuid.h"
+#include "Policies/Singleton.h"
+#include "Pools/PoolManager.h"
+#include "Server/DBCEnums.h"
+#include "Server/DBCStores.h"
 
 struct InstanceTemplate;
 struct MapEntry;
@@ -50,96 +51,130 @@ struct MapCellObjectGuids
     CellGuidSet gameobjects;
 };
 
-typedef std::unordered_map < uint32/*cell_id*/, MapCellObjectGuids > MapCellObjectGuidsMap;
+typedef std::unordered_map<uint32 /*cell_id*/, MapCellObjectGuids> MapCellObjectGuidsMap;
 
 class MapPersistentStateManager;
 
 class MapPersistentState
 {
-        friend class MapPersistentStateManager;
-    protected:
-        MapPersistentState(uint16 MapId, uint32 InstanceId, Difficulty difficulty);
+    friend class MapPersistentStateManager;
 
-    public:
+  protected:
+    MapPersistentState(uint16 MapId, uint32 InstanceId, Difficulty difficulty);
 
-        /* Unloaded when m_playerList and m_groupList become empty
-           or when the instance is reset */
-        virtual ~MapPersistentState();
+  public:
+    /* Unloaded when m_playerList and m_groupList become empty
+       or when the instance is reset */
+    virtual ~MapPersistentState();
 
-        /* A map corresponding to the InstanceId/MapId does not always exist.
-        MapPersistentState objects may be created on player logon but the maps are
-        created and loaded only when a player actually enters the instance. */
-        uint32 GetInstanceId() const { return m_instanceid; }
-        uint32 GetMapId() const { return m_mapid; }
+    /* A map corresponding to the InstanceId/MapId does not always exist.
+    MapPersistentState objects may be created on player logon but the maps are
+    created and loaded only when a player actually enters the instance. */
+    uint32 GetInstanceId() const
+    {
+        return m_instanceid;
+    }
+    uint32 GetMapId() const
+    {
+        return m_mapid;
+    }
 
-        MapEntry const* GetMapEntry() const;
+    MapEntry const *GetMapEntry() const;
 
-        /* currently it is possible to omit this information from this structure
-           but that would depend on a lot of things that can easily change in future */
-        Difficulty GetDifficulty() const { return m_difficulty; }
+    /* currently it is possible to omit this information from this structure
+       but that would depend on a lot of things that can easily change in future
+     */
+    Difficulty GetDifficulty() const
+    {
+        return m_difficulty;
+    }
 
-        bool IsUsedByMap() const { return m_usedByMap != nullptr; }
-        Map* GetMap() const { return m_usedByMap; }         // Can be nullptr if map not loaded for persistent state
-        void SetUsedByMapState(Map* map)
-        {
-            m_usedByMap = map;
-            if (!map)
-                UnloadIfEmpty();
-        }
+    bool IsUsedByMap() const
+    {
+        return m_usedByMap != nullptr;
+    }
+    Map *GetMap() const
+    {
+        return m_usedByMap;
+    } // Can be nullptr if map not loaded for persistent state
+    void SetUsedByMapState(Map *map)
+    {
+        m_usedByMap = map;
+        if (!map)
+            UnloadIfEmpty();
+    }
 
-        time_t GetCreatureRespawnTime(uint32 loguid) const
-        {
-            RespawnTimes::const_iterator itr = m_creatureRespawnTimes.find(loguid);
-            return itr != m_creatureRespawnTimes.end() ? itr->second : 0;
-        }
-        void SaveCreatureRespawnTime(uint32 loguid, time_t t);
-        time_t GetGORespawnTime(uint32 loguid) const
-        {
-            RespawnTimes::const_iterator itr = m_goRespawnTimes.find(loguid);
-            return itr != m_goRespawnTimes.end() ? itr->second : 0;
-        }
-        void SaveGORespawnTime(uint32 loguid, time_t t);
-        time_t GetObjectRespawnTime(uint32 typeId, uint32 loguid) const;
-        void SaveObjectRespawnTime(uint32 typeId, uint32 loguid, time_t t);
+    time_t GetCreatureRespawnTime(uint32 loguid) const
+    {
+        RespawnTimes::const_iterator itr = m_creatureRespawnTimes.find(loguid);
+        return itr != m_creatureRespawnTimes.end() ? itr->second : 0;
+    }
+    void SaveCreatureRespawnTime(uint32 loguid, time_t t);
+    time_t GetGORespawnTime(uint32 loguid) const
+    {
+        RespawnTimes::const_iterator itr = m_goRespawnTimes.find(loguid);
+        return itr != m_goRespawnTimes.end() ? itr->second : 0;
+    }
+    void SaveGORespawnTime(uint32 loguid, time_t t);
+    time_t GetObjectRespawnTime(uint32 typeId, uint32 loguid) const;
+    void SaveObjectRespawnTime(uint32 typeId, uint32 loguid, time_t t);
 
-        // pool system
-        void InitPools();
-        SpawnedPoolData& GetSpawnedPoolData() { return m_spawnedPoolData; };
+    // pool system
+    void InitPools();
+    SpawnedPoolData &GetSpawnedPoolData()
+    {
+        return m_spawnedPoolData;
+    };
 
-        template<typename T>
-        bool IsSpawnedPoolObject(uint32 db_guid_or_pool_id) { return GetSpawnedPoolData().IsSpawnedObject<T>(db_guid_or_pool_id); }
+    template <typename T> bool IsSpawnedPoolObject(uint32 db_guid_or_pool_id)
+    {
+        return GetSpawnedPoolData().IsSpawnedObject<T>(db_guid_or_pool_id);
+    }
 
-        // grid objects (Dynamic map/instance specific added/removed grid spawns from pool system/etc)
-        MapCellObjectGuids const& GetCellObjectGuids(uint32 cell_id) { return m_gridObjectGuids[cell_id]; }
-        void AddCreatureToGrid(uint32 guid, CreatureData const* data);
-        void RemoveCreatureFromGrid(uint32 guid, CreatureData const* data);
-        void AddGameobjectToGrid(uint32 guid, GameObjectData const* data);
-        void RemoveGameobjectFromGrid(uint32 guid, GameObjectData const* data);
-    protected:
-        virtual bool CanBeUnload() const = 0;               // body provided for subclasses
+    // grid objects (Dynamic map/instance specific added/removed grid spawns from
+    // pool system/etc)
+    MapCellObjectGuids const &GetCellObjectGuids(uint32 cell_id)
+    {
+        return m_gridObjectGuids[cell_id];
+    }
+    void AddCreatureToGrid(uint32 guid, CreatureData const *data);
+    void RemoveCreatureFromGrid(uint32 guid, CreatureData const *data);
+    void AddGameobjectToGrid(uint32 guid, GameObjectData const *data);
+    void RemoveGameobjectFromGrid(uint32 guid, GameObjectData const *data);
 
-        bool UnloadIfEmpty();
-        void ClearRespawnTimes();
-        bool HasRespawnTimes() const { return !m_creatureRespawnTimes.empty() || !m_goRespawnTimes.empty(); }
+  protected:
+    virtual bool CanBeUnload() const = 0; // body provided for subclasses
 
-    private:
-        void SetCreatureRespawnTime(uint32 loguid, time_t t);
-        void SetGORespawnTime(uint32 loguid, time_t t);
+    bool UnloadIfEmpty();
+    void ClearRespawnTimes();
+    bool HasRespawnTimes() const
+    {
+        return !m_creatureRespawnTimes.empty() || !m_goRespawnTimes.empty();
+    }
 
-    private:
-        typedef std::unordered_map<uint32, time_t> RespawnTimes;
+  private:
+    void SetCreatureRespawnTime(uint32 loguid, time_t t);
+    void SetGORespawnTime(uint32 loguid, time_t t);
 
-        uint32 m_instanceid;
-        uint32 m_mapid;
-        Difficulty m_difficulty;
-        Map* m_usedByMap;                                   // nullptr if map not loaded, non-nullptr lock MapPersistentState from unload
+  private:
+    typedef std::unordered_map<uint32, time_t> RespawnTimes;
 
-        // persistent data
-        RespawnTimes m_creatureRespawnTimes;                // lock MapPersistentState from unload, for example for temporary bound dungeon unload delay
-        RespawnTimes m_goRespawnTimes;                      // lock MapPersistentState from unload, for example for temporary bound dungeon unload delay
-        MapCellObjectGuidsMap m_gridObjectGuids;            // Single map copy specific grid spawn data, like pool spawns
+    uint32 m_instanceid;
+    uint32 m_mapid;
+    Difficulty m_difficulty;
+    Map *m_usedByMap; // nullptr if map not loaded, non-nullptr lock
+                      // MapPersistentState from unload
 
-        SpawnedPoolData m_spawnedPoolData;                  // Pools spawns state for map copy
+    // persistent data
+    RespawnTimes m_creatureRespawnTimes;     // lock MapPersistentState from unload,
+                                             // for example for temporary bound
+                                             // dungeon unload delay
+    RespawnTimes m_goRespawnTimes;           // lock MapPersistentState from unload, for example for
+                                             // temporary bound dungeon unload delay
+    MapCellObjectGuidsMap m_gridObjectGuids; // Single map copy specific grid
+                                             // spawn data, like pool spawns
+
+    SpawnedPoolData m_spawnedPoolData; // Pools spawns state for map copy
 };
 
 inline bool MapPersistentState::CanBeUnload() const
@@ -150,243 +185,326 @@ inline bool MapPersistentState::CanBeUnload() const
 
 class WorldPersistentState : public MapPersistentState
 {
-    public:
-        /* Created either when:
-           - any new non-instanceable map created
-           - respawn data loading for non-instanceable map
-        */
-        explicit WorldPersistentState(uint16 MapId) : MapPersistentState(MapId, 0, REGULAR_DIFFICULTY) {}
+  public:
+    /* Created either when:
+       - any new non-instanceable map created
+       - respawn data loading for non-instanceable map
+    */
+    explicit WorldPersistentState(uint16 MapId) : MapPersistentState(MapId, 0, REGULAR_DIFFICULTY)
+    {
+    }
 
-        ~WorldPersistentState() {}
-    protected:
-        bool CanBeUnload() const override;                  // overwrite MapPersistentState::CanBeUnload
+    ~WorldPersistentState()
+    {
+    }
+
+  protected:
+    bool CanBeUnload() const override; // overwrite MapPersistentState::CanBeUnload
 };
 
 /*
-    Holds the information necessary for creating a new map for an existing instance
-    Is referenced in three cases:
+    Holds the information necessary for creating a new map for an existing
+   instance Is referenced in three cases:
     - player-instance binds for solo players (not in group)
     - player-instance binds for permanent heroic/raid saves
-    - group-instance binds (both solo and permanent) cache the player binds for the group leader
+    - group-instance binds (both solo and permanent) cache the player binds for
+   the group leader
 
     Used for InstanceMap only
 */
 class DungeonPersistentState : public MapPersistentState
 {
-    public:
-        /* Created either when:
-           - any new instance is being generated
-           - the first time a player bound to InstanceId logs in
-           - when a group bound to the instance is loaded */
-        DungeonPersistentState(uint16 MapId, uint32 InstanceId, Difficulty difficulty, time_t resetTime, bool canReset, uint32 completedEncountersMask);
+  public:
+    /* Created either when:
+       - any new instance is being generated
+       - the first time a player bound to InstanceId logs in
+       - when a group bound to the instance is loaded */
+    DungeonPersistentState(uint16 MapId, uint32 InstanceId, Difficulty difficulty, time_t resetTime, bool canReset,
+                           uint32 completedEncountersMask);
 
-        ~DungeonPersistentState();
+    ~DungeonPersistentState();
 
-        InstanceTemplate const* GetTemplate() const;
+    InstanceTemplate const *GetTemplate() const;
 
-        uint8 GetPlayerCount() const { return m_playerList.size(); }
-        uint8 GetGroupCount() const { return m_groupList.size(); }
+    uint8 GetPlayerCount() const
+    {
+        return m_playerList.size();
+    }
+    uint8 GetGroupCount() const
+    {
+        return m_groupList.size();
+    }
 
-        /* online players bound to the instance (perm/solo)
-           does not include the members of the group unless they have permanent saves */
-        void AddPlayer(Player* player) { m_playerList.push_back(player); }
-        bool RemovePlayer(Player* player) { m_playerList.remove(player); return UnloadIfEmpty(); }
-        /* all groups bound to the instance */
-        void AddGroup(Group* group) { m_groupList.push_back(group); }
-        bool RemoveGroup(Group* group) { m_groupList.remove(group); return UnloadIfEmpty(); }
+    /* online players bound to the instance (perm/solo)
+       does not include the members of the group unless they have permanent saves
+     */
+    void AddPlayer(Player *player)
+    {
+        m_playerList.push_back(player);
+    }
+    bool RemovePlayer(Player *player)
+    {
+        m_playerList.remove(player);
+        return UnloadIfEmpty();
+    }
+    /* all groups bound to the instance */
+    void AddGroup(Group *group)
+    {
+        m_groupList.push_back(group);
+    }
+    bool RemoveGroup(Group *group)
+    {
+        m_groupList.remove(group);
+        return UnloadIfEmpty();
+    }
 
-        /* for normal instances this corresponds to max(creature respawn time) + 30 minutes
-           for raid/heroic instances this caches the global respawn time for the map */
-        time_t GetResetTime() const { return m_resetTime; }
-        void SetResetTime(time_t resetTime) { m_resetTime = resetTime; }
-        time_t GetResetTimeForDB() const;
+    /* for normal instances this corresponds to max(creature respawn time) + 30
+       minutes for raid/heroic instances this caches the global respawn time for
+       the map */
+    time_t GetResetTime() const
+    {
+        return m_resetTime;
+    }
+    void SetResetTime(time_t resetTime)
+    {
+        m_resetTime = resetTime;
+    }
+    time_t GetResetTimeForDB() const;
 
-        /* instances cannot be reset (except at the global reset time)
-           if there are players permanently bound to it
-           this is cached for the case when those players are offline */
-        bool CanReset() const { return m_canReset; }
-        void SetCanReset(bool canReset) { m_canReset = canReset; }
+    /* instances cannot be reset (except at the global reset time)
+       if there are players permanently bound to it
+       this is cached for the case when those players are offline */
+    bool CanReset() const
+    {
+        return m_canReset;
+    }
+    void SetCanReset(bool canReset)
+    {
+        m_canReset = canReset;
+    }
 
-        // DBC encounter state update at kill/spell cast
-        void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry);
+    // DBC encounter state update at kill/spell cast
+    void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry);
 
-        // mask of completed encounters
-        uint32 GetCompletedEncountersMask() const { return m_completedEncountersMask; }
+    // mask of completed encounters
+    uint32 GetCompletedEncountersMask() const
+    {
+        return m_completedEncountersMask;
+    }
 
-        /* Saved when the instance is generated for the first time */
-        void SaveToDB();
-        /* When the instance is being reset (permanently deleted) */
-        void DeleteFromDB() const;
-        /* Delete respawn data at dungeon reset */
-        void DeleteRespawnTimes();
-        /* Remove players bind to this state */
-        void UnbindThisState();
+    /* Saved when the instance is generated for the first time */
+    void SaveToDB();
+    /* When the instance is being reset (permanently deleted) */
+    void DeleteFromDB() const;
+    /* Delete respawn data at dungeon reset */
+    void DeleteRespawnTimes();
+    /* Remove players bind to this state */
+    void UnbindThisState();
 
-    protected:
-        bool CanBeUnload() const override;                  // overwrite MapPersistentState::CanBeUnload
-        bool HasBounds() const { return !m_playerList.empty() || !m_groupList.empty(); }
+  protected:
+    bool CanBeUnload() const override; // overwrite MapPersistentState::CanBeUnload
+    bool HasBounds() const
+    {
+        return !m_playerList.empty() || !m_groupList.empty();
+    }
 
-    private:
-        typedef PlayerList PlayerListType;
-        typedef std::list<Group*> GroupListType;
+  private:
+    typedef PlayerList PlayerListType;
+    typedef std::list<Group *> GroupListType;
 
-        time_t m_resetTime;
-        bool m_canReset;
+    time_t m_resetTime;
+    bool m_canReset;
 
-        /* the only reason the instSave-object links are kept is because
-           the object-instSave links need to be broken at reset time
-           TODO: maybe it's enough to just store the number of players/groups */
-        PlayerListType m_playerList;                        // lock MapPersistentState from unload
-        GroupListType m_groupList;                          // lock MapPersistentState from unload
+    /* the only reason the instSave-object links are kept is because
+       the object-instSave links need to be broken at reset time
+       TODO: maybe it's enough to just store the number of players/groups */
+    PlayerListType m_playerList; // lock MapPersistentState from unload
+    GroupListType m_groupList;   // lock MapPersistentState from unload
 
-        uint32 m_completedEncountersMask;                   // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
+    uint32 m_completedEncountersMask; // completed encounter mask, bit indexes
+                                      // are DungeonEncounter.dbc boss numbers,
+                                      // used for packets
 };
 
 class BattleGroundPersistentState : public MapPersistentState
 {
-    public:
-        /* Created either when:
-           - any new BG/arena is being generated
-        */
-        BattleGroundPersistentState(uint16 MapId, uint32 InstanceId, Difficulty difficulty)
-            : MapPersistentState(MapId, InstanceId, difficulty) {}
+  public:
+    /* Created either when:
+       - any new BG/arena is being generated
+    */
+    BattleGroundPersistentState(uint16 MapId, uint32 InstanceId, Difficulty difficulty)
+        : MapPersistentState(MapId, InstanceId, difficulty)
+    {
+    }
 
-        ~BattleGroundPersistentState() {}
-    protected:
-        bool CanBeUnload() const override;                  // overwrite MapPersistentState::CanBeUnload
+    ~BattleGroundPersistentState()
+    {
+    }
+
+  protected:
+    bool CanBeUnload() const override; // overwrite MapPersistentState::CanBeUnload
 };
 
 enum ResetEventType
 {
-    RESET_EVENT_NORMAL_DUNGEON      = 0,                    // no fixed reset time
-    RESET_EVENT_INFORM_1            = 1,                    // raid/heroic warnings
-    RESET_EVENT_INFORM_2            = 2,
-    RESET_EVENT_INFORM_3            = 3,
-    RESET_EVENT_INFORM_LAST         = 4,
-    RESET_EVENT_FORCED_INFORM_1     = 5,
-    RESET_EVENT_FORCED_INFORM_2     = 6,
-    RESET_EVENT_FORCED_INFORM_3     = 7,
-    RESET_EVENT_FORCED_INFORM_LAST  = 8,
+    RESET_EVENT_NORMAL_DUNGEON = 0, // no fixed reset time
+    RESET_EVENT_INFORM_1 = 1,       // raid/heroic warnings
+    RESET_EVENT_INFORM_2 = 2,
+    RESET_EVENT_INFORM_3 = 3,
+    RESET_EVENT_INFORM_LAST = 4,
+    RESET_EVENT_FORCED_INFORM_1 = 5,
+    RESET_EVENT_FORCED_INFORM_2 = 6,
+    RESET_EVENT_FORCED_INFORM_3 = 7,
+    RESET_EVENT_FORCED_INFORM_LAST = 8,
 };
 
-#define MAX_RESET_EVENT_TYPE   9
+#define MAX_RESET_EVENT_TYPE 9
 
 /* resetTime is a global propery of each (raid/heroic) map
     all instances of that map reset at the same time */
 struct DungeonResetEvent
 {
-    ResetEventType type   : 8;                              // if RESET_EVENT_DUNGEON then InstanceID == 0 and applied to all instances for map)
-    uint16 mapid;                                           // used with mapid used as for select reset for global cooldown instances (instanceid==0 for event)
-    uint32 instanceId;                                      // used for select reset for normal dungeons
+    ResetEventType type : 8; // if RESET_EVENT_DUNGEON then InstanceID == 0 and
+                             // applied to all instances for map)
+    uint16 mapid;            // used with mapid used as for select reset for global cooldown
+                             // instances (instanceid==0 for event)
+    uint32 instanceId;       // used for select reset for normal dungeons
 
-    DungeonResetEvent() : type(RESET_EVENT_NORMAL_DUNGEON), mapid(0), instanceId(0) {}
+    DungeonResetEvent() : type(RESET_EVENT_NORMAL_DUNGEON), mapid(0), instanceId(0)
+    {
+    }
     DungeonResetEvent(ResetEventType t, uint32 _mapid, uint32 _instanceid)
-        : type(t), mapid(_mapid), instanceId(_instanceid) {}
+        : type(t), mapid(_mapid), instanceId(_instanceid)
+    {
+    }
 
-    bool operator == (const DungeonResetEvent& e) { return e.mapid == mapid && e.instanceId == instanceId; }
+    bool operator==(const DungeonResetEvent &e)
+    {
+        return e.mapid == mapid && e.instanceId == instanceId;
+    }
 };
 
 class DungeonResetScheduler
 {
-    public:                                                 // constructors
-        explicit DungeonResetScheduler(MapPersistentStateManager& mgr) : m_InstanceSaves(mgr) {}
-        void LoadResetTimes();
+  public: // constructors
+    explicit DungeonResetScheduler(MapPersistentStateManager &mgr) : m_InstanceSaves(mgr)
+    {
+    }
+    void LoadResetTimes();
 
-    public:                                                 // accessors
-        time_t GetResetTimeFor(uint32 mapid) { return m_resetTimeByMapId[mapid]; }
+  public: // accessors
+    time_t GetResetTimeFor(uint32 mapid)
+    {
+        return m_resetTimeByMapId[mapid];
+    }
 
-        static uint32 GetMaxResetTimeFor(InstanceTemplate const* temp);
-        static time_t CalculateNextResetTime(InstanceTemplate const* temp, time_t prevResetTime);
-    public:                                                 // modifiers
-        void SetResetTimeFor(uint32 mapid, time_t t)
-        {
-            m_resetTimeByMapId[mapid] = t;
-        }
+    static uint32 GetMaxResetTimeFor(InstanceTemplate const *temp);
+    static time_t CalculateNextResetTime(InstanceTemplate const *temp, time_t prevResetTime);
 
-        void ScheduleReset(bool add, time_t time, DungeonResetEvent event);
+  public: // modifiers
+    void SetResetTimeFor(uint32 mapid, time_t t)
+    {
+        m_resetTimeByMapId[mapid] = t;
+    }
 
-        void Update();
+    void ScheduleReset(bool add, time_t time, DungeonResetEvent event);
 
-        void ResetAllRaid();
-    private:                                                // fields
-        MapPersistentStateManager& m_InstanceSaves;
+    void Update();
 
-        // fast lookup for reset times (always use existing functions for access/set)
-        typedef std::vector < time_t /*resetTime*/ > ResetTimeVector;
-        ResetTimeVector m_resetTimeByMapId;
+    void ResetAllRaid();
 
-        typedef std::multimap < time_t /*resetTime*/, DungeonResetEvent > ResetTimeQueue;
-        ResetTimeQueue m_resetTimeQueue;
+  private: // fields
+    MapPersistentStateManager &m_InstanceSaves;
+
+    // fast lookup for reset times (always use existing functions for access/set)
+    typedef std::vector<time_t /*resetTime*/> ResetTimeVector;
+    ResetTimeVector m_resetTimeByMapId;
+
+    typedef std::multimap<time_t /*resetTime*/, DungeonResetEvent> ResetTimeQueue;
+    ResetTimeQueue m_resetTimeQueue;
 };
 
-class MapPersistentStateManager : public MaNGOS::Singleton<MapPersistentStateManager, MaNGOS::ClassLevelLockable<MapPersistentStateManager, std::mutex> >
+class MapPersistentStateManager
+    : public MaNGOS::Singleton<MapPersistentStateManager,
+                               MaNGOS::ClassLevelLockable<MapPersistentStateManager, std::mutex>>
 {
-        friend class DungeonResetScheduler;
-    public:                                                 // constructors
-        MapPersistentStateManager();
-        ~MapPersistentStateManager();
+    friend class DungeonResetScheduler;
 
-    public:                                                 // common for all MapPersistentState (sub)classes
-        // For proper work pool systems with shared pools state for non-instanceable maps need
-        // load persistent map states for any non-instanceable maps before init pool system
-        void InitWorldMaps();
-        void LoadCreatureRespawnTimes();
-        void LoadGameobjectRespawnTimes();
+  public: // constructors
+    MapPersistentStateManager();
+    ~MapPersistentStateManager();
 
-        // auto select appropriate MapPersistentState (sub)class by MapEntry, and autoselect appropriate way store (by instance/map id)
-        // always return != nullptr
-        MapPersistentState* AddPersistentState(MapEntry const* mapEntry, uint32 instanceId, Difficulty difficulty, time_t resetTime, bool canReset, bool load = false, uint32 completedEncountersMask = 0);
+  public: // common for all MapPersistentState (sub)classes
+    // For proper work pool systems with shared pools state for non-instanceable
+    // maps need load persistent map states for any non-instanceable maps before
+    // init pool system
+    void InitWorldMaps();
+    void LoadCreatureRespawnTimes();
+    void LoadGameobjectRespawnTimes();
 
-        // search stored state, can be nullptr in result
-        MapPersistentState* GetPersistentState(uint32 mapId, uint32 instanceId);
+    // auto select appropriate MapPersistentState (sub)class by MapEntry, and
+    // autoselect appropriate way store (by instance/map id) always return !=
+    // nullptr
+    MapPersistentState *AddPersistentState(MapEntry const *mapEntry, uint32 instanceId, Difficulty difficulty,
+                                           time_t resetTime, bool canReset, bool load = false,
+                                           uint32 completedEncountersMask = 0);
 
-        void RemovePersistentState(uint32 mapId, uint32 instanceId);
+    // search stored state, can be nullptr in result
+    MapPersistentState *GetPersistentState(uint32 mapId, uint32 instanceId);
 
-        template<typename Do>
-        void DoForAllStatesWithMapId(uint32 mapId, Do& _do);
+    void RemovePersistentState(uint32 mapId, uint32 instanceId);
 
-    public:                                                 // DungeonPersistentState specific
-        void CleanupInstances();
-        void PackInstances() const;
+    template <typename Do> void DoForAllStatesWithMapId(uint32 mapId, Do &_do);
 
-        DungeonResetScheduler& GetScheduler() { return m_Scheduler; }
+  public: // DungeonPersistentState specific
+    void CleanupInstances();
+    void PackInstances() const;
 
-        static void DeleteInstanceFromDB(uint32 instanceid);
+    DungeonResetScheduler &GetScheduler()
+    {
+        return m_Scheduler;
+    }
 
-        void GetStatistics(uint32& numStates, uint32& numBoundPlayers, uint32& numBoundGroups);
+    static void DeleteInstanceFromDB(uint32 instanceid);
 
-        void Update() { m_Scheduler.Update(); }
-    private:
-        typedef std::unordered_map < uint32 /*InstanceId or MapId*/, MapPersistentState* > PersistentStateMap;
+    void GetStatistics(uint32 &numStates, uint32 &numBoundPlayers, uint32 &numBoundGroups);
 
-        //  called by scheduler for DungeonPersistentStates
-        void _ResetOrWarnAll(uint32 mapid, bool warn, uint32 timeLeft);
-        void _ResetInstance(uint32 mapid, uint32 instanceId);
-        void _CleanupExpiredInstancesAtTime(time_t t);
+    void Update()
+    {
+        m_Scheduler.Update();
+    }
 
-        void _ResetSave(PersistentStateMap& holder, PersistentStateMap::iterator& itr);
-        void _DelHelper(DatabaseType& db, const char* fields, const char* table, const char* queryTail, ...) const;
+  private:
+    typedef std::unordered_map<uint32 /*InstanceId or MapId*/, MapPersistentState *> PersistentStateMap;
 
-        // used during global instance resets
-        bool lock_instLists;
-        // fast lookup by instance id for instanceable maps
-        PersistentStateMap m_instanceSaveByInstanceId;
-        // fast lookup by map id for non-instanceable maps
-        PersistentStateMap m_instanceSaveByMapId;
+    //  called by scheduler for DungeonPersistentStates
+    void _ResetOrWarnAll(uint32 mapid, bool warn, uint32 timeLeft);
+    void _ResetInstance(uint32 mapid, uint32 instanceId);
+    void _CleanupExpiredInstancesAtTime(time_t t);
 
-        DungeonResetScheduler m_Scheduler;
+    void _ResetSave(PersistentStateMap &holder, PersistentStateMap::iterator &itr);
+    void _DelHelper(DatabaseType &db, const char *fields, const char *table, const char *queryTail, ...) const;
+
+    // used during global instance resets
+    bool lock_instLists;
+    // fast lookup by instance id for instanceable maps
+    PersistentStateMap m_instanceSaveByInstanceId;
+    // fast lookup by map id for non-instanceable maps
+    PersistentStateMap m_instanceSaveByMapId;
+
+    DungeonResetScheduler m_Scheduler;
 };
 
-template<typename Do>
-inline void MapPersistentStateManager::DoForAllStatesWithMapId(uint32 mapId, Do& _do)
+template <typename Do> inline void MapPersistentStateManager::DoForAllStatesWithMapId(uint32 mapId, Do &_do)
 {
-    MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
+    MapEntry const *mapEntry = sMapStore.LookupEntry(mapId);
     if (!mapEntry)
         return;
 
     if (mapEntry->Instanceable())
     {
-        for (PersistentStateMap::iterator itr = m_instanceSaveByInstanceId.begin(); itr != m_instanceSaveByInstanceId.end();)
+        for (PersistentStateMap::iterator itr = m_instanceSaveByInstanceId.begin();
+             itr != m_instanceSaveByInstanceId.end();)
         {
             if (itr->second->GetMapId() == mapId)
                 _do((itr++)->second);
@@ -396,7 +514,7 @@ inline void MapPersistentStateManager::DoForAllStatesWithMapId(uint32 mapId, Do&
     }
     else
     {
-        if (MapPersistentState* state = GetPersistentState(mapId, 0))
+        if (MapPersistentState *state = GetPersistentState(mapId, 0))
             _do(state);
     }
 }

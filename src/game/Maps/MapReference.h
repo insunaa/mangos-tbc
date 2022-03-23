@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,34 +20,53 @@
 #ifndef _MAPREFERENCE_H
 #define _MAPREFERENCE_H
 
-#include "Utilities/LinkedReference/Reference.h"
 #include "Maps/Map.h"
+#include "Utilities/LinkedReference/Reference.h"
 
 class MapReference : public Reference<Map, Player>
 {
-    protected:
-        void targetObjectBuildLink() override
-        {
-            // called from link()
-            getTarget()->m_mapRefManager.insertFirst(this);
-            getTarget()->m_mapRefManager.incSize();
-        }
-        void targetObjectDestroyLink() override
-        {
-            // called from unlink()
-            if (isValid()) getTarget()->m_mapRefManager.decSize();
-        }
-        void sourceObjectDestroyLink() override
-        {
-            // called from invalidate()
+  protected:
+    void targetObjectBuildLink() override
+    {
+        // called from link()
+        getTarget()->m_mapRefManager.insertFirst(this);
+        getTarget()->m_mapRefManager.incSize();
+    }
+    void targetObjectDestroyLink() override
+    {
+        // called from unlink()
+        if (isValid())
             getTarget()->m_mapRefManager.decSize();
-        }
-    public:
-        MapReference() : Reference<Map, Player>() {}
-        ~MapReference() { unlink(); }
-        MapReference* next() { return (MapReference*)Reference<Map, Player>::next(); }
-        MapReference const* next() const { return (MapReference const*)Reference<Map, Player>::next(); }
-        MapReference* nockeck_prev() { return (MapReference*)Reference<Map, Player>::nocheck_prev(); }
-        MapReference const* nocheck_prev() const { return (MapReference const*)Reference<Map, Player>::nocheck_prev(); }
+    }
+    void sourceObjectDestroyLink() override
+    {
+        // called from invalidate()
+        getTarget()->m_mapRefManager.decSize();
+    }
+
+  public:
+    MapReference() : Reference<Map, Player>()
+    {
+    }
+    ~MapReference()
+    {
+        unlink();
+    }
+    MapReference *next()
+    {
+        return (MapReference *)Reference<Map, Player>::next();
+    }
+    MapReference const *next() const
+    {
+        return (MapReference const *)Reference<Map, Player>::next();
+    }
+    MapReference *nockeck_prev()
+    {
+        return (MapReference *)Reference<Map, Player>::nocheck_prev();
+    }
+    MapReference const *nocheck_prev() const
+    {
+        return (MapReference const *)Reference<Map, Player>::nocheck_prev();
+    }
 };
 #endif

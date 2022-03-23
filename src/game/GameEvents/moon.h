@@ -27,10 +27,10 @@
 
 /////////////////////////////////////////////////////////////////////////
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <math.h>
 
 /////////////////////////////////////////////////////////////////////////
 /// <STRONG>
@@ -40,13 +40,14 @@
 ///
 ///   This class is an all static.
 /// </p><p>
-///   This group of metthods deals with the phases of the moon, it also computes<BR>
-///   Julian dates, due to the fact it was needed for the moon calculations. To make it<BR>
-///   simpler to work with the Julian calculation there left in rather than creating a<BR>
-///   separate class.
+///   This group of metthods deals with the phases of the moon, it also
+///   computes<BR> Julian dates, due to the fact it was needed for the moon
+///   calculations. To make it<BR> simpler to work with the Julian calculation
+///   there left in rather than creating a<BR> separate class.
 /// </p><p>
-///   Some functions are taken from "Numerical Recipes in C - The Art of Scientific Computing"
-///   Second Edition, tranlated with changes for C++ and help clarify the code.
+///   Some functions are taken from "Numerical Recipes in C - The Art of
+///   Scientific Computing" Second Edition, tranlated with changes for C++ and
+///   help clarify the code.
 /// <BR>
 ///   ISBN 0-521-43108-5
 /// <BR>
@@ -54,8 +55,8 @@
 /// </p><p>
 ///   \section lunarphase  Lunar Phases
 /// </p><p>
-///    The program definds the phase of the moon as ia floating point number between 0 and 4.
-///    The following values apply:
+///    The program definds the phase of the moon as ia floating point number
+///    between 0 and 4. The following values apply:
 ///    - 0.0 = New Moon
 ///    - 1.0 = 1st Quarter
 ///    - 2.0 = Full Moon
@@ -64,7 +65,8 @@
 ///@brief Calculate the phase of the moon.
 ///
 /////////////////////////////////////////////////////////////////////////
-class Moon {
+class Moon
+{
     /// Radians to degree convertion
     static const double RAD;
     /// We will call this the Gregorian Interval.
@@ -73,20 +75,19 @@ class Moon {
     // The mean lunar cycle
     static const double MEAN_LUNAR_CYCLE;
 
-public:
-
-    Moon() {};
-    ~Moon() {};
+  public:
+    Moon(){};
+    ~Moon(){};
 
     /////////////////////////////////////////////////////////////////////////
     /// phase() calculates the phase of the moon at
     /// noon of the date given.
-    ///<p> <i>See above</i> @ref lunarphase
+    ///< p> <i>See above</i> @ref lunarphase
     ///@param mon The month.
     ///@param day The day of the month.
     ///@param year The year.
     ///@return  The Lunar Phase <i>see above</i> \ref lunarphase
-    static double phase(int mon,int day,int year);
+    static double phase(int mon, int day, int year);
 
     /////////////////////////////////////////////////////////////////////////
     /// nextphase() calculates the date & time of next phase of the moon,
@@ -98,7 +99,7 @@ public:
     ///@param min   The minute.
     ///@param nph   The Lunar Phase <i>See above</i> \ref lunarphase
     ///@return  Note that all the return values are references.
-    static void nextphase(int& mon,int& day,int& year,int& hr,int& min,int nph);
+    static void nextphase(int &mon, int &day, int &year, int &hr, int &min, int nph);
 
     /////////////////////////////////////////////////////////////////////////
     /// flmoon() calculates the julian date of nth lunar cycle and nph phase
@@ -107,7 +108,7 @@ public:
     /// This is the original function from the book.
     /// It's been modified to work in C++.
     /// I also rewrote it to be litte clearer. And added
-    /// comments where I unterstood what was going on and 
+    /// comments where I unterstood what was going on and
     /// increased the accuracy of a few constants.
     ///@param n     The number of lunar cycles.
     ///@param nph   The lunar phase.
@@ -116,7 +117,7 @@ public:
     ///@return      The full Julian date of the nth lunar cycle plus nph phase
     ///             Note that the integer and fractional parts are
     ///             returned by references.
-    static double flmoon(int n,int nph,long& jd,double& frac);
+    static double flmoon(int n, int nph, long &jd, double &frac);
 
     /////////////////////////////////////////////////////////////////////////
     /// Julian2Calendar() computes the julian date
@@ -125,14 +126,14 @@ public:
     ///@param day   The day of the month.
     ///@param year  The year.
     ///@return  Note that all the return values are references.
-    static void Julian2Calendar(long jd,int& mon,int& day,int& year);
+    static void Julian2Calendar(long jd, int &mon, int &day, int &year);
 
     /////////////////////////////////////////////////////////////////////////
     /// Calendar2Julian() computes the date given a julian date
     ///@param mon   The month.
     ///@param day   The day of the month.
     ///@param year  The year.
-    static long Calendar2Julian(int mon,int day,int year);
+    static long Calendar2Julian(int mon, int day, int year);
 
     /////////////////////////////////////////////////////////////////////////
     /// isDST() returns true if the given date is day light savings time
@@ -144,12 +145,9 @@ public:
     ///@param mon   The month.
     ///@param day   The day of the month.
     ///@param year  The year.
-    static bool isDST(int mon,int day,int year);
-    
+    static bool isDST(int mon, int day, int year);
 };
-
 
 /////////////////////////////////////////////////////////////////////////
 
 #endif /// _moon_h_
-

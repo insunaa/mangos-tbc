@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,21 +17,21 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "AI/ScriptDevAI/ScriptDevAIMgr.h"
+#include "Accounts/AccountMgr.h"
+#include "Chat/Chat.h"
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
-#include "World/World.h"
 #include "Entities/Player.h"
-#include "Server/Opcodes.h"
-#include "Chat/Chat.h"
 #include "Globals/ObjectAccessor.h"
-#include "Tools/Language.h"
-#include "Accounts/AccountMgr.h"
-#include "AI/ScriptDevAI/ScriptDevAIMgr.h"
+#include "Server/Opcodes.h"
 #include "SystemConfig.h"
-#include "revision.h"
+#include "Tools/Language.h"
 #include "Util.h"
+#include "World/World.h"
+#include "revision.h"
 
-bool ChatHandler::HandleHelpCommand(char* args)
+bool ChatHandler::HandleHelpCommand(char *args)
 {
     if (!*args)
     {
@@ -46,13 +47,13 @@ bool ChatHandler::HandleHelpCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleCommandsCommand(char* /*args*/)
+bool ChatHandler::HandleCommandsCommand(char * /*args*/)
 {
     ShowHelpForCommand(getCommandTable(), "");
     return true;
 }
 
-bool ChatHandler::HandleAccountCommand(char* args)
+bool ChatHandler::HandleAccountCommand(char *args)
 {
     // let show subcommands at unexpected data in args
     if (*args)
@@ -63,9 +64,9 @@ bool ChatHandler::HandleAccountCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleStartCommand(char* /*args*/)
+bool ChatHandler::HandleStartCommand(char * /*args*/)
 {
-    Player* chr = m_session->GetPlayer();
+    Player *chr = m_session->GetPlayer();
 
     if (chr->IsTaxiFlying())
     {
@@ -86,7 +87,7 @@ bool ChatHandler::HandleStartCommand(char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleServerInfoCommand(char* /*args*/)
+bool ChatHandler::HandleServerInfoCommand(char * /*args*/)
 {
     uint32 activeClientsNum = sWorld.GetActiveSessionCount();
     uint32 queuedClientsNum = sWorld.GetQueuedSessionCount();
@@ -94,7 +95,7 @@ bool ChatHandler::HandleServerInfoCommand(char* /*args*/)
     uint32 maxQueuedClientsNum = sWorld.GetMaxQueuedSessionCount();
     std::string str = secsToTimeString(sWorld.GetUptime());
 
-    char const* full;
+    char const *full;
     if (m_session)
         full = _FULLVERSION(REVISION_DATE, "|cffffffff|Hurl:" REVISION_ID "|h" REVISION_ID "|h|r");
     else
@@ -109,9 +110,9 @@ bool ChatHandler::HandleServerInfoCommand(char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleDismountCommand(char* /*args*/)
+bool ChatHandler::HandleDismountCommand(char * /*args*/)
 {
-    Player* player = m_session->GetPlayer();
+    Player *player = m_session->GetPlayer();
 
     // If player is not mounted, so go out :)
     if (!player->IsMounted())
@@ -133,9 +134,9 @@ bool ChatHandler::HandleDismountCommand(char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleSaveCommand(char* /*args*/)
+bool ChatHandler::HandleSaveCommand(char * /*args*/)
 {
-    Player* player = m_session->GetPlayer();
+    Player *player = m_session->GetPlayer();
 
     // save GM account without delay and output message (testing, etc)
     if (GetAccessLevel() > SEC_PLAYER)
@@ -145,26 +146,30 @@ bool ChatHandler::HandleSaveCommand(char* /*args*/)
         return true;
     }
 
-    // save or plan save after 20 sec (logout delay) if current next save time more this value and _not_ output any messages to prevent cheat planning
+    // save or plan save after 20 sec (logout delay) if current next save time
+    // more this value and _not_ output any messages to prevent cheat planning
     uint32 save_interval = sWorld.getConfig(CONFIG_UINT32_INTERVAL_SAVE);
-    if (save_interval == 0 || (save_interval > 20 * IN_MILLISECONDS && player->GetSaveTimer() <= save_interval - 20 * IN_MILLISECONDS))
+    if (save_interval == 0 ||
+        (save_interval > 20 * IN_MILLISECONDS && player->GetSaveTimer() <= save_interval - 20 * IN_MILLISECONDS))
         player->SaveToDB();
 
     return true;
 }
 
-bool ChatHandler::HandleGMListIngameCommand(char* /*args*/)
+bool ChatHandler::HandleGMListIngameCommand(char * /*args*/)
 {
-    std::list< std::pair<std::string, bool> > names;
+    std::list<std::pair<std::string, bool>> names;
 
     {
         HashMapHolder<Player>::ReadGuard g(HashMapHolder<Player>::GetLock());
-        HashMapHolder<Player>::MapType& m = sObjectAccessor.GetPlayers();
+        HashMapHolder<Player>::MapType &m = sObjectAccessor.GetPlayers();
         for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
         {
-            Player* player = itr->second;
+            Player *player = itr->second;
             AccountTypes security = player->GetSession()->GetSecurity();
-            if ((player->IsGameMaster() || (security > SEC_PLAYER && security <= (AccountTypes)sWorld.getConfig(CONFIG_UINT32_GM_LEVEL_IN_GM_LIST))) &&
+            if ((player->IsGameMaster() ||
+                 (security > SEC_PLAYER &&
+                  security <= (AccountTypes)sWorld.getConfig(CONFIG_UINT32_GM_LEVEL_IN_GM_LIST))) &&
                 (!m_session || player->IsVisibleGloballyFor(m_session->GetPlayer())))
                 names.push_back(std::make_pair<std::string, bool>(GetNameLink(player), player->isAcceptWhispers()));
         }
@@ -174,9 +179,9 @@ bool ChatHandler::HandleGMListIngameCommand(char* /*args*/)
     {
         SendSysMessage(LANG_GMS_ON_SRV);
 
-        char const* accepts = GetMangosString(LANG_GM_ACCEPTS_WHISPER);
-        char const* not_accept = GetMangosString(LANG_GM_NO_WHISPER);
-        for (std::list<std::pair< std::string, bool> >::const_iterator iter = names.begin(); iter != names.end(); ++iter)
+        char const *accepts = GetMangosString(LANG_GM_ACCEPTS_WHISPER);
+        char const *not_accept = GetMangosString(LANG_GM_NO_WHISPER);
+        for (std::list<std::pair<std::string, bool>>::const_iterator iter = names.begin(); iter != names.end(); ++iter)
             PSendSysMessage("%s - %s", iter->first.c_str(), iter->second ? accepts : not_accept);
     }
     else
@@ -185,7 +190,7 @@ bool ChatHandler::HandleGMListIngameCommand(char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleAccountPasswordCommand(char* args)
+bool ChatHandler::HandleAccountPasswordCommand(char *args)
 {
     // allow use from RA, but not from console (not have associated account id)
     if (!GetAccountId())
@@ -196,9 +201,9 @@ bool ChatHandler::HandleAccountPasswordCommand(char* args)
     }
 
     // allow or quoted string with possible spaces or literal without spaces
-    char* old_pass = ExtractQuotedOrLiteralArg(&args);
-    char* new_pass = ExtractQuotedOrLiteralArg(&args);
-    char* new_pass_c = ExtractQuotedOrLiteralArg(&args);
+    char *old_pass = ExtractQuotedOrLiteralArg(&args);
+    char *new_pass = ExtractQuotedOrLiteralArg(&args);
+    char *new_pass_c = ExtractQuotedOrLiteralArg(&args);
 
     if (!old_pass || !new_pass || !new_pass_c)
         return false;
@@ -225,27 +230,29 @@ bool ChatHandler::HandleAccountPasswordCommand(char* args)
 
     switch (result)
     {
-        case AOR_OK:
-            SendSysMessage(LANG_COMMAND_PASSWORD);
-            break;
-        case AOR_PASS_TOO_LONG:
-            SendSysMessage(LANG_PASSWORD_TOO_LONG);
-            SetSentErrorMessage(true);
-            return false;
-        case AOR_NAME_NOT_EXIST:                            // not possible case, don't want get account name for output
-        default:
-            SendSysMessage(LANG_COMMAND_NOTCHANGEPASSWORD);
-            SetSentErrorMessage(true);
-            return false;
+    case AOR_OK:
+        SendSysMessage(LANG_COMMAND_PASSWORD);
+        break;
+    case AOR_PASS_TOO_LONG:
+        SendSysMessage(LANG_PASSWORD_TOO_LONG);
+        SetSentErrorMessage(true);
+        return false;
+    case AOR_NAME_NOT_EXIST: // not possible case, don't want get account name
+                             // for output
+    default:
+        SendSysMessage(LANG_COMMAND_NOTCHANGEPASSWORD);
+        SetSentErrorMessage(true);
+        return false;
     }
 
-    // OK, but avoid normal report for hide passwords, but log use command for anyone
+    // OK, but avoid normal report for hide passwords, but log use command for
+    // anyone
     LogCommand(".account password *** *** ***");
     SetSentErrorMessage(true);
     return false;
 }
 
-bool ChatHandler::HandleAccountLockCommand(char* args)
+bool ChatHandler::HandleAccountLockCommand(char *args)
 {
     // allow use from RA, but not from console (not have associated account id)
     if (!GetAccountId())
@@ -278,7 +285,7 @@ bool ChatHandler::HandleAccountLockCommand(char* args)
 }
 
 /// Display the 'Message of the day' for the realm
-bool ChatHandler::HandleServerMotdCommand(char* /*args*/)
+bool ChatHandler::HandleServerMotdCommand(char * /*args*/)
 {
     PSendSysMessage(LANG_MOTD_CURRENT, sWorld.GetMotd());
     return true;

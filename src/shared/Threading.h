@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,62 +20,68 @@
 #ifndef THREADING_H
 #define THREADING_H
 
-#include <thread>
 #include <atomic>
+#include <thread>
 
 namespace MaNGOS
 {
-    class Runnable
+class Runnable
+{
+  public:
+    virtual ~Runnable()
     {
-        public:
-            virtual ~Runnable() {}
-            virtual void run() = 0;
+    }
+    virtual void run() = 0;
 
-            void incReference() { ++m_refs; }
-            void decReference()
-            {
-                if (!--m_refs)
-                    delete this;
-            }
-        private:
-            std::atomic_long m_refs;
-    };
-
-    enum Priority
+    void incReference()
     {
-        Priority_Idle,
-        Priority_Lowest,
-        Priority_Low,
-        Priority_Normal,
-        Priority_High,
-        Priority_Highest,
-        Priority_Realtime,
-    };
-
-    class Thread
+        ++m_refs;
+    }
+    void decReference()
     {
-        public:
-            Thread();
-            explicit Thread(Runnable* instance);
-            ~Thread();
+        if (!--m_refs)
+            delete this;
+    }
 
-            bool wait();
-            void destroy();
+  private:
+    std::atomic_long m_refs;
+};
 
-            void setPriority(Priority priority);
+enum Priority
+{
+    Priority_Idle,
+    Priority_Lowest,
+    Priority_Low,
+    Priority_Normal,
+    Priority_High,
+    Priority_Highest,
+    Priority_Realtime,
+};
 
-            static void Sleep(unsigned long msecs);
-            static std::thread::id currentId();
+class Thread
+{
+  public:
+    Thread();
+    explicit Thread(Runnable *instance);
+    ~Thread();
 
-        private:
-            Thread(const Thread&);
-            Thread& operator=(const Thread&);
+    bool wait();
+    void destroy();
 
-            static void ThreadTask(void* param);
+    void setPriority(Priority priority);
 
-            Runnable* const m_task;
-            std::thread::id m_iThreadId;
-            std::thread m_ThreadImp;
-    };
-}
+    static void Sleep(unsigned long msecs);
+    static std::thread::id currentId();
+
+  private:
+    Thread(const Thread &);
+    Thread &operator=(const Thread &);
+
+    static void ThreadTask(void *param);
+
+    Runnable *const m_task;
+    std::thread::id m_iThreadId;
+    std::thread m_ThreadImp;
+};
+} // namespace MaNGOS
 #endif

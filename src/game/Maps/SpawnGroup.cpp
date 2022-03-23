@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,14 +22,15 @@
 #include "Entities/Creature.h"
 #include "Entities/GameObject.h"
 #include "Entities/Player.h"
-#include "Maps/Map.h"
-#include "Maps/SpawnGroupDefines.h"
-#include "Maps/MapPersistentStateMgr.h"
 #include "Globals/ObjectMgr.h"
+#include "Maps/Map.h"
+#include "Maps/MapPersistentStateMgr.h"
+#include "Maps/SpawnGroupDefines.h"
 #include "MotionGenerators/TargetedMovementGenerator.h"
 #include "World/World.h"
 
-SpawnGroup::SpawnGroup(SpawnGroupEntry const& entry, Map& map, uint32 typeId) : m_entry(entry), m_map(map), m_objectTypeId(typeId), m_enabled(m_entry.EnabledByDefault)
+SpawnGroup::SpawnGroup(SpawnGroupEntry const &entry, Map &map, uint32 typeId)
+    : m_entry(entry), m_map(map), m_objectTypeId(typeId), m_enabled(m_entry.EnabledByDefault)
 {
 }
 
@@ -37,7 +39,7 @@ void SpawnGroup::AddObject(uint32 dbGuid, uint32 entry)
     m_objects[dbGuid] = entry;
 }
 
-void SpawnGroup::RemoveObject(WorldObject* wo)
+void SpawnGroup::RemoveObject(WorldObject *wo)
 {
     m_objects.erase(wo->GetDbGuid());
 }
@@ -55,7 +57,7 @@ void SpawnGroup::Update()
     Spawn(false);
 }
 
-uint32 SpawnGroup::GetEligibleEntry(std::map<uint32, uint32>& existingEntries, std::map<uint32, uint32>& minEntries)
+uint32 SpawnGroup::GetEligibleEntry(std::map<uint32, uint32> &existingEntries, std::map<uint32, uint32> &minEntries)
 {
     if (m_entry.RandomEntries.empty())
         return 0;
@@ -104,26 +106,31 @@ void SpawnGroup::Spawn(bool force)
     if (!m_enabled && !force)
         return;
 
-    if (m_objects.size() >= m_entry.MaxCount || (m_entry.WorldStateId && m_map.GetVariableManager().GetVariable(m_entry.WorldStateId) == 0))
+    if (m_objects.size() >= m_entry.MaxCount ||
+        (m_entry.WorldStateId && m_map.GetVariableManager().GetVariable(m_entry.WorldStateId) == 0))
         return;
 
-    std::vector<SpawnGroupDbGuids const*> eligibleGuids;
+    std::vector<SpawnGroupDbGuids const *> eligibleGuids;
     std::map<uint32, uint32> validEntries;
     std::map<uint32, uint32> minEntries;
 
-    for (auto& randomEntry : m_entry.RandomEntries)
+    for (auto &randomEntry : m_entry.RandomEntries)
     {
-        validEntries[randomEntry.Entry] = randomEntry.MaxCount > 0 ? randomEntry.MaxCount : std::numeric_limits<uint32>::max();
+        validEntries[randomEntry.Entry] =
+            randomEntry.MaxCount > 0 ? randomEntry.MaxCount : std::numeric_limits<uint32>::max();
         if (randomEntry.MinCount > 0)
             minEntries.emplace(randomEntry.Entry, randomEntry.MinCount);
     }
 
-    for (auto& guid : m_entry.DbGuids)
+    for (auto &guid : m_entry.DbGuids)
         eligibleGuids.push_back(&guid);
 
-    for (auto& data : m_objects)
+    for (auto &data : m_objects)
     {
-        eligibleGuids.erase(std::remove_if(eligibleGuids.begin(), eligibleGuids.end(), [dbGuid = data.first](SpawnGroupDbGuids const* entry) { return entry->DbGuid == dbGuid; }), eligibleGuids.end());
+        eligibleGuids.erase(
+            std::remove_if(eligibleGuids.begin(), eligibleGuids.end(),
+                           [dbGuid = data.first](SpawnGroupDbGuids const *entry) { return entry->DbGuid == dbGuid; }),
+            eligibleGuids.end());
         if (validEntries.size() > 0)
         {
             uint32 curCount = validEntries[data.second];
@@ -176,19 +183,23 @@ void SpawnGroup::Spawn(bool force)
 
     std::shuffle(eligibleGuids.begin(), eligibleGuids.end(), *GetRandomGenerator());
 
-    for (auto itr = eligibleGuids.begin(); itr != eligibleGuids.end() && !eligibleGuids.empty() && m_objects.size() < m_entry.MaxCount; ++itr)
+    for (auto itr = eligibleGuids.begin();
+         itr != eligibleGuids.end() && !eligibleGuids.empty() && m_objects.size() < m_entry.MaxCount; ++itr)
     {
         uint32 dbGuid = (*itr)->DbGuid;
         uint32 entry = 0;
-        // creatures pick random entry on first spawn in dungeons - else always pick random entry
+        // creatures pick random entry on first spawn in dungeons - else always
+        // pick random entry
         if (GetObjectTypeId() == TYPEID_UNIT)
         {
             if (m_map.IsDungeon())
             {
-                // only held in memory - implement saving to db if it becomes a major issue
+                // only held in memory - implement saving to db if it becomes a
+                // major issue
                 if (m_chosenEntries.find(dbGuid) == m_chosenEntries.end())
                 {
-                    // some group members can have static entry, or selfcontained random entry
+                    // some group members can have static entry, or selfcontained
+                    // random entry
                     if ((*itr)->RandomEntry)
                         entry = sObjectMgr.GetRandomCreatureEntry(dbGuid);
                     else if ((*itr)->OwnEntry)
@@ -217,13 +228,15 @@ void SpawnGroup::Spawn(bool force)
         if (GetObjectTypeId() == TYPEID_UNIT)
         {
             auto data = sObjectMgr.GetCreatureData(dbGuid);
-            x = data->posX; y = data->posY;
+            x = data->posX;
+            y = data->posY;
             m_map.GetPersistentState()->AddCreatureToGrid(dbGuid, data);
         }
         else
         {
             auto data = sObjectMgr.GetGOData(dbGuid);
-            x = data->posX; y = data->posY;
+            x = data->posX;
+            y = data->posY;
             m_map.GetPersistentState()->AddGameobjectToGrid(dbGuid, data);
         }
         AddObject(dbGuid, entry);
@@ -255,8 +268,7 @@ std::string SpawnGroup::to_string() const
     return result.str();
 }
 
-
-CreatureGroup::CreatureGroup(SpawnGroupEntry const& entry, Map& map) : SpawnGroup(entry, map, uint32(TYPEID_UNIT))
+CreatureGroup::CreatureGroup(SpawnGroupEntry const &entry, Map &map) : SpawnGroup(entry, map, uint32(TYPEID_UNIT))
 {
     if (entry.formationEntry)
         m_formationData = std::make_shared<FormationData>(this, entry.formationEntry);
@@ -264,59 +276,59 @@ CreatureGroup::CreatureGroup(SpawnGroupEntry const& entry, Map& map) : SpawnGrou
         m_formationData = nullptr;
 }
 
-void CreatureGroup::RemoveObject(WorldObject* wo)
+void CreatureGroup::RemoveObject(WorldObject *wo)
 {
     SpawnGroup::RemoveObject(wo);
-    CreatureData const* data = sObjectMgr.GetCreatureData(wo->GetDbGuid());
+    CreatureData const *data = sObjectMgr.GetCreatureData(wo->GetDbGuid());
     m_map.GetPersistentState()->RemoveCreatureFromGrid(wo->GetDbGuid(), data);
 }
 
-void CreatureGroup::TriggerLinkingEvent(uint32 event, Unit* target)
+void CreatureGroup::TriggerLinkingEvent(uint32 event, Unit *target)
 {
     switch (event)
     {
-        case CREATURE_GROUP_EVENT_AGGRO:
-            if ((m_entry.Flags & CREATURE_GROUP_AGGRO_TOGETHER) == 0)
-                return;
+    case CREATURE_GROUP_EVENT_AGGRO:
+        if ((m_entry.Flags & CREATURE_GROUP_AGGRO_TOGETHER) == 0)
+            return;
 
-            for (auto& data : m_objects)
+        for (auto &data : m_objects)
+        {
+            uint32 dbGuid = data.first;
+            if (Creature *creature = m_map.GetCreature(dbGuid))
+            {
+                creature->AddThreat(target);
+                target->AddThreat(creature);
+                target->SetInCombatWith(creature);
+                target->GetCombatManager().TriggerCombatTimer(creature);
+            }
+        }
+
+        for (uint32 linkedGroup : m_entry.LinkedGroups)
+        {
+            // ensured on db load that it will be valid fetch
+            CreatureGroup *group = static_cast<CreatureGroup *>(m_map.GetSpawnManager().GetSpawnGroup(linkedGroup));
+            group->TriggerLinkingEvent(event, target);
+        }
+        break;
+    case CREATURE_GROUP_EVENT_EVADE:
+        if ((m_entry.Flags & CREATURE_GROUP_EVADE_TOGETHER) != 0)
+        {
+            for (auto &data : m_objects)
             {
                 uint32 dbGuid = data.first;
-                if (Creature* creature = m_map.GetCreature(dbGuid))
-                {
-                    creature->AddThreat(target);
-                    target->AddThreat(creature);
-                    target->SetInCombatWith(creature);
-                    target->GetCombatManager().TriggerCombatTimer(creature);
-                }
+                if (Creature *creature = m_map.GetCreature(dbGuid))
+                    if (!creature->GetCombatManager().IsEvadingHome())
+                        creature->AI()->EnterEvadeMode();
             }
+        }
+        break;
+    case CREATURE_GROUP_EVENT_HOME:
+    case CREATURE_GROUP_EVENT_RESPAWN:
+        if ((m_entry.Flags & CREATURE_GROUP_RESPAWN_TOGETHER) == 0)
+            return;
 
-            for (uint32 linkedGroup : m_entry.LinkedGroups)
-            {
-                // ensured on db load that it will be valid fetch
-                CreatureGroup* group = static_cast<CreatureGroup*>(m_map.GetSpawnManager().GetSpawnGroup(linkedGroup));
-                group->TriggerLinkingEvent(event, target);
-            }
-            break;
-        case CREATURE_GROUP_EVENT_EVADE:
-            if ((m_entry.Flags & CREATURE_GROUP_EVADE_TOGETHER) != 0)
-            {
-                for (auto& data : m_objects)
-                {
-                    uint32 dbGuid = data.first;
-                    if (Creature* creature = m_map.GetCreature(dbGuid))
-                        if (!creature->GetCombatManager().IsEvadingHome())
-                            creature->AI()->EnterEvadeMode();
-                }
-            }
-            break;
-        case CREATURE_GROUP_EVENT_HOME:
-        case CREATURE_GROUP_EVENT_RESPAWN:
-            if ((m_entry.Flags & CREATURE_GROUP_RESPAWN_TOGETHER) == 0)
-                return;
-
-            ClearRespawnTimes();
-            break;
+        ClearRespawnTimes();
+        break;
     }
 }
 
@@ -357,18 +369,19 @@ void CreatureGroup::MoveHome()
 void CreatureGroup::ClearRespawnTimes()
 {
     time_t now = time(nullptr);
-    for (auto& data : m_entry.DbGuids)
+    for (auto &data : m_entry.DbGuids)
         m_map.GetPersistentState()->SaveObjectRespawnTime(GetObjectTypeId(), data.DbGuid, now);
 }
 
-GameObjectGroup::GameObjectGroup(SpawnGroupEntry const& entry, Map& map) : SpawnGroup(entry, map, uint32(TYPEID_GAMEOBJECT))
+GameObjectGroup::GameObjectGroup(SpawnGroupEntry const &entry, Map &map)
+    : SpawnGroup(entry, map, uint32(TYPEID_GAMEOBJECT))
 {
 }
 
-void GameObjectGroup::RemoveObject(WorldObject* wo)
+void GameObjectGroup::RemoveObject(WorldObject *wo)
 {
     SpawnGroup::RemoveObject(wo);
-    GameObjectData const* data = sObjectMgr.GetGOData(wo->GetDbGuid());
+    GameObjectData const *data = sObjectMgr.GetGOData(wo->GetDbGuid());
     m_map.GetPersistentState()->RemoveGameobjectFromGrid(wo->GetDbGuid(), data);
 }
 
@@ -376,10 +389,10 @@ void GameObjectGroup::RemoveObject(WorldObject* wo)
 // Formation code //
 ////////////////////
 
-FormationData::FormationData(CreatureGroup* gData, FormationEntrySPtr fEntry) :
-    m_groupData(gData), m_fEntry(fEntry), m_mirrorState(false), m_lastWP(0), m_wpPathId(0), m_followerStopped(false)
+FormationData::FormationData(CreatureGroup *gData, FormationEntrySPtr fEntry)
+    : m_groupData(gData), m_fEntry(fEntry), m_mirrorState(false), m_lastWP(0), m_wpPathId(0), m_followerStopped(false)
 {
-    for (auto const& sData : m_groupData->GetGroupEntry().DbGuids)
+    for (auto const &sData : m_groupData->GetGroupEntry().DbGuids)
     {
         m_slotsMap.emplace(sData.SlotId, new FormationSlotData(sData.SlotId, sData.DbGuid, m_groupData));
 
@@ -401,12 +414,13 @@ FormationData::FormationData(CreatureGroup* gData, FormationEntrySPtr fEntry) :
 
 FormationData::~FormationData()
 {
-    //sLog.outDebug("Deleting formation (%u)!!!!!", m_groupData->GetGroupEntry().Id);
+    // sLog.outDebug("Deleting formation (%u)!!!!!",
+    // m_groupData->GetGroupEntry().Id);
 }
 
 bool FormationData::SetFollowersMaster()
 {
-    Unit* master = GetMaster();
+    Unit *master = GetMaster();
     if (!master)
     {
         return false;
@@ -414,7 +428,7 @@ bool FormationData::SetFollowersMaster()
 
     for (auto slotItr : m_slotsMap)
     {
-        auto& currentSlot = slotItr.second;
+        auto &currentSlot = slotItr.second;
 
         if (currentSlot->IsFormationMaster())
             continue;
@@ -428,7 +442,7 @@ bool FormationData::SetFollowersMaster()
                 setMgen = true;
             else
             {
-                auto mgen = static_cast<FormationMovementGenerator const*>(follower->GetMotionMaster()->GetCurrent());
+                auto mgen = static_cast<FormationMovementGenerator const *>(follower->GetMotionMaster()->GetCurrent());
                 if (mgen->GetCurrentTarget() != master)
                     setMgen = true;
             }
@@ -442,7 +456,8 @@ bool FormationData::SetFollowersMaster()
         }
     }
 
-    //sLog.outDebug("FormationData::SetFollowersMaste> called for groupId(%u)", m_groupData->GetGroupEntry().Id);
+    // sLog.outDebug("FormationData::SetFollowersMaste> called for groupId(%u)",
+    // m_groupData->GetGroupEntry().Id);
 
     return false;
 }
@@ -460,7 +475,8 @@ bool FormationData::SwitchFormation(SpawnGroupFormationType newShape)
 
 void FormationData::SetOptions(uint32 options)
 {
-    if (HaveOption(SPAWN_GROUP_FORMATION_OPTION_KEEP_CONPACT, m_currentOptions) != HaveOption(SPAWN_GROUP_FORMATION_OPTION_KEEP_CONPACT, options))
+    if (HaveOption(SPAWN_GROUP_FORMATION_OPTION_KEEP_CONPACT, m_currentOptions) !=
+        HaveOption(SPAWN_GROUP_FORMATION_OPTION_KEEP_CONPACT, options))
     {
         FixSlotsPositions();
     }
@@ -472,11 +488,11 @@ void FormationData::SetOptions(uint32 options)
 void FormationData::Disband()
 {
     ClearMoveGen();
-    for (auto& slotItr : m_slotsMap)
+    for (auto &slotItr : m_slotsMap)
     {
-        auto& slot = slotItr.second;
+        auto &slot = slotItr.second;
 
-        Unit* slotUnit = slot->GetOwner();
+        Unit *slotUnit = slot->GetOwner();
         if (slotUnit)
             slotUnit->SetFormationSlot(nullptr);
     }
@@ -487,11 +503,11 @@ void FormationData::Disband()
 // remove all movegen (maybe we should remove only move in formation one)
 void FormationData::ClearMoveGen()
 {
-    for (auto& slotItr : m_slotsMap)
+    for (auto &slotItr : m_slotsMap)
     {
-        auto& slot = slotItr.second;
+        auto &slot = slotItr.second;
 
-        Unit* slotUnit = slot->GetOwner();
+        Unit *slotUnit = slot->GetOwner();
         if (slotUnit && slotUnit->IsAlive())
         {
             if (slot->IsFormationMaster())
@@ -504,7 +520,7 @@ void FormationData::ClearMoveGen()
     }
 }
 
-Unit* FormationData::GetMaster()
+Unit *FormationData::GetMaster()
 {
     if (m_slotsMap.begin() != m_slotsMap.end() && m_slotsMap.begin()->first == 0)
         return m_slotsMap.begin()->second->GetOwner();
@@ -535,7 +551,8 @@ void FormationData::SetMasterMovement()
     }
     else if (m_masterMotionType == RANDOM_MOTION_TYPE)
     {
-        newMaster->GetMotionMaster()->MoveRandomAroundPoint(m_spawnPos.x, m_spawnPos.y, m_spawnPos.z, m_spawnPos.radius);
+        newMaster->GetMotionMaster()->MoveRandomAroundPoint(m_spawnPos.x, m_spawnPos.y, m_spawnPos.z,
+                                                            m_spawnPos.radius);
     }
     else
     {
@@ -569,13 +586,13 @@ FormationSlotDataSPtr FormationData::GetFirstAliveSlot()
     return nullptr;
 }
 
-bool FormationData::TrySetNewMaster(Unit* masterCandidat /*= nullptr*/)
+bool FormationData::TrySetNewMaster(Unit *masterCandidat /*= nullptr*/)
 {
     auto masterSlotItr = m_slotsMap.find(0);
     if (masterSlotItr == m_slotsMap.end())
         return false;
 
-    auto& masterSlot = masterSlotItr->second;
+    auto &masterSlot = masterSlotItr->second;
 
     FormationSlotDataSPtr aliveSlot = nullptr;
 
@@ -659,12 +676,13 @@ void FormationData::Reset()
     }
 }
 
-void FormationData::OnDeath(Creature* creature)
+void FormationData::OnDeath(Creature *creature)
 {
     auto slot = creature->GetFormationSlot();
-    if(!slot)
+    if (!slot)
         return;
-    //sLog.outString("Deleting %s from formation(%u)", creature->GetGuidStr().c_str(), m_groupData->GetGroupEntry().Id);
+    // sLog.outString("Deleting %s from formation(%u)",
+    // creature->GetGuidStr().c_str(), m_groupData->GetGroupEntry().Id);
 
     bool formationMaster = false;
     if (slot->IsFormationMaster())
@@ -679,11 +697,11 @@ void FormationData::OnDeath(Creature* creature)
 
     if (formationMaster)
         TrySetNewMaster();
-    else if(HaveOption(SPAWN_GROUP_FORMATION_OPTION_KEEP_CONPACT))
+    else if (HaveOption(SPAWN_GROUP_FORMATION_OPTION_KEEP_CONPACT))
         FixSlotsPositions();
 }
 
-void FormationData::OnDelete(Creature* creature)
+void FormationData::OnDelete(Creature *creature)
 {
     // we can handle it like a death event
     OnDeath(creature);
@@ -692,42 +710,42 @@ void FormationData::OnDelete(Creature* creature)
 // get formation slot id for provided dbGuid, return -1 if not found
 int32 FormationData::GetDefaultSlotId(uint32 dbGuid)
 {
-    for (auto const& entry : m_groupData->GetGroupEntry().DbGuids)
+    for (auto const &entry : m_groupData->GetGroupEntry().DbGuids)
         if (entry.DbGuid == dbGuid)
             return entry.SlotId;
     return -1;
 }
 
-FormationSlotDataSPtr FormationData::GetDefaultSlot(uint32 dbGuid, SpawnGroupFormationSlotType slotType /*= SPAWN_GROUP_FORMATION_SLOT_TYPE_STATIC*/)
+FormationSlotDataSPtr FormationData::GetDefaultSlot(
+    uint32 dbGuid, SpawnGroupFormationSlotType slotType /*= SPAWN_GROUP_FORMATION_SLOT_TYPE_STATIC*/)
 {
     FormationSlotDataSPtr result = nullptr;
     switch (slotType)
     {
-        case SPAWN_GROUP_FORMATION_SLOT_TYPE_STATIC:
+    case SPAWN_GROUP_FORMATION_SLOT_TYPE_STATIC: {
+        auto slotId = GetDefaultSlotId(dbGuid);
+        if (slotId < 0)
+            result = nullptr;
+        else
+            result = m_slotsMap[slotId];
+        break;
+    }
+    case SPAWN_GROUP_FORMATION_SLOT_TYPE_SCRIPT:
+    case SPAWN_GROUP_FORMATION_SLOT_TYPE_PLAYER:
+        for (auto slotItr : m_slotsMap)
         {
-            auto slotId = GetDefaultSlotId(dbGuid);
-            if (slotId < 0)
-                result = nullptr;
-            else
-                result = m_slotsMap[slotId];
-            break;
-        }
-        case SPAWN_GROUP_FORMATION_SLOT_TYPE_SCRIPT:
-        case SPAWN_GROUP_FORMATION_SLOT_TYPE_PLAYER:
-            for (auto slotItr : m_slotsMap)
+            if (slotItr.second->GetSlotType() != slotType)
+                continue;
+
+            if (slotItr.second->GetRealOwnerGuid() == dbGuid)
             {
-                if (slotItr.second->GetSlotType() != slotType)
-                    continue;
-    
-                if (slotItr.second->GetRealOwnerGuid() == dbGuid)
-                {
-                    result = slotItr.second;
-                    break;
-                }
+                result = slotItr.second;
+                break;
             }
-            break;
-        default:
-            break;
+        }
+        break;
+    default:
+        break;
     }
 
     return result;
@@ -735,8 +753,8 @@ FormationSlotDataSPtr FormationData::GetDefaultSlot(uint32 dbGuid, SpawnGroupFor
 
 void FormationData::SwitchSlotOwner(FormationSlotDataSPtr slotA, FormationSlotDataSPtr slotB)
 {
-    Unit* aUnit = slotA->GetOwner();
-    Unit* bUnit = slotB->GetOwner();
+    Unit *aUnit = slotA->GetOwner();
+    Unit *bUnit = slotB->GetOwner();
 
     slotA->SetOwner(bUnit);
     if (aUnit)
@@ -759,8 +777,9 @@ bool FormationData::FreeSlot(FormationSlotDataSPtr slot)
         newSlot = GetFirstEmptySlot();
         if (!newSlot)
         {
-            sLog.outError("FormationData::MoveSlotOwner> Unable to find free place in formation groupID: %u for %s",
-                m_groupData->GetGroupId(), slot->GetOwner()->GetGuidStr().c_str());
+            sLog.outError("FormationData::MoveSlotOwner> Unable to find free place "
+                          "in formation groupID: %u for %s",
+                          m_groupData->GetGroupId(), slot->GetOwner()->GetGuidStr().c_str());
             return false;
         }
     }
@@ -769,47 +788,56 @@ bool FormationData::FreeSlot(FormationSlotDataSPtr slot)
     return true;
 }
 
-bool FormationData::AddInFormationSlot(Unit* newUnit, SpawnGroupFormationSlotType slotType /*= SPAWN_GROUP_FORMATION_SLOT_TYPE_STATIC*/)
+bool FormationData::AddInFormationSlot(
+    Unit *newUnit, SpawnGroupFormationSlotType slotType /*= SPAWN_GROUP_FORMATION_SLOT_TYPE_STATIC*/)
 {
     if (!newUnit || !newUnit->IsAlive())
     {
-        sLog.outError("FormationData::AddInFormationSlot> Invalid call detected! (unit is nullptr or not alive)");
+        sLog.outError("FormationData::AddInFormationSlot> Invalid call detected! "
+                      "(unit is nullptr or not alive)");
         return false;
     }
 
-    Unit* oldUnit = nullptr;
+    Unit *oldUnit = nullptr;
 
-    // TODO:: its normal to not have default slot for dynamically added creature/player to the formation we should add one
+    // TODO:: its normal to not have default slot for dynamically added
+    // creature/player to the formation we should add one
     auto slot = GetDefaultSlot(newUnit->GetDbGuid(), slotType);
     if (!slot)
     {
-        sLog.outError("FormationData::AddInFormationSlot> Unable to find default slot for %s , is it part of the formation? Aborting...", newUnit->GetGuidStr().c_str());
+        sLog.outError("FormationData::AddInFormationSlot> Unable to find default "
+                      "slot for %s , is it part of the formation? Aborting...",
+                      newUnit->GetGuidStr().c_str());
         return false;
     }
 
     if (!FreeSlot(slot))
     {
-        sLog.outError("FormationData::AddInFormationSlot> Unable to free occupied slot by %s for %s", slot->GetOwner()->GetGuidStr().c_str(), newUnit->GetGuidStr().c_str());
+        sLog.outError("FormationData::AddInFormationSlot> Unable to free occupied "
+                      "slot by %s for %s",
+                      slot->GetOwner()->GetGuidStr().c_str(), newUnit->GetGuidStr().c_str());
         return false;
     }
 
     slot->SetOwner(newUnit);
     newUnit->SetFormationSlot(slot);
 
-    //sLog.outString("Slot(%u) filled by %s in formation(%u)", slot->GetSlotId(), newUnit->GetGuidStr().c_str(), m_groupData->GetGroupEntry().Id);
+    // sLog.outString("Slot(%u) filled by %s in formation(%u)",
+    // slot->GetSlotId(), newUnit->GetGuidStr().c_str(),
+    // m_groupData->GetGroupEntry().Id);
     return true;
 }
 
 void FormationData::StartFollower()
 {
-    for (auto& slot : m_slotsMap)
+    for (auto &slot : m_slotsMap)
         slot.second->SetCanFollow(true);
     m_followerStopped = false;
 }
 
 void FormationData::StopFollower()
 {
-    for (auto& slot : m_slotsMap)
+    for (auto &slot : m_slotsMap)
         slot.second->SetCanFollow(false);
     m_followerStopped = true;
     m_followerStartTime = World::GetCurrentClockTime() + std::chrono::seconds(5);
@@ -825,20 +853,23 @@ void FormationData::Compact(bool set /*= true*/)
     FixSlotsPositions();
 }
 
-void FormationData::Add(Creature* creature)
+void FormationData::Add(Creature *creature)
 {
     if (creature->GetFormationSlot())
         return;
 
     if (creature->IsTemporarySummon())
     {
-        sLog.outError("FormationData::Add> unable to add temporary summon creature %s to formation %u", creature->GetGuidStr().c_str(), m_groupData->GetGroupId());
+        sLog.outError("FormationData::Add> unable to add temporary summon creature "
+                      "%s to formation %u",
+                      creature->GetGuidStr().c_str(), m_groupData->GetGroupId());
         return;
     }
 
     if (!creature->IsAlive())
     {
-        sLog.outError("FormationData::Add> Cannot add dead creature %s to formation %u", creature->GetGuidStr().c_str(), m_groupData->GetGroupId());
+        sLog.outError("FormationData::Add> Cannot add dead creature %s to formation %u", creature->GetGuidStr().c_str(),
+                      m_groupData->GetGroupId());
         return;
     }
 
@@ -849,10 +880,12 @@ void FormationData::Add(Creature* creature)
     if (!defaultSlot)
     {
         uint32 slotId = m_slotGuid++;
-        auto result = m_slotsMap.emplace(slotId, new FormationSlotData(slotId, creature->GetDbGuid(), m_groupData, slotType));
+        auto result =
+            m_slotsMap.emplace(slotId, new FormationSlotData(slotId, creature->GetDbGuid(), m_groupData, slotType));
         if (!result.second)
         {
-            sLog.outError("FormationData::Add> Failled to add creature %s to formation %u", creature->GetGuidStr().c_str(), m_groupData->GetGroupId());
+            sLog.outError("FormationData::Add> Failled to add creature %s to formation %u",
+                          creature->GetGuidStr().c_str(), m_groupData->GetGroupId());
             return;
         }
     }
@@ -860,7 +893,7 @@ void FormationData::Add(Creature* creature)
     SetFormationSlot(creature, slotType);
 }
 
-void FormationData::Add(Player* player)
+void FormationData::Add(Player *player)
 {
     if (player->GetFormationSlot())
         return;
@@ -869,7 +902,9 @@ void FormationData::Add(Player* player)
     if (slotId == 0)
     {
         // this should have at least one master
-        sLog.outError("FormationData::Add(Player* player)> Unable to add %s to formation %u as master", player->GetGuidStr().c_str(), m_groupData->GetGroupId());
+        sLog.outError("FormationData::Add(Player* player)> Unable to add %s to "
+                      "formation %u as master",
+                      player->GetGuidStr().c_str(), m_groupData->GetGroupId());
         m_slotGuid = 0;
         return;
     }
@@ -878,10 +913,13 @@ void FormationData::Add(Player* player)
     auto defaultSlot = GetDefaultSlot(player->GetDbGuid(), SPAWN_GROUP_FORMATION_SLOT_TYPE_PLAYER);
     if (!defaultSlot)
     {
-        auto result = m_slotsMap.emplace(slotId, new FormationSlotData(slotId, player->GetDbGuid(), m_groupData, SPAWN_GROUP_FORMATION_SLOT_TYPE_PLAYER));
+        auto result = m_slotsMap.emplace(slotId, new FormationSlotData(slotId, player->GetDbGuid(), m_groupData,
+                                                                       SPAWN_GROUP_FORMATION_SLOT_TYPE_PLAYER));
         if (!result.second)
         {
-            sLog.outError("FormationData::Add(Player* player)> Failled to add %s to formation %u", player->GetGuidStr().c_str(), m_groupData->GetGroupId());
+            sLog.outError("FormationData::Add(Player* player)> Failled to add %s to "
+                          "formation %u",
+                          player->GetGuidStr().c_str(), m_groupData->GetGroupId());
             return;
         }
 
@@ -893,17 +931,17 @@ void FormationData::Add(Player* player)
     SetFollowersMaster();
 }
 
-void FormationData::Remove(Unit* unit)
+void FormationData::Remove(Unit *unit)
 {
     if (unit->IsPlayer())
     {
-        Remove(static_cast<Player*>(unit));
+        Remove(static_cast<Player *>(unit));
     }
     else if (unit->IsCreature())
-        Remove(static_cast<Creature*>(unit));
+        Remove(static_cast<Creature *>(unit));
 }
 
-void FormationData::Remove(Creature* creature)
+void FormationData::Remove(Creature *creature)
 {
     auto slot = creature->GetFormationSlot();
     if (!slot)
@@ -945,7 +983,7 @@ void FormationData::Remove(Creature* creature)
         FixSlotsPositions();
 }
 
-void FormationData::Remove(Player* player)
+void FormationData::Remove(Player *player)
 {
     auto slot = player->GetFormationSlot();
     if (!slot)
@@ -980,7 +1018,9 @@ void FormationData::Remove(Player* player)
 
     if (!slot)
     {
-        sLog.outError("FormationData::Remove(Player* player)> Failled to remove player %s from formation %u", player->GetGuidStr().c_str(), m_groupData->GetGroupId());
+        sLog.outError("FormationData::Remove(Player* player)> Failled to remove "
+                      "player %s from formation %u",
+                      player->GetGuidStr().c_str(), m_groupData->GetGroupId());
         return;
     }
 
@@ -999,12 +1039,13 @@ void FormationData::Remove(Player* player)
         FixSlotsPositions();
 }
 
-FormationSlotDataSPtr FormationData::SetFormationSlot(Creature* creature, SpawnGroupFormationSlotType slotType /*= SPAWN_GROUP_FORMATION_SLOT_TYPE_STATIC*/)
+FormationSlotDataSPtr FormationData::SetFormationSlot(
+    Creature *creature, SpawnGroupFormationSlotType slotType /*= SPAWN_GROUP_FORMATION_SLOT_TYPE_STATIC*/)
 {
     if (!creature->IsAlive())
         return nullptr;
 
-    auto const& gEntry = m_groupData->GetGroupEntry();
+    auto const &gEntry = m_groupData->GetGroupEntry();
 
     if (m_fEntry == nullptr)
         return nullptr;
@@ -1023,7 +1064,7 @@ FormationSlotDataSPtr FormationData::SetFormationSlot(Creature* creature, SpawnG
         return nullptr;
 
     // set the creature as active to avoid some problem
-    //creature->SetActiveObjectState(true); // maybe not needed?
+    // creature->SetActiveObjectState(true); // maybe not needed?
 
     auto slot = creature->GetFormationSlot();
     if (slot->GetSlotId() == 0)
@@ -1050,26 +1091,20 @@ std::string FormationData::to_string() const
 {
     std::stringstream result;
 
-    static const std::string FormationType[] = {
-        "[0]Random",
-        "[1]Single file",
-        "[2]Side by side",
-        "[3]Like a geese",
-        "[4]Fanned out behind",
-        "[5]Fanned out in front",
-        "[6]Circle the leader"
-    };
+    static const std::string FormationType[] = {"[0]Random",           "[1]Single file",       "[2]Side by side",
+                                                "[3]Like a geese",     "[4]Fanned out behind", "[5]Fanned out in front",
+                                                "[6]Circle the leader"};
 
     std::string fType = FormationType[static_cast<uint32>(m_currentFormationShape)];
     std::string fMoveType = GetMoveTypeStr(m_masterMotionType);
     std::string fOptions = (HaveOption(SPAWN_GROUP_FORMATION_OPTION_KEEP_CONPACT)) ? ", keepCompact" : "no options";
-    result << "Formation group id: " << m_fEntry->GroupId    << "\n";
-    result << "Shape: "              << fType                << "\n";
-    result << "Spread: "             << m_currentSpread      << "\n";
-    result << "MovementType: "       << fMoveType            << "\n";
-    result << "MovementId: "         << m_fEntry->MovementID << "\n";
-    result << "Options: "            << fOptions             << "\n";
-    result << "Comment: "            << m_fEntry->Comment    << "\n";
+    result << "Formation group id: " << m_fEntry->GroupId << "\n";
+    result << "Shape: " << fType << "\n";
+    result << "Spread: " << m_currentSpread << "\n";
+    result << "MovementType: " << fMoveType << "\n";
+    result << "MovementId: " << m_fEntry->MovementID << "\n";
+    result << "Options: " << fOptions << "\n";
+    result << "Comment: " << m_fEntry->Comment << "\n";
 
     for (auto slot : m_slotsMap)
     {
@@ -1106,16 +1141,17 @@ void FormationData::Update()
         {
             m_nextVariation = World::GetCurrentClockTime() + std::chrono::milliseconds(urand(20000, 50000));
 
-            for (auto& slotItr : m_slotsMap)
+            for (auto &slotItr : m_slotsMap)
             {
-                auto& slot = slotItr.second;
+                auto &slot = slotItr.second;
 
                 if (slot->GetOwner() && slot->GetOwner() == GetMaster())
                     continue;
 
                 slot->AddPositionVariation();
             }
-            //sLog.outString("Adding variation to formation %u", m_groupData->GetGroupId());
+            // sLog.outString("Adding variation to formation %u",
+            // m_groupData->GetGroupId());
         }
     }
 
@@ -1123,9 +1159,9 @@ void FormationData::Update()
     if (m_nextVariationUpdate < World::GetCurrentClockTime())
     {
         m_nextVariationUpdate = World::GetCurrentClockTime() + std::chrono::milliseconds(1000);
-        for (auto& slotItr : m_slotsMap)
+        for (auto &slotItr : m_slotsMap)
         {
-            auto& slot = slotItr.second;
+            auto &slot = slotItr.second;
 
             if (slot->GetOwner() && slot->GetOwner() == GetMaster())
                 continue;
@@ -1138,14 +1174,14 @@ void FormationData::Update()
 void FormationData::FixSlotsPositions()
 {
     float defaultDist = m_currentSpread;
-    auto& slots = m_slotsMap;
+    auto &slots = m_slotsMap;
     float totalMembers = 0;
     bool onlyAlive = HaveOption(SPAWN_GROUP_FORMATION_OPTION_KEEP_CONPACT);
 
     float modelWidth = 0;
-    for (auto& slotItr : slots)
+    for (auto &slotItr : slots)
     {
-        auto& slot = slotItr.second;
+        auto &slot = slotItr.second;
 
         if (onlyAlive && (!slot->GetOwner() || slot->GetOwner()->IsAlive()))
             continue;
@@ -1164,293 +1200,276 @@ void FormationData::FixSlotsPositions()
 
     switch (m_currentFormationShape)
     {
-        // random formation
-        case SPAWN_GROUP_FORMATION_TYPE_RANDOM:
+    // random formation
+    case SPAWN_GROUP_FORMATION_TYPE_RANDOM: {
+        uint32 membCount = 1;
+        for (auto &slotItr : m_slotsMap)
         {
-            uint32 membCount = 1;
-            for (auto& slotItr : m_slotsMap)
+            auto &slot = slotItr.second;
+            if (slot->GetOwner() && slot->GetOwner() == GetMaster())
             {
-                auto& slot = slotItr.second;
-                if (slot->GetOwner() && slot->GetOwner() == GetMaster())
-                {
-                    slot->SetAngle(0);
-                    slot->SetDistance(0);
-                    continue;
-                }
-
-                if (HaveOption(SPAWN_GROUP_FORMATION_OPTION_KEEP_CONPACT) && (!slot->GetOwner() || !slot->GetOwner()->IsAlive()))
-                    continue;
-
-                // guessed value, will be the space between each group members
-                float testInterSpread = modelWidth * 3.0f;
-                float finalAngle = 0;
-                float finalDist = 0;
-                switch (membCount)
-                {
-                    case 1:
-                    {
-                        float distBack = m_currentSpread + testInterSpread;
-                        float hyp = std::sqrt(distBack * distBack + testInterSpread * testInterSpread);
-
-                        finalAngle = M_PI_F - std::asin(testInterSpread / hyp);
-                        finalDist = hyp;
-                        break;
-                    }
-                    case 2:
-                    {
-                        float distBack = m_currentSpread + testInterSpread;
-                        float hyp = std::sqrt(distBack * distBack + testInterSpread * testInterSpread);
-
-                        finalAngle = M_PI_F + std::asin(testInterSpread / hyp);
-                        finalDist = hyp;
-                        break;
-                    }
-                    case 3:
-                    {
-                        finalAngle = M_PI_F;
-                        finalDist = m_currentSpread + (testInterSpread * 2.0f);
-                        break;
-
-                    }
-                    case 4:
-                    {
-                        finalAngle = M_PI_F;
-                        finalDist = m_currentSpread + (testInterSpread * 3.0f);
-                        break;
-                    }
-                    case 5:
-                    {
-                        float distBack = m_currentSpread + (testInterSpread * 2.0f);
-                        float hyp = std::sqrt(distBack * distBack + testInterSpread * testInterSpread);
-
-                        finalAngle = M_PI_F - std::asin(testInterSpread / hyp);
-                        finalDist = hyp;
-                        break;
-                    }
-                    case 6:
-                    {
-                        float distBack = m_currentSpread + (testInterSpread * 2.0f);
-                        float hyp = std::sqrt(distBack * distBack + testInterSpread * testInterSpread);
-
-                        finalAngle = M_PI_F + std::asin(testInterSpread / hyp);
-                        finalDist = hyp;
-                        break;
-                    }
-                    case 7:
-                    {
-                        float distBack = m_currentSpread + (testInterSpread * 3.0f);
-                        float hyp = std::sqrt(distBack * distBack + testInterSpread * testInterSpread);
-
-                        finalAngle = M_PI_F - std::asin(testInterSpread / hyp);
-                        finalDist = hyp;
-                        break;
-                    }
-                    case 8:
-                    {
-                        float distBack = m_currentSpread + (testInterSpread * 3.0f);
-                        float hyp = std::sqrt(distBack * distBack + testInterSpread * testInterSpread);
-
-                        finalAngle = M_PI_F + std::asin(testInterSpread / hyp);
-                        finalDist = hyp;
-                        break;
-                    }
-                    case 9:
-                    {
-                        finalAngle = M_PI_F;
-                        finalDist = m_currentSpread + testInterSpread;
-                        break;
-                    }
-
-                    default:
-                    {
-                        // put extra member beside the leader
-                        if ((membCount & 1) == 0)
-                            finalAngle = (M_PI_F / 2.0f) + M_PI_F;
-                        else
-                            finalAngle = M_PI_F / 2.0f;
-                        finalDist = testInterSpread * (((membCount - 10) / 2) + 1);
-                        break;
-                    }
-                }
-                slot->SetAngle(finalAngle);
-                slot->SetDistance(finalDist);
-                slot->SetMaxVariation((M_PI_F / 8.0f) * modelWidth, testInterSpread);
-                slot->AddPositionVariation(true);
-                slot->GetRecomputePosition() = true;
-                ++membCount;
+                slot->SetAngle(0);
+                slot->SetDistance(0);
+                continue;
             }
-            break;
-        }
-    
-        // single file formation
-        case SPAWN_GROUP_FORMATION_TYPE_SINGLE_FILE:
-        {
-            uint32 membCount = 1;
-            for (auto& slotItr : slots)
+
+            if (HaveOption(SPAWN_GROUP_FORMATION_OPTION_KEEP_CONPACT) &&
+                (!slot->GetOwner() || !slot->GetOwner()->IsAlive()))
+                continue;
+
+            // guessed value, will be the space between each group members
+            float testInterSpread = modelWidth * 3.0f;
+            float finalAngle = 0;
+            float finalDist = 0;
+            switch (membCount)
             {
-                auto& slot = slotItr.second;
-    
-                if (slot->GetOwner() && slot->GetOwner() == GetMaster())
-                {
-                    slot->SetAngle(0);
-                    slot->SetDistance(0);
-                    continue;
-                }
-    
-                if (onlyAlive && (!slot->GetOwner() || !slot->GetOwner()->IsAlive()))
-                    continue;
-    
-                slot->SetAngle(M_PI_F);
-                slot->SetDistance(defaultDist * membCount);
-                slot->GetRecomputePosition() = true;
-                ++membCount;
+            case 1: {
+                float distBack = m_currentSpread + testInterSpread;
+                float hyp = std::sqrt(distBack * distBack + testInterSpread * testInterSpread);
+
+                finalAngle = M_PI_F - std::asin(testInterSpread / hyp);
+                finalDist = hyp;
+                break;
             }
-            break;
-        }
-    
-        // side by side formation
-        case SPAWN_GROUP_FORMATION_TYPE_SIDE_BY_SIDE:
-        {
-            uint32 membCount = 1;
-            for (auto& slotItr : slots)
-            {
-                auto& slot = slotItr.second;
-    
-                if (slot->GetOwner() && slot->GetOwner() == GetMaster())
-                {
-                    slot->SetAngle(0);
-                    slot->SetDistance(0);
-                    continue;
-                }
-    
-                if (onlyAlive && (!slot->GetOwner() || !slot->GetOwner()->IsAlive()))
-                    continue;
-    
+            case 2: {
+                float distBack = m_currentSpread + testInterSpread;
+                float hyp = std::sqrt(distBack * distBack + testInterSpread * testInterSpread);
+
+                finalAngle = M_PI_F + std::asin(testInterSpread / hyp);
+                finalDist = hyp;
+                break;
+            }
+            case 3: {
+                finalAngle = M_PI_F;
+                finalDist = m_currentSpread + (testInterSpread * 2.0f);
+                break;
+            }
+            case 4: {
+                finalAngle = M_PI_F;
+                finalDist = m_currentSpread + (testInterSpread * 3.0f);
+                break;
+            }
+            case 5: {
+                float distBack = m_currentSpread + (testInterSpread * 2.0f);
+                float hyp = std::sqrt(distBack * distBack + testInterSpread * testInterSpread);
+
+                finalAngle = M_PI_F - std::asin(testInterSpread / hyp);
+                finalDist = hyp;
+                break;
+            }
+            case 6: {
+                float distBack = m_currentSpread + (testInterSpread * 2.0f);
+                float hyp = std::sqrt(distBack * distBack + testInterSpread * testInterSpread);
+
+                finalAngle = M_PI_F + std::asin(testInterSpread / hyp);
+                finalDist = hyp;
+                break;
+            }
+            case 7: {
+                float distBack = m_currentSpread + (testInterSpread * 3.0f);
+                float hyp = std::sqrt(distBack * distBack + testInterSpread * testInterSpread);
+
+                finalAngle = M_PI_F - std::asin(testInterSpread / hyp);
+                finalDist = hyp;
+                break;
+            }
+            case 8: {
+                float distBack = m_currentSpread + (testInterSpread * 3.0f);
+                float hyp = std::sqrt(distBack * distBack + testInterSpread * testInterSpread);
+
+                finalAngle = M_PI_F + std::asin(testInterSpread / hyp);
+                finalDist = hyp;
+                break;
+            }
+            case 9: {
+                finalAngle = M_PI_F;
+                finalDist = m_currentSpread + testInterSpread;
+                break;
+            }
+
+            default: {
+                // put extra member beside the leader
                 if ((membCount & 1) == 0)
-                    slot->SetAngle((M_PI_F / 2.0f) + M_PI_F);
+                    finalAngle = (M_PI_F / 2.0f) + M_PI_F;
                 else
-                    slot->SetAngle(M_PI_F / 2.0f);
-                slot->SetDistance(defaultDist * (((membCount - 1) / 2) + 1));
-                slot->GetRecomputePosition() = true;
-                ++membCount;
+                    finalAngle = M_PI_F / 2.0f;
+                finalDist = testInterSpread * (((membCount - 10) / 2) + 1);
+                break;
             }
-            break;
+            }
+            slot->SetAngle(finalAngle);
+            slot->SetDistance(finalDist);
+            slot->SetMaxVariation((M_PI_F / 8.0f) * modelWidth, testInterSpread);
+            slot->AddPositionVariation(true);
+            slot->GetRecomputePosition() = true;
+            ++membCount;
         }
-    
-        // like a geese formation
-        case SPAWN_GROUP_FORMATION_TYPE_LIKE_GEESE:
+        break;
+    }
+
+    // single file formation
+    case SPAWN_GROUP_FORMATION_TYPE_SINGLE_FILE: {
+        uint32 membCount = 1;
+        for (auto &slotItr : slots)
         {
-            uint32 membCount = 1;
-            for (auto& slotItr : slots)
+            auto &slot = slotItr.second;
+
+            if (slot->GetOwner() && slot->GetOwner() == GetMaster())
             {
-                auto& slot = slotItr.second;
-    
-                if (slot->GetOwner() && slot->GetOwner() == GetMaster())
-                {
-                    slot->SetAngle(0);
-                    slot->SetDistance(0);
-                    continue;
-                }
-    
-                if (onlyAlive && (!slot->GetOwner() || !slot->GetOwner()->IsAlive()))
-                    continue;
-    
-                if ((membCount & 1) == 0)
-                    slot->SetAngle(M_PI_F + (M_PI_F / 4.0f));
-                else
-                    slot->SetAngle(M_PI_F - (M_PI_F / 4.0f));
-                slot->SetDistance(defaultDist* (((membCount - 1) / 2) + 1));
-                slot->GetRecomputePosition() = true;
-                ++membCount;
+                slot->SetAngle(0);
+                slot->SetDistance(0);
+                continue;
             }
-            break;
+
+            if (onlyAlive && (!slot->GetOwner() || !slot->GetOwner()->IsAlive()))
+                continue;
+
+            slot->SetAngle(M_PI_F);
+            slot->SetDistance(defaultDist * membCount);
+            slot->GetRecomputePosition() = true;
+            ++membCount;
         }
-    
-        // fanned behind formation
-        case SPAWN_GROUP_FORMATION_TYPE_FANNED_OUT_BEHIND:
+        break;
+    }
+
+    // side by side formation
+    case SPAWN_GROUP_FORMATION_TYPE_SIDE_BY_SIDE: {
+        uint32 membCount = 1;
+        for (auto &slotItr : slots)
         {
-            uint32 membCount = 1;
-            for (auto& slotItr : slots)
+            auto &slot = slotItr.second;
+
+            if (slot->GetOwner() && slot->GetOwner() == GetMaster())
             {
-                auto& slot = slotItr.second;
-    
-                if (slot->GetOwner() && slot->GetOwner() == GetMaster())
-                {
-                    slot->SetAngle(0);
-                    slot->SetDistance(0);
-                    continue;
-                }
-    
-                if (onlyAlive && (!slot->GetOwner() || !slot->GetOwner()->IsAlive()))
-                    continue;
-    
-                slot->SetAngle((M_PI_F / 2.0f) + (M_PI_F / totalMembers) * (membCount - 1));
-                slot->SetDistance(defaultDist);
-                slot->GetRecomputePosition() = true;
-                ++membCount;
+                slot->SetAngle(0);
+                slot->SetDistance(0);
+                continue;
             }
-            break;
+
+            if (onlyAlive && (!slot->GetOwner() || !slot->GetOwner()->IsAlive()))
+                continue;
+
+            if ((membCount & 1) == 0)
+                slot->SetAngle((M_PI_F / 2.0f) + M_PI_F);
+            else
+                slot->SetAngle(M_PI_F / 2.0f);
+            slot->SetDistance(defaultDist * (((membCount - 1) / 2) + 1));
+            slot->GetRecomputePosition() = true;
+            ++membCount;
         }
-    
-        // fanned in front formation
-        case SPAWN_GROUP_FORMATION_TYPE_FANNED_OUT_IN_FRONT:
+        break;
+    }
+
+    // like a geese formation
+    case SPAWN_GROUP_FORMATION_TYPE_LIKE_GEESE: {
+        uint32 membCount = 1;
+        for (auto &slotItr : slots)
         {
-            uint32 membCount = 1;
-            for (auto& slotItr : slots)
+            auto &slot = slotItr.second;
+
+            if (slot->GetOwner() && slot->GetOwner() == GetMaster())
             {
-                auto& slot = slotItr.second;
-    
-                if (slot->GetOwner() && slot->GetOwner() == GetMaster())
-                {
-                    slot->SetAngle(0);
-                    slot->SetDistance(0);
-                    continue;
-                }
-    
-                if (onlyAlive && (!slot->GetOwner() || !slot->GetOwner()->IsAlive()))
-                    continue;
-    
-                slot->SetAngle(M_PI_F + (M_PI_F / 2.0f) + (M_PI_F / totalMembers) * (membCount - 1));
-                if (slot->GetRealAngle() > M_PI_F * 2.0f)
-                    slot->SetAngle(slot->GetRealAngle() - M_PI_F * 2.0f);
-                slot->SetDistance(defaultDist);
-                slot->GetRecomputePosition() = true;
-                ++membCount;
+                slot->SetAngle(0);
+                slot->SetDistance(0);
+                continue;
             }
-            break;
+
+            if (onlyAlive && (!slot->GetOwner() || !slot->GetOwner()->IsAlive()))
+                continue;
+
+            if ((membCount & 1) == 0)
+                slot->SetAngle(M_PI_F + (M_PI_F / 4.0f));
+            else
+                slot->SetAngle(M_PI_F - (M_PI_F / 4.0f));
+            slot->SetDistance(defaultDist * (((membCount - 1) / 2) + 1));
+            slot->GetRecomputePosition() = true;
+            ++membCount;
         }
-    
-        // circle formation
-        case SPAWN_GROUP_FORMATION_TYPE_CIRCLE_THE_LEADER:
+        break;
+    }
+
+    // fanned behind formation
+    case SPAWN_GROUP_FORMATION_TYPE_FANNED_OUT_BEHIND: {
+        uint32 membCount = 1;
+        for (auto &slotItr : slots)
         {
-            uint32 membCount = 1;
-            for (auto& slotItr : slots)
+            auto &slot = slotItr.second;
+
+            if (slot->GetOwner() && slot->GetOwner() == GetMaster())
             {
-                auto& slot = slotItr.second;
-    
-                if (slot->GetOwner() && slot->GetOwner() == GetMaster())
-                {
-                    slot->SetAngle(0);
-                    slot->SetDistance(0);
-                    continue;
-                }
-    
-                if (onlyAlive && (!slot->GetOwner() || !slot->GetOwner()->IsAlive()))
-                    continue;
-    
-                slot->SetAngle(((M_PI_F * 2.0f) / totalMembers) * (membCount - 1));
-                slot->SetDistance(defaultDist);
-                slot->GetRecomputePosition() = true;
-                ++membCount;
+                slot->SetAngle(0);
+                slot->SetDistance(0);
+                continue;
             }
-            break;
+
+            if (onlyAlive && (!slot->GetOwner() || !slot->GetOwner()->IsAlive()))
+                continue;
+
+            slot->SetAngle((M_PI_F / 2.0f) + (M_PI_F / totalMembers) * (membCount - 1));
+            slot->SetDistance(defaultDist);
+            slot->GetRecomputePosition() = true;
+            ++membCount;
         }
-        default:
-            break;
+        break;
+    }
+
+    // fanned in front formation
+    case SPAWN_GROUP_FORMATION_TYPE_FANNED_OUT_IN_FRONT: {
+        uint32 membCount = 1;
+        for (auto &slotItr : slots)
+        {
+            auto &slot = slotItr.second;
+
+            if (slot->GetOwner() && slot->GetOwner() == GetMaster())
+            {
+                slot->SetAngle(0);
+                slot->SetDistance(0);
+                continue;
+            }
+
+            if (onlyAlive && (!slot->GetOwner() || !slot->GetOwner()->IsAlive()))
+                continue;
+
+            slot->SetAngle(M_PI_F + (M_PI_F / 2.0f) + (M_PI_F / totalMembers) * (membCount - 1));
+            if (slot->GetRealAngle() > M_PI_F * 2.0f)
+                slot->SetAngle(slot->GetRealAngle() - M_PI_F * 2.0f);
+            slot->SetDistance(defaultDist);
+            slot->GetRecomputePosition() = true;
+            ++membCount;
+        }
+        break;
+    }
+
+    // circle formation
+    case SPAWN_GROUP_FORMATION_TYPE_CIRCLE_THE_LEADER: {
+        uint32 membCount = 1;
+        for (auto &slotItr : slots)
+        {
+            auto &slot = slotItr.second;
+
+            if (slot->GetOwner() && slot->GetOwner() == GetMaster())
+            {
+                slot->SetAngle(0);
+                slot->SetDistance(0);
+                continue;
+            }
+
+            if (onlyAlive && (!slot->GetOwner() || !slot->GetOwner()->IsAlive()))
+                continue;
+
+            slot->SetAngle(((M_PI_F * 2.0f) / totalMembers) * (membCount - 1));
+            slot->SetDistance(defaultDist);
+            slot->GetRecomputePosition() = true;
+            ++membCount;
+        }
+        break;
+    }
+    default:
+        break;
     }
 }
 
-Unit* FormationSlotData::GetMaster()
+Unit *FormationSlotData::GetMaster()
 {
     return GetFormationData()->GetMaster();
 }
@@ -1478,8 +1497,10 @@ float FormationSlotData::GetDistance() const
 
 void FormationSlotData::AddPositionVariation(bool now /*= false*/)
 {
-    m_angleVariationDest = m_realAngle - (m_maxAngleVariation / 2.0f) + frand(m_maxAngleVariation / 100.0f, m_maxAngleVariation);
-    m_distanceVariationDest = m_realDistance - (m_maxDistanceVariation / 2.0f) + frand(m_maxDistanceVariation / 100.0f, m_maxDistanceVariation);
+    m_angleVariationDest =
+        m_realAngle - (m_maxAngleVariation / 2.0f) + frand(m_maxAngleVariation / 100.0f, m_maxAngleVariation);
+    m_distanceVariationDest = m_realDistance - (m_maxDistanceVariation / 2.0f) +
+                              frand(m_maxDistanceVariation / 100.0f, m_maxDistanceVariation);
     if (now)
     {
         m_angleVariation = m_angleVariationDest;

@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,43 +24,42 @@
 #ifndef _RASOCKET_H
 #define _RASOCKET_H
 
-#include "Common.h"
-
-#include "Network/Socket.hpp"
-
 #include <functional>
-#include <vector>
 #include <string>
+#include <vector>
+
+#include "Common.h"
+#include "Network/Socket.hpp"
 
 /// Remote Administration socket
 class RASocket : public MaNGOS::Socket
 {
-    private:
-        enum AuthLevel
-        {
-            None,
-            HaveUsername,
-            Authenticated
-        };
+  private:
+    enum AuthLevel
+    {
+        None,
+        HaveUsername,
+        Authenticated
+    };
 
-        const bool m_secure;
-        bool m_restricted;
+    const bool m_secure;
+    bool m_restricted;
 
-        std::string m_input;
+    std::string m_input;
 
-        AuthLevel m_authLevel;
-        AccountTypes m_accountLevel;
-        uint32 m_accountId;
+    AuthLevel m_authLevel;
+    AccountTypes m_accountLevel;
+    uint32 m_accountId;
 
-        virtual bool ProcessIncomingData() override;
-        bool HandleInput();
-        void Send(const std::string& message);
+    virtual bool ProcessIncomingData() override;
+    bool HandleInput();
+    void Send(const std::string &message);
 
-    public:
-        RASocket(boost::asio::io_service& service, std::function<void (Socket*)> closeHandler);
-        virtual ~RASocket();
+  public:
+    RASocket(boost::asio::io_service &service, std::function<void(Socket *)> closeHandler);
+    virtual ~RASocket();
 
-        virtual bool Open() override;
+    virtual bool Open() override;
 };
 #endif
 /// @}

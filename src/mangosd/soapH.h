@@ -17,40 +17,42 @@ A commercial use license is available from Genivia Inc., contact@genivia.com
 #ifndef WITH_NOIDREF
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-SOAP_FMAC3 void SOAP_FMAC4 soap_markelement(struct soap*, const void*, int);
+    SOAP_FMAC3 void SOAP_FMAC4 soap_markelement(struct soap *, const void *, int);
 
 #ifdef __cplusplus
 }
 #endif
-SOAP_FMAC3 int SOAP_FMAC4 soap_putindependent(struct soap*);
-SOAP_FMAC3 int SOAP_FMAC4 soap_getindependent(struct soap*);
+SOAP_FMAC3 int SOAP_FMAC4 soap_putindependent(struct soap *);
+SOAP_FMAC3 int SOAP_FMAC4 soap_getindependent(struct soap *);
 #endif
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-SOAP_FMAC3 void* SOAP_FMAC4 soap_getelement(struct soap*, int*);
-SOAP_FMAC3 int SOAP_FMAC4 soap_putelement(struct soap*, const void*, const char*, int, int);
-SOAP_FMAC3 void* SOAP_FMAC4 soap_dupelement(struct soap*, const void*, int);
-SOAP_FMAC3 void SOAP_FMAC4 soap_delelement(const void*, int);
+    SOAP_FMAC3 void *SOAP_FMAC4 soap_getelement(struct soap *, int *);
+    SOAP_FMAC3 int SOAP_FMAC4 soap_putelement(struct soap *, const void *, const char *, int, int);
+    SOAP_FMAC3 void *SOAP_FMAC4 soap_dupelement(struct soap *, const void *, int);
+    SOAP_FMAC3 void SOAP_FMAC4 soap_delelement(const void *, int);
 
 #ifdef __cplusplus
 }
 #endif
-SOAP_FMAC3 int SOAP_FMAC4 soap_ignore_element(struct soap*);
+SOAP_FMAC3 int SOAP_FMAC4 soap_ignore_element(struct soap *);
 
-SOAP_FMAC3 const char** SOAP_FMAC4 soap_faultcode(struct soap* soap);
-SOAP_FMAC3 void* SOAP_FMAC4 soap_instantiate(struct soap*, int, const char*, const char*, size_t*);
-SOAP_FMAC3 int SOAP_FMAC4 soap_fdelete(struct soap_clist*);
+SOAP_FMAC3 const char **SOAP_FMAC4 soap_faultcode(struct soap *soap);
+SOAP_FMAC3 void *SOAP_FMAC4 soap_instantiate(struct soap *, int, const char *, const char *, size_t *);
+SOAP_FMAC3 int SOAP_FMAC4 soap_fdelete(struct soap_clist *);
 SOAP_FMAC3 int SOAP_FMAC4 soap_fbase(int, int);
-SOAP_FMAC3 void SOAP_FMAC4 soap_finsert(struct soap*, int, int, void*, size_t, const void*, void**);
+SOAP_FMAC3 void SOAP_FMAC4 soap_finsert(struct soap *, int, int, void *, size_t, const void *, void **);
 
 #ifndef SOAP_TYPE_byte_DEFINED
 #define SOAP_TYPE_byte_DEFINED
 
-inline void soap_default_byte(struct soap* soap, char* a)
+inline void soap_default_byte(struct soap *soap, char *a)
 {
     (void)soap; /* appease -Wall -Werror */
 #ifdef SOAP_DEFAULT_byte
@@ -59,13 +61,13 @@ inline void soap_default_byte(struct soap* soap, char* a)
     *a = (char)0;
 #endif
 }
-SOAP_FMAC3 int SOAP_FMAC4 soap_out_byte(struct soap*, const char*, int, const char*, const char*);
-SOAP_FMAC3 char* SOAP_FMAC4 soap_in_byte(struct soap*, const char*, char*, const char*);
+SOAP_FMAC3 int SOAP_FMAC4 soap_out_byte(struct soap *, const char *, int, const char *, const char *);
+SOAP_FMAC3 char *SOAP_FMAC4 soap_in_byte(struct soap *, const char *, char *, const char *);
 
-SOAP_FMAC3 char* SOAP_FMAC4 soap_new_byte(struct soap* soap, int n = -1);
-SOAP_FMAC3 int SOAP_FMAC4 soap_put_byte(struct soap*, const char*, const char*, const char*);
+SOAP_FMAC3 char *SOAP_FMAC4 soap_new_byte(struct soap *soap, int n = -1);
+SOAP_FMAC3 int SOAP_FMAC4 soap_put_byte(struct soap *, const char *, const char *, const char *);
 
-inline int soap_write_byte(struct soap* soap, char const* p)
+inline int soap_write_byte(struct soap *soap, char const *p)
 {
     soap_free_temp(soap);
     if (p)
@@ -76,24 +78,26 @@ inline int soap_write_byte(struct soap* soap, char const* p)
     return SOAP_OK;
 }
 
-inline int soap_PUT_byte(struct soap* soap, const char* URL, char const* p)
+inline int soap_PUT_byte(struct soap *soap, const char *URL, char const *p)
 {
     soap_free_temp(soap);
-    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || soap_put_byte(soap, p, "byte", "") || soap_end_send(soap) || soap_recv_empty_response(soap))
+    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || soap_put_byte(soap, p, "byte", "") ||
+        soap_end_send(soap) || soap_recv_empty_response(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_send_byte(struct soap* soap, const char* URL, char const* p)
+inline int soap_POST_send_byte(struct soap *soap, const char *URL, char const *p)
 {
     soap_free_temp(soap);
-    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || soap_put_byte(soap, p, "byte", "") || soap_end_send(soap))
+    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || soap_put_byte(soap, p, "byte", "") ||
+        soap_end_send(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
-SOAP_FMAC3 char* SOAP_FMAC4 soap_get_byte(struct soap*, char*, const char*, const char*);
+SOAP_FMAC3 char *SOAP_FMAC4 soap_get_byte(struct soap *, char *, const char *, const char *);
 
-inline int soap_read_byte(struct soap* soap, char* p)
+inline int soap_read_byte(struct soap *soap, char *p)
 {
     if (p)
     {
@@ -103,14 +107,14 @@ inline int soap_read_byte(struct soap* soap, char* p)
     return SOAP_OK;
 }
 
-inline int soap_GET_byte(struct soap* soap, const char* URL, char* p)
+inline int soap_GET_byte(struct soap *soap, const char *URL, char *p)
 {
     if (soap_GET(soap, URL, nullptr) || soap_read_byte(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_recv_byte(struct soap* soap, char* p)
+inline int soap_POST_recv_byte(struct soap *soap, char *p)
 {
     if (soap_read_byte(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
@@ -121,7 +125,7 @@ inline int soap_POST_recv_byte(struct soap* soap, char* p)
 #ifndef SOAP_TYPE_int_DEFINED
 #define SOAP_TYPE_int_DEFINED
 
-inline void soap_default_int(struct soap* soap, int* a)
+inline void soap_default_int(struct soap *soap, int *a)
 {
     (void)soap; /* appease -Wall -Werror */
 #ifdef SOAP_DEFAULT_int
@@ -130,13 +134,13 @@ inline void soap_default_int(struct soap* soap, int* a)
     *a = (int)0;
 #endif
 }
-SOAP_FMAC3 int SOAP_FMAC4 soap_out_int(struct soap*, const char*, int, const int*, const char*);
-SOAP_FMAC3 int* SOAP_FMAC4 soap_in_int(struct soap*, const char*, int*, const char*);
+SOAP_FMAC3 int SOAP_FMAC4 soap_out_int(struct soap *, const char *, int, const int *, const char *);
+SOAP_FMAC3 int *SOAP_FMAC4 soap_in_int(struct soap *, const char *, int *, const char *);
 
-SOAP_FMAC3 int* SOAP_FMAC4 soap_new_int(struct soap* soap, int n = -1);
-SOAP_FMAC3 int SOAP_FMAC4 soap_put_int(struct soap*, const int*, const char*, const char*);
+SOAP_FMAC3 int *SOAP_FMAC4 soap_new_int(struct soap *soap, int n = -1);
+SOAP_FMAC3 int SOAP_FMAC4 soap_put_int(struct soap *, const int *, const char *, const char *);
 
-inline int soap_write_int(struct soap* soap, int const* p)
+inline int soap_write_int(struct soap *soap, int const *p)
 {
     soap_free_temp(soap);
     if (p)
@@ -147,24 +151,26 @@ inline int soap_write_int(struct soap* soap, int const* p)
     return SOAP_OK;
 }
 
-inline int soap_PUT_int(struct soap* soap, const char* URL, int const* p)
+inline int soap_PUT_int(struct soap *soap, const char *URL, int const *p)
 {
     soap_free_temp(soap);
-    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || soap_put_int(soap, p, "int", "") || soap_end_send(soap) || soap_recv_empty_response(soap))
+    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || soap_put_int(soap, p, "int", "") ||
+        soap_end_send(soap) || soap_recv_empty_response(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_send_int(struct soap* soap, const char* URL, int const* p)
+inline int soap_POST_send_int(struct soap *soap, const char *URL, int const *p)
 {
     soap_free_temp(soap);
-    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || soap_put_int(soap, p, "int", "") || soap_end_send(soap))
+    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || soap_put_int(soap, p, "int", "") ||
+        soap_end_send(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
-SOAP_FMAC3 int* SOAP_FMAC4 soap_get_int(struct soap*, int*, const char*, const char*);
+SOAP_FMAC3 int *SOAP_FMAC4 soap_get_int(struct soap *, int *, const char *, const char *);
 
-inline int soap_read_int(struct soap* soap, int* p)
+inline int soap_read_int(struct soap *soap, int *p)
 {
     if (p)
     {
@@ -174,14 +180,14 @@ inline int soap_read_int(struct soap* soap, int* p)
     return SOAP_OK;
 }
 
-inline int soap_GET_int(struct soap* soap, const char* URL, int* p)
+inline int soap_GET_int(struct soap *soap, const char *URL, int *p)
 {
     if (soap_GET(soap, URL, nullptr) || soap_read_int(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_recv_int(struct soap* soap, int* p)
+inline int soap_POST_recv_int(struct soap *soap, int *p)
 {
     if (soap_read_int(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
@@ -193,21 +199,23 @@ inline int soap_POST_recv_int(struct soap* soap, int* p)
 
 #ifndef SOAP_TYPE_SOAP_ENV__Fault_DEFINED
 #define SOAP_TYPE_SOAP_ENV__Fault_DEFINED
-SOAP_FMAC3 void SOAP_FMAC4 soap_default_SOAP_ENV__Fault(struct soap*, struct SOAP_ENV__Fault*);
-SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_SOAP_ENV__Fault(struct soap*, const struct SOAP_ENV__Fault*);
-SOAP_FMAC3 int SOAP_FMAC4 soap_out_SOAP_ENV__Fault(struct soap*, const char*, int, const struct SOAP_ENV__Fault*, const char*);
-SOAP_FMAC3 struct SOAP_ENV__Fault* SOAP_FMAC4 soap_in_SOAP_ENV__Fault(struct soap*, const char*, struct SOAP_ENV__Fault*, const char*);
-SOAP_FMAC1 struct SOAP_ENV__Fault* SOAP_FMAC2 soap_instantiate_SOAP_ENV__Fault(struct soap*, int, const char*, const char*, size_t*);
+SOAP_FMAC3 void SOAP_FMAC4 soap_default_SOAP_ENV__Fault(struct soap *, struct SOAP_ENV__Fault *);
+SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_SOAP_ENV__Fault(struct soap *, const struct SOAP_ENV__Fault *);
+SOAP_FMAC3 int SOAP_FMAC4 soap_out_SOAP_ENV__Fault(struct soap *, const char *, int, const struct SOAP_ENV__Fault *,
+                                                   const char *);
+SOAP_FMAC3 struct SOAP_ENV__Fault *SOAP_FMAC4 soap_in_SOAP_ENV__Fault(struct soap *, const char *,
+                                                                      struct SOAP_ENV__Fault *, const char *);
+SOAP_FMAC1 struct SOAP_ENV__Fault *SOAP_FMAC2 soap_instantiate_SOAP_ENV__Fault(struct soap *, int, const char *,
+                                                                               const char *, size_t *);
 
-inline struct SOAP_ENV__Fault* soap_new_SOAP_ENV__Fault(struct soap* soap, int n = -1)
+inline struct SOAP_ENV__Fault *soap_new_SOAP_ENV__Fault(struct soap *soap, int n = -1)
 {
     return soap_instantiate_SOAP_ENV__Fault(soap, n, nullptr, nullptr, nullptr);
 }
 
-inline struct SOAP_ENV__Fault* soap_new_req_SOAP_ENV__Fault(
-    struct soap* soap)
+inline struct SOAP_ENV__Fault *soap_new_req_SOAP_ENV__Fault(struct soap *soap)
 {
-    struct SOAP_ENV__Fault* _p = soap_new_SOAP_ENV__Fault(soap);
+    struct SOAP_ENV__Fault *_p = soap_new_SOAP_ENV__Fault(soap);
     if (_p)
     {
         soap_default_SOAP_ENV__Fault(soap, _p);
@@ -215,19 +223,14 @@ inline struct SOAP_ENV__Fault* soap_new_req_SOAP_ENV__Fault(
     return _p;
 }
 
-inline struct SOAP_ENV__Fault* soap_new_set_SOAP_ENV__Fault(
-    struct soap* soap,
-    char* faultcode,
-    char* faultstring,
-    char* faultactor,
-    struct SOAP_ENV__Detail* detail,
-    struct SOAP_ENV__Code* SOAP_ENV__Code,
-    struct SOAP_ENV__Reason* SOAP_ENV__Reason,
-    char* SOAP_ENV__Node,
-    char* SOAP_ENV__Role,
-    struct SOAP_ENV__Detail* SOAP_ENV__Detail)
+inline struct SOAP_ENV__Fault *soap_new_set_SOAP_ENV__Fault(struct soap *soap, char *faultcode, char *faultstring,
+                                                            char *faultactor, struct SOAP_ENV__Detail *detail,
+                                                            struct SOAP_ENV__Code *SOAP_ENV__Code,
+                                                            struct SOAP_ENV__Reason *SOAP_ENV__Reason,
+                                                            char *SOAP_ENV__Node, char *SOAP_ENV__Role,
+                                                            struct SOAP_ENV__Detail *SOAP_ENV__Detail)
 {
-    struct SOAP_ENV__Fault* _p = soap_new_SOAP_ENV__Fault(soap);
+    struct SOAP_ENV__Fault *_p = soap_new_SOAP_ENV__Fault(soap);
     if (_p)
     {
         soap_default_SOAP_ENV__Fault(soap, _p);
@@ -243,52 +246,59 @@ inline struct SOAP_ENV__Fault* soap_new_set_SOAP_ENV__Fault(
     }
     return _p;
 }
-SOAP_FMAC3 int SOAP_FMAC4 soap_put_SOAP_ENV__Fault(struct soap*, const struct SOAP_ENV__Fault*, const char*, const char*);
+SOAP_FMAC3 int SOAP_FMAC4 soap_put_SOAP_ENV__Fault(struct soap *, const struct SOAP_ENV__Fault *, const char *,
+                                                   const char *);
 
-inline int soap_write_SOAP_ENV__Fault(struct soap* soap, struct SOAP_ENV__Fault const* p)
+inline int soap_write_SOAP_ENV__Fault(struct soap *soap, struct SOAP_ENV__Fault const *p)
 {
     soap_free_temp(soap);
-    if (soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Fault(soap, p), 0) || soap_put_SOAP_ENV__Fault(soap, p, "SOAP-ENV:Fault", "") || soap_end_send(soap))
+    if (soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Fault(soap, p), 0) ||
+        soap_put_SOAP_ENV__Fault(soap, p, "SOAP-ENV:Fault", "") || soap_end_send(soap))
         return soap->error;
     return SOAP_OK;
 }
 
-inline int soap_PUT_SOAP_ENV__Fault(struct soap* soap, const char* URL, struct SOAP_ENV__Fault const* p)
+inline int soap_PUT_SOAP_ENV__Fault(struct soap *soap, const char *URL, struct SOAP_ENV__Fault const *p)
 {
     soap_free_temp(soap);
-    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_SOAP_ENV__Fault(soap, p), 0) || soap_put_SOAP_ENV__Fault(soap, p, "SOAP-ENV:Fault", "") || soap_end_send(soap) || soap_recv_empty_response(soap))
+    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_SOAP_ENV__Fault(soap, p), 0) ||
+        soap_put_SOAP_ENV__Fault(soap, p, "SOAP-ENV:Fault", "") || soap_end_send(soap) ||
+        soap_recv_empty_response(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_send_SOAP_ENV__Fault(struct soap* soap, const char* URL, struct SOAP_ENV__Fault const* p)
+inline int soap_POST_send_SOAP_ENV__Fault(struct soap *soap, const char *URL, struct SOAP_ENV__Fault const *p)
 {
     soap_free_temp(soap);
-    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_SOAP_ENV__Fault(soap, p), 0) || soap_put_SOAP_ENV__Fault(soap, p, "SOAP-ENV:Fault", "") || soap_end_send(soap))
+    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_SOAP_ENV__Fault(soap, p), 0) ||
+        soap_put_SOAP_ENV__Fault(soap, p, "SOAP-ENV:Fault", "") || soap_end_send(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
-SOAP_FMAC3 struct SOAP_ENV__Fault* SOAP_FMAC4 soap_get_SOAP_ENV__Fault(struct soap*, struct SOAP_ENV__Fault*, const char*, const char*);
+SOAP_FMAC3 struct SOAP_ENV__Fault *SOAP_FMAC4 soap_get_SOAP_ENV__Fault(struct soap *, struct SOAP_ENV__Fault *,
+                                                                       const char *, const char *);
 
-inline int soap_read_SOAP_ENV__Fault(struct soap* soap, struct SOAP_ENV__Fault* p)
+inline int soap_read_SOAP_ENV__Fault(struct soap *soap, struct SOAP_ENV__Fault *p)
 {
     if (p)
     {
         soap_default_SOAP_ENV__Fault(soap, p);
-        if (soap_begin_recv(soap) || soap_get_SOAP_ENV__Fault(soap, p, nullptr, nullptr) == nullptr || soap_end_recv(soap))
+        if (soap_begin_recv(soap) || soap_get_SOAP_ENV__Fault(soap, p, nullptr, nullptr) == nullptr ||
+            soap_end_recv(soap))
             return soap->error;
     }
     return SOAP_OK;
 }
 
-inline int soap_GET_SOAP_ENV__Fault(struct soap* soap, const char* URL, struct SOAP_ENV__Fault* p)
+inline int soap_GET_SOAP_ENV__Fault(struct soap *soap, const char *URL, struct SOAP_ENV__Fault *p)
 {
     if (soap_GET(soap, URL, nullptr) || soap_read_SOAP_ENV__Fault(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_recv_SOAP_ENV__Fault(struct soap* soap, struct SOAP_ENV__Fault* p)
+inline int soap_POST_recv_SOAP_ENV__Fault(struct soap *soap, struct SOAP_ENV__Fault *p)
 {
     if (soap_read_SOAP_ENV__Fault(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
@@ -302,21 +312,23 @@ inline int soap_POST_recv_SOAP_ENV__Fault(struct soap* soap, struct SOAP_ENV__Fa
 
 #ifndef SOAP_TYPE_SOAP_ENV__Reason_DEFINED
 #define SOAP_TYPE_SOAP_ENV__Reason_DEFINED
-SOAP_FMAC3 void SOAP_FMAC4 soap_default_SOAP_ENV__Reason(struct soap*, struct SOAP_ENV__Reason*);
-SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_SOAP_ENV__Reason(struct soap*, const struct SOAP_ENV__Reason*);
-SOAP_FMAC3 int SOAP_FMAC4 soap_out_SOAP_ENV__Reason(struct soap*, const char*, int, const struct SOAP_ENV__Reason*, const char*);
-SOAP_FMAC3 struct SOAP_ENV__Reason* SOAP_FMAC4 soap_in_SOAP_ENV__Reason(struct soap*, const char*, struct SOAP_ENV__Reason*, const char*);
-SOAP_FMAC1 struct SOAP_ENV__Reason* SOAP_FMAC2 soap_instantiate_SOAP_ENV__Reason(struct soap*, int, const char*, const char*, size_t*);
+SOAP_FMAC3 void SOAP_FMAC4 soap_default_SOAP_ENV__Reason(struct soap *, struct SOAP_ENV__Reason *);
+SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_SOAP_ENV__Reason(struct soap *, const struct SOAP_ENV__Reason *);
+SOAP_FMAC3 int SOAP_FMAC4 soap_out_SOAP_ENV__Reason(struct soap *, const char *, int, const struct SOAP_ENV__Reason *,
+                                                    const char *);
+SOAP_FMAC3 struct SOAP_ENV__Reason *SOAP_FMAC4 soap_in_SOAP_ENV__Reason(struct soap *, const char *,
+                                                                        struct SOAP_ENV__Reason *, const char *);
+SOAP_FMAC1 struct SOAP_ENV__Reason *SOAP_FMAC2 soap_instantiate_SOAP_ENV__Reason(struct soap *, int, const char *,
+                                                                                 const char *, size_t *);
 
-inline struct SOAP_ENV__Reason* soap_new_SOAP_ENV__Reason(struct soap* soap, int n = -1)
+inline struct SOAP_ENV__Reason *soap_new_SOAP_ENV__Reason(struct soap *soap, int n = -1)
 {
     return soap_instantiate_SOAP_ENV__Reason(soap, n, nullptr, nullptr, nullptr);
 }
 
-inline struct SOAP_ENV__Reason* soap_new_req_SOAP_ENV__Reason(
-    struct soap* soap)
+inline struct SOAP_ENV__Reason *soap_new_req_SOAP_ENV__Reason(struct soap *soap)
 {
-    struct SOAP_ENV__Reason* _p = soap_new_SOAP_ENV__Reason(soap);
+    struct SOAP_ENV__Reason *_p = soap_new_SOAP_ENV__Reason(soap);
     if (_p)
     {
         soap_default_SOAP_ENV__Reason(soap, _p);
@@ -324,11 +336,9 @@ inline struct SOAP_ENV__Reason* soap_new_req_SOAP_ENV__Reason(
     return _p;
 }
 
-inline struct SOAP_ENV__Reason* soap_new_set_SOAP_ENV__Reason(
-    struct soap* soap,
-    char* SOAP_ENV__Text)
+inline struct SOAP_ENV__Reason *soap_new_set_SOAP_ENV__Reason(struct soap *soap, char *SOAP_ENV__Text)
 {
-    struct SOAP_ENV__Reason* _p = soap_new_SOAP_ENV__Reason(soap);
+    struct SOAP_ENV__Reason *_p = soap_new_SOAP_ENV__Reason(soap);
     if (_p)
     {
         soap_default_SOAP_ENV__Reason(soap, _p);
@@ -336,52 +346,59 @@ inline struct SOAP_ENV__Reason* soap_new_set_SOAP_ENV__Reason(
     }
     return _p;
 }
-SOAP_FMAC3 int SOAP_FMAC4 soap_put_SOAP_ENV__Reason(struct soap*, const struct SOAP_ENV__Reason*, const char*, const char*);
+SOAP_FMAC3 int SOAP_FMAC4 soap_put_SOAP_ENV__Reason(struct soap *, const struct SOAP_ENV__Reason *, const char *,
+                                                    const char *);
 
-inline int soap_write_SOAP_ENV__Reason(struct soap* soap, struct SOAP_ENV__Reason const* p)
+inline int soap_write_SOAP_ENV__Reason(struct soap *soap, struct SOAP_ENV__Reason const *p)
 {
     soap_free_temp(soap);
-    if (soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Reason(soap, p), 0) || soap_put_SOAP_ENV__Reason(soap, p, "SOAP-ENV:Reason", "") || soap_end_send(soap))
+    if (soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Reason(soap, p), 0) ||
+        soap_put_SOAP_ENV__Reason(soap, p, "SOAP-ENV:Reason", "") || soap_end_send(soap))
         return soap->error;
     return SOAP_OK;
 }
 
-inline int soap_PUT_SOAP_ENV__Reason(struct soap* soap, const char* URL, struct SOAP_ENV__Reason const* p)
+inline int soap_PUT_SOAP_ENV__Reason(struct soap *soap, const char *URL, struct SOAP_ENV__Reason const *p)
 {
     soap_free_temp(soap);
-    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_SOAP_ENV__Reason(soap, p), 0) || soap_put_SOAP_ENV__Reason(soap, p, "SOAP-ENV:Reason", "") || soap_end_send(soap) || soap_recv_empty_response(soap))
+    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_SOAP_ENV__Reason(soap, p), 0) ||
+        soap_put_SOAP_ENV__Reason(soap, p, "SOAP-ENV:Reason", "") || soap_end_send(soap) ||
+        soap_recv_empty_response(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_send_SOAP_ENV__Reason(struct soap* soap, const char* URL, struct SOAP_ENV__Reason const* p)
+inline int soap_POST_send_SOAP_ENV__Reason(struct soap *soap, const char *URL, struct SOAP_ENV__Reason const *p)
 {
     soap_free_temp(soap);
-    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_SOAP_ENV__Reason(soap, p), 0) || soap_put_SOAP_ENV__Reason(soap, p, "SOAP-ENV:Reason", "") || soap_end_send(soap))
+    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_SOAP_ENV__Reason(soap, p), 0) ||
+        soap_put_SOAP_ENV__Reason(soap, p, "SOAP-ENV:Reason", "") || soap_end_send(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
-SOAP_FMAC3 struct SOAP_ENV__Reason* SOAP_FMAC4 soap_get_SOAP_ENV__Reason(struct soap*, struct SOAP_ENV__Reason*, const char*, const char*);
+SOAP_FMAC3 struct SOAP_ENV__Reason *SOAP_FMAC4 soap_get_SOAP_ENV__Reason(struct soap *, struct SOAP_ENV__Reason *,
+                                                                         const char *, const char *);
 
-inline int soap_read_SOAP_ENV__Reason(struct soap* soap, struct SOAP_ENV__Reason* p)
+inline int soap_read_SOAP_ENV__Reason(struct soap *soap, struct SOAP_ENV__Reason *p)
 {
     if (p)
     {
         soap_default_SOAP_ENV__Reason(soap, p);
-        if (soap_begin_recv(soap) || soap_get_SOAP_ENV__Reason(soap, p, nullptr, nullptr) == nullptr || soap_end_recv(soap))
+        if (soap_begin_recv(soap) || soap_get_SOAP_ENV__Reason(soap, p, nullptr, nullptr) == nullptr ||
+            soap_end_recv(soap))
             return soap->error;
     }
     return SOAP_OK;
 }
 
-inline int soap_GET_SOAP_ENV__Reason(struct soap* soap, const char* URL, struct SOAP_ENV__Reason* p)
+inline int soap_GET_SOAP_ENV__Reason(struct soap *soap, const char *URL, struct SOAP_ENV__Reason *p)
 {
     if (soap_GET(soap, URL, nullptr) || soap_read_SOAP_ENV__Reason(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_recv_SOAP_ENV__Reason(struct soap* soap, struct SOAP_ENV__Reason* p)
+inline int soap_POST_recv_SOAP_ENV__Reason(struct soap *soap, struct SOAP_ENV__Reason *p)
 {
     if (soap_read_SOAP_ENV__Reason(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
@@ -395,23 +412,23 @@ inline int soap_POST_recv_SOAP_ENV__Reason(struct soap* soap, struct SOAP_ENV__R
 
 #ifndef SOAP_TYPE_SOAP_ENV__Detail_DEFINED
 #define SOAP_TYPE_SOAP_ENV__Detail_DEFINED
-SOAP_FMAC3 void SOAP_FMAC4 soap_default_SOAP_ENV__Detail(struct soap*, struct SOAP_ENV__Detail*);
-SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_SOAP_ENV__Detail(struct soap*, const struct SOAP_ENV__Detail*);
-SOAP_FMAC3 int SOAP_FMAC4 soap_out_SOAP_ENV__Detail(struct soap*, const char*, int, const struct SOAP_ENV__Detail*, const char*);
-SOAP_FMAC3 struct SOAP_ENV__Detail* SOAP_FMAC4 soap_in_SOAP_ENV__Detail(struct soap*, const char*, struct SOAP_ENV__Detail*, const char*);
-SOAP_FMAC1 struct SOAP_ENV__Detail* SOAP_FMAC2 soap_instantiate_SOAP_ENV__Detail(struct soap*, int, const char*, const char*, size_t*);
+SOAP_FMAC3 void SOAP_FMAC4 soap_default_SOAP_ENV__Detail(struct soap *, struct SOAP_ENV__Detail *);
+SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_SOAP_ENV__Detail(struct soap *, const struct SOAP_ENV__Detail *);
+SOAP_FMAC3 int SOAP_FMAC4 soap_out_SOAP_ENV__Detail(struct soap *, const char *, int, const struct SOAP_ENV__Detail *,
+                                                    const char *);
+SOAP_FMAC3 struct SOAP_ENV__Detail *SOAP_FMAC4 soap_in_SOAP_ENV__Detail(struct soap *, const char *,
+                                                                        struct SOAP_ENV__Detail *, const char *);
+SOAP_FMAC1 struct SOAP_ENV__Detail *SOAP_FMAC2 soap_instantiate_SOAP_ENV__Detail(struct soap *, int, const char *,
+                                                                                 const char *, size_t *);
 
-inline struct SOAP_ENV__Detail* soap_new_SOAP_ENV__Detail(struct soap* soap, int n = -1)
+inline struct SOAP_ENV__Detail *soap_new_SOAP_ENV__Detail(struct soap *soap, int n = -1)
 {
     return soap_instantiate_SOAP_ENV__Detail(soap, n, nullptr, nullptr, nullptr);
 }
 
-inline struct SOAP_ENV__Detail* soap_new_req_SOAP_ENV__Detail(
-    struct soap* soap,
-    int __type,
-    void* fault)
+inline struct SOAP_ENV__Detail *soap_new_req_SOAP_ENV__Detail(struct soap *soap, int __type, void *fault)
 {
-    struct SOAP_ENV__Detail* _p = soap_new_SOAP_ENV__Detail(soap);
+    struct SOAP_ENV__Detail *_p = soap_new_SOAP_ENV__Detail(soap);
     if (_p)
     {
         soap_default_SOAP_ENV__Detail(soap, _p);
@@ -421,13 +438,9 @@ inline struct SOAP_ENV__Detail* soap_new_req_SOAP_ENV__Detail(
     return _p;
 }
 
-inline struct SOAP_ENV__Detail* soap_new_set_SOAP_ENV__Detail(
-    struct soap* soap,
-    char* __any,
-    int __type,
-    void* fault)
+inline struct SOAP_ENV__Detail *soap_new_set_SOAP_ENV__Detail(struct soap *soap, char *__any, int __type, void *fault)
 {
-    struct SOAP_ENV__Detail* _p = soap_new_SOAP_ENV__Detail(soap);
+    struct SOAP_ENV__Detail *_p = soap_new_SOAP_ENV__Detail(soap);
     if (_p)
     {
         soap_default_SOAP_ENV__Detail(soap, _p);
@@ -437,52 +450,59 @@ inline struct SOAP_ENV__Detail* soap_new_set_SOAP_ENV__Detail(
     }
     return _p;
 }
-SOAP_FMAC3 int SOAP_FMAC4 soap_put_SOAP_ENV__Detail(struct soap*, const struct SOAP_ENV__Detail*, const char*, const char*);
+SOAP_FMAC3 int SOAP_FMAC4 soap_put_SOAP_ENV__Detail(struct soap *, const struct SOAP_ENV__Detail *, const char *,
+                                                    const char *);
 
-inline int soap_write_SOAP_ENV__Detail(struct soap* soap, struct SOAP_ENV__Detail const* p)
+inline int soap_write_SOAP_ENV__Detail(struct soap *soap, struct SOAP_ENV__Detail const *p)
 {
     soap_free_temp(soap);
-    if (soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Detail(soap, p), 0) || soap_put_SOAP_ENV__Detail(soap, p, "SOAP-ENV:Detail", "") || soap_end_send(soap))
+    if (soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Detail(soap, p), 0) ||
+        soap_put_SOAP_ENV__Detail(soap, p, "SOAP-ENV:Detail", "") || soap_end_send(soap))
         return soap->error;
     return SOAP_OK;
 }
 
-inline int soap_PUT_SOAP_ENV__Detail(struct soap* soap, const char* URL, struct SOAP_ENV__Detail const* p)
+inline int soap_PUT_SOAP_ENV__Detail(struct soap *soap, const char *URL, struct SOAP_ENV__Detail const *p)
 {
     soap_free_temp(soap);
-    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_SOAP_ENV__Detail(soap, p), 0) || soap_put_SOAP_ENV__Detail(soap, p, "SOAP-ENV:Detail", "") || soap_end_send(soap) || soap_recv_empty_response(soap))
+    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_SOAP_ENV__Detail(soap, p), 0) ||
+        soap_put_SOAP_ENV__Detail(soap, p, "SOAP-ENV:Detail", "") || soap_end_send(soap) ||
+        soap_recv_empty_response(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_send_SOAP_ENV__Detail(struct soap* soap, const char* URL, struct SOAP_ENV__Detail const* p)
+inline int soap_POST_send_SOAP_ENV__Detail(struct soap *soap, const char *URL, struct SOAP_ENV__Detail const *p)
 {
     soap_free_temp(soap);
-    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_SOAP_ENV__Detail(soap, p), 0) || soap_put_SOAP_ENV__Detail(soap, p, "SOAP-ENV:Detail", "") || soap_end_send(soap))
+    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_SOAP_ENV__Detail(soap, p), 0) ||
+        soap_put_SOAP_ENV__Detail(soap, p, "SOAP-ENV:Detail", "") || soap_end_send(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
-SOAP_FMAC3 struct SOAP_ENV__Detail* SOAP_FMAC4 soap_get_SOAP_ENV__Detail(struct soap*, struct SOAP_ENV__Detail*, const char*, const char*);
+SOAP_FMAC3 struct SOAP_ENV__Detail *SOAP_FMAC4 soap_get_SOAP_ENV__Detail(struct soap *, struct SOAP_ENV__Detail *,
+                                                                         const char *, const char *);
 
-inline int soap_read_SOAP_ENV__Detail(struct soap* soap, struct SOAP_ENV__Detail* p)
+inline int soap_read_SOAP_ENV__Detail(struct soap *soap, struct SOAP_ENV__Detail *p)
 {
     if (p)
     {
         soap_default_SOAP_ENV__Detail(soap, p);
-        if (soap_begin_recv(soap) || soap_get_SOAP_ENV__Detail(soap, p, nullptr, nullptr) == nullptr || soap_end_recv(soap))
+        if (soap_begin_recv(soap) || soap_get_SOAP_ENV__Detail(soap, p, nullptr, nullptr) == nullptr ||
+            soap_end_recv(soap))
             return soap->error;
     }
     return SOAP_OK;
 }
 
-inline int soap_GET_SOAP_ENV__Detail(struct soap* soap, const char* URL, struct SOAP_ENV__Detail* p)
+inline int soap_GET_SOAP_ENV__Detail(struct soap *soap, const char *URL, struct SOAP_ENV__Detail *p)
 {
     if (soap_GET(soap, URL, nullptr) || soap_read_SOAP_ENV__Detail(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_recv_SOAP_ENV__Detail(struct soap* soap, struct SOAP_ENV__Detail* p)
+inline int soap_POST_recv_SOAP_ENV__Detail(struct soap *soap, struct SOAP_ENV__Detail *p)
 {
     if (soap_read_SOAP_ENV__Detail(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
@@ -496,21 +516,23 @@ inline int soap_POST_recv_SOAP_ENV__Detail(struct soap* soap, struct SOAP_ENV__D
 
 #ifndef SOAP_TYPE_SOAP_ENV__Code_DEFINED
 #define SOAP_TYPE_SOAP_ENV__Code_DEFINED
-SOAP_FMAC3 void SOAP_FMAC4 soap_default_SOAP_ENV__Code(struct soap*, struct SOAP_ENV__Code*);
-SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_SOAP_ENV__Code(struct soap*, const struct SOAP_ENV__Code*);
-SOAP_FMAC3 int SOAP_FMAC4 soap_out_SOAP_ENV__Code(struct soap*, const char*, int, const struct SOAP_ENV__Code*, const char*);
-SOAP_FMAC3 struct SOAP_ENV__Code* SOAP_FMAC4 soap_in_SOAP_ENV__Code(struct soap*, const char*, struct SOAP_ENV__Code*, const char*);
-SOAP_FMAC1 struct SOAP_ENV__Code* SOAP_FMAC2 soap_instantiate_SOAP_ENV__Code(struct soap*, int, const char*, const char*, size_t*);
+SOAP_FMAC3 void SOAP_FMAC4 soap_default_SOAP_ENV__Code(struct soap *, struct SOAP_ENV__Code *);
+SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_SOAP_ENV__Code(struct soap *, const struct SOAP_ENV__Code *);
+SOAP_FMAC3 int SOAP_FMAC4 soap_out_SOAP_ENV__Code(struct soap *, const char *, int, const struct SOAP_ENV__Code *,
+                                                  const char *);
+SOAP_FMAC3 struct SOAP_ENV__Code *SOAP_FMAC4 soap_in_SOAP_ENV__Code(struct soap *, const char *,
+                                                                    struct SOAP_ENV__Code *, const char *);
+SOAP_FMAC1 struct SOAP_ENV__Code *SOAP_FMAC2 soap_instantiate_SOAP_ENV__Code(struct soap *, int, const char *,
+                                                                             const char *, size_t *);
 
-inline struct SOAP_ENV__Code* soap_new_SOAP_ENV__Code(struct soap* soap, int n = -1)
+inline struct SOAP_ENV__Code *soap_new_SOAP_ENV__Code(struct soap *soap, int n = -1)
 {
     return soap_instantiate_SOAP_ENV__Code(soap, n, nullptr, nullptr, nullptr);
 }
 
-inline struct SOAP_ENV__Code* soap_new_req_SOAP_ENV__Code(
-    struct soap* soap)
+inline struct SOAP_ENV__Code *soap_new_req_SOAP_ENV__Code(struct soap *soap)
 {
-    struct SOAP_ENV__Code* _p = soap_new_SOAP_ENV__Code(soap);
+    struct SOAP_ENV__Code *_p = soap_new_SOAP_ENV__Code(soap);
     if (_p)
     {
         soap_default_SOAP_ENV__Code(soap, _p);
@@ -518,12 +540,10 @@ inline struct SOAP_ENV__Code* soap_new_req_SOAP_ENV__Code(
     return _p;
 }
 
-inline struct SOAP_ENV__Code* soap_new_set_SOAP_ENV__Code(
-    struct soap* soap,
-    char* SOAP_ENV__Value,
-    struct SOAP_ENV__Code* SOAP_ENV__Subcode)
+inline struct SOAP_ENV__Code *soap_new_set_SOAP_ENV__Code(struct soap *soap, char *SOAP_ENV__Value,
+                                                          struct SOAP_ENV__Code *SOAP_ENV__Subcode)
 {
-    struct SOAP_ENV__Code* _p = soap_new_SOAP_ENV__Code(soap);
+    struct SOAP_ENV__Code *_p = soap_new_SOAP_ENV__Code(soap);
     if (_p)
     {
         soap_default_SOAP_ENV__Code(soap, _p);
@@ -532,52 +552,58 @@ inline struct SOAP_ENV__Code* soap_new_set_SOAP_ENV__Code(
     }
     return _p;
 }
-SOAP_FMAC3 int SOAP_FMAC4 soap_put_SOAP_ENV__Code(struct soap*, const struct SOAP_ENV__Code*, const char*, const char*);
+SOAP_FMAC3 int SOAP_FMAC4 soap_put_SOAP_ENV__Code(struct soap *, const struct SOAP_ENV__Code *, const char *,
+                                                  const char *);
 
-inline int soap_write_SOAP_ENV__Code(struct soap* soap, struct SOAP_ENV__Code const* p)
+inline int soap_write_SOAP_ENV__Code(struct soap *soap, struct SOAP_ENV__Code const *p)
 {
     soap_free_temp(soap);
-    if (soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Code(soap, p), 0) || soap_put_SOAP_ENV__Code(soap, p, "SOAP-ENV:Code", "") || soap_end_send(soap))
+    if (soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Code(soap, p), 0) ||
+        soap_put_SOAP_ENV__Code(soap, p, "SOAP-ENV:Code", "") || soap_end_send(soap))
         return soap->error;
     return SOAP_OK;
 }
 
-inline int soap_PUT_SOAP_ENV__Code(struct soap* soap, const char* URL, struct SOAP_ENV__Code const* p)
+inline int soap_PUT_SOAP_ENV__Code(struct soap *soap, const char *URL, struct SOAP_ENV__Code const *p)
 {
     soap_free_temp(soap);
-    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_SOAP_ENV__Code(soap, p), 0) || soap_put_SOAP_ENV__Code(soap, p, "SOAP-ENV:Code", "") || soap_end_send(soap) || soap_recv_empty_response(soap))
+    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_SOAP_ENV__Code(soap, p), 0) ||
+        soap_put_SOAP_ENV__Code(soap, p, "SOAP-ENV:Code", "") || soap_end_send(soap) || soap_recv_empty_response(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_send_SOAP_ENV__Code(struct soap* soap, const char* URL, struct SOAP_ENV__Code const* p)
+inline int soap_POST_send_SOAP_ENV__Code(struct soap *soap, const char *URL, struct SOAP_ENV__Code const *p)
 {
     soap_free_temp(soap);
-    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_SOAP_ENV__Code(soap, p), 0) || soap_put_SOAP_ENV__Code(soap, p, "SOAP-ENV:Code", "") || soap_end_send(soap))
+    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_SOAP_ENV__Code(soap, p), 0) ||
+        soap_put_SOAP_ENV__Code(soap, p, "SOAP-ENV:Code", "") || soap_end_send(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
-SOAP_FMAC3 struct SOAP_ENV__Code* SOAP_FMAC4 soap_get_SOAP_ENV__Code(struct soap*, struct SOAP_ENV__Code*, const char*, const char*);
+SOAP_FMAC3 struct SOAP_ENV__Code *SOAP_FMAC4 soap_get_SOAP_ENV__Code(struct soap *, struct SOAP_ENV__Code *,
+                                                                     const char *, const char *);
 
-inline int soap_read_SOAP_ENV__Code(struct soap* soap, struct SOAP_ENV__Code* p)
+inline int soap_read_SOAP_ENV__Code(struct soap *soap, struct SOAP_ENV__Code *p)
 {
     if (p)
     {
         soap_default_SOAP_ENV__Code(soap, p);
-        if (soap_begin_recv(soap) || soap_get_SOAP_ENV__Code(soap, p, nullptr, nullptr) == nullptr || soap_end_recv(soap))
+        if (soap_begin_recv(soap) || soap_get_SOAP_ENV__Code(soap, p, nullptr, nullptr) == nullptr ||
+            soap_end_recv(soap))
             return soap->error;
     }
     return SOAP_OK;
 }
 
-inline int soap_GET_SOAP_ENV__Code(struct soap* soap, const char* URL, struct SOAP_ENV__Code* p)
+inline int soap_GET_SOAP_ENV__Code(struct soap *soap, const char *URL, struct SOAP_ENV__Code *p)
 {
     if (soap_GET(soap, URL, nullptr) || soap_read_SOAP_ENV__Code(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_recv_SOAP_ENV__Code(struct soap* soap, struct SOAP_ENV__Code* p)
+inline int soap_POST_recv_SOAP_ENV__Code(struct soap *soap, struct SOAP_ENV__Code *p)
 {
     if (soap_read_SOAP_ENV__Code(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
@@ -591,21 +617,23 @@ inline int soap_POST_recv_SOAP_ENV__Code(struct soap* soap, struct SOAP_ENV__Cod
 
 #ifndef SOAP_TYPE_SOAP_ENV__Header_DEFINED
 #define SOAP_TYPE_SOAP_ENV__Header_DEFINED
-SOAP_FMAC3 void SOAP_FMAC4 soap_default_SOAP_ENV__Header(struct soap*, struct SOAP_ENV__Header*);
-SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_SOAP_ENV__Header(struct soap*, const struct SOAP_ENV__Header*);
-SOAP_FMAC3 int SOAP_FMAC4 soap_out_SOAP_ENV__Header(struct soap*, const char*, int, const struct SOAP_ENV__Header*, const char*);
-SOAP_FMAC3 struct SOAP_ENV__Header* SOAP_FMAC4 soap_in_SOAP_ENV__Header(struct soap*, const char*, struct SOAP_ENV__Header*, const char*);
-SOAP_FMAC1 struct SOAP_ENV__Header* SOAP_FMAC2 soap_instantiate_SOAP_ENV__Header(struct soap*, int, const char*, const char*, size_t*);
+SOAP_FMAC3 void SOAP_FMAC4 soap_default_SOAP_ENV__Header(struct soap *, struct SOAP_ENV__Header *);
+SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_SOAP_ENV__Header(struct soap *, const struct SOAP_ENV__Header *);
+SOAP_FMAC3 int SOAP_FMAC4 soap_out_SOAP_ENV__Header(struct soap *, const char *, int, const struct SOAP_ENV__Header *,
+                                                    const char *);
+SOAP_FMAC3 struct SOAP_ENV__Header *SOAP_FMAC4 soap_in_SOAP_ENV__Header(struct soap *, const char *,
+                                                                        struct SOAP_ENV__Header *, const char *);
+SOAP_FMAC1 struct SOAP_ENV__Header *SOAP_FMAC2 soap_instantiate_SOAP_ENV__Header(struct soap *, int, const char *,
+                                                                                 const char *, size_t *);
 
-inline struct SOAP_ENV__Header* soap_new_SOAP_ENV__Header(struct soap* soap, int n = -1)
+inline struct SOAP_ENV__Header *soap_new_SOAP_ENV__Header(struct soap *soap, int n = -1)
 {
     return soap_instantiate_SOAP_ENV__Header(soap, n, nullptr, nullptr, nullptr);
 }
 
-inline struct SOAP_ENV__Header* soap_new_req_SOAP_ENV__Header(
-    struct soap* soap)
+inline struct SOAP_ENV__Header *soap_new_req_SOAP_ENV__Header(struct soap *soap)
 {
-    struct SOAP_ENV__Header* _p = soap_new_SOAP_ENV__Header(soap);
+    struct SOAP_ENV__Header *_p = soap_new_SOAP_ENV__Header(soap);
     if (_p)
     {
         soap_default_SOAP_ENV__Header(soap, _p);
@@ -613,62 +641,68 @@ inline struct SOAP_ENV__Header* soap_new_req_SOAP_ENV__Header(
     return _p;
 }
 
-inline struct SOAP_ENV__Header* soap_new_set_SOAP_ENV__Header(
-    struct soap* soap)
+inline struct SOAP_ENV__Header *soap_new_set_SOAP_ENV__Header(struct soap *soap)
 {
-    struct SOAP_ENV__Header* _p = soap_new_SOAP_ENV__Header(soap);
+    struct SOAP_ENV__Header *_p = soap_new_SOAP_ENV__Header(soap);
     if (_p)
     {
         soap_default_SOAP_ENV__Header(soap, _p);
     }
     return _p;
 }
-SOAP_FMAC3 int SOAP_FMAC4 soap_put_SOAP_ENV__Header(struct soap*, const struct SOAP_ENV__Header*, const char*, const char*);
+SOAP_FMAC3 int SOAP_FMAC4 soap_put_SOAP_ENV__Header(struct soap *, const struct SOAP_ENV__Header *, const char *,
+                                                    const char *);
 
-inline int soap_write_SOAP_ENV__Header(struct soap* soap, struct SOAP_ENV__Header const* p)
+inline int soap_write_SOAP_ENV__Header(struct soap *soap, struct SOAP_ENV__Header const *p)
 {
     soap_free_temp(soap);
-    if (soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Header(soap, p), 0) || soap_put_SOAP_ENV__Header(soap, p, "SOAP-ENV:Header", "") || soap_end_send(soap))
+    if (soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Header(soap, p), 0) ||
+        soap_put_SOAP_ENV__Header(soap, p, "SOAP-ENV:Header", "") || soap_end_send(soap))
         return soap->error;
     return SOAP_OK;
 }
 
-inline int soap_PUT_SOAP_ENV__Header(struct soap* soap, const char* URL, struct SOAP_ENV__Header const* p)
+inline int soap_PUT_SOAP_ENV__Header(struct soap *soap, const char *URL, struct SOAP_ENV__Header const *p)
 {
     soap_free_temp(soap);
-    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_SOAP_ENV__Header(soap, p), 0) || soap_put_SOAP_ENV__Header(soap, p, "SOAP-ENV:Header", "") || soap_end_send(soap) || soap_recv_empty_response(soap))
+    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_SOAP_ENV__Header(soap, p), 0) ||
+        soap_put_SOAP_ENV__Header(soap, p, "SOAP-ENV:Header", "") || soap_end_send(soap) ||
+        soap_recv_empty_response(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_send_SOAP_ENV__Header(struct soap* soap, const char* URL, struct SOAP_ENV__Header const* p)
+inline int soap_POST_send_SOAP_ENV__Header(struct soap *soap, const char *URL, struct SOAP_ENV__Header const *p)
 {
     soap_free_temp(soap);
-    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_SOAP_ENV__Header(soap, p), 0) || soap_put_SOAP_ENV__Header(soap, p, "SOAP-ENV:Header", "") || soap_end_send(soap))
+    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_SOAP_ENV__Header(soap, p), 0) ||
+        soap_put_SOAP_ENV__Header(soap, p, "SOAP-ENV:Header", "") || soap_end_send(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
-SOAP_FMAC3 struct SOAP_ENV__Header* SOAP_FMAC4 soap_get_SOAP_ENV__Header(struct soap*, struct SOAP_ENV__Header*, const char*, const char*);
+SOAP_FMAC3 struct SOAP_ENV__Header *SOAP_FMAC4 soap_get_SOAP_ENV__Header(struct soap *, struct SOAP_ENV__Header *,
+                                                                         const char *, const char *);
 
-inline int soap_read_SOAP_ENV__Header(struct soap* soap, struct SOAP_ENV__Header* p)
+inline int soap_read_SOAP_ENV__Header(struct soap *soap, struct SOAP_ENV__Header *p)
 {
     if (p)
     {
         soap_default_SOAP_ENV__Header(soap, p);
-        if (soap_begin_recv(soap) || soap_get_SOAP_ENV__Header(soap, p, nullptr, nullptr) == nullptr || soap_end_recv(soap))
+        if (soap_begin_recv(soap) || soap_get_SOAP_ENV__Header(soap, p, nullptr, nullptr) == nullptr ||
+            soap_end_recv(soap))
             return soap->error;
     }
     return SOAP_OK;
 }
 
-inline int soap_GET_SOAP_ENV__Header(struct soap* soap, const char* URL, struct SOAP_ENV__Header* p)
+inline int soap_GET_SOAP_ENV__Header(struct soap *soap, const char *URL, struct SOAP_ENV__Header *p)
 {
     if (soap_GET(soap, URL, nullptr) || soap_read_SOAP_ENV__Header(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_recv_SOAP_ENV__Header(struct soap* soap, struct SOAP_ENV__Header* p)
+inline int soap_POST_recv_SOAP_ENV__Header(struct soap *soap, struct SOAP_ENV__Header *p)
 {
     if (soap_read_SOAP_ENV__Header(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
@@ -680,21 +714,24 @@ inline int soap_POST_recv_SOAP_ENV__Header(struct soap* soap, struct SOAP_ENV__H
 
 #ifndef SOAP_TYPE_ns1__executeCommand_DEFINED
 #define SOAP_TYPE_ns1__executeCommand_DEFINED
-SOAP_FMAC3 void SOAP_FMAC4 soap_default_ns1__executeCommand(struct soap*, struct ns1__executeCommand*);
-SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_ns1__executeCommand(struct soap*, const struct ns1__executeCommand*);
-SOAP_FMAC3 int SOAP_FMAC4 soap_out_ns1__executeCommand(struct soap*, const char*, int, const struct ns1__executeCommand*, const char*);
-SOAP_FMAC3 struct ns1__executeCommand* SOAP_FMAC4 soap_in_ns1__executeCommand(struct soap*, const char*, struct ns1__executeCommand*, const char*);
-SOAP_FMAC1 struct ns1__executeCommand* SOAP_FMAC2 soap_instantiate_ns1__executeCommand(struct soap*, int, const char*, const char*, size_t*);
+SOAP_FMAC3 void SOAP_FMAC4 soap_default_ns1__executeCommand(struct soap *, struct ns1__executeCommand *);
+SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_ns1__executeCommand(struct soap *, const struct ns1__executeCommand *);
+SOAP_FMAC3 int SOAP_FMAC4 soap_out_ns1__executeCommand(struct soap *, const char *, int,
+                                                       const struct ns1__executeCommand *, const char *);
+SOAP_FMAC3 struct ns1__executeCommand *SOAP_FMAC4 soap_in_ns1__executeCommand(struct soap *, const char *,
+                                                                              struct ns1__executeCommand *,
+                                                                              const char *);
+SOAP_FMAC1 struct ns1__executeCommand *SOAP_FMAC2 soap_instantiate_ns1__executeCommand(struct soap *, int, const char *,
+                                                                                       const char *, size_t *);
 
-inline struct ns1__executeCommand* soap_new_ns1__executeCommand(struct soap* soap, int n = -1)
+inline struct ns1__executeCommand *soap_new_ns1__executeCommand(struct soap *soap, int n = -1)
 {
     return soap_instantiate_ns1__executeCommand(soap, n, nullptr, nullptr, nullptr);
 }
 
-inline struct ns1__executeCommand* soap_new_req_ns1__executeCommand(
-    struct soap* soap)
+inline struct ns1__executeCommand *soap_new_req_ns1__executeCommand(struct soap *soap)
 {
-    struct ns1__executeCommand* _p = soap_new_ns1__executeCommand(soap);
+    struct ns1__executeCommand *_p = soap_new_ns1__executeCommand(soap);
     if (_p)
     {
         soap_default_ns1__executeCommand(soap, _p);
@@ -702,11 +739,9 @@ inline struct ns1__executeCommand* soap_new_req_ns1__executeCommand(
     return _p;
 }
 
-inline struct ns1__executeCommand* soap_new_set_ns1__executeCommand(
-    struct soap* soap,
-    char* command)
+inline struct ns1__executeCommand *soap_new_set_ns1__executeCommand(struct soap *soap, char *command)
 {
-    struct ns1__executeCommand* _p = soap_new_ns1__executeCommand(soap);
+    struct ns1__executeCommand *_p = soap_new_ns1__executeCommand(soap);
     if (_p)
     {
         soap_default_ns1__executeCommand(soap, _p);
@@ -714,52 +749,60 @@ inline struct ns1__executeCommand* soap_new_set_ns1__executeCommand(
     }
     return _p;
 }
-SOAP_FMAC3 int SOAP_FMAC4 soap_put_ns1__executeCommand(struct soap*, const struct ns1__executeCommand*, const char*, const char*);
+SOAP_FMAC3 int SOAP_FMAC4 soap_put_ns1__executeCommand(struct soap *, const struct ns1__executeCommand *, const char *,
+                                                       const char *);
 
-inline int soap_write_ns1__executeCommand(struct soap* soap, struct ns1__executeCommand const* p)
+inline int soap_write_ns1__executeCommand(struct soap *soap, struct ns1__executeCommand const *p)
 {
     soap_free_temp(soap);
-    if (soap_begin_send(soap) || (soap_serialize_ns1__executeCommand(soap, p), 0) || soap_put_ns1__executeCommand(soap, p, "ns1:executeCommand", "") || soap_end_send(soap))
+    if (soap_begin_send(soap) || (soap_serialize_ns1__executeCommand(soap, p), 0) ||
+        soap_put_ns1__executeCommand(soap, p, "ns1:executeCommand", "") || soap_end_send(soap))
         return soap->error;
     return SOAP_OK;
 }
 
-inline int soap_PUT_ns1__executeCommand(struct soap* soap, const char* URL, struct ns1__executeCommand const* p)
+inline int soap_PUT_ns1__executeCommand(struct soap *soap, const char *URL, struct ns1__executeCommand const *p)
 {
     soap_free_temp(soap);
-    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_ns1__executeCommand(soap, p), 0) || soap_put_ns1__executeCommand(soap, p, "ns1:executeCommand", "") || soap_end_send(soap) || soap_recv_empty_response(soap))
+    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_ns1__executeCommand(soap, p), 0) ||
+        soap_put_ns1__executeCommand(soap, p, "ns1:executeCommand", "") || soap_end_send(soap) ||
+        soap_recv_empty_response(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_send_ns1__executeCommand(struct soap* soap, const char* URL, struct ns1__executeCommand const* p)
+inline int soap_POST_send_ns1__executeCommand(struct soap *soap, const char *URL, struct ns1__executeCommand const *p)
 {
     soap_free_temp(soap);
-    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_ns1__executeCommand(soap, p), 0) || soap_put_ns1__executeCommand(soap, p, "ns1:executeCommand", "") || soap_end_send(soap))
+    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_ns1__executeCommand(soap, p), 0) ||
+        soap_put_ns1__executeCommand(soap, p, "ns1:executeCommand", "") || soap_end_send(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
-SOAP_FMAC3 struct ns1__executeCommand* SOAP_FMAC4 soap_get_ns1__executeCommand(struct soap*, struct ns1__executeCommand*, const char*, const char*);
+SOAP_FMAC3 struct ns1__executeCommand *SOAP_FMAC4 soap_get_ns1__executeCommand(struct soap *,
+                                                                               struct ns1__executeCommand *,
+                                                                               const char *, const char *);
 
-inline int soap_read_ns1__executeCommand(struct soap* soap, struct ns1__executeCommand* p)
+inline int soap_read_ns1__executeCommand(struct soap *soap, struct ns1__executeCommand *p)
 {
     if (p)
     {
         soap_default_ns1__executeCommand(soap, p);
-        if (soap_begin_recv(soap) || soap_get_ns1__executeCommand(soap, p, nullptr, nullptr) == nullptr || soap_end_recv(soap))
+        if (soap_begin_recv(soap) || soap_get_ns1__executeCommand(soap, p, nullptr, nullptr) == nullptr ||
+            soap_end_recv(soap))
             return soap->error;
     }
     return SOAP_OK;
 }
 
-inline int soap_GET_ns1__executeCommand(struct soap* soap, const char* URL, struct ns1__executeCommand* p)
+inline int soap_GET_ns1__executeCommand(struct soap *soap, const char *URL, struct ns1__executeCommand *p)
 {
     if (soap_GET(soap, URL, nullptr) || soap_read_ns1__executeCommand(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_recv_ns1__executeCommand(struct soap* soap, struct ns1__executeCommand* p)
+inline int soap_POST_recv_ns1__executeCommand(struct soap *soap, struct ns1__executeCommand *p)
 {
     if (soap_read_ns1__executeCommand(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
@@ -769,21 +812,26 @@ inline int soap_POST_recv_ns1__executeCommand(struct soap* soap, struct ns1__exe
 
 #ifndef SOAP_TYPE_ns1__executeCommandResponse_DEFINED
 #define SOAP_TYPE_ns1__executeCommandResponse_DEFINED
-SOAP_FMAC3 void SOAP_FMAC4 soap_default_ns1__executeCommandResponse(struct soap*, struct ns1__executeCommandResponse*);
-SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_ns1__executeCommandResponse(struct soap*, const struct ns1__executeCommandResponse*);
-SOAP_FMAC3 int SOAP_FMAC4 soap_out_ns1__executeCommandResponse(struct soap*, const char*, int, const struct ns1__executeCommandResponse*, const char*);
-SOAP_FMAC3 struct ns1__executeCommandResponse* SOAP_FMAC4 soap_in_ns1__executeCommandResponse(struct soap*, const char*, struct ns1__executeCommandResponse*, const char*);
-SOAP_FMAC1 struct ns1__executeCommandResponse* SOAP_FMAC2 soap_instantiate_ns1__executeCommandResponse(struct soap*, int, const char*, const char*, size_t*);
+SOAP_FMAC3 void SOAP_FMAC4 soap_default_ns1__executeCommandResponse(struct soap *,
+                                                                    struct ns1__executeCommandResponse *);
+SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_ns1__executeCommandResponse(struct soap *,
+                                                                      const struct ns1__executeCommandResponse *);
+SOAP_FMAC3 int SOAP_FMAC4 soap_out_ns1__executeCommandResponse(struct soap *, const char *, int,
+                                                               const struct ns1__executeCommandResponse *,
+                                                               const char *);
+SOAP_FMAC3 struct ns1__executeCommandResponse *SOAP_FMAC4
+soap_in_ns1__executeCommandResponse(struct soap *, const char *, struct ns1__executeCommandResponse *, const char *);
+SOAP_FMAC1 struct ns1__executeCommandResponse *SOAP_FMAC2
+soap_instantiate_ns1__executeCommandResponse(struct soap *, int, const char *, const char *, size_t *);
 
-inline struct ns1__executeCommandResponse* soap_new_ns1__executeCommandResponse(struct soap* soap, int n = -1)
+inline struct ns1__executeCommandResponse *soap_new_ns1__executeCommandResponse(struct soap *soap, int n = -1)
 {
     return soap_instantiate_ns1__executeCommandResponse(soap, n, nullptr, nullptr, nullptr);
 }
 
-inline struct ns1__executeCommandResponse* soap_new_req_ns1__executeCommandResponse(
-    struct soap* soap)
+inline struct ns1__executeCommandResponse *soap_new_req_ns1__executeCommandResponse(struct soap *soap)
 {
-    struct ns1__executeCommandResponse* _p = soap_new_ns1__executeCommandResponse(soap);
+    struct ns1__executeCommandResponse *_p = soap_new_ns1__executeCommandResponse(soap);
     if (_p)
     {
         soap_default_ns1__executeCommandResponse(soap, _p);
@@ -791,11 +839,9 @@ inline struct ns1__executeCommandResponse* soap_new_req_ns1__executeCommandRespo
     return _p;
 }
 
-inline struct ns1__executeCommandResponse* soap_new_set_ns1__executeCommandResponse(
-    struct soap* soap,
-    char** result)
+inline struct ns1__executeCommandResponse *soap_new_set_ns1__executeCommandResponse(struct soap *soap, char **result)
 {
-    struct ns1__executeCommandResponse* _p = soap_new_ns1__executeCommandResponse(soap);
+    struct ns1__executeCommandResponse *_p = soap_new_ns1__executeCommandResponse(soap);
     if (_p)
     {
         soap_default_ns1__executeCommandResponse(soap, _p);
@@ -803,52 +849,65 @@ inline struct ns1__executeCommandResponse* soap_new_set_ns1__executeCommandRespo
     }
     return _p;
 }
-SOAP_FMAC3 int SOAP_FMAC4 soap_put_ns1__executeCommandResponse(struct soap*, const struct ns1__executeCommandResponse*, const char*, const char*);
+SOAP_FMAC3 int SOAP_FMAC4 soap_put_ns1__executeCommandResponse(struct soap *,
+                                                               const struct ns1__executeCommandResponse *, const char *,
+                                                               const char *);
 
-inline int soap_write_ns1__executeCommandResponse(struct soap* soap, struct ns1__executeCommandResponse const* p)
+inline int soap_write_ns1__executeCommandResponse(struct soap *soap, struct ns1__executeCommandResponse const *p)
 {
     soap_free_temp(soap);
-    if (soap_begin_send(soap) || (soap_serialize_ns1__executeCommandResponse(soap, p), 0) || soap_put_ns1__executeCommandResponse(soap, p, "ns1:executeCommandResponse", "") || soap_end_send(soap))
+    if (soap_begin_send(soap) || (soap_serialize_ns1__executeCommandResponse(soap, p), 0) ||
+        soap_put_ns1__executeCommandResponse(soap, p, "ns1:executeCommandResponse", "") || soap_end_send(soap))
         return soap->error;
     return SOAP_OK;
 }
 
-inline int soap_PUT_ns1__executeCommandResponse(struct soap* soap, const char* URL, struct ns1__executeCommandResponse const* p)
+inline int soap_PUT_ns1__executeCommandResponse(struct soap *soap, const char *URL,
+                                                struct ns1__executeCommandResponse const *p)
 {
     soap_free_temp(soap);
-    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_ns1__executeCommandResponse(soap, p), 0) || soap_put_ns1__executeCommandResponse(soap, p, "ns1:executeCommandResponse", "") || soap_end_send(soap) || soap_recv_empty_response(soap))
+    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") ||
+        (soap_serialize_ns1__executeCommandResponse(soap, p), 0) ||
+        soap_put_ns1__executeCommandResponse(soap, p, "ns1:executeCommandResponse", "") || soap_end_send(soap) ||
+        soap_recv_empty_response(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_send_ns1__executeCommandResponse(struct soap* soap, const char* URL, struct ns1__executeCommandResponse const* p)
+inline int soap_POST_send_ns1__executeCommandResponse(struct soap *soap, const char *URL,
+                                                      struct ns1__executeCommandResponse const *p)
 {
     soap_free_temp(soap);
-    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || (soap_serialize_ns1__executeCommandResponse(soap, p), 0) || soap_put_ns1__executeCommandResponse(soap, p, "ns1:executeCommandResponse", "") || soap_end_send(soap))
+    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") ||
+        (soap_serialize_ns1__executeCommandResponse(soap, p), 0) ||
+        soap_put_ns1__executeCommandResponse(soap, p, "ns1:executeCommandResponse", "") || soap_end_send(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
-SOAP_FMAC3 struct ns1__executeCommandResponse* SOAP_FMAC4 soap_get_ns1__executeCommandResponse(struct soap*, struct ns1__executeCommandResponse*, const char*, const char*);
+SOAP_FMAC3 struct ns1__executeCommandResponse *SOAP_FMAC4
+soap_get_ns1__executeCommandResponse(struct soap *, struct ns1__executeCommandResponse *, const char *, const char *);
 
-inline int soap_read_ns1__executeCommandResponse(struct soap* soap, struct ns1__executeCommandResponse* p)
+inline int soap_read_ns1__executeCommandResponse(struct soap *soap, struct ns1__executeCommandResponse *p)
 {
     if (p)
     {
         soap_default_ns1__executeCommandResponse(soap, p);
-        if (soap_begin_recv(soap) || soap_get_ns1__executeCommandResponse(soap, p, nullptr, nullptr) == nullptr || soap_end_recv(soap))
+        if (soap_begin_recv(soap) || soap_get_ns1__executeCommandResponse(soap, p, nullptr, nullptr) == nullptr ||
+            soap_end_recv(soap))
             return soap->error;
     }
     return SOAP_OK;
 }
 
-inline int soap_GET_ns1__executeCommandResponse(struct soap* soap, const char* URL, struct ns1__executeCommandResponse* p)
+inline int soap_GET_ns1__executeCommandResponse(struct soap *soap, const char *URL,
+                                                struct ns1__executeCommandResponse *p)
 {
     if (soap_GET(soap, URL, nullptr) || soap_read_ns1__executeCommandResponse(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_recv_ns1__executeCommandResponse(struct soap* soap, struct ns1__executeCommandResponse* p)
+inline int soap_POST_recv_ns1__executeCommandResponse(struct soap *soap, struct ns1__executeCommandResponse *p)
 {
     if (soap_read_ns1__executeCommandResponse(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
@@ -860,11 +919,17 @@ inline int soap_POST_recv_ns1__executeCommandResponse(struct soap* soap, struct 
 
 #ifndef SOAP_TYPE_PointerToSOAP_ENV__Reason_DEFINED
 #define SOAP_TYPE_PointerToSOAP_ENV__Reason_DEFINED
-SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_PointerToSOAP_ENV__Reason(struct soap*, struct SOAP_ENV__Reason* const*);
-SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToSOAP_ENV__Reason(struct soap*, const char*, int, struct SOAP_ENV__Reason* const*, const char*);
-SOAP_FMAC3 struct SOAP_ENV__Reason** SOAP_FMAC4 soap_in_PointerToSOAP_ENV__Reason(struct soap*, const char*, struct SOAP_ENV__Reason**, const char*);
-SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToSOAP_ENV__Reason(struct soap*, struct SOAP_ENV__Reason* const*, const char*, const char*);
-SOAP_FMAC3 struct SOAP_ENV__Reason** SOAP_FMAC4 soap_get_PointerToSOAP_ENV__Reason(struct soap*, struct SOAP_ENV__Reason**, const char*, const char*);
+SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_PointerToSOAP_ENV__Reason(struct soap *, struct SOAP_ENV__Reason *const *);
+SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToSOAP_ENV__Reason(struct soap *, const char *, int,
+                                                             struct SOAP_ENV__Reason *const *, const char *);
+SOAP_FMAC3 struct SOAP_ENV__Reason **SOAP_FMAC4 soap_in_PointerToSOAP_ENV__Reason(struct soap *, const char *,
+                                                                                  struct SOAP_ENV__Reason **,
+                                                                                  const char *);
+SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToSOAP_ENV__Reason(struct soap *, struct SOAP_ENV__Reason *const *,
+                                                             const char *, const char *);
+SOAP_FMAC3 struct SOAP_ENV__Reason **SOAP_FMAC4 soap_get_PointerToSOAP_ENV__Reason(struct soap *,
+                                                                                   struct SOAP_ENV__Reason **,
+                                                                                   const char *, const char *);
 #endif
 
 #endif
@@ -873,11 +938,17 @@ SOAP_FMAC3 struct SOAP_ENV__Reason** SOAP_FMAC4 soap_get_PointerToSOAP_ENV__Reas
 
 #ifndef SOAP_TYPE_PointerToSOAP_ENV__Detail_DEFINED
 #define SOAP_TYPE_PointerToSOAP_ENV__Detail_DEFINED
-SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_PointerToSOAP_ENV__Detail(struct soap*, struct SOAP_ENV__Detail* const*);
-SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToSOAP_ENV__Detail(struct soap*, const char*, int, struct SOAP_ENV__Detail* const*, const char*);
-SOAP_FMAC3 struct SOAP_ENV__Detail** SOAP_FMAC4 soap_in_PointerToSOAP_ENV__Detail(struct soap*, const char*, struct SOAP_ENV__Detail**, const char*);
-SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToSOAP_ENV__Detail(struct soap*, struct SOAP_ENV__Detail* const*, const char*, const char*);
-SOAP_FMAC3 struct SOAP_ENV__Detail** SOAP_FMAC4 soap_get_PointerToSOAP_ENV__Detail(struct soap*, struct SOAP_ENV__Detail**, const char*, const char*);
+SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_PointerToSOAP_ENV__Detail(struct soap *, struct SOAP_ENV__Detail *const *);
+SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToSOAP_ENV__Detail(struct soap *, const char *, int,
+                                                             struct SOAP_ENV__Detail *const *, const char *);
+SOAP_FMAC3 struct SOAP_ENV__Detail **SOAP_FMAC4 soap_in_PointerToSOAP_ENV__Detail(struct soap *, const char *,
+                                                                                  struct SOAP_ENV__Detail **,
+                                                                                  const char *);
+SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToSOAP_ENV__Detail(struct soap *, struct SOAP_ENV__Detail *const *,
+                                                             const char *, const char *);
+SOAP_FMAC3 struct SOAP_ENV__Detail **SOAP_FMAC4 soap_get_PointerToSOAP_ENV__Detail(struct soap *,
+                                                                                   struct SOAP_ENV__Detail **,
+                                                                                   const char *, const char *);
 #endif
 
 #endif
@@ -886,52 +957,55 @@ SOAP_FMAC3 struct SOAP_ENV__Detail** SOAP_FMAC4 soap_get_PointerToSOAP_ENV__Deta
 
 #ifndef SOAP_TYPE_PointerToSOAP_ENV__Code_DEFINED
 #define SOAP_TYPE_PointerToSOAP_ENV__Code_DEFINED
-SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_PointerToSOAP_ENV__Code(struct soap*, struct SOAP_ENV__Code* const*);
-SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToSOAP_ENV__Code(struct soap*, const char*, int, struct SOAP_ENV__Code* const*, const char*);
-SOAP_FMAC3 struct SOAP_ENV__Code** SOAP_FMAC4 soap_in_PointerToSOAP_ENV__Code(struct soap*, const char*, struct SOAP_ENV__Code**, const char*);
-SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToSOAP_ENV__Code(struct soap*, struct SOAP_ENV__Code* const*, const char*, const char*);
-SOAP_FMAC3 struct SOAP_ENV__Code** SOAP_FMAC4 soap_get_PointerToSOAP_ENV__Code(struct soap*, struct SOAP_ENV__Code**, const char*, const char*);
+SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_PointerToSOAP_ENV__Code(struct soap *, struct SOAP_ENV__Code *const *);
+SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToSOAP_ENV__Code(struct soap *, const char *, int,
+                                                           struct SOAP_ENV__Code *const *, const char *);
+SOAP_FMAC3 struct SOAP_ENV__Code **SOAP_FMAC4 soap_in_PointerToSOAP_ENV__Code(struct soap *, const char *,
+                                                                              struct SOAP_ENV__Code **, const char *);
+SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToSOAP_ENV__Code(struct soap *, struct SOAP_ENV__Code *const *, const char *,
+                                                           const char *);
+SOAP_FMAC3 struct SOAP_ENV__Code **SOAP_FMAC4 soap_get_PointerToSOAP_ENV__Code(struct soap *, struct SOAP_ENV__Code **,
+                                                                               const char *, const char *);
 #endif
 
 #endif
 
 #ifndef SOAP_TYPE_PointerTostring_DEFINED
 #define SOAP_TYPE_PointerTostring_DEFINED
-SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_PointerTostring(struct soap*, char** const*);
-SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTostring(struct soap*, const char*, int, char** const*, const char*);
-SOAP_FMAC3 char*** SOAP_FMAC4 soap_in_PointerTostring(struct soap*, const char*, char***, const char*);
-SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTostring(struct soap*, char** const*, const char*, const char*);
-SOAP_FMAC3 char*** SOAP_FMAC4 soap_get_PointerTostring(struct soap*, char***, const char*, const char*);
+SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_PointerTostring(struct soap *, char **const *);
+SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTostring(struct soap *, const char *, int, char **const *, const char *);
+SOAP_FMAC3 char ***SOAP_FMAC4 soap_in_PointerTostring(struct soap *, const char *, char ***, const char *);
+SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTostring(struct soap *, char **const *, const char *, const char *);
+SOAP_FMAC3 char ***SOAP_FMAC4 soap_get_PointerTostring(struct soap *, char ***, const char *, const char *);
 #endif
 
 #ifndef SOAP_TYPE__QName_DEFINED
 #define SOAP_TYPE__QName_DEFINED
 
-inline void soap_default__QName(struct soap* soap, char** a)
+inline void soap_default__QName(struct soap *soap, char **a)
 {
     (void)soap; /* appease -Wall -Werror */
 #ifdef SOAP_DEFAULT__QName
     *a = SOAP_DEFAULT__QName;
 #else
-    *a = (char*)nullptr;
+    *a = (char *)nullptr;
 #endif
 }
-SOAP_FMAC3 void SOAP_FMAC4 soap_serialize__QName(struct soap*, char* const*);
+SOAP_FMAC3 void SOAP_FMAC4 soap_serialize__QName(struct soap *, char *const *);
 
 #define soap__QName2s(soap, a) soap_QName2s(soap, (a))
-SOAP_FMAC3 int SOAP_FMAC4 soap_out__QName(struct soap*, const char*, int, char* const*, const char*);
+SOAP_FMAC3 int SOAP_FMAC4 soap_out__QName(struct soap *, const char *, int, char *const *, const char *);
 
-#define soap_s2_QName(soap, s, a) soap_s2QName((soap), (s), (char**)(a), 0, -1, NULL)
-SOAP_FMAC3 char ** SOAP_FMAC4 soap_in__QName(struct soap*, const char*, char**, const char*);
+#define soap_s2_QName(soap, s, a) soap_s2QName((soap), (s), (char **)(a), 0, -1, NULL)
+SOAP_FMAC3 char **SOAP_FMAC4 soap_in__QName(struct soap *, const char *, char **, const char *);
 
 #define soap_instantiate__QName soap_instantiate_string
 
-
 #define soap_new__QName soap_new_string
 
-SOAP_FMAC3 int SOAP_FMAC4 soap_put__QName(struct soap*, char* const*, const char*, const char*);
+SOAP_FMAC3 int SOAP_FMAC4 soap_put__QName(struct soap *, char *const *, const char *, const char *);
 
-inline int soap_write__QName(struct soap* soap, char* const* p)
+inline int soap_write__QName(struct soap *soap, char *const *p)
 {
     soap_free_temp(soap);
     if (p)
@@ -942,24 +1016,26 @@ inline int soap_write__QName(struct soap* soap, char* const* p)
     return SOAP_OK;
 }
 
-inline int soap_PUT__QName(struct soap* soap, const char* URL, char* const* p)
+inline int soap_PUT__QName(struct soap *soap, const char *URL, char *const *p)
 {
     soap_free_temp(soap);
-    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || soap_put__QName(soap, p, "QName", "") || soap_end_send(soap) || soap_recv_empty_response(soap))
+    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || soap_put__QName(soap, p, "QName", "") ||
+        soap_end_send(soap) || soap_recv_empty_response(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_send__QName(struct soap* soap, const char* URL, char* const* p)
+inline int soap_POST_send__QName(struct soap *soap, const char *URL, char *const *p)
 {
     soap_free_temp(soap);
-    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || soap_put__QName(soap, p, "QName", "") || soap_end_send(soap))
+    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || soap_put__QName(soap, p, "QName", "") ||
+        soap_end_send(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
-SOAP_FMAC3 char** SOAP_FMAC4 soap_get__QName(struct soap*, char**, const char*, const char*);
+SOAP_FMAC3 char **SOAP_FMAC4 soap_get__QName(struct soap *, char **, const char *, const char *);
 
-inline int soap_read__QName(struct soap* soap, char** p)
+inline int soap_read__QName(struct soap *soap, char **p)
 {
     if (p)
     {
@@ -969,14 +1045,14 @@ inline int soap_read__QName(struct soap* soap, char** p)
     return SOAP_OK;
 }
 
-inline int soap_GET__QName(struct soap* soap, const char* URL, char** p)
+inline int soap_GET__QName(struct soap *soap, const char *URL, char **p)
 {
     if (soap_GET(soap, URL, nullptr) || soap_read__QName(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_recv__QName(struct soap* soap, char** p)
+inline int soap_POST_recv__QName(struct soap *soap, char **p)
 {
     if (soap_read__QName(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
@@ -991,27 +1067,27 @@ inline int soap_POST_recv__QName(struct soap* soap, char** p)
 #ifndef SOAP_TYPE_string_DEFINED
 #define SOAP_TYPE_string_DEFINED
 
-inline void soap_default_string(struct soap* soap, char** a)
+inline void soap_default_string(struct soap *soap, char **a)
 {
     (void)soap; /* appease -Wall -Werror */
 #ifdef SOAP_DEFAULT_string
     *a = SOAP_DEFAULT_string;
 #else
-    *a = (char*)nullptr;
+    *a = (char *)nullptr;
 #endif
 }
-SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_string(struct soap*, char* const*);
+SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_string(struct soap *, char *const *);
 
 #define soap_string2s(soap, a) (a)
-SOAP_FMAC3 int SOAP_FMAC4 soap_out_string(struct soap*, const char*, int, char* const*, const char*);
+SOAP_FMAC3 int SOAP_FMAC4 soap_out_string(struct soap *, const char *, int, char *const *, const char *);
 
-#define soap_s2string(soap, s, a) soap_s2char((soap), (s), (char**)(a), 1, 0, -1, NULL)
-SOAP_FMAC3 char ** SOAP_FMAC4 soap_in_string(struct soap*, const char*, char**, const char*);
+#define soap_s2string(soap, s, a) soap_s2char((soap), (s), (char **)(a), 1, 0, -1, NULL)
+SOAP_FMAC3 char **SOAP_FMAC4 soap_in_string(struct soap *, const char *, char **, const char *);
 
-SOAP_FMAC3 char ** SOAP_FMAC4 soap_new_string(struct soap* soap, int n = -1);
-SOAP_FMAC3 int SOAP_FMAC4 soap_put_string(struct soap*, char* const*, const char*, const char*);
+SOAP_FMAC3 char **SOAP_FMAC4 soap_new_string(struct soap *soap, int n = -1);
+SOAP_FMAC3 int SOAP_FMAC4 soap_put_string(struct soap *, char *const *, const char *, const char *);
 
-inline int soap_write_string(struct soap* soap, char* const* p)
+inline int soap_write_string(struct soap *soap, char *const *p)
 {
     soap_free_temp(soap);
     if (p)
@@ -1022,24 +1098,26 @@ inline int soap_write_string(struct soap* soap, char* const* p)
     return SOAP_OK;
 }
 
-inline int soap_PUT_string(struct soap* soap, const char* URL, char* const* p)
+inline int soap_PUT_string(struct soap *soap, const char *URL, char *const *p)
 {
     soap_free_temp(soap);
-    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || soap_put_string(soap, p, "string", "") || soap_end_send(soap) || soap_recv_empty_response(soap))
+    if (soap_PUT(soap, URL, nullptr, "text/xml; charset=utf-8") || soap_put_string(soap, p, "string", "") ||
+        soap_end_send(soap) || soap_recv_empty_response(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_send_string(struct soap* soap, const char* URL, char* const* p)
+inline int soap_POST_send_string(struct soap *soap, const char *URL, char *const *p)
 {
     soap_free_temp(soap);
-    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || soap_put_string(soap, p, "string", "") || soap_end_send(soap))
+    if (soap_POST(soap, URL, nullptr, "text/xml; charset=utf-8") || soap_put_string(soap, p, "string", "") ||
+        soap_end_send(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
-SOAP_FMAC3 char** SOAP_FMAC4 soap_get_string(struct soap*, char**, const char*, const char*);
+SOAP_FMAC3 char **SOAP_FMAC4 soap_get_string(struct soap *, char **, const char *, const char *);
 
-inline int soap_read_string(struct soap* soap, char** p)
+inline int soap_read_string(struct soap *soap, char **p)
 {
     if (p)
     {
@@ -1049,14 +1127,14 @@ inline int soap_read_string(struct soap* soap, char** p)
     return SOAP_OK;
 }
 
-inline int soap_GET_string(struct soap* soap, const char* URL, char** p)
+inline int soap_GET_string(struct soap *soap, const char *URL, char **p)
 {
     if (soap_GET(soap, URL, nullptr) || soap_read_string(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);
     return SOAP_OK;
 }
 
-inline int soap_POST_recv_string(struct soap* soap, char** p)
+inline int soap_POST_recv_string(struct soap *soap, char **p)
 {
     if (soap_read_string(soap, p) || soap_closesock(soap))
         return soap_closesock(soap);

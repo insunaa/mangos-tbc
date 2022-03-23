@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -26,31 +26,35 @@ EndScriptData */
 
 enum
 {
-    SAY_PHASE_2                     = -1036002,
-    SAY_PHASE_3                     = -1036003,
+    SAY_PHASE_2 = -1036002,
+    SAY_PHASE_3 = -1036003,
 
-    // EQUIP_ID_SWORD               = 2179,                 // default equipment, not used in code
-    EQUIP_ID_AXE                    = 2183,
-    EQUIP_ID_HAMMER                 = 10756,
+    // EQUIP_ID_SWORD               = 2179,                 // default equipment,
+    // not used in code
+    EQUIP_ID_AXE = 2183,
+    EQUIP_ID_HAMMER = 10756,
 
-    SPELL_NIBLE_REFLEXES            = 6433,                 // removed after phase 1
-    SPELL_SMITE_SLAM                = 6435,                 // only casted in phase 3
-    SPELL_SMITE_STOMP               = 6432,
-    SPELL_SMITE_HAMMER              = 6436,                 // unclear, not casted in sniff
-    SPELL_THRASH                    = 12787,                // only casted in phase 2; unclear, 3391 directly casted in sniff
+    SPELL_NIBLE_REFLEXES = 6433, // removed after phase 1
+    SPELL_SMITE_SLAM = 6435,     // only casted in phase 3
+    SPELL_SMITE_STOMP = 6432,
+    SPELL_SMITE_HAMMER = 6436, // unclear, not casted in sniff
+    SPELL_THRASH = 12787,      // only casted in phase 2; unclear, 3391 directly casted in sniff
 
-    PHASE_1                         = 1,
-    PHASE_2                         = 2,
-    PHASE_3                         = 3,
-    PHASE_EQUIP_NULL                = 4,
-    PHASE_EQUIP_START               = 5,
-    PHASE_EQUIP_PROCESS             = 6,
-    PHASE_EQUIP_END                 = 7,
+    PHASE_1 = 1,
+    PHASE_2 = 2,
+    PHASE_3 = 3,
+    PHASE_EQUIP_NULL = 4,
+    PHASE_EQUIP_START = 5,
+    PHASE_EQUIP_PROCESS = 6,
+    PHASE_EQUIP_END = 7,
 };
 
 struct boss_mr_smiteAI : public ScriptedAI
 {
-    boss_mr_smiteAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_mr_smiteAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiPhase;
     uint32 m_uiEquipTimer;
@@ -68,7 +72,7 @@ struct boss_mr_smiteAI : public ScriptedAI
         SetEquipmentSlots(true);
     }
 
-    void AttackedBy(Unit* pAttacker) override
+    void AttackedBy(Unit *pAttacker) override
     {
         if (m_creature->GetVictim())
             return;
@@ -79,7 +83,7 @@ struct boss_mr_smiteAI : public ScriptedAI
         AttackStart(pAttacker);
     }
 
-    void AttackStart(Unit* pWho) override
+    void AttackStart(Unit *pWho) override
     {
         if (m_uiPhase > PHASE_3)
             return;
@@ -107,12 +111,12 @@ struct boss_mr_smiteAI : public ScriptedAI
 
     void PhaseEquipStart()
     {
-        ScriptedInstance* pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
+        ScriptedInstance *pInstance = (ScriptedInstance *)m_creature->GetInstanceData();
 
         if (!pInstance)
             return;
 
-        GameObject* pChest = pInstance->GetSingleGameObjectFromStorage(GO_SMITE_CHEST);
+        GameObject *pChest = pInstance->GetSingleGameObjectFromStorage(GO_SMITE_CHEST);
 
         if (!pChest)
             return;
@@ -146,7 +150,7 @@ struct boss_mr_smiteAI : public ScriptedAI
     void PhaseEquipEnd()
     {
         // We don't have GetVictim, so select from threat list
-        Unit* pVictim = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0);
+        Unit *pVictim = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0);
 
         if (!pVictim)
         {
@@ -181,15 +185,15 @@ struct boss_mr_smiteAI : public ScriptedAI
 
             switch (m_uiPhase)
             {
-                case PHASE_EQUIP_START:
-                    PhaseEquipStart();
-                    break;
-                case PHASE_EQUIP_PROCESS:
-                    PhaseEquipProcess();
-                    break;
-                case PHASE_EQUIP_END:
-                    PhaseEquipEnd();
-                    break;
+            case PHASE_EQUIP_START:
+                PhaseEquipStart();
+                break;
+            case PHASE_EQUIP_PROCESS:
+                PhaseEquipProcess();
+                break;
+            case PHASE_EQUIP_END:
+                PhaseEquipEnd();
+                break;
             }
 
             return;
@@ -198,68 +202,65 @@ struct boss_mr_smiteAI : public ScriptedAI
         // the normal combat phases
         switch (m_uiPhase)
         {
-            case PHASE_1:
+        case PHASE_1: {
+            if (m_creature->GetHealthPercent() < 66.0f)
             {
-                if (m_creature->GetHealthPercent() < 66.0f)
+                if (DoCastSpellIfCan(m_creature, SPELL_SMITE_STOMP) == CAST_OK)
                 {
-                    if (DoCastSpellIfCan(m_creature, SPELL_SMITE_STOMP) == CAST_OK)
-                    {
-                        DoScriptText(m_creature->GetHealthPercent() < 33.0f ? SAY_PHASE_3 : SAY_PHASE_2, m_creature);
-                        m_uiPhase = PHASE_EQUIP_START;
-                        m_uiEquipTimer = 2500;
+                    DoScriptText(m_creature->GetHealthPercent() < 33.0f ? SAY_PHASE_3 : SAY_PHASE_2, m_creature);
+                    m_uiPhase = PHASE_EQUIP_START;
+                    m_uiEquipTimer = 2500;
 
-                        // will clear GetVictim (m_attacking)
-                        m_creature->AttackStop(true);
-                        m_creature->RemoveAurasDueToSpell(SPELL_NIBLE_REFLEXES);
-                    }
-                    return;
+                    // will clear GetVictim (m_attacking)
+                    m_creature->AttackStop(true);
+                    m_creature->RemoveAurasDueToSpell(SPELL_NIBLE_REFLEXES);
                 }
-                break;
+                return;
             }
-            case PHASE_2:
+            break;
+        }
+        case PHASE_2: {
+            if (m_creature->GetHealthPercent() < 33.0f)
             {
-                if (m_creature->GetHealthPercent() < 33.0f)
+                if (DoCastSpellIfCan(m_creature, SPELL_SMITE_STOMP) == CAST_OK)
                 {
-                    if (DoCastSpellIfCan(m_creature, SPELL_SMITE_STOMP) == CAST_OK)
-                    {
-                        DoScriptText(SAY_PHASE_3, m_creature);
-                        m_uiPhase = PHASE_EQUIP_START;
-                        m_uiEquipTimer = 2500;
+                    DoScriptText(SAY_PHASE_3, m_creature);
+                    m_uiPhase = PHASE_EQUIP_START;
+                    m_uiEquipTimer = 2500;
 
-                        // will clear GetVictim (m_attacking)
-                        m_creature->AttackStop(true);
-                        m_creature->RemoveAurasDueToSpell(SPELL_THRASH);
-                    }
-                    return;
+                    // will clear GetVictim (m_attacking)
+                    m_creature->AttackStop(true);
+                    m_creature->RemoveAurasDueToSpell(SPELL_THRASH);
                 }
-                break;
+                return;
             }
-            case PHASE_3:
+            break;
+        }
+        case PHASE_3: {
+            if (m_uiSlamTimer < uiDiff)
             {
-                if (m_uiSlamTimer < uiDiff)
-                {
-                    if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SMITE_SLAM) == CAST_OK)
-                        m_uiSlamTimer = 11000;
-                }
-                else
-                    m_uiSlamTimer -= uiDiff;
-
-                break;
+                if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SMITE_SLAM) == CAST_OK)
+                    m_uiSlamTimer = 11000;
             }
+            else
+                m_uiSlamTimer -= uiDiff;
+
+            break;
+        }
         }
 
         DoMeleeAttackIfReady();
     }
 };
 
-UnitAI* GetAI_boss_mr_smite(Creature* pCreature)
+UnitAI *GetAI_boss_mr_smite(Creature *pCreature)
 {
     return new boss_mr_smiteAI(pCreature);
 }
 
 void AddSC_boss_mr_smite()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_mr_smite";
     pNewScript->GetAI = &GetAI_boss_mr_smite;
     pNewScript->RegisterSelf();

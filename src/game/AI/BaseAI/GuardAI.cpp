@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +18,12 @@
  */
 
 #include "GuardAI.h"
+
 #include "Entities/Creature.h"
 #include "Entities/Player.h"
 #include "World/World.h"
 
-int GuardAI::Permissible(const Creature* creature)
+int GuardAI::Permissible(const Creature *creature)
 {
     if (creature->IsGuard())
         return PERMIT_BASE_SPECIAL;
@@ -29,14 +31,16 @@ int GuardAI::Permissible(const Creature* creature)
     return PERMIT_BASE_NO;
 }
 
-GuardAI::GuardAI(Creature* creature) : CreatureAI(creature)
+GuardAI::GuardAI(Creature *creature) : CreatureAI(creature)
 {
 }
 
-void GuardAI::MoveInLineOfSight(Unit* who)
+void GuardAI::MoveInLineOfSight(Unit *who)
 {
     // Ignore Z for flying creatures
-    if (!m_creature->CanFly() && who->IsFlying() && m_creature->GetDistanceZ(who) > (IsRangedUnit() ? CREATURE_Z_ATTACK_RANGE_RANGED : CREATURE_Z_ATTACK_RANGE_MELEE))
+    if (!m_creature->CanFly() && who->IsFlying() &&
+        m_creature->GetDistanceZ(who) >
+            (IsRangedUnit() ? CREATURE_Z_ATTACK_RANGE_RANGED : CREATURE_Z_ATTACK_RANGE_MELEE))
         return;
 
     if (m_creature->GetVictim())
@@ -44,21 +48,25 @@ void GuardAI::MoveInLineOfSight(Unit* who)
 
     if (who->IsInCombat() && m_creature->CanAssist(who))
     {
-        Unit* victim = who->getAttackerForHelper();
+        Unit *victim = who->getAttackerForHelper();
 
         if (!victim)
             return;
 
-        if (m_creature->CanInitiateAttack() && m_creature->CanAttackOnSight(victim) && victim->isInAccessablePlaceFor(m_creature))
+        if (m_creature->CanInitiateAttack() && m_creature->CanAttackOnSight(victim) &&
+            victim->isInAccessablePlaceFor(m_creature))
         {
             if (who->GetTypeId() == TYPEID_PLAYER && victim->GetTypeId() != TYPEID_PLAYER)
             {
-                if (m_creature->IsWithinDistInMap(who, 5.0) && m_creature->IsWithinDistInMap(victim, 10.0) && m_creature->IsWithinLOSInMap(victim, true))
+                if (m_creature->IsWithinDistInMap(who, 5.0) && m_creature->IsWithinDistInMap(victim, 10.0) &&
+                    m_creature->IsWithinLOSInMap(victim, true))
                 {
                     AttackStart(victim);
                 }
             }
-            else if ((who->GetTypeId() == TYPEID_PLAYER && victim->GetTypeId() == TYPEID_PLAYER) || (victim->GetObjectGuid().IsCreature() && ((Creature*)victim)->IsPet() && ((Creature*)victim)->GetOwnerGuid().IsPlayer()))
+            else if ((who->GetTypeId() == TYPEID_PLAYER && victim->GetTypeId() == TYPEID_PLAYER) ||
+                     (victim->GetObjectGuid().IsCreature() && ((Creature *)victim)->IsPet() &&
+                      ((Creature *)victim)->GetOwnerGuid().IsPlayer()))
             {
                 if (m_creature->IsWithinDistInMap(who, 30.0) && m_creature->IsWithinLOSInMap(who, true))
                 {
@@ -67,7 +75,7 @@ void GuardAI::MoveInLineOfSight(Unit* who)
             }
             else if (who->GetObjectGuid().IsCreature())
             {
-                if (((Creature*)who)->IsGuard() || ((Creature*)who)->IsCivilian())
+                if (((Creature *)who)->IsGuard() || ((Creature *)who)->IsCivilian())
                 {
                     if (m_creature->IsWithinDistInMap(who, 20.0) && m_creature->IsWithinLOSInMap(who, true))
                     {
@@ -79,7 +87,8 @@ void GuardAI::MoveInLineOfSight(Unit* who)
     }
     else
     {
-        if (m_creature->CanInitiateAttack() && m_creature->CanAttackOnSight(who) && who->isInAccessablePlaceFor(m_creature))
+        if (m_creature->CanInitiateAttack() && m_creature->CanAttackOnSight(who) &&
+            who->isInAccessablePlaceFor(m_creature))
         {
             float attackRadius = m_creature->GetAttackDistance(who);
             if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who, true))

@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,21 +19,16 @@
 
 #include "ObjectVisibility.h"
 
-#include "Util.h"
-#include "Entities/Player.h"
 #include "Entities/GameObject.h"
+#include "Entities/Player.h"
+#include "Util.h"
 
-constexpr float VisibilityDistances[AsUnderlyingType(VisibilityDistanceType::Max)] =
-{
-    DEFAULT_VISIBILITY_DISTANCE,
-    VISIBILITY_DISTANCE_TINY,
-    VISIBILITY_DISTANCE_SMALL,
-    VISIBILITY_DISTANCE_LARGE,
-    VISIBILITY_DISTANCE_GIGANTIC,
-    MAX_VISIBILITY_DISTANCE
-};
+constexpr float VisibilityDistances[AsUnderlyingType(VisibilityDistanceType::Max)] = {
+    DEFAULT_VISIBILITY_DISTANCE, VISIBILITY_DISTANCE_TINY,     VISIBILITY_DISTANCE_SMALL,
+    VISIBILITY_DISTANCE_LARGE,   VISIBILITY_DISTANCE_GIGANTIC, MAX_VISIBILITY_DISTANCE};
 
-VisibilityData::VisibilityData(WorldObject* owner) : m_visibilityDistanceOverride(0.f), m_invisibilityMask(0), m_detectInvisibilityMask(0), m_owner(owner)
+VisibilityData::VisibilityData(WorldObject *owner)
+    : m_visibilityDistanceOverride(0.f), m_invisibilityMask(0), m_detectInvisibilityMask(0), m_owner(owner)
 {
     memset(m_invisibilityValues, 0, sizeof(m_invisibilityValues));
     memset(m_invisibilityDetectValues, 0, sizeof(m_invisibilityDetectValues));
@@ -58,7 +54,7 @@ float VisibilityData::GetVisibilityDistance() const
         return m_owner->GetMap()->GetVisibilityDistance();
 }
 
-float VisibilityData::GetVisibilityDistanceFor(WorldObject* obj) const
+float VisibilityData::GetVisibilityDistanceFor(WorldObject *obj) const
 {
     if (IsVisibilityOverridden() && obj->GetTypeId() == TYPEID_PLAYER)
         return m_visibilityDistanceOverride;
@@ -66,7 +62,7 @@ float VisibilityData::GetVisibilityDistanceFor(WorldObject* obj) const
         return obj->GetVisibilityData().GetVisibilityDistance();
 }
 
-bool VisibilityData::CanDetectInvisibilityOf(WorldObject const* target) const
+bool VisibilityData::CanDetectInvisibilityOf(WorldObject const *target) const
 {
     if (uint32 mask = (GetInvisibilityDetectMask() & target->GetVisibilityData().GetInvisibilityMask()))
     {
@@ -78,7 +74,8 @@ bool VisibilityData::CanDetectInvisibilityOf(WorldObject const* target) const
             // find invisibility level
             int32 invLevel = GetInvisibilityValue(i);
 
-            // find invisibility detect level - this is taken from controlling player or self
+            // find invisibility detect level - this is taken from controlling
+            // player or self
             int32 detectLevel = GetInvisibilityDetectValue(i);
 
             if (invLevel <= detectLevel)
@@ -93,12 +90,13 @@ uint32 VisibilityData::GetInvisibilityDetectMask() const
 {
     if (m_owner->isType(TYPEMASK_UNIT))
     {
-        Unit* owner = static_cast<Unit*>(m_owner);
+        Unit *owner = static_cast<Unit *>(m_owner);
         if (owner->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
         {
-            Player const* controller = owner->GetControllingPlayer();
+            Player const *controller = owner->GetControllingPlayer();
             if (controller)
-                return controller->GetVisibilityData().m_detectInvisibilityMask; // directly access value without bypass
+                return controller->GetVisibilityData().m_detectInvisibilityMask; // directly access value without
+                                                                                 // bypass
         }
     }
     return m_detectInvisibilityMask;
@@ -134,12 +132,13 @@ int32 VisibilityData::GetInvisibilityDetectValue(uint32 index) const
 {
     if (m_owner->isType(TYPEMASK_UNIT))
     {
-        Unit* owner = static_cast<Unit*>(m_owner);
+        Unit *owner = static_cast<Unit *>(m_owner);
         if (owner->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
         {
-            Player const* controller = owner->GetControllingPlayer();
+            Player const *controller = owner->GetControllingPlayer();
             if (controller)
-                return controller->GetVisibilityData().m_invisibilityDetectValues[index]; // directly access value without bypass
+                return controller->GetVisibilityData().m_invisibilityDetectValues[index]; // directly access value
+                                                                                          // without bypass
         }
     }
     return m_invisibilityDetectValues[index];
@@ -154,7 +153,7 @@ void VisibilityData::SetStealthMask(uint32 index, bool apply)
         m_stealthMask &= ~(1 << index);
 }
 
-float VisibilityData::GetStealthVisibilityDistance(Unit const* target, bool alert) const
+float VisibilityData::GetStealthVisibilityDistance(Unit const *target, bool alert) const
 {
     // Starting points
     int32 detectionValue = 30;
@@ -162,13 +161,13 @@ float VisibilityData::GetStealthVisibilityDistance(Unit const* target, bool aler
     // Level difference: 5 point / level, starting from level 1.
     // There may be spells for this and the starting points too, but
     // not in the DBCs of the client.
-    detectionValue += int32(target->GetLevelForTarget(dynamic_cast<Unit*>(m_owner)) - 1) * 5;
+    detectionValue += int32(target->GetLevelForTarget(dynamic_cast<Unit *>(m_owner)) - 1) * 5;
 
     // Apply modifiers
     detectionValue += target->GetVisibilityData().GetStealthDetectionStrength(STEALTH_UNIT);
     if (m_owner->GetTypeId() == TYPEID_GAMEOBJECT) // trap case
-        if (Unit* owner = static_cast<GameObject*>(m_owner)->GetOwner())
-            detectionValue -= int32(owner->GetLevelForTarget(dynamic_cast<Unit*>(m_owner)) - 1) * 5;
+        if (Unit *owner = static_cast<GameObject *>(m_owner)->GetOwner())
+            detectionValue -= int32(owner->GetLevelForTarget(dynamic_cast<Unit *>(m_owner)) - 1) * 5;
 
     detectionValue -= GetStealthStrength(STEALTH_UNIT);
 
@@ -179,7 +178,8 @@ float VisibilityData::GetStealthVisibilityDistance(Unit const* target, bool aler
     if (target->GetTypeId() == TYPEID_PLAYER && visibilityRange > MAX_PLAYER_STEALTH_DETECT_RANGE)
         visibilityRange = MAX_PLAYER_STEALTH_DETECT_RANGE;
 
-    // When checking for alert state, look 8% further, and then 1.5 yards more than that.
+    // When checking for alert state, look 8% further, and then 1.5 yards more
+    // than that.
     if (alert)
         visibilityRange += (visibilityRange * 0.08f) + 1.5f;
 

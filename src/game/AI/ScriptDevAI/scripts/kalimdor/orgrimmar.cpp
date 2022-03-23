@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -35,10 +35,10 @@ enum
     GOSSIP_HEAD_OG = 6024,
 };
 
-bool GossipHello_npc_overlord_runthalak(Player* player, Creature* creature)
+bool GossipHello_npc_overlord_runthalak(Player *player, Creature *creature)
 {
     uint32 gossipId = creature->GetCreatureInfo()->GossipMenuId;
-    if (GameObject* go = GetClosestGameObjectWithEntry(creature, GO_HEAD_OF_NEFARIAN_OG, 100.f))
+    if (GameObject *go = GetClosestGameObjectWithEntry(creature, GO_HEAD_OF_NEFARIAN_OG, 100.f))
         if (go->IsSpawned())
             gossipId = GOSSIP_HEAD_OG;
 
@@ -47,10 +47,10 @@ bool GossipHello_npc_overlord_runthalak(Player* player, Creature* creature)
     return true;
 }
 
-bool GossipHello_npc_high_overlord_saurfang(Player* player, Creature* creature)
+bool GossipHello_npc_high_overlord_saurfang(Player *player, Creature *creature)
 {
     uint32 gossipId = creature->GetCreatureInfo()->GossipMenuId;
-    if (GameObject* go = GetClosestGameObjectWithEntry(creature, GO_HEAD_OF_ONYXIA_OG, 100.f))
+    if (GameObject *go = GetClosestGameObjectWithEntry(creature, GO_HEAD_OF_ONYXIA_OG, 100.f))
         if (go->IsSpawned())
             gossipId = GOSSIP_HEAD_OG;
 
@@ -61,7 +61,7 @@ bool GossipHello_npc_high_overlord_saurfang(Player* player, Creature* creature)
 
 void AddSC_orgrimmar()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "npc_overlord_runthalak";
     pNewScript->pGossipHello = &GossipHello_npc_overlord_runthalak;
     pNewScript->RegisterSelf();

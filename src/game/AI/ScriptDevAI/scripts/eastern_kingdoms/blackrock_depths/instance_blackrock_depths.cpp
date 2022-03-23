@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -24,21 +24,12 @@ EndScriptData */
 #include "AI/ScriptDevAI/include/sc_common.h"
 #include "blackrock_depths.h"
 
-instance_blackrock_depths::instance_blackrock_depths(Map* pMap) : ScriptedInstance(pMap),
-    m_bIsBarDoorOpen(false),
-    m_uiBarAleCount(0),
-    m_uiPatronEmoteTimer(2000),
-    m_uiBrokenKegs(0),
-    m_uiPatrolTimer(0),
-    m_uiStolenAles(0),
-    m_uiDagranTimer(0),
-    m_uiCofferDoorsOpened(0),
-    m_uiDwarfRound(0),
+instance_blackrock_depths::instance_blackrock_depths(Map *pMap)
+    : ScriptedInstance(pMap), m_bIsBarDoorOpen(false), m_uiBarAleCount(0), m_uiPatronEmoteTimer(2000),
+      m_uiBrokenKegs(0), m_uiPatrolTimer(0), m_uiStolenAles(0), m_uiDagranTimer(0), m_uiCofferDoorsOpened(0),
+      m_uiDwarfRound(0),
 
-    m_uiDwarfFightTimer(0),
-    m_fArenaCenterX(0.0f),
-    m_fArenaCenterY(0.0f),
-    m_fArenaCenterZ(0.0f)
+      m_uiDwarfFightTimer(0), m_fArenaCenterX(0.0f), m_fArenaCenterY(0.0f), m_fArenaCenterZ(0.0f)
 {
     Initialize();
 }
@@ -48,144 +39,150 @@ void instance_blackrock_depths::Initialize()
     memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 }
 
-void instance_blackrock_depths::OnCreatureCreate(Creature* pCreature)
+void instance_blackrock_depths::OnCreatureCreate(Creature *pCreature)
 {
     switch (pCreature->GetEntry())
     {
-        case NPC_PRINCESS:
-            // replace the princess if required
-            if (CanReplacePrincess())
-                pCreature->UpdateEntry(NPC_PRIESTESS);
-        // no break;
-        case NPC_EMPEROR:
-        case NPC_MAGMUS:
-        case NPC_PHALANX:
-        case NPC_PLUGGER_SPAZZRING:
-        case NPC_HATEREL:
-        case NPC_ANGERREL:
-        case NPC_VILEREL:
-        case NPC_GLOOMREL:
-        case NPC_SEETHREL:
-        case NPC_DOOMREL:
-        case NPC_DOPEREL:
-        case NPC_SHILL:
-        case NPC_CREST:
-        case NPC_JAZ:
-        case NPC_TOBIAS:
-        case NPC_DUGHAL:
-        case NPC_LOREGRAIN:
-        case NPC_RIBBLY_SCREWSPIGGOT:
-        case NPC_COREN_DIREBREW:
+    case NPC_PRINCESS:
+        // replace the princess if required
+        if (CanReplacePrincess())
+            pCreature->UpdateEntry(NPC_PRIESTESS);
+    // no break;
+    case NPC_EMPEROR:
+    case NPC_MAGMUS:
+    case NPC_PHALANX:
+    case NPC_PLUGGER_SPAZZRING:
+    case NPC_HATEREL:
+    case NPC_ANGERREL:
+    case NPC_VILEREL:
+    case NPC_GLOOMREL:
+    case NPC_SEETHREL:
+    case NPC_DOOMREL:
+    case NPC_DOPEREL:
+    case NPC_SHILL:
+    case NPC_CREST:
+    case NPC_JAZ:
+    case NPC_TOBIAS:
+    case NPC_DUGHAL:
+    case NPC_LOREGRAIN:
+    case NPC_RIBBLY_SCREWSPIGGOT:
+    case NPC_COREN_DIREBREW:
+        m_npcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
+        break;
+    case NPC_WARBRINGER_CONST:
+        // Golems not in the Relict Vault?
+        if (std::abs(pCreature->GetPositionZ() - aVaultPositions[2]) > 1.0f ||
+            !pCreature->IsWithinDist2d(aVaultPositions[0], aVaultPositions[1], 20.0f))
+            break;
+        // Golems in Relict Vault need to have a stoned aura, set manually to
+        // prevent reapply when reached home
+        pCreature->CastSpell(pCreature, SPELL_STONED, TRIGGERED_OLD_TRIGGERED);
+    // Store the Relict Vault Golems into m_sVaultNpcGuids
+    case NPC_WATCHER_DOOMGRIP:
+        m_sVaultNpcGuids.insert(pCreature->GetObjectGuid());
+        break;
+    // Arena crowd
+    case NPC_ARENA_SPECTATOR:
+    case NPC_SHADOWFORGE_PEASANT:
+    case NPC_SHADOWFORGE_CITIZEN:
+    case NPC_SHADOWFORGE_SENATOR:
+    case NPC_ANVILRAGE_SOLDIER:
+    case NPC_ANVILRAGE_MEDIC:
+    case NPC_ANVILRAGE_OFFICER:
+        if (pCreature->GetPositionZ() < aArenaCrowdVolume.m_fCenterZ ||
+            pCreature->GetPositionZ() > aArenaCrowdVolume.m_fCenterZ + aArenaCrowdVolume.m_uiHeight ||
+            !pCreature->IsWithinDist2d(aArenaCrowdVolume.m_fCenterX, aArenaCrowdVolume.m_fCenterY,
+                                       aArenaCrowdVolume.m_uiRadius))
+            break;
+        m_sArenaCrowdNpcGuids.insert(pCreature->GetObjectGuid());
+        if (m_auiEncounter[0] == DONE)
+            pCreature->SetFactionTemporary(FACTION_ARENA_NEUTRAL, TEMPFACTION_RESTORE_RESPAWN);
+        break;
+    // Grim Guzzler bar crowd
+    case NPC_GRIM_PATRON:
+    case NPC_GUZZLING_PATRON:
+    case NPC_HAMMERED_PATRON:
+        m_sBarPatronNpcGuids.insert(pCreature->GetObjectGuid());
+        if (m_auiEncounter[11] == DONE)
+        {
+            pCreature->SetFactionTemporary(FACTION_DARK_IRON, TEMPFACTION_RESTORE_RESPAWN);
+            pCreature->SetStandState(UNIT_STAND_STATE_STAND);
+        }
+        break;
+    case NPC_PRIVATE_ROCKNOT:
+    case NPC_MISTRESS_NAGMARA:
+        if (m_auiEncounter[11] == DONE)
+            pCreature->ForcedDespawn();
+        else
             m_npcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
-            break;
-        case NPC_WARBRINGER_CONST:
-            // Golems not in the Relict Vault?
-            if (std::abs(pCreature->GetPositionZ() - aVaultPositions[2]) > 1.0f || !pCreature->IsWithinDist2d(aVaultPositions[0], aVaultPositions[1], 20.0f))
-                break;
-            // Golems in Relict Vault need to have a stoned aura, set manually to prevent reapply when reached home
-            pCreature->CastSpell(pCreature, SPELL_STONED, TRIGGERED_OLD_TRIGGERED);
-        // Store the Relict Vault Golems into m_sVaultNpcGuids
-        case NPC_WATCHER_DOOMGRIP:
-            m_sVaultNpcGuids.insert(pCreature->GetObjectGuid());
-            break;
-        // Arena crowd
-        case NPC_ARENA_SPECTATOR:
-        case NPC_SHADOWFORGE_PEASANT:
-        case NPC_SHADOWFORGE_CITIZEN:
-        case NPC_SHADOWFORGE_SENATOR:
-        case NPC_ANVILRAGE_SOLDIER:
-        case NPC_ANVILRAGE_MEDIC:
-        case NPC_ANVILRAGE_OFFICER:
-            if (pCreature->GetPositionZ() < aArenaCrowdVolume.m_fCenterZ || pCreature->GetPositionZ() > aArenaCrowdVolume.m_fCenterZ + aArenaCrowdVolume.m_uiHeight ||
-                    !pCreature->IsWithinDist2d(aArenaCrowdVolume.m_fCenterX, aArenaCrowdVolume.m_fCenterY, aArenaCrowdVolume.m_uiRadius))
-                break;
-            m_sArenaCrowdNpcGuids.insert(pCreature->GetObjectGuid());
-            if (m_auiEncounter[0] == DONE)
-                pCreature->SetFactionTemporary(FACTION_ARENA_NEUTRAL, TEMPFACTION_RESTORE_RESPAWN);
-            break;
-        // Grim Guzzler bar crowd
-        case NPC_GRIM_PATRON:
-        case NPC_GUZZLING_PATRON:
-        case NPC_HAMMERED_PATRON:
-            m_sBarPatronNpcGuids.insert(pCreature->GetObjectGuid());
-            if (m_auiEncounter[11] == DONE)
-            {
-                pCreature->SetFactionTemporary(FACTION_DARK_IRON, TEMPFACTION_RESTORE_RESPAWN);
-                pCreature->SetStandState(UNIT_STAND_STATE_STAND);
-            }
-            break;
-        case NPC_PRIVATE_ROCKNOT:
-        case NPC_MISTRESS_NAGMARA:
-            if (m_auiEncounter[11] == DONE)
-                pCreature->ForcedDespawn();
-            else
-                m_npcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
-            break;
+        break;
     }
 }
 
-void instance_blackrock_depths::OnObjectCreate(GameObject* pGo)
+void instance_blackrock_depths::OnObjectCreate(GameObject *pGo)
 {
     switch (pGo->GetEntry())
     {
-        case GO_ARENA_1:
-        case GO_ARENA_2:
-        case GO_ARENA_3:
-        case GO_ARENA_4:
-        case GO_SHADOW_LOCK:
-        case GO_SHADOW_MECHANISM:
-        case GO_SHADOW_GIANT_DOOR:
-        case GO_SHADOW_DUMMY:
-        case GO_BAR_KEG_SHOT:
-        case GO_BAR_KEG_TRAP:
-        case GO_TOMB_ENTER:
-        case GO_TOMB_EXIT:
-        case GO_LYCEUM:
-        case GO_GOLEM_ROOM_N:
-        case GO_GOLEM_ROOM_S:
-        case GO_THRONE_ROOM:
-        case GO_SPECTRAL_CHALICE:
-        case GO_CHEST_SEVEN:
-        case GO_ARENA_SPOILS:
-        case GO_SECRET_DOOR:
-        case GO_SECRET_SAFE:
-        case GO_JAIL_DOOR_SUPPLY:
-        case GO_JAIL_SUPPLY_CRATE:
-        case GO_DWARFRUNE_A01:
-        case GO_DWARFRUNE_B01:
-        case GO_DWARFRUNE_C01:
-        case GO_DWARFRUNE_D01:
-        case GO_DWARFRUNE_E01:
-        case GO_DWARFRUNE_F01:
-        case GO_DWARFRUNE_G01:
-            break;
-        case GO_BAR_DOOR:
-            if (GetData(TYPE_ROCKNOT) == DONE)
-            {
-                // Rocknot event done: set the Grim Guzzler door animation to "broken"
-                // tell the instance script it is open to prevent some of the other events
-                pGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-                SetBarDoorIsOpen();
-            }
-            else if (m_auiEncounter[10] == DONE || m_auiEncounter[11] == DONE)
-            {
-                // bar or Plugger event done: open the Grim Guzzler door
-                // tell the instance script it is open to prevent some of the other events
-                DoUseDoorOrButton(GO_BAR_DOOR);
-                SetBarDoorIsOpen();
-            }
-            break;
+    case GO_ARENA_1:
+    case GO_ARENA_2:
+    case GO_ARENA_3:
+    case GO_ARENA_4:
+    case GO_SHADOW_LOCK:
+    case GO_SHADOW_MECHANISM:
+    case GO_SHADOW_GIANT_DOOR:
+    case GO_SHADOW_DUMMY:
+    case GO_BAR_KEG_SHOT:
+    case GO_BAR_KEG_TRAP:
+    case GO_TOMB_ENTER:
+    case GO_TOMB_EXIT:
+    case GO_LYCEUM:
+    case GO_GOLEM_ROOM_N:
+    case GO_GOLEM_ROOM_S:
+    case GO_THRONE_ROOM:
+    case GO_SPECTRAL_CHALICE:
+    case GO_CHEST_SEVEN:
+    case GO_ARENA_SPOILS:
+    case GO_SECRET_DOOR:
+    case GO_SECRET_SAFE:
+    case GO_JAIL_DOOR_SUPPLY:
+    case GO_JAIL_SUPPLY_CRATE:
+    case GO_DWARFRUNE_A01:
+    case GO_DWARFRUNE_B01:
+    case GO_DWARFRUNE_C01:
+    case GO_DWARFRUNE_D01:
+    case GO_DWARFRUNE_E01:
+    case GO_DWARFRUNE_F01:
+    case GO_DWARFRUNE_G01:
+        break;
+    case GO_BAR_DOOR:
+        if (GetData(TYPE_ROCKNOT) == DONE)
+        {
+            // Rocknot event done: set the Grim Guzzler door animation to
+            // "broken" tell the instance script it is open to prevent some of
+            // the other events
+            pGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+            SetBarDoorIsOpen();
+        }
+        else if (m_auiEncounter[10] == DONE || m_auiEncounter[11] == DONE)
+        {
+            // bar or Plugger event done: open the Grim Guzzler door
+            // tell the instance script it is open to prevent some of the other
+            // events
+            DoUseDoorOrButton(GO_BAR_DOOR);
+            SetBarDoorIsOpen();
+        }
+        break;
 
-        default:
-            return;
+    default:
+        return;
     }
     m_goEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
 }
 
-void instance_blackrock_depths::OnCreatureRespawn(Creature* creature)
+void instance_blackrock_depths::OnCreatureRespawn(Creature *creature)
 {
     if (creature->GetEntry() == NPC_DIREBREW_MINION)
-        if (Creature* coren = GetSingleCreatureFromStorage(NPC_COREN_DIREBREW))
+        if (Creature *coren = GetSingleCreatureFromStorage(NPC_COREN_DIREBREW))
             coren->AI()->JustSummoned(creature);
 }
 
@@ -193,197 +190,203 @@ void instance_blackrock_depths::SetData(uint32 uiType, uint32 uiData)
 {
     switch (uiType)
     {
-        case TYPE_RING_OF_LAW:
-            // If finished the arena event after theldren fight
-            if (uiData == DONE && m_auiEncounter[0] == SPECIAL)
-                DoRespawnGameObject(GO_ARENA_SPOILS, HOUR);
-            else if (uiData == DONE)
+    case TYPE_RING_OF_LAW:
+        // If finished the arena event after theldren fight
+        if (uiData == DONE && m_auiEncounter[0] == SPECIAL)
+            DoRespawnGameObject(GO_ARENA_SPOILS, HOUR);
+        else if (uiData == DONE)
+        {
+            for (auto m_sArenaCrowdNpcGuid : m_sArenaCrowdNpcGuids)
             {
-                for (auto m_sArenaCrowdNpcGuid : m_sArenaCrowdNpcGuids)
+                if (Creature *pSpectator = instance->GetCreature(m_sArenaCrowdNpcGuid))
+                    pSpectator->SetFactionTemporary(FACTION_ARENA_NEUTRAL, TEMPFACTION_RESTORE_RESPAWN);
+            }
+        }
+        m_auiEncounter[0] = uiData;
+        break;
+    case TYPE_VAULT:
+        if (uiData == SPECIAL)
+        {
+            ++m_uiCofferDoorsOpened;
+
+            if (m_uiCofferDoorsOpened == MAX_RELIC_DOORS)
+            {
+                SetData(TYPE_VAULT, IN_PROGRESS);
+
+                Creature *pConstruct = nullptr;
+
+                // Activate vault constructs
+                for (auto m_sVaultNpcGuid : m_sVaultNpcGuids)
                 {
-                    if (Creature* pSpectator = instance->GetCreature(m_sArenaCrowdNpcGuid))
-                        pSpectator->SetFactionTemporary(FACTION_ARENA_NEUTRAL, TEMPFACTION_RESTORE_RESPAWN);
+                    pConstruct = instance->GetCreature(m_sVaultNpcGuid);
+                    if (pConstruct)
+                        pConstruct->RemoveAurasDueToSpell(SPELL_STONED);
+                }
+
+                if (!pConstruct)
+                    return;
+
+                // Summon doomgrip
+                pConstruct->SummonCreature(NPC_WATCHER_DOOMGRIP, aVaultPositions[0], aVaultPositions[1],
+                                           aVaultPositions[2], aVaultPositions[3], TEMPSPAWN_DEAD_DESPAWN, 0);
+            }
+            // No need to store in this case
+            return;
+        }
+        if (uiData == DONE)
+        {
+            DoUseDoorOrButton(GO_SECRET_DOOR);
+            DoToggleGameObjectFlags(GO_SECRET_SAFE, GO_FLAG_NO_INTERACT, false);
+        }
+        m_auiEncounter[1] = uiData;
+        break;
+    case TYPE_ROCKNOT:
+        if (uiData == SPECIAL)
+            ++m_uiBarAleCount;
+        else
+        {
+            if (uiData == DONE)
+            {
+                HandleBarPatrons(PATRON_PISSED);
+                SetBarDoorIsOpen();
+            }
+            m_auiEncounter[2] = uiData;
+        }
+        break;
+    case TYPE_TOMB_OF_SEVEN:
+        // Don't set the same data twice
+        if (uiData == m_auiEncounter[3])
+            break;
+        // Combat door
+        DoUseDoorOrButton(GO_TOMB_ENTER);
+        // Start the event
+        if (uiData == IN_PROGRESS)
+            DoCallNextDwarf();
+        if (uiData == FAIL)
+        {
+            // Reset dwarfes
+            for (unsigned int aTombDwarfe : aTombDwarfes)
+            {
+                if (Creature *pDwarf = GetSingleCreatureFromStorage(aTombDwarfe))
+                {
+                    if (!pDwarf->IsAlive())
+                        pDwarf->Respawn();
                 }
             }
-            m_auiEncounter[0] = uiData;
+
+            m_uiDwarfRound = 0;
+            m_uiDwarfFightTimer = 0;
+        }
+        if (uiData == DONE)
+        {
+            DoRespawnGameObject(GO_CHEST_SEVEN, HOUR);
+            DoUseDoorOrButton(GO_TOMB_EXIT);
+        }
+        m_auiEncounter[3] = uiData;
+        break;
+    case TYPE_LYCEUM:
+        if (uiData == DONE)
+        {
+            DoUseDoorOrButton(GO_GOLEM_ROOM_N);
+            DoUseDoorOrButton(GO_GOLEM_ROOM_S);
+            if (Creature *magmus = GetSingleCreatureFromStorage(NPC_MAGMUS))
+                DoScriptText(YELL_MAGMUS_INTRO, magmus);
+        }
+        m_auiEncounter[4] = uiData;
+        break;
+    case TYPE_IRON_HALL:
+        switch (uiData)
+        {
+        case IN_PROGRESS:
+            DoUseDoorOrButton(GO_GOLEM_ROOM_N);
+            DoUseDoorOrButton(GO_GOLEM_ROOM_S);
             break;
-        case TYPE_VAULT:
-            if (uiData == SPECIAL)
+        case FAIL:
+            DoUseDoorOrButton(GO_GOLEM_ROOM_N);
+            DoUseDoorOrButton(GO_GOLEM_ROOM_S);
+            break;
+        case DONE:
+            DoUseDoorOrButton(GO_GOLEM_ROOM_N);
+            DoUseDoorOrButton(GO_GOLEM_ROOM_S);
+            DoUseDoorOrButton(GO_THRONE_ROOM);
+            break;
+        }
+        m_auiEncounter[5] = uiData;
+        break;
+    case TYPE_QUEST_JAIL_BREAK:
+        m_auiEncounter[6] = uiData;
+        return;
+    case TYPE_FLAMELASH:
+        for (int i = 0; i < MAX_DWARF_RUNES; ++i)
+            DoUseDoorOrButton(GO_DWARFRUNE_A01 + i);
+        return;
+    case TYPE_HURLEY:
+        if (uiData == SPECIAL)
+        {
+            ++m_uiBrokenKegs;
+
+            if (m_uiBrokenKegs == 3)
             {
-                ++m_uiCofferDoorsOpened;
-
-                if (m_uiCofferDoorsOpened == MAX_RELIC_DOORS)
+                if (Creature *pPlugger = GetSingleCreatureFromStorage(NPC_PLUGGER_SPAZZRING))
                 {
-                    SetData(TYPE_VAULT, IN_PROGRESS);
+                    // Summon Hurley Blackbreath
+                    Creature *pHurley =
+                        pPlugger->SummonCreature(NPC_HURLEY_BLACKBREATH, aHurleyPositions[0], aHurleyPositions[1],
+                                                 aHurleyPositions[2], aHurleyPositions[3], TEMPSPAWN_DEAD_DESPAWN, 0);
 
-                    Creature* pConstruct = nullptr;
-
-                    // Activate vault constructs
-                    for (auto m_sVaultNpcGuid : m_sVaultNpcGuids)
-                    {
-                        pConstruct = instance->GetCreature(m_sVaultNpcGuid);
-                        if (pConstruct)
-                            pConstruct->RemoveAurasDueToSpell(SPELL_STONED);
-                    }
-
-                    if (!pConstruct)
+                    if (!pHurley)
                         return;
 
-                    // Summon doomgrip
-                    pConstruct->SummonCreature(NPC_WATCHER_DOOMGRIP, aVaultPositions[0], aVaultPositions[1], aVaultPositions[2], aVaultPositions[3], TEMPSPAWN_DEAD_DESPAWN, 0);
-                }
-                // No need to store in this case
-                return;
-            }
-            if (uiData == DONE)
-            {
-                DoUseDoorOrButton(GO_SECRET_DOOR);
-                DoToggleGameObjectFlags(GO_SECRET_SAFE, GO_FLAG_NO_INTERACT, false);
-            }
-            m_auiEncounter[1] = uiData;
-            break;
-        case TYPE_ROCKNOT:
-            if (uiData == SPECIAL)
-                ++m_uiBarAleCount;
-            else
-            {
-                if (uiData == DONE)
-                {
-                    HandleBarPatrons(PATRON_PISSED);
-                    SetBarDoorIsOpen();
-                }
-                m_auiEncounter[2] = uiData;
-            }
-            break;
-        case TYPE_TOMB_OF_SEVEN:
-            // Don't set the same data twice
-            if (uiData == m_auiEncounter[3])
-                break;
-            // Combat door
-            DoUseDoorOrButton(GO_TOMB_ENTER);
-            // Start the event
-            if (uiData == IN_PROGRESS)
-                DoCallNextDwarf();
-            if (uiData == FAIL)
-            {
-                // Reset dwarfes
-                for (unsigned int aTombDwarfe : aTombDwarfes)
-                {
-                    if (Creature* pDwarf = GetSingleCreatureFromStorage(aTombDwarfe))
+                    // Summon cronies around Hurley
+                    for (uint8 i = 0; i < MAX_CRONIES; ++i)
                     {
-                        if (!pDwarf->IsAlive())
-                            pDwarf->Respawn();
-                    }
-                }
-
-                m_uiDwarfRound = 0;
-                m_uiDwarfFightTimer = 0;
-            }
-            if (uiData == DONE)
-            {
-                DoRespawnGameObject(GO_CHEST_SEVEN, HOUR);
-                DoUseDoorOrButton(GO_TOMB_EXIT);
-            }
-            m_auiEncounter[3] = uiData;
-            break;
-        case TYPE_LYCEUM:
-            if (uiData == DONE)
-            {
-                DoUseDoorOrButton(GO_GOLEM_ROOM_N);
-                DoUseDoorOrButton(GO_GOLEM_ROOM_S);
-                if (Creature* magmus = GetSingleCreatureFromStorage(NPC_MAGMUS))
-                    DoScriptText(YELL_MAGMUS_INTRO, magmus);
-            }
-            m_auiEncounter[4] = uiData;
-            break;
-        case TYPE_IRON_HALL:
-            switch (uiData)
-            {
-                case IN_PROGRESS:
-                    DoUseDoorOrButton(GO_GOLEM_ROOM_N);
-                    DoUseDoorOrButton(GO_GOLEM_ROOM_S);
-                    break;
-                case FAIL:
-                    DoUseDoorOrButton(GO_GOLEM_ROOM_N);
-                    DoUseDoorOrButton(GO_GOLEM_ROOM_S);
-                    break;
-                case DONE:
-                    DoUseDoorOrButton(GO_GOLEM_ROOM_N);
-                    DoUseDoorOrButton(GO_GOLEM_ROOM_S);
-                    DoUseDoorOrButton(GO_THRONE_ROOM);
-                    break;
-            }
-            m_auiEncounter[5] = uiData;
-            break;
-        case TYPE_QUEST_JAIL_BREAK:
-            m_auiEncounter[6] = uiData;
-            return;
-        case TYPE_FLAMELASH:
-            for (int i = 0; i < MAX_DWARF_RUNES; ++i)
-                DoUseDoorOrButton(GO_DWARFRUNE_A01 + i);
-            return;
-        case TYPE_HURLEY:
-            if (uiData == SPECIAL)
-            {
-                ++m_uiBrokenKegs;
-
-                if (m_uiBrokenKegs == 3)
-                {
-                    if (Creature* pPlugger = GetSingleCreatureFromStorage(NPC_PLUGGER_SPAZZRING))
-                    {
-                        // Summon Hurley Blackbreath
-                        Creature* pHurley = pPlugger->SummonCreature(NPC_HURLEY_BLACKBREATH, aHurleyPositions[0], aHurleyPositions[1], aHurleyPositions[2], aHurleyPositions[3], TEMPSPAWN_DEAD_DESPAWN, 0);
-
-                        if (!pHurley)
-                            return;
-
-                        // Summon cronies around Hurley
-                        for (uint8 i = 0; i < MAX_CRONIES; ++i)
+                        float fX, fY, fZ;
+                        pPlugger->GetRandomPoint(aHurleyPositions[0], aHurleyPositions[1], aHurleyPositions[2], 2.0f,
+                                                 fX, fY, fZ);
+                        if (Creature *pSummoned = pPlugger->SummonCreature(
+                                NPC_BLACKBREATH_CRONY, fX, fY, fZ, aHurleyPositions[3], TEMPSPAWN_DEAD_DESPAWN, 0))
                         {
-                            float fX, fY, fZ;
-                            pPlugger->GetRandomPoint(aHurleyPositions[0], aHurleyPositions[1], aHurleyPositions[2], 2.0f, fX, fY, fZ);
-                            if (Creature* pSummoned = pPlugger->SummonCreature(NPC_BLACKBREATH_CRONY, fX, fY, fZ, aHurleyPositions[3], TEMPSPAWN_DEAD_DESPAWN, 0))
-                            {
-                                pSummoned->SetWalk(false);
-                                // The cronies should not engage anyone until their boss does so
-                                // the linking is done by DB
-                                pSummoned->SetImmuneToNPC(true);
-                                pSummoned->SetImmuneToPlayer(true);
-                                // The movement toward the kegs is handled by Hurley EscortAI
-                                // and we want the cronies to follow him there
-                                pSummoned->GetMotionMaster()->MoveFollow(pHurley, 1.0f, 0);
-                            }
+                            pSummoned->SetWalk(false);
+                            // The cronies should not engage anyone until their
+                            // boss does so the linking is done by DB
+                            pSummoned->SetImmuneToNPC(true);
+                            pSummoned->SetImmuneToPlayer(true);
+                            // The movement toward the kegs is handled by Hurley
+                            // EscortAI and we want the cronies to follow him
+                            // there
+                            pSummoned->GetMotionMaster()->MoveFollow(pHurley, 1.0f, 0);
                         }
-                        SetData(TYPE_HURLEY, IN_PROGRESS);
                     }
+                    SetData(TYPE_HURLEY, IN_PROGRESS);
                 }
             }
-            else
-                m_auiEncounter[8] = uiData;
-            break;
-        case TYPE_BRIDGE:
-            m_auiEncounter[9] = uiData;
-            return;
-        case TYPE_BAR:
-            if (uiData == IN_PROGRESS)
-                HandleBarPatrol(0);
-            m_auiEncounter[10] = uiData;
-            break;
-        case TYPE_PLUGGER:
-            if (uiData == SPECIAL)
+        }
+        else
+            m_auiEncounter[8] = uiData;
+        break;
+    case TYPE_BRIDGE:
+        m_auiEncounter[9] = uiData;
+        return;
+    case TYPE_BAR:
+        if (uiData == IN_PROGRESS)
+            HandleBarPatrol(0);
+        m_auiEncounter[10] = uiData;
+        break;
+    case TYPE_PLUGGER:
+        if (uiData == SPECIAL)
+        {
+            if (GetSingleCreatureFromStorage(NPC_PLUGGER_SPAZZRING))
             {
-                if (GetSingleCreatureFromStorage(NPC_PLUGGER_SPAZZRING))
-                {
-                    ++m_uiStolenAles;
-                    if (m_uiStolenAles == 3)
-                        uiData = IN_PROGRESS;
-                }
+                ++m_uiStolenAles;
+                if (m_uiStolenAles == 3)
+                    uiData = IN_PROGRESS;
             }
-            m_auiEncounter[11] = uiData;
-            break;
-        case TYPE_NAGMARA:
-            m_auiEncounter[12] = uiData;
-            break;
+        }
+        m_auiEncounter[11] = uiData;
+        break;
+    case TYPE_NAGMARA:
+        m_auiEncounter[12] = uiData;
+        break;
     }
 
     if (uiData == DONE)
@@ -408,42 +411,41 @@ uint32 instance_blackrock_depths::GetData(uint32 uiType) const
 {
     switch (uiType)
     {
-        case TYPE_RING_OF_LAW:
-            return m_auiEncounter[0];
-        case TYPE_VAULT:
-            return m_auiEncounter[1];
-        case TYPE_ROCKNOT:
-        {
-            if (m_auiEncounter[2] == IN_PROGRESS && m_uiBarAleCount == 3)
-                return SPECIAL;
-            return m_auiEncounter[2];
-        }
-        case TYPE_TOMB_OF_SEVEN:
-            return m_auiEncounter[3];
-        case TYPE_LYCEUM:
-            return m_auiEncounter[4];
-        case TYPE_IRON_HALL:
-            return m_auiEncounter[5];
-        case TYPE_QUEST_JAIL_BREAK:
-            return m_auiEncounter[6];
-        case TYPE_FLAMELASH:
-            return m_auiEncounter[7];
-        case TYPE_HURLEY:
-            return m_auiEncounter[8];
-        case TYPE_BRIDGE:
-            return m_auiEncounter[9];
-        case TYPE_BAR:
-            return m_auiEncounter[10];
-        case TYPE_PLUGGER:
-            return m_auiEncounter[11];
-        case TYPE_NAGMARA:
-            return m_auiEncounter[12];
-        default:
-            return 0;
+    case TYPE_RING_OF_LAW:
+        return m_auiEncounter[0];
+    case TYPE_VAULT:
+        return m_auiEncounter[1];
+    case TYPE_ROCKNOT: {
+        if (m_auiEncounter[2] == IN_PROGRESS && m_uiBarAleCount == 3)
+            return SPECIAL;
+        return m_auiEncounter[2];
+    }
+    case TYPE_TOMB_OF_SEVEN:
+        return m_auiEncounter[3];
+    case TYPE_LYCEUM:
+        return m_auiEncounter[4];
+    case TYPE_IRON_HALL:
+        return m_auiEncounter[5];
+    case TYPE_QUEST_JAIL_BREAK:
+        return m_auiEncounter[6];
+    case TYPE_FLAMELASH:
+        return m_auiEncounter[7];
+    case TYPE_HURLEY:
+        return m_auiEncounter[8];
+    case TYPE_BRIDGE:
+        return m_auiEncounter[9];
+    case TYPE_BAR:
+        return m_auiEncounter[10];
+    case TYPE_PLUGGER:
+        return m_auiEncounter[11];
+    case TYPE_NAGMARA:
+        return m_auiEncounter[12];
+    default:
+        return 0;
     }
 }
 
-void instance_blackrock_depths::Load(const char* chrIn)
+void instance_blackrock_depths::Load(const char *chrIn)
 {
     if (!chrIn)
     {
@@ -454,25 +456,28 @@ void instance_blackrock_depths::Load(const char* chrIn)
     OUT_LOAD_INST_DATA(chrIn);
 
     std::istringstream loadStream(chrIn);
-    loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3]
-               >> m_auiEncounter[4] >> m_auiEncounter[5] >> m_auiEncounter[6] >> m_auiEncounter[7]
-               >> m_auiEncounter[8] >> m_auiEncounter[9] >> m_auiEncounter[10] >> m_auiEncounter[11]
-               >> m_auiEncounter[12];
+    loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3] >>
+        m_auiEncounter[4] >> m_auiEncounter[5] >> m_auiEncounter[6] >> m_auiEncounter[7] >> m_auiEncounter[8] >>
+        m_auiEncounter[9] >> m_auiEncounter[10] >> m_auiEncounter[11] >> m_auiEncounter[12];
 
     for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-        if (m_auiEncounter[i] == IN_PROGRESS && i != TYPE_IRON_HALL) // specific check for Iron Hall event: once started, it never stops, the Ironhall Guardians switch to flamethrower mode and never stop even after event completion, i.e. the event remains started if Magmus resets
+        if (m_auiEncounter[i] == IN_PROGRESS && i != TYPE_IRON_HALL) // specific check for Iron Hall event: once
+                                                                     // started, it never stops, the Ironhall
+                                                                     // Guardians switch to flamethrower mode and
+                                                                     // never stop even after event completion, i.e.
+                                                                     // the event remains started if Magmus resets
             m_auiEncounter[i] = NOT_STARTED;
 
     OUT_LOAD_INST_DATA_COMPLETE;
 }
 
-void instance_blackrock_depths::OnCreatureEnterCombat(Creature* pCreature)
+void instance_blackrock_depths::OnCreatureEnterCombat(Creature *pCreature)
 {
     if (pCreature->GetEntry() == NPC_MAGMUS)
         SetData(TYPE_IRON_HALL, IN_PROGRESS);
 }
 
-void instance_blackrock_depths::OnCreatureEvade(Creature* pCreature)
+void instance_blackrock_depths::OnCreatureEvade(Creature *pCreature)
 {
     if (GetData(TYPE_RING_OF_LAW) == IN_PROGRESS || GetData(TYPE_RING_OF_LAW) == SPECIAL)
     {
@@ -488,109 +493,121 @@ void instance_blackrock_depths::OnCreatureEvade(Creature* pCreature)
 
     switch (pCreature->GetEntry())
     {
-        // Handle Tomb of the Seven reset in case of wipe
-        case NPC_HATEREL:
-        case NPC_ANGERREL:
-        case NPC_VILEREL:
-        case NPC_GLOOMREL:
-        case NPC_SEETHREL:
-        case NPC_DOPEREL:
-        case NPC_DOOMREL:
-            SetData(TYPE_TOMB_OF_SEVEN, FAIL);
-            break;
-        case NPC_MAGMUS:
-            SetData(TYPE_IRON_HALL, FAIL);
-            break;
+    // Handle Tomb of the Seven reset in case of wipe
+    case NPC_HATEREL:
+    case NPC_ANGERREL:
+    case NPC_VILEREL:
+    case NPC_GLOOMREL:
+    case NPC_SEETHREL:
+    case NPC_DOPEREL:
+    case NPC_DOOMREL:
+        SetData(TYPE_TOMB_OF_SEVEN, FAIL);
+        break;
+    case NPC_MAGMUS:
+        SetData(TYPE_IRON_HALL, FAIL);
+        break;
     }
 }
 
-void instance_blackrock_depths::OnCreatureDeath(Creature* pCreature)
+void instance_blackrock_depths::OnCreatureDeath(Creature *pCreature)
 {
     switch (pCreature->GetEntry())
     {
-        case NPC_WARBRINGER_CONST:
-        case NPC_WATCHER_DOOMGRIP:
-            if (GetData(TYPE_VAULT) == IN_PROGRESS)
-            {
-                m_sVaultNpcGuids.erase(pCreature->GetObjectGuid());
+    case NPC_WARBRINGER_CONST:
+    case NPC_WATCHER_DOOMGRIP:
+        if (GetData(TYPE_VAULT) == IN_PROGRESS)
+        {
+            m_sVaultNpcGuids.erase(pCreature->GetObjectGuid());
 
-                // If all event npcs dead then set event to done
-                if (m_sVaultNpcGuids.empty())
-                    SetData(TYPE_VAULT, DONE);
-            }
-            break;
-        case NPC_OGRABISI:
-        case NPC_SHILL:
-        case NPC_CREST:
-        case NPC_JAZ:
-            if (GetData(TYPE_QUEST_JAIL_BREAK) == IN_PROGRESS)
-                SetData(TYPE_QUEST_JAIL_BREAK, SPECIAL);
-            break;
-        // Handle Tomb of the Seven dwarf death event
-        case NPC_HATEREL:
-        case NPC_ANGERREL:
-        case NPC_VILEREL:
-        case NPC_GLOOMREL:
-        case NPC_SEETHREL:
-        case NPC_DOPEREL:
-            // Only handle the event when event is in progress
-            if (GetData(TYPE_TOMB_OF_SEVEN) != IN_PROGRESS)
-                return;
-            // Call the next dwarf only if it's the last one which joined the fight
-            if (pCreature->GetEntry() == aTombDwarfes[m_uiDwarfRound - 1])
-                DoCallNextDwarf();
-            break;
-        case NPC_DOOMREL:
-            SetData(TYPE_TOMB_OF_SEVEN, DONE);
-            break;
-        case NPC_MAGMUS:
-            SetData(TYPE_IRON_HALL, DONE);
-            break;
-        case NPC_HURLEY_BLACKBREATH:
-            SetData(TYPE_HURLEY, DONE);
-            break;
-        case NPC_RIBBLY_SCREWSPIGGOT:
-            // Do nothing if the patrol was already spawned or is about to:
-            // Plugger has made the bar hostile
+            // If all event npcs dead then set event to done
+            if (m_sVaultNpcGuids.empty())
+                SetData(TYPE_VAULT, DONE);
+        }
+        break;
+    case NPC_OGRABISI:
+    case NPC_SHILL:
+    case NPC_CREST:
+    case NPC_JAZ:
+        if (GetData(TYPE_QUEST_JAIL_BREAK) == IN_PROGRESS)
+            SetData(TYPE_QUEST_JAIL_BREAK, SPECIAL);
+        break;
+    // Handle Tomb of the Seven dwarf death event
+    case NPC_HATEREL:
+    case NPC_ANGERREL:
+    case NPC_VILEREL:
+    case NPC_GLOOMREL:
+    case NPC_SEETHREL:
+    case NPC_DOPEREL:
+        // Only handle the event when event is in progress
+        if (GetData(TYPE_TOMB_OF_SEVEN) != IN_PROGRESS)
+            return;
+        // Call the next dwarf only if it's the last one which joined the fight
+        if (pCreature->GetEntry() == aTombDwarfes[m_uiDwarfRound - 1])
+            DoCallNextDwarf();
+        break;
+    case NPC_DOOMREL:
+        SetData(TYPE_TOMB_OF_SEVEN, DONE);
+        break;
+    case NPC_MAGMUS:
+        SetData(TYPE_IRON_HALL, DONE);
+        break;
+    case NPC_HURLEY_BLACKBREATH:
+        SetData(TYPE_HURLEY, DONE);
+        break;
+    case NPC_RIBBLY_SCREWSPIGGOT:
+        // Do nothing if the patrol was already spawned or is about to:
+        // Plugger has made the bar hostile
         {
             // Do nothing if the patrol was already spawned or is about to:
             // Plugger has made the bar hostile
-            if (GetData(TYPE_BAR) == IN_PROGRESS || GetData(TYPE_PLUGGER) == IN_PROGRESS || GetData(TYPE_BAR) == DONE || GetData(TYPE_PLUGGER) == DONE)
+            if (GetData(TYPE_BAR) == IN_PROGRESS || GetData(TYPE_PLUGGER) == IN_PROGRESS || GetData(TYPE_BAR) == DONE ||
+                GetData(TYPE_PLUGGER) == DONE)
                 return;
             SetData(TYPE_BAR, IN_PROGRESS);
         }
         break;
-        case NPC_SHADOWFORGE_SENATOR:
-            // Emperor Dagran Thaurissan performs a random yell upon the death
-            // of Shadowforge Senators in the Throne Room
-            if (Creature* pDagran = GetSingleCreatureFromStorage(NPC_EMPEROR))
+    case NPC_SHADOWFORGE_SENATOR:
+        // Emperor Dagran Thaurissan performs a random yell upon the death
+        // of Shadowforge Senators in the Throne Room
+        if (Creature *pDagran = GetSingleCreatureFromStorage(NPC_EMPEROR))
+        {
+            if (!pDagran->IsAlive())
+                return;
+
+            if (m_uiDagranTimer > 0)
+                return;
+
+            switch (urand(0, 3))
             {
-                if (!pDagran->IsAlive())
-                    return;
-
-                if (m_uiDagranTimer > 0)
-                    return;
-
-                switch (urand(0, 3))
-                {
-                    case 0: DoScriptText(YELL_SENATOR_1, pDagran); break;
-                    case 1: DoScriptText(YELL_SENATOR_2, pDagran); break;
-                    case 2: DoScriptText(YELL_SENATOR_3, pDagran); break;
-                    case 3: DoScriptText(YELL_SENATOR_4, pDagran); break;
-                }
-                m_uiDagranTimer = 30000;    // set a timer of 30 sec to avoid Emperor Thaurissan to spam yells in case many senators are killed in a short amount of time
+            case 0:
+                DoScriptText(YELL_SENATOR_1, pDagran);
+                break;
+            case 1:
+                DoScriptText(YELL_SENATOR_2, pDagran);
+                break;
+            case 2:
+                DoScriptText(YELL_SENATOR_3, pDagran);
+                break;
+            case 3:
+                DoScriptText(YELL_SENATOR_4, pDagran);
+                break;
             }
-            break;
+            m_uiDagranTimer = 30000; // set a timer of 30 sec to avoid Emperor
+                                     // Thaurissan to spam yells in case many senators
+                                     // are killed in a short amount of time
+        }
+        break;
     }
 }
 
 void instance_blackrock_depths::DoCallNextDwarf()
 {
-    if (Creature* pDwarf = GetSingleCreatureFromStorage(aTombDwarfes[m_uiDwarfRound]))
+    if (Creature *pDwarf = GetSingleCreatureFromStorage(aTombDwarfes[m_uiDwarfRound]))
     {
-        if (Player* pPlayer = GetPlayerInMap())
+        if (Player *pPlayer = GetPlayerInMap())
         {
-            pDwarf->SetFactionTemporary(FACTION_DWARF_HOSTILE, TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_REACH_HOME);
+            pDwarf->SetFactionTemporary(FACTION_DWARF_HOSTILE,
+                                        TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_REACH_HOME);
             pDwarf->AI()->AttackStart(pPlayer);
         }
     }
@@ -601,17 +618,17 @@ void instance_blackrock_depths::DoCallNextDwarf()
 // function that replaces the princess if requirements are met
 bool instance_blackrock_depths::CanReplacePrincess() const
 {
-    Map::PlayerList const& players = instance->GetPlayers();
+    Map::PlayerList const &players = instance->GetPlayers();
     if (players.isEmpty())
         return false;
 
-    for (const auto& player : players)
+    for (const auto &player : players)
     {
-        if (Player* pPlayer = player.getSource())
+        if (Player *pPlayer = player.getSource())
         {
             // if at least one player didn't complete the quest, return false
-            if ((pPlayer->GetTeam() == ALLIANCE && !pPlayer->GetQuestRewardStatus(QUEST_FATE_KINGDOM))
-                    || (pPlayer->GetTeam() == HORDE && !pPlayer->GetQuestRewardStatus(QUEST_ROYAL_RESCUE)))
+            if ((pPlayer->GetTeam() == ALLIANCE && !pPlayer->GetQuestRewardStatus(QUEST_FATE_KINGDOM)) ||
+                (pPlayer->GetTeam() == HORDE && !pPlayer->GetQuestRewardStatus(QUEST_ROYAL_RESCUE)))
                 return false;
         }
     }
@@ -623,73 +640,83 @@ void instance_blackrock_depths::HandleBarPatrons(uint8 uiEventType)
 {
     switch (uiEventType)
     {
-        // case for periodical handle of random emotes
-        case PATRON_EMOTE:
-            if (GetData(TYPE_PLUGGER) == DONE)
-                return;
+    // case for periodical handle of random emotes
+    case PATRON_EMOTE:
+        if (GetData(TYPE_PLUGGER) == DONE)
+            return;
 
+        for (auto m_sBarPatronNpcGuid : m_sBarPatronNpcGuids)
+        {
+            // About 5% of patrons do emote at a given time
+            // So avoid executing follow up code for the 95% others
+            if (urand(0, 100) < 4)
+            {
+                // Only three emotes are seen in data: laugh, cheer and
+                // exclamation the last one appearing the least and the first one
+                // appearing the most emotes are stored in a table and frequency
+                // is handled there
+                if (Creature *pPatron = instance->GetCreature(m_sBarPatronNpcGuid))
+                    pPatron->HandleEmote(aPatronsEmotes[urand(0, 5)]);
+            }
+        }
+        return;
+    // case for Rocknot event when breaking the barrel
+    case PATRON_PISSED:
+        // Three texts are said, one less often than the two others
+        // Only by patrons near the broken barrel react to Rocknot's rampage
+        if (GameObject *pGo = GetSingleGameObjectFromStorage(GO_BAR_KEG_SHOT))
+        {
             for (auto m_sBarPatronNpcGuid : m_sBarPatronNpcGuids)
             {
-                // About 5% of patrons do emote at a given time
-                // So avoid executing follow up code for the 95% others
-                if (urand(0, 100) < 4)
+                if (Creature *pPatron = instance->GetCreature(m_sBarPatronNpcGuid))
                 {
-                    // Only three emotes are seen in data: laugh, cheer and exclamation
-                    // the last one appearing the least and the first one appearing the most
-                    // emotes are stored in a table and frequency is handled there
-                    if (Creature* pPatron = instance->GetCreature(m_sBarPatronNpcGuid))
-                        pPatron->HandleEmote(aPatronsEmotes[urand(0, 5)]);
-                }
-            }
-            return;
-        // case for Rocknot event when breaking the barrel
-        case PATRON_PISSED:
-            // Three texts are said, one less often than the two others
-            // Only by patrons near the broken barrel react to Rocknot's rampage
-            if (GameObject* pGo = GetSingleGameObjectFromStorage(GO_BAR_KEG_SHOT))
-            {
-                for (auto m_sBarPatronNpcGuid : m_sBarPatronNpcGuids)
-                {
-                    if (Creature* pPatron = instance->GetCreature(m_sBarPatronNpcGuid))
+                    if (pPatron->GetPositionZ() > pGo->GetPositionZ() - 1 &&
+                        pPatron->IsWithinDist2d(pGo->GetPositionX(), pGo->GetPositionY(), 18.0f))
                     {
-                        if (pPatron->GetPositionZ() > pGo->GetPositionZ() - 1 && pPatron->IsWithinDist2d(pGo->GetPositionX(), pGo->GetPositionY(), 18.0f))
+                        switch (urand(0, 4))
                         {
-                            switch (urand(0, 4))
-                            {
-                                case 0: DoScriptText(SAY_PISSED_PATRON_3, pPatron); break;
-                                case 1:  // case is double to give this text twice the chance of the previous one do be displayed
-                                case 2: DoScriptText(SAY_PISSED_PATRON_2, pPatron); break;
-                                // covers the two remaining cases
-                                default: DoScriptText(SAY_PISSED_PATRON_1, pPatron); break;
-                            }
+                        case 0:
+                            DoScriptText(SAY_PISSED_PATRON_3, pPatron);
+                            break;
+                        case 1: // case is double to give this text twice the
+                                // chance of the previous one do be displayed
+                        case 2:
+                            DoScriptText(SAY_PISSED_PATRON_2, pPatron);
+                            break;
+                        // covers the two remaining cases
+                        default:
+                            DoScriptText(SAY_PISSED_PATRON_1, pPatron);
+                            break;
                         }
                     }
                 }
             }
-            return;
-        // case when Plugger is killed
-        case PATRON_HOSTILE:
-            for (auto m_sBarPatronNpcGuid : m_sBarPatronNpcGuids)
+        }
+        return;
+    // case when Plugger is killed
+    case PATRON_HOSTILE:
+        for (auto m_sBarPatronNpcGuid : m_sBarPatronNpcGuids)
+        {
+            if (Creature *pPatron = instance->GetCreature(m_sBarPatronNpcGuid))
             {
-                if (Creature* pPatron = instance->GetCreature(m_sBarPatronNpcGuid))
-                {
-                    pPatron->SetFactionTemporary(FACTION_DARK_IRON, TEMPFACTION_RESTORE_RESPAWN);
-                    pPatron->SetStandState(UNIT_STAND_STATE_STAND);
-                    pPatron->HandleEmote(EMOTE_ONESHOT_NONE);
-                    pPatron->GetMotionMaster()->MoveRandomAroundPoint(pPatron->GetPositionX(), pPatron->GetPositionY(), pPatron->GetPositionZ(), 2.0f);
-                }
+                pPatron->SetFactionTemporary(FACTION_DARK_IRON, TEMPFACTION_RESTORE_RESPAWN);
+                pPatron->SetStandState(UNIT_STAND_STATE_STAND);
+                pPatron->HandleEmote(EMOTE_ONESHOT_NONE);
+                pPatron->GetMotionMaster()->MoveRandomAroundPoint(pPatron->GetPositionX(), pPatron->GetPositionY(),
+                                                                  pPatron->GetPositionZ(), 2.0f);
             }
-            // Mistress Nagmara and Private Rocknot despawn if the bar turns hostile
-            if (Creature* pRocknot = GetSingleCreatureFromStorage(NPC_PRIVATE_ROCKNOT))
-            {
-                DoScriptText(SAY_ROCKNOT_DESPAWN, pRocknot);
-                pRocknot->ForcedDespawn();
-            }
-            if (Creature* pNagmara = GetSingleCreatureFromStorage(NPC_MISTRESS_NAGMARA))
-            {
-                pNagmara->CastSpell(pNagmara, SPELL_NAGMARA_VANISH, TRIGGERED_OLD_TRIGGERED);
-                pNagmara->ForcedDespawn();
-            }
+        }
+        // Mistress Nagmara and Private Rocknot despawn if the bar turns hostile
+        if (Creature *pRocknot = GetSingleCreatureFromStorage(NPC_PRIVATE_ROCKNOT))
+        {
+            DoScriptText(SAY_ROCKNOT_DESPAWN, pRocknot);
+            pRocknot->ForcedDespawn();
+        }
+        if (Creature *pNagmara = GetSingleCreatureFromStorage(NPC_MISTRESS_NAGMARA))
+        {
+            pNagmara->CastSpell(pNagmara, SPELL_NAGMARA_VANISH, TRIGGERED_OLD_TRIGGERED);
+            pNagmara->ForcedDespawn();
+        }
     }
 }
 
@@ -700,65 +727,70 @@ void instance_blackrock_depths::HandleBarPatrol(uint8 uiStep)
 
     switch (uiStep)
     {
-        case 0:
-            if (Creature* pPlugger = GetSingleCreatureFromStorage(NPC_PLUGGER_SPAZZRING))
+    case 0:
+        if (Creature *pPlugger = GetSingleCreatureFromStorage(NPC_PLUGGER_SPAZZRING))
+        {
+            // if relevant, open the bar door and tell the instance it is open
+            if (!m_bIsBarDoorOpen)
             {
-                // if relevant, open the bar door and tell the instance it is open
-                if (!m_bIsBarDoorOpen)
-                {
-                    DoUseDoorOrButton(GO_BAR_DOOR);
-                    SetBarDoorIsOpen();
-                }
+                DoUseDoorOrButton(GO_BAR_DOOR);
+                SetBarDoorIsOpen();
+            }
 
-                // One Fireguard Destroyer and two Anvilrage Officers are spawned
-                for (unsigned int i : aBarPatrolId)
-                {
-                    float fX, fY, fZ;
-                    // spawn them behind the bar door
-                    pPlugger->GetRandomPoint(aBarPatrolPositions[0][0], aBarPatrolPositions[0][1], aBarPatrolPositions[0][2], 2.0f, fX, fY, fZ);
-                    if (Creature* pSummoned = pPlugger->SummonCreature(i, fX, fY, fZ, aBarPatrolPositions[0][3], TEMPSPAWN_DEAD_DESPAWN, 0))
-                    {
-                        m_sBarPatrolGuids.insert(pSummoned->GetObjectGuid());
-                        // move them to the Grim Guzzler
-                        pPlugger->GetRandomPoint(aBarPatrolPositions[1][0], aBarPatrolPositions[1][1], aBarPatrolPositions[1][2], 2.0f, fX, fY, fZ);
-                        pSummoned->GetMotionMaster()->MoveIdle();
-                        pSummoned->GetMotionMaster()->MovePoint(0, fX, fY, fZ);
-                    }
-                }
-                // start timer to handle the yells
-                m_uiPatrolTimer = 4000;
-                break;
-            }
-        case 1:
-            for (auto m_sBarPatrolGuid : m_sBarPatrolGuids)
+            // One Fireguard Destroyer and two Anvilrage Officers are spawned
+            for (unsigned int i : aBarPatrolId)
             {
-                if (Creature* pTmp = instance->GetCreature(m_sBarPatrolGuid))
+                float fX, fY, fZ;
+                // spawn them behind the bar door
+                pPlugger->GetRandomPoint(aBarPatrolPositions[0][0], aBarPatrolPositions[0][1],
+                                         aBarPatrolPositions[0][2], 2.0f, fX, fY, fZ);
+                if (Creature *pSummoned =
+                        pPlugger->SummonCreature(i, fX, fY, fZ, aBarPatrolPositions[0][3], TEMPSPAWN_DEAD_DESPAWN, 0))
                 {
-                    if (pTmp->GetEntry() == NPC_FIREGUARD_DESTROYER)
-                    {
-                        DoScriptText(YELL_PATROL_1, pTmp);
-                        SetData(TYPE_BAR, SPECIAL); // temporary set the status to special before the next yell: event will then be complete
-                        m_uiPatrolTimer = 2000;
-                        break;
-                    }
+                    m_sBarPatrolGuids.insert(pSummoned->GetObjectGuid());
+                    // move them to the Grim Guzzler
+                    pPlugger->GetRandomPoint(aBarPatrolPositions[1][0], aBarPatrolPositions[1][1],
+                                             aBarPatrolPositions[1][2], 2.0f, fX, fY, fZ);
+                    pSummoned->GetMotionMaster()->MoveIdle();
+                    pSummoned->GetMotionMaster()->MovePoint(0, fX, fY, fZ);
                 }
             }
+            // start timer to handle the yells
+            m_uiPatrolTimer = 4000;
             break;
-        case 2:
-            for (auto m_sBarPatrolGuid : m_sBarPatrolGuids)
+        }
+    case 1:
+        for (auto m_sBarPatrolGuid : m_sBarPatrolGuids)
+        {
+            if (Creature *pTmp = instance->GetCreature(m_sBarPatrolGuid))
             {
-                if (Creature* pTmp = instance->GetCreature(m_sBarPatrolGuid))
+                if (pTmp->GetEntry() == NPC_FIREGUARD_DESTROYER)
                 {
-                    if (pTmp->GetEntry() == NPC_FIREGUARD_DESTROYER)
-                    {
-                        DoScriptText(YELL_PATROL_2, pTmp);
-                        SetData(TYPE_BAR, DONE);
-                        m_uiPatrolTimer = 0;
-                        break;
-                    }
+                    DoScriptText(YELL_PATROL_1, pTmp);
+                    SetData(TYPE_BAR,
+                            SPECIAL); // temporary set the status to special before
+                                      // the next yell: event will then be complete
+                    m_uiPatrolTimer = 2000;
+                    break;
                 }
             }
-            break;
+        }
+        break;
+    case 2:
+        for (auto m_sBarPatrolGuid : m_sBarPatrolGuids)
+        {
+            if (Creature *pTmp = instance->GetCreature(m_sBarPatrolGuid))
+            {
+                if (pTmp->GetEntry() == NPC_FIREGUARD_DESTROYER)
+                {
+                    DoScriptText(YELL_PATROL_2, pTmp);
+                    SetData(TYPE_BAR, DONE);
+                    m_uiPatrolTimer = 0;
+                    break;
+                }
+            }
+        }
+        break;
     }
 }
 
@@ -788,7 +820,8 @@ void instance_blackrock_depths::Update(uint32 uiDiff)
             m_uiDagranTimer -= uiDiff;
     }
 
-    // Every second some of the patrons will do one random emote if they are not hostile (i.e. Plugger event is not done/in progress)
+    // Every second some of the patrons will do one random emote if they are not
+    // hostile (i.e. Plugger event is not done/in progress)
     if (m_uiPatronEmoteTimer)
     {
         if (m_uiPatronEmoteTimer <= uiDiff)
@@ -806,14 +839,14 @@ void instance_blackrock_depths::Update(uint32 uiDiff)
         {
             switch (GetData(TYPE_BAR))
             {
-                case IN_PROGRESS:
-                    HandleBarPatrol(1);
-                    break;
-                case SPECIAL:
-                    HandleBarPatrol(2);
-                    break;
-                default:
-                    break;
+            case IN_PROGRESS:
+                HandleBarPatrol(1);
+                break;
+            case SPECIAL:
+                HandleBarPatrol(2);
+                break;
+            default:
+                break;
             }
         }
         else
@@ -821,14 +854,14 @@ void instance_blackrock_depths::Update(uint32 uiDiff)
     }
 }
 
-InstanceData* GetInstanceData_instance_blackrock_depths(Map* pMap)
+InstanceData *GetInstanceData_instance_blackrock_depths(Map *pMap)
 {
     return new instance_blackrock_depths(pMap);
 }
 
 void AddSC_instance_blackrock_depths()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "instance_blackrock_depths";
     pNewScript->GetInstanceData = &GetInstanceData_instance_blackrock_depths;
     pNewScript->RegisterSelf();

@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -26,47 +26,48 @@ EndScriptData */
 
 enum
 {
-    SAY_AGGRO                       = -1554020,
-    SAY_DOMINATION_1                = -1554021,
-    SAY_DOMINATION_2                = -1554022,
-    SAY_SUMMON                      = -1554023,
-    SAY_ENRAGE                      = -1554024,
-    SAY_SLAY_1                      = -1554025,
-    SAY_SLAY_2                      = -1554026,
-    SAY_DEATH                       = -1554027,
+    SAY_AGGRO = -1554020,
+    SAY_DOMINATION_1 = -1554021,
+    SAY_DOMINATION_2 = -1554022,
+    SAY_SUMMON = -1554023,
+    SAY_ENRAGE = -1554024,
+    SAY_SLAY_1 = -1554025,
+    SAY_SLAY_2 = -1554026,
+    SAY_DEATH = -1554027,
 
     // Spells to be casted
-    SPELL_MANA_TAP                  = 36021,
-    SPELL_ARCANE_TORRENT            = 36022,
-    SPELL_DOMINATION                = 35280,
-    SPELL_ARCANE_EXPLOSION_H        = 15453,
-    SPELL_FRENZY                    = 36992,
-    SPELL_SUICIDE                   = 35301,        // kill the Nether Wraiths
-    SPELL_DISGRUNTLED_ANGER         = 35289,        // empower a Nether Wraith
+    SPELL_MANA_TAP = 36021,
+    SPELL_ARCANE_TORRENT = 36022,
+    SPELL_DOMINATION = 35280,
+    SPELL_ARCANE_EXPLOSION_H = 15453,
+    SPELL_FRENZY = 36992,
+    SPELL_SUICIDE = 35301,           // kill the Nether Wraiths
+    SPELL_DISGRUNTLED_ANGER = 35289, // empower a Nether Wraith
 
-    SPELL_SUMMON_NETHER_WRAITH_1    = 35285,
-    SPELL_SUMMON_NETHER_WRAITH_2    = 35286,
-    SPELL_SUMMON_NETHER_WRAITH_3    = 35287,
-    SPELL_SUMMON_NETHER_WRAITH_4    = 35288,
+    SPELL_SUMMON_NETHER_WRAITH_1 = 35285,
+    SPELL_SUMMON_NETHER_WRAITH_2 = 35286,
+    SPELL_SUMMON_NETHER_WRAITH_3 = 35287,
+    SPELL_SUMMON_NETHER_WRAITH_4 = 35288,
 
     // Add Spells
-    SPELL_DETONATION                = 35058,
-    SPELL_ARCANE_BOLT               = 20720,
+    SPELL_DETONATION = 35058,
+    SPELL_ARCANE_BOLT = 20720,
 };
 
-static const uint32 aWraithSummonSpells[4] = {SPELL_SUMMON_NETHER_WRAITH_1, SPELL_SUMMON_NETHER_WRAITH_2, SPELL_SUMMON_NETHER_WRAITH_3, SPELL_SUMMON_NETHER_WRAITH_4};
+static const uint32 aWraithSummonSpells[4] = {SPELL_SUMMON_NETHER_WRAITH_1, SPELL_SUMMON_NETHER_WRAITH_2,
+                                              SPELL_SUMMON_NETHER_WRAITH_3, SPELL_SUMMON_NETHER_WRAITH_4};
 
 struct boss_pathaleon_the_calculatorAI : public ScriptedAI
 {
-    boss_pathaleon_the_calculatorAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_pathaleon_the_calculatorAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = static_cast<ScriptedInstance*>(pCreature->GetInstanceData());
+        m_pInstance = static_cast<ScriptedInstance *>(pCreature->GetInstanceData());
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         m_creature->GetCombatManager().SetLeashingDisable(true);
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    ScriptedInstance *m_pInstance;
     bool m_bIsRegularMode;
 
     uint32 m_uiSummonTimer;
@@ -79,26 +80,26 @@ struct boss_pathaleon_the_calculatorAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiSummonTimer          = urand(12000, 23000);
-        m_uiAngerTimer           = urand(31000, 42000);
-        m_uiManaTapTimer         = urand(2000, 9000);
-        m_uiArcaneTorrentTimer   = urand(11000, 24000);
-        m_uiDominationTimer      = urand(25000, 40000);
+        m_uiSummonTimer = urand(12000, 23000);
+        m_uiAngerTimer = urand(31000, 42000);
+        m_uiManaTapTimer = urand(2000, 9000);
+        m_uiArcaneTorrentTimer = urand(11000, 24000);
+        m_uiDominationTimer = urand(25000, 40000);
         m_uiArcaneExplosionTimer = urand(18000, 45000);
-        m_bIsEnraged             = false;
+        m_bIsEnraged = false;
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
 
-    void KilledUnit(Unit* /*pVictim*/) override
+    void KilledUnit(Unit * /*pVictim*/) override
     {
         DoScriptText(urand(0, 1) ? SAY_SLAY_1 : SAY_SLAY_2, m_creature);
     }
 
-    void JustDied(Unit* /*pKiller*/) override
+    void JustDied(Unit * /*pKiller*/) override
     {
         DoScriptText(SAY_DEATH, m_creature);
 
@@ -116,7 +117,7 @@ struct boss_pathaleon_the_calculatorAI : public ScriptedAI
             m_pInstance->SetData(TYPE_PATHALEON, FAIL);
     }
 
-    void JustSummoned(Creature* pSummoned) override
+    void JustSummoned(Creature *pSummoned) override
     {
         if (m_creature->GetVictim())
             pSummoned->AI()->AttackStart(m_creature->GetVictim());
@@ -130,7 +131,8 @@ struct boss_pathaleon_the_calculatorAI : public ScriptedAI
 
         if (m_uiManaTapTimer < uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_MANA_TAP, SELECT_FLAG_PLAYER | SELECT_FLAG_POWER_MANA))
+            if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_MANA_TAP,
+                                                                  SELECT_FLAG_PLAYER | SELECT_FLAG_POWER_MANA))
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_MANA_TAP) == CAST_OK)
                     m_uiManaTapTimer = urand(16000, 34000);
@@ -149,7 +151,8 @@ struct boss_pathaleon_the_calculatorAI : public ScriptedAI
 
         if (m_uiDominationTimer < uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, nullptr, SELECT_FLAG_PLAYER))
+            if (Unit *pTarget =
+                    m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, nullptr, SELECT_FLAG_PLAYER))
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_DOMINATION) == CAST_OK)
                 {
@@ -213,7 +216,10 @@ struct boss_pathaleon_the_calculatorAI : public ScriptedAI
 
 struct mob_nether_wraithAI : public ScriptedAI
 {
-    mob_nether_wraithAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+    mob_nether_wraithAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiArcaneMissilesTimer;
 
@@ -222,7 +228,7 @@ struct mob_nether_wraithAI : public ScriptedAI
         m_uiArcaneMissilesTimer = urand(2000, 8000);
     }
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit * /*killer*/) override
     {
         m_creature->CastSpell(nullptr, SPELL_DETONATION, TRIGGERED_OLD_TRIGGERED);
     }
@@ -234,7 +240,7 @@ struct mob_nether_wraithAI : public ScriptedAI
 
         if (m_uiArcaneMissilesTimer < uiDiff)
         {
-            Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, nullptr, SELECT_FLAG_PLAYER);
+            Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, nullptr, SELECT_FLAG_PLAYER);
             if (!pTarget)
                 pTarget = m_creature->GetVictim();
 
@@ -251,19 +257,19 @@ struct mob_nether_wraithAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_pathaleon_the_calculator(Creature* pCreature)
+UnitAI *GetAI_boss_pathaleon_the_calculator(Creature *pCreature)
 {
     return new boss_pathaleon_the_calculatorAI(pCreature);
 }
 
-UnitAI* GetAI_mob_nether_wraith(Creature* pCreature)
+UnitAI *GetAI_mob_nether_wraith(Creature *pCreature)
 {
     return new mob_nether_wraithAI(pCreature);
 }
 
 void AddSC_boss_pathaleon_the_calculator()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_pathaleon_the_calculator";
     pNewScript->GetAI = &GetAI_boss_pathaleon_the_calculator;
     pNewScript->RegisterSelf();

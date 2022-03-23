@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,23 +21,24 @@
 #define _AUTHCRYPT_H
 
 #include <Common.h>
+
 #include <vector>
 
 class BigNumber;
 
 class AuthCrypt
 {
-    public:
-        AuthCrypt();
+  public:
+    AuthCrypt();
 
-        void Init(BigNumber* K);
+    void Init(BigNumber *K);
 
-        void DecryptRecv(uint8*, size_t);
-        void EncryptSend(uint8*, size_t);
+    void DecryptRecv(uint8 *, size_t);
+    void EncryptSend(uint8 *, size_t);
 
-    private:
-        std::vector<uint8> _key;
-        uint8 _send_i, _send_j, _recv_i, _recv_j;
-        bool _initialized;
+  private:
+    std::vector<uint8> _key;
+    uint8 _send_i, _send_j, _recv_i, _recv_j;
+    bool _initialized;
 };
 #endif

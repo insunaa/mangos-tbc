@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,21 +18,21 @@
  */
 
 #include "Common.h"
-#include "Tools/Language.h"
-#include "WorldPacket.h"
-#include "Server/WorldSession.h"
 #include "Globals/ObjectMgr.h"
 #include "Log.h"
+#include "Server/WorldSession.h"
+#include "Tools/Language.h"
 #include "World/World.h"
+#include "WorldPacket.h"
 
-void WorldSession::HandleGrantLevel(WorldPacket& recv_data)
+void WorldSession::HandleGrantLevel(WorldPacket &recv_data)
 {
     DEBUG_LOG("Received opcode: CMSG_GRANT_LEVEL");
 
     ObjectGuid guid;
     recv_data >> guid.ReadAsPacked();
 
-    Player* target = _player->GetMap()->GetPlayer(guid);
+    Player *target = _player->GetMap()->GetPlayer(guid);
 
     // check cheating
     uint8 levels = _player->GetGrantableLevels();
@@ -67,19 +68,18 @@ void WorldSession::HandleGrantLevel(WorldPacket& recv_data)
     target->SendDirectMessage(data2);
 }
 
-void WorldSession::HandleReferAFriend(WorldPacket& recv_data)
+void WorldSession::HandleReferAFriend(WorldPacket &recv_data)
 {
-
 }
 
-void WorldSession::HandleAcceptLevelGrant(WorldPacket& recv_data)
+void WorldSession::HandleAcceptLevelGrant(WorldPacket &recv_data)
 {
     DEBUG_LOG("Received opcode: CMSG_ACCEPT_LEVEL_GRANT");
 
     ObjectGuid guid;
     recv_data >> guid.ReadAsPacked();
 
-    Player* other = _player->GetMap()->GetPlayer(guid);
+    Player *other = _player->GetMap()->GetPlayer(guid);
 
     if (!(other && other->GetSession()))
         return;

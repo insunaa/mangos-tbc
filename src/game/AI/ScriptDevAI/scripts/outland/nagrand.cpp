@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -28,8 +28,8 @@ npc_creditmarker_visit_with_ancestors
 npc_rethhedron
 EndContentData */
 
-#include "AI/ScriptDevAI/include/sc_common.h"
 #include "AI/ScriptDevAI/base/escort_ai.h"
+#include "AI/ScriptDevAI/include/sc_common.h"
 #include "AI/ScriptDevAI/scripts/outland/world_outland.h"
 #include "Spells/Scripts/SpellScript.h"
 
@@ -39,19 +39,19 @@ EndContentData */
 
 enum
 {
-    SAY_LUMP_AGGRO_1            = -1000190,
-    SAY_LUMP_AGGRO_2            = -1000191,
-    SAY_LUMP_DEFEAT             = -1000192,
+    SAY_LUMP_AGGRO_1 = -1000190,
+    SAY_LUMP_AGGRO_2 = -1000191,
+    SAY_LUMP_DEFEAT = -1000192,
 
-    SPELL_VISUAL_SLEEP          = 16093,
-    SPELL_SPEAR_THROW           = 32248,
+    SPELL_VISUAL_SLEEP = 16093,
+    SPELL_SPEAR_THROW = 32248,
 
-    FACTION_FRIENDLY            = 35
+    FACTION_FRIENDLY = 35
 };
 
 struct mob_lumpAI : public ScriptedAI
 {
-    mob_lumpAI(Creature* pCreature) : ScriptedAI(pCreature)
+    mob_lumpAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
         m_bReset = false;
         Reset();
@@ -67,7 +67,7 @@ struct mob_lumpAI : public ScriptedAI
         m_uiSpearThrowTimer = 2000;
     }
 
-    void AttackedBy(Unit* pAttacker) override
+    void AttackedBy(Unit *pAttacker) override
     {
         if (m_creature->GetVictim())
             return;
@@ -78,16 +78,20 @@ struct mob_lumpAI : public ScriptedAI
         AttackStart(pAttacker);
     }
 
-    void DamageTaken(Unit* /*dealer*/, uint32& damage, DamageEffectType /*damagetype*/, SpellEntry const* /*spellInfo*/) override
+    void DamageTaken(Unit * /*dealer*/, uint32 &damage, DamageEffectType /*damagetype*/,
+                     SpellEntry const * /*spellInfo*/) override
     {
-        if (m_creature->GetHealth() < damage || (m_creature->GetHealth() - damage) * 100 / m_creature->GetMaxHealth() < 30)
+        if (m_creature->GetHealth() < damage ||
+            (m_creature->GetHealth() - damage) * 100 / m_creature->GetMaxHealth() < 30)
         {
             damage = std::min(damage, m_creature->GetHealth() - 1);
 
             m_creature->RemoveAllAuras();
             m_creature->CombatStop(true);
 
-            // should get unit_flags UNIT_FLAG_IMMUNE_TO_PLAYER | UNIT_FLAG_IMMUNE_TO_NPC at faction change, but unclear why/for what reason, skipped (no flags expected as default)
+            // should get unit_flags UNIT_FLAG_IMMUNE_TO_PLAYER |
+            // UNIT_FLAG_IMMUNE_TO_NPC at faction change, but unclear why/for what
+            // reason, skipped (no flags expected as default)
             m_creature->SetFactionTemporary(FACTION_FRIENDLY, TEMPFACTION_RESTORE_REACH_HOME);
 
             m_creature->SetStandState(UNIT_STAND_STATE_SIT);
@@ -97,7 +101,7 @@ struct mob_lumpAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit* pWho) override
+    void Aggro(Unit *pWho) override
     {
         if (m_creature->HasAura(SPELL_VISUAL_SLEEP, EFFECT_INDEX_0))
             m_creature->RemoveAurasDueToSpell(SPELL_VISUAL_SLEEP);
@@ -139,7 +143,7 @@ struct mob_lumpAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_mob_lump(Creature* pCreature)
+UnitAI *GetAI_mob_lump(Creature *pCreature)
 {
     return new mob_lumpAI(pCreature);
 }
@@ -150,44 +154,47 @@ UnitAI* GetAI_mob_lump(Creature* pCreature)
 
 enum
 {
-    SAY_MAG_START               = -1000482,
-    SAY_MAG_MORE                = -1000484,
-    SAY_MAG_LIGHTNING           = -1000486,
-    SAY_MAG_SHOCK               = -1000487,
-    SAY_MAG_COMPLETE            = -1000488,
+    SAY_MAG_START = -1000482,
+    SAY_MAG_MORE = -1000484,
+    SAY_MAG_LIGHTNING = -1000486,
+    SAY_MAG_SHOCK = -1000487,
+    SAY_MAG_COMPLETE = -1000488,
 
-    SAY_KUR_START               = -1001001,
-    SAY_KUR_AMBUSH_1            = -1001002,
-    SAY_KUR_AMBUSH_2            = -1001003,
-    SAY_KUR_UP_AHEAD            = -1001004,
-    SAY_KUR_COMPLETE            = -1001005,
+    SAY_KUR_START = -1001001,
+    SAY_KUR_AMBUSH_1 = -1001002,
+    SAY_KUR_AMBUSH_2 = -1001003,
+    SAY_KUR_UP_AHEAD = -1001004,
+    SAY_KUR_COMPLETE = -1001005,
 
-    SAY_MURK_BRUTE_NO_ESCAPE	= -1000483,
-    SAY_MURK_BRUTE_WHERE		= -1000485,
+    SAY_MURK_BRUTE_NO_ESCAPE = -1000483,
+    SAY_MURK_BRUTE_WHERE = -1000485,
 
-    SPELL_CHAIN_LIGHTNING       = 16006,
-    SPELL_EARTHBIND_TOTEM       = 15786,
-    SPELL_FROST_SHOCK           = 12548,
-    SPELL_HEALING_WAVE          = 12491,
+    SPELL_CHAIN_LIGHTNING = 16006,
+    SPELL_EARTHBIND_TOTEM = 15786,
+    SPELL_FROST_SHOCK = 12548,
+    SPELL_HEALING_WAVE = 12491,
 
-    QUEST_TOTEM_KARDASH_H       = 9868,
-    QUEST_TOTEM_KARDASH_A       = 9879,
+    QUEST_TOTEM_KARDASH_H = 9868,
+    QUEST_TOTEM_KARDASH_A = 9879,
 
-    NPC_KURENAI_CAPTIVE         = 18209,
-    NPC_MAGHAR_CAPTIVE          = 18210,
+    NPC_KURENAI_CAPTIVE = 18209,
+    NPC_MAGHAR_CAPTIVE = 18210,
 
-    NPC_MURK_RAIDER             = 18203,
-    NPC_MURK_BRUTE              = 18211,
-    NPC_MURK_SCAVENGER          = 18207,
-    NPC_MURK_PUTRIFIER          = 18202,
+    NPC_MURK_RAIDER = 18203,
+    NPC_MURK_BRUTE = 18211,
+    NPC_MURK_SCAVENGER = 18207,
+    NPC_MURK_PUTRIFIER = 18202,
 
-    FACTION_TROLL_FROSTMANE		= 33,
-    FACTION_UNKWN				= 10
+    FACTION_TROLL_FROSTMANE = 33,
+    FACTION_UNKWN = 10
 };
 
 struct npc_nagrand_captiveAI : public npc_escortAI
 {
-    npc_nagrand_captiveAI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
+    npc_nagrand_captiveAI(Creature *pCreature) : npc_escortAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiChainLightningTimer;
     uint32 m_uiEarthbindTotemTimer;
@@ -202,7 +209,7 @@ struct npc_nagrand_captiveAI : public npc_escortAI
         m_uiFrostShockTimer = 6000;
     }
 
-    void ReceiveAIEvent(AIEventType eventType, Unit* /*pSender*/, Unit* pInvoker, uint32 uiMiscValue) override
+    void ReceiveAIEvent(AIEventType eventType, Unit * /*pSender*/, Unit *pInvoker, uint32 uiMiscValue) override
     {
         if (eventType == AI_EVENT_START_ESCORT && pInvoker->GetTypeId() == TYPEID_PLAYER)
         {
@@ -211,9 +218,11 @@ struct npc_nagrand_captiveAI : public npc_escortAI
                 m_creature->SetStandState(UNIT_STAND_STATE_STAND);
                 m_creature->SetFactionTemporary(FACTION_TROLL_FROSTMANE, TEMPFACTION_RESTORE_RESPAWN);
 
-                if (Creature *summoned = m_creature->SummonCreature(NPC_MURK_BRUTE, -1574.611f, 8547.862f, 2.084420f, 2.32f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 10000))
+                if (Creature *summoned = m_creature->SummonCreature(NPC_MURK_BRUTE, -1574.611f, 8547.862f, 2.084420f,
+                                                                    2.32f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 10000))
                     DoScriptText(SAY_MURK_BRUTE_NO_ESCAPE, summoned);
-                m_creature->SummonCreature(NPC_MURK_RAIDER, -1576.695f, 8546.507f, 2.0844190f, 1.902409f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 10000);
+                m_creature->SummonCreature(NPC_MURK_RAIDER, -1576.695f, 8546.507f, 2.0844190f, 1.902409f,
+                                           TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 10000);
 
                 DoScriptText(SAY_MAG_START, m_creature);
             }
@@ -221,23 +230,29 @@ struct npc_nagrand_captiveAI : public npc_escortAI
             {
                 m_creature->SetFactionTemporary(FACTION_UNKWN, TEMPFACTION_RESTORE_RESPAWN);
 
-                if (Creature *summoned = m_creature->SummonCreature(NPC_MURK_BRUTE, -1530.8f, 8455.717f, -4.019422f, 0.084f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 10000))
+                if (Creature *summoned = m_creature->SummonCreature(NPC_MURK_BRUTE, -1530.8f, 8455.717f, -4.019422f,
+                                                                    0.084f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 10000))
                     DoScriptText(SAY_MURK_BRUTE_NO_ESCAPE, summoned);
-                m_creature->SummonCreature(NPC_MURK_RAIDER, -1514.549f, 8477.511f, -4.015618f, 4.43f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 10000);
+                m_creature->SummonCreature(NPC_MURK_RAIDER, -1514.549f, 8477.511f, -4.015618f, 4.43f,
+                                           TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 10000);
 
                 DoScriptText(SAY_KUR_AMBUSH_1, m_creature);
             }
 
-            Start(false, (Player*)pInvoker, GetQuestTemplateStore(uiMiscValue));
+            Start(false, (Player *)pInvoker, GetQuestTemplateStore(uiMiscValue));
         }
-        else if (eventType == AI_EVENT_JUST_DIED) // Sent by brutes when they die to add the questgiver flag
+        else if (eventType == AI_EVENT_JUST_DIED) // Sent by brutes when they die
+                                                  // to add the questgiver flag
         {
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
                 m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
         }
-        else if (eventType == AI_EVENT_CUSTOM_EVENTAI_A) // sent by brutes 5 minutes after they die to remove the questgiver flag if nobody took up the quest
+        else if (eventType == AI_EVENT_CUSTOM_EVENTAI_A) // sent by brutes 5 minutes after
+                                                         // they die to remove the questgiver
+                                                         // flag if nobody took up the quest
         {
-            if (!HasEscortState(STATE_ESCORT_ESCORTING) && m_creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
+            if (!HasEscortState(STATE_ESCORT_ESCORTING) &&
+                m_creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
                 m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
         }
     }
@@ -248,62 +263,68 @@ struct npc_nagrand_captiveAI : public npc_escortAI
         {
             switch (uiPointId)
             {
-                case 5:
-                    DoScriptText(SAY_MAG_MORE, m_creature);
-                    break;
-                case 6:
-                    if (Creature *summoned = m_creature->SummonCreature(NPC_MURK_BRUTE, -1496.662f, 8508.388f, 1.015174f, 2.56f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 10000))
-                        DoScriptText(SAY_MURK_BRUTE_WHERE, summoned);
-                    m_creature->SummonCreature(NPC_MURK_PUTRIFIER, -1494.623f, 8505.492f, 1.173438f, 2.63f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 10000);
-                    m_creature->SummonCreature(NPC_MURK_SCAVENGER, -1497.349f, 8505.020f, 1.107700f, 2.56f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 10000);
-                    break;
-                case 11:
-                    DoScriptText(SAY_MAG_COMPLETE, m_creature);
+            case 5:
+                DoScriptText(SAY_MAG_MORE, m_creature);
+                break;
+            case 6:
+                if (Creature *summoned = m_creature->SummonCreature(NPC_MURK_BRUTE, -1496.662f, 8508.388f, 1.015174f,
+                                                                    2.56f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 10000))
+                    DoScriptText(SAY_MURK_BRUTE_WHERE, summoned);
+                m_creature->SummonCreature(NPC_MURK_PUTRIFIER, -1494.623f, 8505.492f, 1.173438f, 2.63f,
+                                           TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 10000);
+                m_creature->SummonCreature(NPC_MURK_SCAVENGER, -1497.349f, 8505.020f, 1.107700f, 2.56f,
+                                           TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 10000);
+                break;
+            case 11:
+                DoScriptText(SAY_MAG_COMPLETE, m_creature);
 
-                    if (Player* pPlayer = GetPlayerForEscort())
-                        pPlayer->RewardPlayerAndGroupAtEventExplored(QUEST_TOTEM_KARDASH_H, m_creature);
+                if (Player *pPlayer = GetPlayerForEscort())
+                    pPlayer->RewardPlayerAndGroupAtEventExplored(QUEST_TOTEM_KARDASH_H, m_creature);
 
-                    SetRun();
-                    break;
+                SetRun();
+                break;
             }
         }
         else if (m_creature->GetEntry() == NPC_KURENAI_CAPTIVE)
         {
             switch (uiPointId)
             {
-                case 2:
-                    DoScriptText(SAY_KUR_START, m_creature);
-                    break;
-                case 8:
-                    DoScriptText(SAY_KUR_AMBUSH_2, m_creature);
-                    break;
-                case 9:
-                    if (Creature *summoned = m_creature->SummonCreature(NPC_MURK_BRUTE, -1417.57f, 8516.55f, 8.593721f, 3.76f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 10000))
-                        DoScriptText(SAY_MURK_BRUTE_WHERE, summoned);
-                    m_creature->SummonCreature(NPC_MURK_PUTRIFIER, -1411.089f, 8507.651f, 8.976571f, 3.21f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 10000);
-                    m_creature->SummonCreature(NPC_MURK_SCAVENGER, -1440.539f, 8490.212f, 6.207497f, 1.03f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 10000);
-                    break;
-                case 10:
-                    m_creature->SetFacingTo(0.61f);
-                    DoScriptText(SAY_KUR_UP_AHEAD, m_creature);					
-                    break;
-                case 13:
-                    DoScriptText(SAY_KUR_COMPLETE, m_creature);
+            case 2:
+                DoScriptText(SAY_KUR_START, m_creature);
+                break;
+            case 8:
+                DoScriptText(SAY_KUR_AMBUSH_2, m_creature);
+                break;
+            case 9:
+                if (Creature *summoned = m_creature->SummonCreature(NPC_MURK_BRUTE, -1417.57f, 8516.55f, 8.593721f,
+                                                                    3.76f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 10000))
+                    DoScriptText(SAY_MURK_BRUTE_WHERE, summoned);
+                m_creature->SummonCreature(NPC_MURK_PUTRIFIER, -1411.089f, 8507.651f, 8.976571f, 3.21f,
+                                           TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 10000);
+                m_creature->SummonCreature(NPC_MURK_SCAVENGER, -1440.539f, 8490.212f, 6.207497f, 1.03f,
+                                           TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 10000);
+                break;
+            case 10:
+                m_creature->SetFacingTo(0.61f);
+                DoScriptText(SAY_KUR_UP_AHEAD, m_creature);
+                break;
+            case 13:
+                DoScriptText(SAY_KUR_COMPLETE, m_creature);
 
-                    if (Player* pPlayer = GetPlayerForEscort())
-                        pPlayer->RewardPlayerAndGroupAtEventExplored(QUEST_TOTEM_KARDASH_A, m_creature);
+                if (Player *pPlayer = GetPlayerForEscort())
+                    pPlayer->RewardPlayerAndGroupAtEventExplored(QUEST_TOTEM_KARDASH_A, m_creature);
 
-                    SetRun();
-                    break;
+                SetRun();
+                break;
             }
         }
     }
 
-    void JustSummoned(Creature* pSummoned) override
+    void JustSummoned(Creature *pSummoned) override
     {
         if (pSummoned->IsTotem())
             return;
-        
+
         pSummoned->AI()->AttackStart(m_creature);
     }
 
@@ -311,13 +332,13 @@ struct npc_nagrand_captiveAI : public npc_escortAI
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PLAYER);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-        //m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SWIMMING);
+        // m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SWIMMING);
 
         if (m_creature->GetEntry() == NPC_MAGHAR_CAPTIVE)
             m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
     }
 
-    void SpellHitTarget(Unit* /*pTarget*/, const SpellEntry* pSpell) override
+    void SpellHitTarget(Unit * /*pTarget*/, const SpellEntry *pSpell) override
     {
         if (pSpell->Id == SPELL_CHAIN_LIGHTNING)
         {
@@ -381,14 +402,14 @@ struct npc_nagrand_captiveAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_nagrand_captive(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+bool QuestAccept_npc_nagrand_captive(Player *pPlayer, Creature *pCreature, const Quest *pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_TOTEM_KARDASH_H || pQuest->GetQuestId() == QUEST_TOTEM_KARDASH_A)
     {
         pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
         pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PLAYER);
         pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-        //pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SWIMMING);
+        // pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SWIMMING);
         pCreature->SetStandState(UNIT_STAND_STATE_STAND);
 
         pCreature->AI()->SendAIEvent(AI_EVENT_START_ESCORT, pPlayer, pCreature, pQuest->GetQuestId());
@@ -398,7 +419,7 @@ bool QuestAccept_npc_nagrand_captive(Player* pPlayer, Creature* pCreature, const
     return false;
 }
 
-UnitAI* GetAI_npc_nagrand_captive(Creature* pCreature)
+UnitAI *GetAI_npc_nagrand_captive(Creature *pCreature)
 {
     return new npc_nagrand_captiveAI(pCreature);
 }
@@ -409,42 +430,60 @@ UnitAI* GetAI_npc_nagrand_captive(Creature* pCreature)
 
 enum
 {
-    QUEST_VISIT_WITH_ANCESTORS      = 10085,
-    WHISPER_VISIT_WITH_ANCESTORS_1  = -1001319,
-    WHISPER_VISIT_WITH_ANCESTORS_2  = -1001320,
-    WHISPER_VISIT_WITH_ANCESTORS_3  = -1001321,
-    WHISPER_VISIT_WITH_ANCESTORS_4  = -1001322,
-    WHISPER_VISIT_WITH_ANCESTORS_5  = -1001323,
-    NPC_VISION_OF_THE_FORGOTTEN     = 18904
+    QUEST_VISIT_WITH_ANCESTORS = 10085,
+    WHISPER_VISIT_WITH_ANCESTORS_1 = -1001319,
+    WHISPER_VISIT_WITH_ANCESTORS_2 = -1001320,
+    WHISPER_VISIT_WITH_ANCESTORS_3 = -1001321,
+    WHISPER_VISIT_WITH_ANCESTORS_4 = -1001322,
+    WHISPER_VISIT_WITH_ANCESTORS_5 = -1001323,
+    NPC_VISION_OF_THE_FORGOTTEN = 18904
 };
 
 struct npc_creditmarker_visit_with_ancestorsAI : public ScriptedAI
 {
-    npc_creditmarker_visit_with_ancestorsAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_creditmarker_visit_with_ancestorsAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
-    void Reset() override {}
+    void Reset() override
+    {
+    }
 
-    void MoveInLineOfSight(Unit* pWho) override
+    void MoveInLineOfSight(Unit *pWho) override
     {
         if (pWho->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(pWho, 30.0f))
         {
-            if (((Player*)pWho)->GetQuestStatus(QUEST_VISIT_WITH_ANCESTORS) == QUEST_STATUS_INCOMPLETE)
+            if (((Player *)pWho)->GetQuestStatus(QUEST_VISIT_WITH_ANCESTORS) == QUEST_STATUS_INCOMPLETE)
             {
                 uint32 creditMarkerId = m_creature->GetEntry();
                 if ((creditMarkerId >= 18840) && (creditMarkerId <= 18843))
                 {
-                    // 18840: Sunspring, 18841: Laughing, 18842: Garadar, 18843: Bleeding
-                    if (!((Player*)pWho)->GetReqKillOrCastCurrentCount(QUEST_VISIT_WITH_ANCESTORS, creditMarkerId))
+                    // 18840: Sunspring, 18841: Laughing, 18842: Garadar, 18843:
+                    // Bleeding
+                    if (!((Player *)pWho)->GetReqKillOrCastCurrentCount(QUEST_VISIT_WITH_ANCESTORS, creditMarkerId))
                     {
-                        ((Player*)pWho)->KilledMonsterCredit(creditMarkerId, m_creature->GetObjectGuid());
-                        Creature * votfTarget = m_creature->SummonCreature(NPC_VISION_OF_THE_FORGOTTEN, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSPAWN_TIMED_OR_CORPSE_DESPAWN, 30000);
+                        ((Player *)pWho)->KilledMonsterCredit(creditMarkerId, m_creature->GetObjectGuid());
+                        Creature *votfTarget = m_creature->SummonCreature(
+                            NPC_VISION_OF_THE_FORGOTTEN, m_creature->GetPositionX(), m_creature->GetPositionY(),
+                            m_creature->GetPositionZ(), 0, TEMPSPAWN_TIMED_OR_CORPSE_DESPAWN, 30000);
                         switch (urand(0, 4))
                         {
-                            case 0: DoScriptText(WHISPER_VISIT_WITH_ANCESTORS_1, votfTarget, pWho); break;
-                            case 1: DoScriptText(WHISPER_VISIT_WITH_ANCESTORS_2, votfTarget, pWho); break;
-                            case 2: DoScriptText(WHISPER_VISIT_WITH_ANCESTORS_3, votfTarget, pWho); break;
-                            case 3: DoScriptText(WHISPER_VISIT_WITH_ANCESTORS_4, votfTarget, pWho); break;
-                            case 4: DoScriptText(WHISPER_VISIT_WITH_ANCESTORS_5, votfTarget, pWho); break;
+                        case 0:
+                            DoScriptText(WHISPER_VISIT_WITH_ANCESTORS_1, votfTarget, pWho);
+                            break;
+                        case 1:
+                            DoScriptText(WHISPER_VISIT_WITH_ANCESTORS_2, votfTarget, pWho);
+                            break;
+                        case 2:
+                            DoScriptText(WHISPER_VISIT_WITH_ANCESTORS_3, votfTarget, pWho);
+                            break;
+                        case 3:
+                            DoScriptText(WHISPER_VISIT_WITH_ANCESTORS_4, votfTarget, pWho);
+                            break;
+                        case 4:
+                            DoScriptText(WHISPER_VISIT_WITH_ANCESTORS_5, votfTarget, pWho);
+                            break;
                         }
                     }
                 }
@@ -453,7 +492,7 @@ struct npc_creditmarker_visit_with_ancestorsAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_npc_creditmarker_visit_with_ancestors(Creature* pCreature)
+UnitAI *GetAI_npc_creditmarker_visit_with_ancestors(Creature *pCreature)
 {
     return new npc_creditmarker_visit_with_ancestorsAI(pCreature);
 }
@@ -464,35 +503,35 @@ UnitAI* GetAI_npc_creditmarker_visit_with_ancestors(Creature* pCreature)
 
 enum
 {
-    SAY_LOW_HP                      = -1000966,
-    SAY_EVENT_END                   = -1000967,
+    SAY_LOW_HP = -1000966,
+    SAY_EVENT_END = -1000967,
 
-    SPELL_CRIPPLE                   = 41281,
-    SPELL_SHADOW_BOLT               = 41280,
-    SPELL_ABYSSAL_TOSS              = 41283,                // Casts toss at summoned npc
-    SPELL_ABYSSAL_IMPACT            = 41284,
+    SPELL_CRIPPLE = 41281,
+    SPELL_SHADOW_BOLT = 41280,
+    SPELL_ABYSSAL_TOSS = 41283, // Casts toss at summoned npc
+    SPELL_ABYSSAL_IMPACT = 41284,
     // SPELL_GROUND_AIR_PULSE       = 41270,                // spell purpose unk
     // SPELL_AGGRO_CHECK            = 41285,                // spell purpose unk
     // SPELL_AGGRO_BURST            = 41286,                // spell purpose unk
 
-    SPELL_COSMETIC_LEGION_RING      = 41339,
-    SPELL_QUEST_COMPLETE            = 41340,
+    SPELL_COSMETIC_LEGION_RING = 41339,
+    SPELL_QUEST_COMPLETE = 41340,
 
-    NPC_SPELLBINDER                 = 22342,
-    NPC_RETHHEDRONS_TARGET          = 23416,                // Summoned through missing serveride 41288
+    NPC_SPELLBINDER = 22342,
+    NPC_RETHHEDRONS_TARGET = 23416, // Summoned through missing serveride 41288
 
-    PATH_ID_OUTRO                   = 1,
+    PATH_ID_OUTRO = 1,
 
-    POINT_ID_PORTAL_YELL            = 1,
-    POINT_ID_PORTAL_FRONT           = 2,
-    POINT_ID_PORTAL_FINAL           = 3,
+    POINT_ID_PORTAL_YELL = 1,
+    POINT_ID_PORTAL_FRONT = 2,
+    POINT_ID_PORTAL_FINAL = 3,
 
-    SOUND_ID_ABYSSAL_TOSS           = 10667,                // Played after abyssal toss
+    SOUND_ID_ABYSSAL_TOSS = 10667, // Played after abyssal toss
 };
 
 struct npc_rethhedronAI : public ScriptedAI
 {
-    npc_rethhedronAI(Creature* pCreature) : ScriptedAI(pCreature)
+    npc_rethhedronAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
         m_creature->GetCombatManager().SetLeashingDisable(true);
         Reset();
@@ -508,13 +547,13 @@ struct npc_rethhedronAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiCrippleTimer     = urand(5000, 9000);
-        m_uiShadowBoltTimer  = urand(1000, 3000);
+        m_uiCrippleTimer = urand(5000, 9000);
+        m_uiShadowBoltTimer = urand(1000, 3000);
         m_uiAbyssalTossTimer = 0;
 
         m_attackDistance = 30.0f;
 
-        m_bLowHpYell        = false;
+        m_bLowHpYell = false;
 
         m_attackDistance = 60.0f;
     }
@@ -529,7 +568,8 @@ struct npc_rethhedronAI : public ScriptedAI
         ScriptedAI::JustRespawned();
     }
 
-    void DamageTaken(Unit* /*dealer*/, uint32& damage, DamageEffectType /*damagetype*/, SpellEntry const* /*spellInfo*/) override
+    void DamageTaken(Unit * /*dealer*/, uint32 &damage, DamageEffectType /*damagetype*/,
+                     SpellEntry const * /*spellInfo*/) override
     {
         damage = std::min(m_creature->GetHealth() - 1, damage);
 
@@ -556,14 +596,14 @@ struct npc_rethhedronAI : public ScriptedAI
 
         switch (uiPointId)
         {
-            case POINT_ID_PORTAL_YELL:
-                DoScriptText(SAY_EVENT_END, m_creature);
-                break;
-            case POINT_ID_PORTAL_FINAL:
-                DoCastSpellIfCan(m_creature, SPELL_QUEST_COMPLETE, CAST_TRIGGERED);
-                DoCastSpellIfCan(m_creature, SPELL_COSMETIC_LEGION_RING, CAST_TRIGGERED);
-                m_creature->ForcedDespawn(2000);
-                break;
+        case POINT_ID_PORTAL_YELL:
+            DoScriptText(SAY_EVENT_END, m_creature);
+            break;
+        case POINT_ID_PORTAL_FINAL:
+            DoCastSpellIfCan(m_creature, SPELL_QUEST_COMPLETE, CAST_TRIGGERED);
+            DoCastSpellIfCan(m_creature, SPELL_COSMETIC_LEGION_RING, CAST_TRIGGERED);
+            m_creature->ForcedDespawn(2000);
+            break;
         }
     }
 
@@ -593,11 +633,14 @@ struct npc_rethhedronAI : public ScriptedAI
 
         if (m_uiAbyssalTossTimer < uiDiff)
         {
-            if (Unit* victim = m_creature->GetVictim())
+            if (Unit *victim = m_creature->GetVictim())
             {
                 if (!m_creature->CanReachWithMeleeAttack(victim))
                 {
-                    Creature* rethedronTarget = m_creature->SummonCreature(NPC_RETHHEDRONS_TARGET, victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ(), 0, TEMPSPAWN_TIMED_OR_CORPSE_DESPAWN, 30000);;
+                    Creature *rethedronTarget = m_creature->SummonCreature(
+                        NPC_RETHHEDRONS_TARGET, victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ(),
+                        0, TEMPSPAWN_TIMED_OR_CORPSE_DESPAWN, 30000);
+                    ;
                     if (DoCastSpellIfCan(rethedronTarget, SPELL_ABYSSAL_TOSS) == CAST_OK)
                     {
                         m_creature->PlayDistanceSound(SOUND_ID_ABYSSAL_TOSS);
@@ -626,11 +669,11 @@ enum
     QUEST_RING_OF_BLOOD_FINAL_CHALLENGE = 9977,
 };
 
-bool QuestAccept_npc_gurthock(Player* /*player*/, Creature* creature, const Quest* quest)
+bool QuestAccept_npc_gurthock(Player * /*player*/, Creature *creature, const Quest *quest)
 {
     if (quest->GetQuestId() == QUEST_RING_OF_BLOOD_FINAL_CHALLENGE)
     {
-        if (InstanceData* data = creature->GetInstanceData())
+        if (InstanceData *data = creature->GetInstanceData())
             data->SetData(TYPE_MOGOR, 1);
     }
     else
@@ -638,7 +681,7 @@ bool QuestAccept_npc_gurthock(Player* /*player*/, Creature* creature, const Ques
     return true;
 }
 
-bool GossipHello_npc_gurthock(Player* player, Creature* creature)
+bool GossipHello_npc_gurthock(Player *player, Creature *creature)
 {
     if (creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
         return false;
@@ -656,14 +699,14 @@ enum
 
 struct SparrowhawkNet : public SpellScript
 {
-    SpellCastResult OnCheckCast(Spell* spell, bool /*strict*/) const override
+    SpellCastResult OnCheckCast(Spell *spell, bool /*strict*/) const override
     {
         if (spell->m_targets.getUnitTargetGuid().GetEntry() != NPC_WILD_SPARROWHAWK)
             return SPELL_FAILED_BAD_TARGETS;
         return SPELL_CAST_OK;
     }
 
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx != EFFECT_INDEX_1 || !spell->GetUnitTarget())
             return;
@@ -674,7 +717,7 @@ struct SparrowhawkNet : public SpellScript
 
 void AddSC_nagrand()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "mob_lump";
     pNewScript->GetAI = &GetAI_mob_lump;
     pNewScript->RegisterSelf();

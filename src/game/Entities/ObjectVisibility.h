@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,49 +53,77 @@ enum InvisibilityType : uint32
 
 class VisibilityData
 {
-    public:
-        VisibilityData(WorldObject* owner);
+  public:
+    VisibilityData(WorldObject *owner);
 
-        // visibility
-        bool IsVisibilityOverridden() const { return m_visibilityDistanceOverride != 0.f; }
-        void SetVisibilityDistanceOverride(VisibilityDistanceType type);
+    // visibility
+    bool IsVisibilityOverridden() const
+    {
+        return m_visibilityDistanceOverride != 0.f;
+    }
+    void SetVisibilityDistanceOverride(VisibilityDistanceType type);
 
-        float GetVisibilityDistance() const;
-        float GetVisibilityDistanceFor(WorldObject* obj) const;
-        // invisibility
-        bool CanDetectInvisibilityOf(WorldObject const* u) const;
-        uint32 GetInvisibilityDetectMask() const;
-        void SetInvisibilityDetectMask(uint32 index, bool apply);
-        uint32 GetInvisibilityMask() const;
-        void SetInvisibilityMask(uint32 index, bool apply);
-        void SetInvisibilityValue(uint32 index, int32 value) { m_invisibilityValues[index] = value; }
-        void AddInvisibilityValue(uint32 index, int32 value) { m_invisibilityValues[index] += value; }
-        void AddInvisibilityDetectValue(uint32 index, int32 value) { m_invisibilityDetectValues[index] += value; }
-        int32 GetInvisibilityValue(uint32 index) const;
-        int32 GetInvisibilityDetectValue(uint32 index) const;
-        // stealth
-        uint32 GetStealthMask() const { return m_stealthMask; }
-        void SetStealthMask(uint32 index, bool apply);
-        void AddStealthStrength(StealthType type, uint32 value) { m_stealthStrength[type] += value; }
-        void AddStealthDetectionStrength(StealthType type, uint32 value) { m_stealthDetectStrength[type] += value; }
-        uint32 GetStealthStrength(StealthType type) const { return m_stealthStrength[type]; }
-        uint32 GetStealthDetectionStrength(StealthType type) const { return m_stealthDetectStrength[type]; }
+    float GetVisibilityDistance() const;
+    float GetVisibilityDistanceFor(WorldObject *obj) const;
+    // invisibility
+    bool CanDetectInvisibilityOf(WorldObject const *u) const;
+    uint32 GetInvisibilityDetectMask() const;
+    void SetInvisibilityDetectMask(uint32 index, bool apply);
+    uint32 GetInvisibilityMask() const;
+    void SetInvisibilityMask(uint32 index, bool apply);
+    void SetInvisibilityValue(uint32 index, int32 value)
+    {
+        m_invisibilityValues[index] = value;
+    }
+    void AddInvisibilityValue(uint32 index, int32 value)
+    {
+        m_invisibilityValues[index] += value;
+    }
+    void AddInvisibilityDetectValue(uint32 index, int32 value)
+    {
+        m_invisibilityDetectValues[index] += value;
+    }
+    int32 GetInvisibilityValue(uint32 index) const;
+    int32 GetInvisibilityDetectValue(uint32 index) const;
+    // stealth
+    uint32 GetStealthMask() const
+    {
+        return m_stealthMask;
+    }
+    void SetStealthMask(uint32 index, bool apply);
+    void AddStealthStrength(StealthType type, uint32 value)
+    {
+        m_stealthStrength[type] += value;
+    }
+    void AddStealthDetectionStrength(StealthType type, uint32 value)
+    {
+        m_stealthDetectStrength[type] += value;
+    }
+    uint32 GetStealthStrength(StealthType type) const
+    {
+        return m_stealthStrength[type];
+    }
+    uint32 GetStealthDetectionStrength(StealthType type) const
+    {
+        return m_stealthDetectStrength[type];
+    }
 
-        float GetStealthVisibilityDistance(Unit const* target, bool alert = false) const;
-    private:
-        // visibility
-        float m_visibilityDistanceOverride;
-        // invisibility
-        uint32 m_invisibilityMask;
-        uint32 m_detectInvisibilityMask; // is inherited from controller in PC case
-        int32 m_invisibilityValues[INVISIBILITY_TYPE_MAX];
-        int32 m_invisibilityDetectValues[INVISIBILITY_TYPE_MAX];
-        // stealth
-        uint32 m_stealthMask;
-        uint32 m_stealthStrength[STEALTH_TYPE_MAX];
-        uint32 m_stealthDetectStrength[STEALTH_TYPE_MAX];
+    float GetStealthVisibilityDistance(Unit const *target, bool alert = false) const;
 
-        WorldObject* m_owner;
+  private:
+    // visibility
+    float m_visibilityDistanceOverride;
+    // invisibility
+    uint32 m_invisibilityMask;
+    uint32 m_detectInvisibilityMask; // is inherited from controller in PC case
+    int32 m_invisibilityValues[INVISIBILITY_TYPE_MAX];
+    int32 m_invisibilityDetectValues[INVISIBILITY_TYPE_MAX];
+    // stealth
+    uint32 m_stealthMask;
+    uint32 m_stealthStrength[STEALTH_TYPE_MAX];
+    uint32 m_stealthDetectStrength[STEALTH_TYPE_MAX];
+
+    WorldObject *m_owner;
 };
 
 #endif

@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -26,8 +26,7 @@ EndScriptData
 #include "AI/ScriptDevAI/include/sc_common.h"
 #include "maraudon.h"
 
-instance_maraudon::instance_maraudon(Map* map) : ScriptedInstance(map),
-    m_spewLarvaTimer(1 * MINUTE * IN_MILLISECONDS)
+instance_maraudon::instance_maraudon(Map *map) : ScriptedInstance(map), m_spewLarvaTimer(1 * MINUTE * IN_MILLISECONDS)
 {
     Initialize();
 }
@@ -37,17 +36,17 @@ void instance_maraudon::Initialize()
     memset(&m_encounter, 0, sizeof(m_encounter));
 }
 
-void instance_maraudon::OnObjectCreate(GameObject* go)
+void instance_maraudon::OnObjectCreate(GameObject *go)
 {
     switch (go->GetEntry())
     {
-        case GO_LARVA_SPEWER:
-            // If Noxxion encounter is done, stop spewing larvas
-            if (GetData(TYPE_NOXXION) == DONE)
-                go->SetLootState(GO_ACTIVATED);
-            break;
-        case GO_CORRUPTION_SPEWER:
-            break;
+    case GO_LARVA_SPEWER:
+        // If Noxxion encounter is done, stop spewing larvas
+        if (GetData(TYPE_NOXXION) == DONE)
+            go->SetLootState(GO_ACTIVATED);
+        break;
+    case GO_CORRUPTION_SPEWER:
+        break;
     }
     m_goEntryGuidStore[go->GetEntry()] = go->GetObjectGuid();
 }
@@ -63,20 +62,20 @@ void instance_maraudon::SetData(uint32 type, uint32 data)
         m_encounter[type] = data;
         switch (data)
         {
-            // If Noxxion encounter is done or spewer attacked, stop spewing larvas
-            case DONE:
-                // Destroy the corruption spewer near Noxxion
-                if (GameObject* go = GetSingleGameObjectFromStorage(GO_CORRUPTION_SPEWER))
+        // If Noxxion encounter is done or spewer attacked, stop spewing larvas
+        case DONE:
+            // Destroy the corruption spewer near Noxxion
+            if (GameObject *go = GetSingleGameObjectFromStorage(GO_CORRUPTION_SPEWER))
+                go->SetLootState(GO_ACTIVATED);
+            // no break, the special part is also executed
+        case SPECIAL:
+            m_spewLarvaTimer = 0;
+            // Destroy the larva spewer if not already done
+            if (GameObject *go = GetSingleGameObjectFromStorage(GO_LARVA_SPEWER))
+            {
+                if (go->GetLootState() != GO_ACTIVATED)
                     go->SetLootState(GO_ACTIVATED);
-                // no break, the special part is also executed
-            case SPECIAL:
-                m_spewLarvaTimer = 0;
-                // Destroy the larva spewer if not already done
-                if (GameObject* go = GetSingleGameObjectFromStorage(GO_LARVA_SPEWER))
-                {
-                    if (go->GetLootState() != GO_ACTIVATED)
-                        go->SetLootState(GO_ACTIVATED);
-                }
+            }
         }
     }
 
@@ -102,7 +101,7 @@ uint32 instance_maraudon::GetData(uint32 type) const
     return 0;
 }
 
-void instance_maraudon::Load(const char* chrIn)
+void instance_maraudon::Load(const char *chrIn)
 {
     if (!chrIn)
     {
@@ -115,7 +114,7 @@ void instance_maraudon::Load(const char* chrIn)
     std::istringstream loadStream(chrIn);
     loadStream >> m_encounter[0];
 
-    for (unsigned int& i : m_encounter)
+    for (unsigned int &i : m_encounter)
     {
         if (i == IN_PROGRESS)
             i = NOT_STARTED;
@@ -124,23 +123,23 @@ void instance_maraudon::Load(const char* chrIn)
     OUT_LOAD_INST_DATA_COMPLETE;
 }
 
-void instance_maraudon::OnCreatureDeath(Creature* creature)
+void instance_maraudon::OnCreatureDeath(Creature *creature)
 {
     switch (creature->GetEntry())
     {
-        case NPC_NOXXION:
-            SetData(TYPE_NOXXION, DONE);
-            break;
+    case NPC_NOXXION:
+        SetData(TYPE_NOXXION, DONE);
+        break;
     }
 }
 
-void instance_maraudon::OnCreatureEvade(Creature* creature)
+void instance_maraudon::OnCreatureEvade(Creature *creature)
 {
     switch (creature->GetEntry())
     {
-        case NPC_NOXXION:
-            SetData(TYPE_NOXXION, FAIL);
-            break;
+    case NPC_NOXXION:
+        SetData(TYPE_NOXXION, FAIL);
+        break;
     }
 }
 
@@ -151,8 +150,12 @@ void instance_maraudon::Update(uint32 uiDiff)
     {
         if (m_spewLarvaTimer <= uiDiff)
         {
-            if (GameObject* pGo = GetSingleGameObjectFromStorage(GO_LARVA_SPEWER))
-                pGo->SummonCreature(NPC_SPEWED_LARVA, spawnLocation.m_fX, spawnLocation.m_fY, spawnLocation.m_fZ, spawnLocation.m_fO, TEMPSPAWN_TIMED_DESPAWN, 10 * MINUTE * IN_MILLISECONDS); // Despawn is handled by DBScript we just want to avoid an infinite number of larvas near Noxxion
+            if (GameObject *pGo = GetSingleGameObjectFromStorage(GO_LARVA_SPEWER))
+                pGo->SummonCreature(NPC_SPEWED_LARVA, spawnLocation.m_fX, spawnLocation.m_fY, spawnLocation.m_fZ,
+                                    spawnLocation.m_fO, TEMPSPAWN_TIMED_DESPAWN,
+                                    10 * MINUTE * IN_MILLISECONDS); // Despawn is handled by DBScript we
+                                                                    // just want to avoid an infinite
+                                                                    // number of larvas near Noxxion
             m_spewLarvaTimer = 1 * MINUTE * IN_MILLISECONDS;
         }
         else
@@ -160,7 +163,7 @@ void instance_maraudon::Update(uint32 uiDiff)
     }
 }
 
-InstanceData* GetInstanceData_instance_maraudon(Map* map)
+InstanceData *GetInstanceData_instance_maraudon(Map *map)
 {
     return new instance_maraudon(map);
 }
@@ -171,27 +174,29 @@ InstanceData* GetInstanceData_instance_maraudon(Map* map)
 
 struct go_ai_larva_spewer : public GameObjectAI
 {
-    go_ai_larva_spewer(GameObject* go) : GameObjectAI(go) {}
+    go_ai_larva_spewer(GameObject *go) : GameObjectAI(go)
+    {
+    }
 
     void OnLootStateChange()
     {
         if (m_go->GetLootState() == GO_ACTIVATED)
         {
-            ScriptedInstance* pInstance = (ScriptedInstance*)m_go->GetMap()->GetInstanceData();
+            ScriptedInstance *pInstance = (ScriptedInstance *)m_go->GetMap()->GetInstanceData();
             if (pInstance)
                 pInstance->SetData(TYPE_NOXXION, SPECIAL);
         }
     }
 };
 
-GameObjectAI* GetAI_go_larva_spewer(GameObject* go)
+GameObjectAI *GetAI_go_larva_spewer(GameObject *go)
 {
     return new go_ai_larva_spewer(go);
 }
 
 void AddSC_instance_maraudon()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "instance_maraudon";
     pNewScript->GetInstanceData = &GetInstanceData_instance_maraudon;
     pNewScript->RegisterSelf();

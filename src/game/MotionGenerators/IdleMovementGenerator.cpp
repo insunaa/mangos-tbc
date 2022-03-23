@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,34 +18,34 @@
  */
 
 #include "IdleMovementGenerator.h"
+
 #include "AI/BaseAI/CreatureAI.h"
 #include "Entities/Creature.h"
 
 IdleMovementGenerator si_idleMovement;
 
-bool IdleMovementGenerator::Update(Unit&, const uint32&)
+bool IdleMovementGenerator::Update(Unit &, const uint32 &)
 {
     return true;
 }
 
-void DistractMovementGenerator::Initialize(Unit& owner)
+void DistractMovementGenerator::Initialize(Unit &owner)
 {
     owner.addUnitState(UNIT_STAT_DISTRACTED);
 }
 
-void DistractMovementGenerator::Finalize(Unit& owner)
+void DistractMovementGenerator::Finalize(Unit &owner)
 {
     owner.clearUnitState(UNIT_STAT_DISTRACTED);
 }
 
-void DistractMovementGenerator::Reset(Unit& owner)
+void DistractMovementGenerator::Reset(Unit &owner)
 {
     Initialize(owner);
 }
 
-bool DistractMovementGenerator::Update(Unit& owner, const uint32& diff)
+bool DistractMovementGenerator::Update(Unit &owner, const uint32 &diff)
 {
     m_timer.Update(diff);
     return (owner.hasUnitState(UNIT_STAT_DISTRACTED) && !m_timer.Passed());
 }
-

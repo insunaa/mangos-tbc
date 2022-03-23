@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,18 +17,19 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "Entities/Creature.h"
-#include "Entities/Player.h"
-#include "Movement/MoveSplineInit.h"
-#include "Movement/MoveSpline.h"
 #include "MotionGenerators/RandomMovementGenerator.h"
 
-void AbstractRandomMovementGenerator::Initialize(Unit& owner)
+#include "Entities/Creature.h"
+#include "Entities/Player.h"
+#include "Movement/MoveSpline.h"
+#include "Movement/MoveSplineInit.h"
+
+void AbstractRandomMovementGenerator::Initialize(Unit &owner)
 {
     owner.addUnitState(i_stateActive);
 
     // Client-controlled unit should have control removed
-    if (const Player* controllingClientPlayer = owner.GetClientControlling())
+    if (const Player *controllingClientPlayer = owner.GetClientControlling())
         controllingClientPlayer->UpdateClientControl(&owner, false);
     // Non-client controlled unit with an AI should drop target
     else if (owner.AI())
@@ -46,12 +48,12 @@ void AbstractRandomMovementGenerator::Initialize(Unit& owner)
     }
 }
 
-void AbstractRandomMovementGenerator::Finalize(Unit& owner)
+void AbstractRandomMovementGenerator::Finalize(Unit &owner)
 {
     owner.clearUnitState(i_stateActive | i_stateMotion);
 
     // Client-controlled unit should have control restored
-    if (const Player* controllingClientPlayer = owner.GetClientControlling())
+    if (const Player *controllingClientPlayer = owner.GetClientControlling())
         controllingClientPlayer->UpdateClientControl(&owner, true);
 
     // Stop any previously dispatched splines no matter the source
@@ -64,21 +66,21 @@ void AbstractRandomMovementGenerator::Finalize(Unit& owner)
     }
 }
 
-void AbstractRandomMovementGenerator::Interrupt(Unit& owner)
+void AbstractRandomMovementGenerator::Interrupt(Unit &owner)
 {
     owner.InterruptMoving();
 
     owner.clearUnitState(i_stateMotion);
 }
 
-void AbstractRandomMovementGenerator::Reset(Unit& owner)
+void AbstractRandomMovementGenerator::Reset(Unit &owner)
 {
     i_nextMoveTimer.Reset(0);
 
     Initialize(owner);
 }
 
-bool AbstractRandomMovementGenerator::Update(Unit& owner, const uint32& diff)
+bool AbstractRandomMovementGenerator::Update(Unit &owner, const uint32 &diff)
 {
     if (!owner.IsAlive())
         return false;
@@ -114,12 +116,12 @@ bool AbstractRandomMovementGenerator::Update(Unit& owner, const uint32& diff)
     return true;
 }
 
-bool AbstractRandomMovementGenerator::_getLocation(Unit& owner, float& x, float& y, float& z)
+bool AbstractRandomMovementGenerator::_getLocation(Unit &owner, float &x, float &y, float &z)
 {
     return owner.GetMap()->GetReachableRandomPosition(&owner, x, y, z, i_radius);
 }
 
-int32 AbstractRandomMovementGenerator::_setLocation(Unit& owner)
+int32 AbstractRandomMovementGenerator::_setLocation(Unit &owner)
 {
     // Look for a random location within certain radius of initial position
     float x = i_x, y = i_y, z = i_z;
@@ -149,8 +151,8 @@ int32 AbstractRandomMovementGenerator::_setLocation(Unit& owner)
     return duration;
 }
 
-ConfusedMovementGenerator::ConfusedMovementGenerator(float x, float y, float z) :
-    AbstractRandomMovementGenerator(UNIT_STAT_CONFUSED, UNIT_STAT_CONFUSED_MOVE, 500, 1500)
+ConfusedMovementGenerator::ConfusedMovementGenerator(float x, float y, float z)
+    : AbstractRandomMovementGenerator(UNIT_STAT_CONFUSED, UNIT_STAT_CONFUSED_MOVE, 500, 1500)
 {
     i_radius = 2.5f;
     i_x = x;
@@ -158,13 +160,13 @@ ConfusedMovementGenerator::ConfusedMovementGenerator(float x, float y, float z) 
     i_z = z;
 }
 
-ConfusedMovementGenerator::ConfusedMovementGenerator(const Unit& owner) :
-    ConfusedMovementGenerator(owner.GetPositionX(), owner.GetPositionY(), owner.GetPositionZ())
+ConfusedMovementGenerator::ConfusedMovementGenerator(const Unit &owner)
+    : ConfusedMovementGenerator(owner.GetPositionX(), owner.GetPositionY(), owner.GetPositionZ())
 {
 }
 
-WanderMovementGenerator::WanderMovementGenerator(float x, float y, float z, float radius, float verticalZ) :
-    AbstractRandomMovementGenerator(UNIT_STAT_ROAMING, UNIT_STAT_ROAMING_MOVE, 3000, 10000, 3)
+WanderMovementGenerator::WanderMovementGenerator(float x, float y, float z, float radius, float verticalZ)
+    : AbstractRandomMovementGenerator(UNIT_STAT_ROAMING, UNIT_STAT_ROAMING_MOVE, 3000, 10000, 3)
 {
     i_x = x;
     i_y = y;
@@ -173,34 +175,35 @@ WanderMovementGenerator::WanderMovementGenerator(float x, float y, float z, floa
     i_verticalZ = verticalZ;
 }
 
-WanderMovementGenerator::WanderMovementGenerator(const Creature& npc) :
-    AbstractRandomMovementGenerator(UNIT_STAT_ROAMING, UNIT_STAT_ROAMING_MOVE, 3000, 10000, 3)
+WanderMovementGenerator::WanderMovementGenerator(const Creature &npc)
+    : AbstractRandomMovementGenerator(UNIT_STAT_ROAMING, UNIT_STAT_ROAMING_MOVE, 3000, 10000, 3)
 {
     npc.GetRespawnCoord(i_x, i_y, i_z, nullptr, &i_radius);
 }
 
-void WanderMovementGenerator::Finalize(Unit& owner)
+void WanderMovementGenerator::Finalize(Unit &owner)
 {
     AbstractRandomMovementGenerator::Finalize(owner);
 
     if (owner.GetTypeId() == TYPEID_UNIT)
-        static_cast<Creature&>(owner).SetWalk(!owner.hasUnitState(UNIT_STAT_RUNNING_STATE), false);
+        static_cast<Creature &>(owner).SetWalk(!owner.hasUnitState(UNIT_STAT_RUNNING_STATE), false);
 }
 
-void WanderMovementGenerator::Interrupt(Unit& owner)
+void WanderMovementGenerator::Interrupt(Unit &owner)
 {
     AbstractRandomMovementGenerator::Interrupt(owner);
 
     if (owner.GetTypeId() == TYPEID_UNIT)
-        static_cast<Creature&>(owner).SetWalk(!owner.hasUnitState(UNIT_STAT_RUNNING_STATE), false);
+        static_cast<Creature &>(owner).SetWalk(!owner.hasUnitState(UNIT_STAT_RUNNING_STATE), false);
 }
 
-TimedWanderMovementGenerator::TimedWanderMovementGenerator(Creature const& npc, uint32 timer, float radius, float verticalZ)
+TimedWanderMovementGenerator::TimedWanderMovementGenerator(Creature const &npc, uint32 timer, float radius,
+                                                           float verticalZ)
     : TimedWanderMovementGenerator(timer, npc.GetPositionX(), npc.GetPositionY(), npc.GetPositionZ(), radius, verticalZ)
 {
 }
 
-bool TimedWanderMovementGenerator::Update(Unit& owner, const uint32& diff)
+bool TimedWanderMovementGenerator::Update(Unit &owner, const uint32 &diff)
 {
     m_durationTimer.Update(diff);
     if (m_durationTimer.Passed())
@@ -209,8 +212,8 @@ bool TimedWanderMovementGenerator::Update(Unit& owner, const uint32& diff)
     return WanderMovementGenerator::Update(owner, diff);
 }
 
-FleeingMovementGenerator::FleeingMovementGenerator(Unit const& source) :
-    AbstractRandomMovementGenerator(UNIT_STAT_FLEEING, UNIT_STAT_FLEEING_MOVE, 500, 1500)
+FleeingMovementGenerator::FleeingMovementGenerator(Unit const &source)
+    : AbstractRandomMovementGenerator(UNIT_STAT_FLEEING, UNIT_STAT_FLEEING_MOVE, 500, 1500)
 {
     source.GetPosition(i_x, i_y, i_z);
     i_pathLength = 30;
@@ -220,7 +223,7 @@ FleeingMovementGenerator::FleeingMovementGenerator(Unit const& source) :
 #define MIN_QUIET_DISTANCE 28.0f
 #define MAX_QUIET_DISTANCE 43.0f
 
-bool FleeingMovementGenerator::_getLocation(Unit& owner, float& x, float& y, float& z)
+bool FleeingMovementGenerator::_getLocation(Unit &owner, float &x, float &y, float &z)
 {
     float dist_from_source = owner.GetDistance(i_x, i_y, i_z);
 
@@ -228,7 +231,7 @@ bool FleeingMovementGenerator::_getLocation(Unit& owner, float& x, float& y, flo
         i_radius = frand(0.4f, 1.3f) * (MIN_QUIET_DISTANCE - dist_from_source);
     else if (dist_from_source > MAX_QUIET_DISTANCE)
         i_radius = frand(0.4f, 1.0f) * (MAX_QUIET_DISTANCE - MIN_QUIET_DISTANCE);
-    else    // we are inside quiet range
+    else // we are inside quiet range
         i_radius = frand(0.6f, 1.2f) * (MAX_QUIET_DISTANCE - MIN_QUIET_DISTANCE);
 
     owner.GetPosition(x, y, z);
@@ -241,18 +244,19 @@ bool FleeingMovementGenerator::_getLocation(Unit& owner, float& x, float& y, flo
     return true;
 }
 
-void PanicMovementGenerator::Initialize(Unit& owner)
+void PanicMovementGenerator::Initialize(Unit &owner)
 {
     owner.addUnitState(UNIT_STAT_PANIC);
 
     FleeingMovementGenerator::Initialize(owner);
 }
 
-void PanicMovementGenerator::Finalize(Unit& owner)
+void PanicMovementGenerator::Finalize(Unit &owner)
 {
     owner.clearUnitState(UNIT_STAT_PANIC);
 
-    // Since two fleeing mmgens are mutually exclusive, we are also responsible for the removal of that flag, nobody will clear this for us
+    // Since two fleeing mmgens are mutually exclusive, we are also responsible
+    // for the removal of that flag, nobody will clear this for us
     owner.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
 
     FleeingMovementGenerator::Finalize(owner);
@@ -261,7 +265,7 @@ void PanicMovementGenerator::Finalize(Unit& owner)
         owner.AI()->TimedFleeingEnded();
 }
 
-void PanicMovementGenerator::Interrupt(Unit& owner)
+void PanicMovementGenerator::Interrupt(Unit &owner)
 {
     FleeingMovementGenerator::Interrupt(owner);
 
@@ -269,7 +273,7 @@ void PanicMovementGenerator::Interrupt(Unit& owner)
         owner.AI()->TimedFleeingEnded();
 }
 
-bool PanicMovementGenerator::Update(Unit& owner, const uint32& diff)
+bool PanicMovementGenerator::Update(Unit &owner, const uint32 &diff)
 {
     m_fleeingTimer.Update(diff);
     if (m_fleeingTimer.Passed())

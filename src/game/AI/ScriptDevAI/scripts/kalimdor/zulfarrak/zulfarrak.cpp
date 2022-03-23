@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -27,23 +27,24 @@ event_spell_unlocking
 at_zulfarrak
 EndContentData */
 
-#include "AI/ScriptDevAI/include/sc_common.h"
 #include "zulfarrak.h"
+
+#include "AI/ScriptDevAI/include/sc_common.h"
 
 /*######
 ## event_go_zulfarrak_gong
 ######*/
 
-bool ProcessEventId_event_go_zulfarrak_gong(uint32 /*uiEventId*/, Object* pSource, Object* /*pTarget*/, bool bIsStart)
+bool ProcessEventId_event_go_zulfarrak_gong(uint32 /*uiEventId*/, Object *pSource, Object * /*pTarget*/, bool bIsStart)
 {
     if (bIsStart && pSource->GetTypeId() == TYPEID_PLAYER)
     {
-        if (instance_zulfarrak* pInstance = (instance_zulfarrak*)((Player*)pSource)->GetInstanceData())
+        if (instance_zulfarrak *pInstance = (instance_zulfarrak *)((Player *)pSource)->GetInstanceData())
         {
             if (pInstance->GetData(TYPE_GAHZRILLA) == NOT_STARTED || pInstance->GetData(TYPE_GAHZRILLA) == FAIL)
             {
                 pInstance->SetData(TYPE_GAHZRILLA, IN_PROGRESS);
-                return false;                               // Summon Gahz'rilla by Database Script
+                return false; // Summon Gahz'rilla by Database Script
             }
             return true;
             // Prevent DB script summoning Gahz'rilla
@@ -56,16 +57,16 @@ bool ProcessEventId_event_go_zulfarrak_gong(uint32 /*uiEventId*/, Object* pSourc
 ## event_spell_unlocking
 ######*/
 
-bool ProcessEventId_event_spell_unlocking(uint32 /*uiEventId*/, Object* pSource, Object* /*pTarget*/, bool bIsStart)
+bool ProcessEventId_event_spell_unlocking(uint32 /*uiEventId*/, Object *pSource, Object * /*pTarget*/, bool bIsStart)
 {
     if (bIsStart && pSource->GetTypeId() == TYPEID_PLAYER)
     {
-        if (instance_zulfarrak* pInstance = (instance_zulfarrak*)((Player*)pSource)->GetInstanceData())
+        if (instance_zulfarrak *pInstance = (instance_zulfarrak *)((Player *)pSource)->GetInstanceData())
         {
             if (pInstance->GetData(TYPE_PYRAMID_EVENT) == NOT_STARTED)
             {
                 pInstance->SetData(TYPE_PYRAMID_EVENT, IN_PROGRESS);
-                return false;                               // Summon pyramid trolls by Database Script
+                return false; // Summon pyramid trolls by Database Script
             }
             return true;
         }
@@ -77,21 +78,21 @@ bool ProcessEventId_event_spell_unlocking(uint32 /*uiEventId*/, Object* pSource,
 ## at_zulfarrak
 ######*/
 
-bool AreaTrigger_at_zulfarrak(Player* pPlayer, AreaTriggerEntry const* pAt)
+bool AreaTrigger_at_zulfarrak(Player *pPlayer, AreaTriggerEntry const *pAt)
 {
     if (pAt->id == AREATRIGGER_ANTUSUL)
     {
         if (pPlayer->IsGameMaster() || pPlayer->IsDead())
             return false;
 
-        instance_zulfarrak* pInstance = (instance_zulfarrak*)pPlayer->GetInstanceData();
+        instance_zulfarrak *pInstance = (instance_zulfarrak *)pPlayer->GetInstanceData();
 
         if (!pInstance)
             return false;
 
         if (pInstance->GetData(TYPE_ANTUSUL) == NOT_STARTED || pInstance->GetData(TYPE_ANTUSUL) == FAIL)
         {
-            if (Creature* pAntuSul = pInstance->GetSingleCreatureFromStorage(NPC_ANTUSUL))
+            if (Creature *pAntuSul = pInstance->GetSingleCreatureFromStorage(NPC_ANTUSUL))
             {
                 if (pAntuSul->IsAlive())
                     pAntuSul->AI()->AttackStart(pPlayer);
@@ -104,7 +105,7 @@ bool AreaTrigger_at_zulfarrak(Player* pPlayer, AreaTriggerEntry const* pAt)
 
 void AddSC_zulfarrak()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "event_go_zulfarrak_gong";
     pNewScript->pProcessEventId = &ProcessEventId_event_go_zulfarrak_gong;
     pNewScript->RegisterSelf();

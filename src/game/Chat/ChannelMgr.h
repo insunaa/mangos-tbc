@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,30 +19,40 @@
 #ifndef MANGOSSERVER_CHANNELMGR_H
 #define MANGOSSERVER_CHANNELMGR_H
 
-#include "Common.h"
-#include "Chat/Channel.h"
-
 #include <map>
+
+#include "Chat/Channel.h"
+#include "Common.h"
 
 class ChannelMgr
 {
-    public:
-        typedef std::map<std::wstring, Channel*> ChannelMap;
-        ChannelMgr() {}
-        ~ChannelMgr();
+  public:
+    typedef std::map<std::wstring, Channel *> ChannelMap;
+    ChannelMgr()
+    {
+    }
+    ~ChannelMgr();
 
-        const ChannelMap& GetChannels() const { return channels; }
+    const ChannelMap &GetChannels() const
+    {
+        return channels;
+    }
 
-        Channel* GetJoinChannel(const std::string& name, uint32 channel_id);
-        Channel* GetChannel(const std::string& name, Player* p, bool pkt = true);
-        void LeftChannel(const std::string& name);
-    private:
-        ChannelMap channels;
+    Channel *GetJoinChannel(const std::string &name, uint32 channel_id);
+    Channel *GetChannel(const std::string &name, Player *p, bool pkt = true);
+    void LeftChannel(const std::string &name);
+
+  private:
+    ChannelMap channels;
 };
 
-class AllianceChannelMgr : public ChannelMgr {};
-class HordeChannelMgr    : public ChannelMgr {};
+class AllianceChannelMgr : public ChannelMgr
+{
+};
+class HordeChannelMgr : public ChannelMgr
+{
+};
 
-ChannelMgr* channelMgr(Team team);
+ChannelMgr *channelMgr(Team team);
 
 #endif

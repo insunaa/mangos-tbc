@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -25,15 +25,18 @@ EndScriptData */
 
 enum
 {
-    SPELL_TOXICVOLLEY           = 21687,
-    SPELL_UPPERCUT              = 22916,
-    SPELL_NOXXION_SPAWNS_AURA   = 21708,
+    SPELL_TOXICVOLLEY = 21687,
+    SPELL_UPPERCUT = 22916,
+    SPELL_NOXXION_SPAWNS_AURA = 21708,
     SPELL_NOXXION_SPAWNS_SUMMON = 21707,
 };
 
 struct boss_noxxionAI : public ScriptedAI
 {
-    boss_noxxionAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+    boss_noxxionAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiToxicVolleyTimer;
     uint32 m_uiUppercutTimer;
@@ -41,14 +44,14 @@ struct boss_noxxionAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiToxicVolleyTimer   = 7000;
-        m_uiUppercutTimer      = 16000;
-        m_uiSummonTimer         = 19000;
+        m_uiToxicVolleyTimer = 7000;
+        m_uiUppercutTimer = 16000;
+        m_uiSummonTimer = 19000;
     }
 
-    void JustSummoned(Creature* pSummoned) override
+    void JustSummoned(Creature *pSummoned) override
     {
-        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+        if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             pSummoned->AI()->AttackStart(pTarget);
     }
 
@@ -85,16 +88,16 @@ struct boss_noxxionAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_noxxion(Creature* pCreature)
+UnitAI *GetAI_boss_noxxion(Creature *pCreature)
 {
     return new boss_noxxionAI(pCreature);
 }
 
-bool EffectAuraDummy_spell_aura_dummy_noxxion_spawns(const Aura* pAura, bool bApply)
+bool EffectAuraDummy_spell_aura_dummy_noxxion_spawns(const Aura *pAura, bool bApply)
 {
     if (pAura->GetId() == SPELL_NOXXION_SPAWNS_AURA && pAura->GetEffIndex() == EFFECT_INDEX_0)
     {
-        if (Creature* pTarget = (Creature*)pAura->GetTarget())
+        if (Creature *pTarget = (Creature *)pAura->GetTarget())
         {
             if (bApply)
             {
@@ -110,7 +113,7 @@ bool EffectAuraDummy_spell_aura_dummy_noxxion_spawns(const Aura* pAura, bool bAp
 
 void AddSC_boss_noxxion()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_noxxion";
     pNewScript->GetAI = &GetAI_boss_noxxion;
     pNewScript->pEffectAuraDummy = &EffectAuraDummy_spell_aura_dummy_noxxion_spawns;

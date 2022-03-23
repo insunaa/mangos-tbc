@@ -1,53 +1,54 @@
 /*
-* This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-#include "Spells/Scripts/SpellScript.h"
-#include "Spells/SpellAuras.h"
-#include "Entities/Totem.h"
 #include "AI/BaseAI/TotemAI.h"
 #include "AI/ScriptDevAI/ScriptDevAIMgr.h"
+#include "Entities/Totem.h"
+#include "Spells/Scripts/SpellScript.h"
+#include "Spells/SpellAuras.h"
 
 struct SentryTotem : public SpellScript, public AuraScript
 {
-    void OnRadiusCalculate(Spell* spell, SpellEffectIndex effIdx, bool targetB, float& radius) const override
+    void OnRadiusCalculate(Spell *spell, SpellEffectIndex effIdx, bool targetB, float &radius) const override
     {
         if (!targetB && effIdx == EFFECT_INDEX_0)
             radius = 2.f;
     }
 
-    void OnSummon(Spell* spell, Creature* summon) const override
+    void OnSummon(Spell *spell, Creature *summon) const override
     {
-        if (Player* player = dynamic_cast<Player*>(spell->GetCaster()))
+        if (Player *player = dynamic_cast<Player *>(spell->GetCaster()))
             player->GetCamera().SetView(summon);
     }
 
-    void OnApply(Aura* aura, bool apply) const override
+    void OnApply(Aura *aura, bool apply) const override
     {
-        Unit* target = aura->GetTarget();
+        Unit *target = aura->GetTarget();
         if (!target->IsPlayer())
             return;
 
-        Totem* totem = target->GetTotem(TOTEM_SLOT_AIR);
+        Totem *totem = target->GetTotem(TOTEM_SLOT_AIR);
 
         if (totem && apply)
-            static_cast<Player*>(target)->GetCamera().SetView(totem);
+            static_cast<Player *>(target)->GetCamera().SetView(totem);
         else
-            static_cast<Player*>(target)->GetCamera().ResetView();
+            static_cast<Player *>(target)->GetCamera().ResetView();
     }
 };
 
@@ -55,11 +56,11 @@ struct SentryTotemAI : public TotemAI
 {
     using TotemAI::TotemAI;
 
-    void AttackStart(Unit* who) override
+    void AttackStart(Unit *who) override
     {
         TotemAI::AttackStart(who);
         // Sentry totem sends ping on attack
-        if (Player* owner = dynamic_cast<Player*>(m_creature->GetSpawner()))
+        if (Player *owner = dynamic_cast<Player *>(m_creature->GetSpawner()))
         {
             WorldPacket data(MSG_MINIMAP_PING, (8 + 4 + 4));
             data << m_creature->GetObjectGuid();
@@ -71,11 +72,11 @@ struct SentryTotemAI : public TotemAI
 
     void RemoveAura()
     {
-        if (Unit* spawner = m_creature->GetSpawner())
+        if (Unit *spawner = m_creature->GetSpawner())
             spawner->RemoveAurasDueToSpell(m_creature->GetUInt32Value(UNIT_CREATED_BY_SPELL));
     }
 
-    void JustDied(Unit* killer) override
+    void JustDied(Unit *killer) override
     {
         TotemAI::JustDied(killer);
         RemoveAura();
@@ -90,10 +91,10 @@ struct SentryTotemAI : public TotemAI
 
 struct EarthShield : public AuraScript
 {
-    int32 OnAuraValueCalculate(AuraCalcData& data, int32 value) const override
+    int32 OnAuraValueCalculate(AuraCalcData &data, int32 value) const override
     {
-        Unit* target = data.target;
-        if (Unit* caster = data.caster)
+        Unit *target = data.target;
+        if (Unit *caster = data.caster)
         {
             value = caster->SpellHealingBonusDone(target, data.spellProto, value, SPELL_DIRECT_DAMAGE);
             value = target->SpellHealingBonusTaken(caster, data.spellProto, value, SPELL_DIRECT_DAMAGE);
@@ -104,7 +105,7 @@ struct EarthShield : public AuraScript
 
 void LoadShamanScripts()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "npc_sentry_totem";
     pNewScript->GetAI = &GetNewAIInstance<SentryTotemAI>;
     pNewScript->RegisterSelf();

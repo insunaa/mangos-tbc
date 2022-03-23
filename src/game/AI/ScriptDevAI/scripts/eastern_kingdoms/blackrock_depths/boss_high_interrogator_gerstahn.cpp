@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -25,15 +25,18 @@ EndScriptData */
 
 enum
 {
-    SPELL_SHADOWWORDPAIN        = 14032,
-    SPELL_MANABURN              = 14033,
-    SPELL_PSYCHICSCREAM         = 13704,
-    SPELL_SHADOWSHIELD          = 12040
+    SPELL_SHADOWWORDPAIN = 14032,
+    SPELL_MANABURN = 14033,
+    SPELL_PSYCHICSCREAM = 13704,
+    SPELL_SHADOWSHIELD = 12040
 };
 
 struct boss_high_interrogator_gerstahnAI : public ScriptedAI
 {
-    boss_high_interrogator_gerstahnAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+    boss_high_interrogator_gerstahnAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiShadowWordPainTimer;
     uint32 m_uiManaBurnTimer;
@@ -57,7 +60,7 @@ struct boss_high_interrogator_gerstahnAI : public ScriptedAI
         // ShadowWordPain_Timer
         if (m_uiShadowWordPainTimer < uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+            if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_SHADOWWORDPAIN) == CAST_OK)
                     m_uiShadowWordPainTimer = 7000;
@@ -69,7 +72,8 @@ struct boss_high_interrogator_gerstahnAI : public ScriptedAI
         // ManaBurn_Timer
         if (m_uiManaBurnTimer < uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_MANABURN, SELECT_FLAG_POWER_MANA))
+            if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_MANABURN,
+                                                                  SELECT_FLAG_POWER_MANA))
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_MANABURN) == CAST_OK)
                     m_uiManaBurnTimer = 10000;
@@ -100,14 +104,14 @@ struct boss_high_interrogator_gerstahnAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_high_interrogator_gerstahn(Creature* pCreature)
+UnitAI *GetAI_boss_high_interrogator_gerstahn(Creature *pCreature)
 {
     return new boss_high_interrogator_gerstahnAI(pCreature);
 }
 
 void AddSC_boss_high_interrogator_gerstahn()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_high_interrogator_gerstahn";
     pNewScript->GetAI = &GetAI_boss_high_interrogator_gerstahn;
     pNewScript->RegisterSelf();

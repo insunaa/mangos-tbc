@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,24 +24,25 @@
 
 class BarGoLink
 {
-    public:                                                 // constructors
-        explicit BarGoLink(size_t row_count);
-        ~BarGoLink();
+  public: // constructors
+    explicit BarGoLink(size_t row_count);
+    ~BarGoLink();
 
-    public:                                                 // modifiers
-        void step();
+  public: // modifiers
+    void step();
 
-        static void SetOutputState(bool on);
-    private:
-        void init(size_t row_count);
+    static void SetOutputState(bool on);
 
-        static bool m_showOutput;                           // not recommended change with existed active bar
-        static char const* const empty;
-        static char const* const full;
+  private:
+    void init(size_t row_count);
 
-        size_t rec_no;
-        size_t rec_pos;
-        size_t num_rec;
-        size_t indic_len;
+    static bool m_showOutput; // not recommended change with existed active bar
+    static char const *const empty;
+    static char const *const full;
+
+    size_t rec_no;
+    size_t rec_pos;
+    size_t num_rec;
+    size_t indic_len;
 };
 #endif

@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,20 +23,20 @@ class BattleGround;
 
 class BattleGroundAAScore : public BattleGroundScore
 {
-    public:
-        BattleGroundAAScore() {};
-        virtual ~BattleGroundAAScore() {};
-        // TODO fix me
+  public:
+    BattleGroundAAScore(){};
+    virtual ~BattleGroundAAScore(){};
+    // TODO fix me
 };
 
 class BattleGroundAA : public BattleGround
 {
-        friend class BattleGroundMgr;
+    friend class BattleGroundMgr;
 
-    public:
-        BattleGroundAA();
+  public:
+    BattleGroundAA();
 
-        /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player* plr) override;
+    /* inherited from BattlegroundClass */
+    virtual void AddPlayer(Player *plr) override;
 };
 #endif

@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,8 +24,13 @@
 
 class PGSQLDelayThread : public SqlDelayThread
 {
-    public:
-        PGSQLDelayThread(Database* db) : SqlDelayThread(db) {}
-        void Stop() { SqlDelayThread::Stop() override; }
+  public:
+    PGSQLDelayThread(Database *db) : SqlDelayThread(db)
+    {
+    }
+    void Stop()
+    {
+        SqlDelayThread::Stop() override;
+    }
 };
-#endif                                                      //__PGSQLDELAYTHREAD_H
+#endif //__PGSQLDELAYTHREAD_H

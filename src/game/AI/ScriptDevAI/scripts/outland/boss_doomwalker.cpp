@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -25,43 +25,46 @@ EndScriptData */
 
 enum
 {
-    NPC_DREADLORD               = 21166,
-    NPC_ILLIDARI_RAVAGER        = 22857,
-    NPC_SHADOWHOOF_ASSASSIN     = 22858,
-    NPC_SHADOWHOOF_SUMMONER     = 22859,
-    NPC_ILLIDARI_SUCCUBUS       = 22860,
+    NPC_DREADLORD = 21166,
+    NPC_ILLIDARI_RAVAGER = 22857,
+    NPC_SHADOWHOOF_ASSASSIN = 22858,
+    NPC_SHADOWHOOF_SUMMONER = 22859,
+    NPC_ILLIDARI_SUCCUBUS = 22860,
 
-    SAY_AGGRO                   = -1000159,
-    SAY_EARTHQUAKE_1            = -1000160,
-    SAY_EARTHQUAKE_2            = -1000161,
-    SAY_OVERRUN_1               = -1000162,
-    SAY_OVERRUN_2               = -1000163,
-    SAY_SLAY_1                  = -1000164,
-    SAY_SLAY_2                  = -1000165,
-    SAY_SLAY_3                  = -1000166,
-    SAY_DEATH                   = -1000167,
+    SAY_AGGRO = -1000159,
+    SAY_EARTHQUAKE_1 = -1000160,
+    SAY_EARTHQUAKE_2 = -1000161,
+    SAY_OVERRUN_1 = -1000162,
+    SAY_OVERRUN_2 = -1000163,
+    SAY_SLAY_1 = -1000164,
+    SAY_SLAY_2 = -1000165,
+    SAY_SLAY_3 = -1000166,
+    SAY_DEATH = -1000167,
 
-    EMOTE_FRENZY                = -1000002,
+    EMOTE_FRENZY = -1000002,
 
-    SPELL_EARTHQUAKE            = 32686,
-    SPELL_CRUSH_ARMOR           = 33661,
-    SPELL_LIGHTNING_WRATH       = 33665,
-    SPELL_OVERRUN               = 32636,
+    SPELL_EARTHQUAKE = 32686,
+    SPELL_CRUSH_ARMOR = 33661,
+    SPELL_LIGHTNING_WRATH = 33665,
+    SPELL_OVERRUN = 32636,
     SPELL_OVERRUN_TRIGGER_SPAWN = 32632,
-    SPELL_OVERRUN_DAMAGE        = 32637,
-    SPELL_ENRAGE                = 33653,
-    SPELL_MARK_OF_DEATH_PLAYER  = 37128,
-    SPELL_MARK_OF_DEATH_AURA    = 37125,        // triggers 37131 on target if it has aura 37128
+    SPELL_OVERRUN_DAMAGE = 32637,
+    SPELL_ENRAGE = 33653,
+    SPELL_MARK_OF_DEATH_PLAYER = 37128,
+    SPELL_MARK_OF_DEATH_AURA = 37125, // triggers 37131 on target if it has aura 37128
 
-    SPELL_EARTHQUAKE_VISUAL     = 41966,        // used in OOC sequence for RP
+    SPELL_EARTHQUAKE_VISUAL = 41966, // used in OOC sequence for RP
 
-    COUNT_OVERRUN               = 5,
-    POINT_OVERRUN               = 1,
+    COUNT_OVERRUN = 5,
+    POINT_OVERRUN = 1,
 };
 
 struct boss_doomwalkerAI : public ScriptedAI
 {
-    boss_doomwalkerAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_doomwalkerAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiChainTimer;
     uint32 m_uiOverrunTimer;
@@ -77,12 +80,12 @@ struct boss_doomwalkerAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiArmorTimer     = urand(5000, 13000);
-        m_uiChainTimer     = urand(10000, 30000);
-        m_uiQuakeTimer     = urand(25000, 35000);
-        m_uiOverrunTimer   = urand(30000, 45000);
+        m_uiArmorTimer = urand(5000, 13000);
+        m_uiChainTimer = urand(10000, 30000);
+        m_uiQuakeTimer = urand(25000, 35000);
+        m_uiOverrunTimer = urand(30000, 45000);
 
-        m_bHasEnrage       = false;
+        m_bHasEnrage = false;
 
         m_overrunTargets = 0;
         m_overrunCandidates.clear();
@@ -95,21 +98,28 @@ struct boss_doomwalkerAI : public ScriptedAI
         m_creature->SetWalk(true);
     }
 
-    void KilledUnit(Unit* pVictim) override
+    void KilledUnit(Unit *pVictim) override
     {
         if (pVictim->GetTypeId() != TYPEID_PLAYER)
             return;
 
-        pVictim->CastSpell(pVictim, SPELL_MARK_OF_DEATH_PLAYER, TRIGGERED_OLD_TRIGGERED, nullptr, nullptr, m_creature->GetObjectGuid());
+        pVictim->CastSpell(pVictim, SPELL_MARK_OF_DEATH_PLAYER, TRIGGERED_OLD_TRIGGERED, nullptr, nullptr,
+                           m_creature->GetObjectGuid());
 
         if (urand(0, 4))
             return;
 
         switch (urand(0, 2))
         {
-            case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
-            case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
-            case 2: DoScriptText(SAY_SLAY_3, m_creature); break;
+        case 0:
+            DoScriptText(SAY_SLAY_1, m_creature);
+            break;
+        case 1:
+            DoScriptText(SAY_SLAY_2, m_creature);
+            break;
+        case 2:
+            DoScriptText(SAY_SLAY_3, m_creature);
+            break;
         }
     }
 
@@ -117,7 +127,7 @@ struct boss_doomwalkerAI : public ScriptedAI
     {
         if (movementType == POINT_MOTION_TYPE && data == POINT_OVERRUN)
         {
-            if (Unit* victim = m_creature->GetVictim())
+            if (Unit *victim = m_creature->GetVictim())
             {
                 m_creature->MeleeAttackStart(victim);
                 m_creature->SetTarget(victim);
@@ -129,7 +139,7 @@ struct boss_doomwalkerAI : public ScriptedAI
         }
     }
 
-    void JustSummoned(Creature* summoned) override
+    void JustSummoned(Creature *summoned) override
     {
         m_creature->MeleeAttackStop(m_creature->GetVictim());
         m_creature->SetTarget(nullptr);
@@ -144,24 +154,24 @@ struct boss_doomwalkerAI : public ScriptedAI
     {
         Reset();
 
-        std::list<Creature*> npcList;
+        std::list<Creature *> npcList;
         GetCreatureListWithEntryInGrid(npcList, m_creature, NPC_DREADLORD, 200.0f);
         GetCreatureListWithEntryInGrid(npcList, m_creature, NPC_ILLIDARI_RAVAGER, 200.0f);
         GetCreatureListWithEntryInGrid(npcList, m_creature, NPC_SHADOWHOOF_ASSASSIN, 200.0f);
         GetCreatureListWithEntryInGrid(npcList, m_creature, NPC_SHADOWHOOF_SUMMONER, 200.0f);
         GetCreatureListWithEntryInGrid(npcList, m_creature, NPC_ILLIDARI_SUCCUBUS, 200.0f);
 
-        for (Creature* creature : npcList)
+        for (Creature *creature : npcList)
             creature->Suicide();
     }
 
-    void JustDied(Unit* /*pKiller*/) override
+    void JustDied(Unit * /*pKiller*/) override
     {
         DoScriptText(SAY_DEATH, m_creature);
         m_creature->RemoveAurasDueToSpell(SPELL_MARK_OF_DEATH_AURA);
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         DoCastSpellIfCan(m_creature, SPELL_MARK_OF_DEATH_AURA, CAST_TRIGGERED);
         DoScriptText(SAY_AGGRO, m_creature);
@@ -197,8 +207,9 @@ struct boss_doomwalkerAI : public ScriptedAI
         // Spell Overrun
         if (m_uiOverrunTimer < uiDiff)
         {
-            std::vector<Unit*> targets;
-            m_creature->SelectAttackingTargets(targets, ATTACKING_TARGET_ALL_SUITABLE, 0, nullptr, SELECT_FLAG_PLAYER | SELECT_FLAG_RANGE_AOE_RANGE, m_overrunParams);
+            std::vector<Unit *> targets;
+            m_creature->SelectAttackingTargets(targets, ATTACKING_TARGET_ALL_SUITABLE, 0, nullptr,
+                                               SELECT_FLAG_PLAYER | SELECT_FLAG_RANGE_AOE_RANGE, m_overrunParams);
             while (targets.size() > COUNT_OVERRUN)
                 targets.erase(targets.begin() + urand(0, targets.size() - 1));
 
@@ -207,7 +218,8 @@ struct boss_doomwalkerAI : public ScriptedAI
                 float angle = m_creature->GetAngle(targets[0]);
                 m_creature->SetFacingTo(angle);
                 m_creature->SetOrientation(angle);
-                m_creature->CastSpell(nullptr, SPELL_OVERRUN_TRIGGER_SPAWN, TRIGGERED_OLD_TRIGGERED); // shouldnt be sent to client
+                m_creature->CastSpell(nullptr, SPELL_OVERRUN_TRIGGER_SPAWN,
+                                      TRIGGERED_OLD_TRIGGERED); // shouldnt be sent to client
                 DoScriptText(urand(0, 1) ? SAY_OVERRUN_1 : SAY_OVERRUN_2, m_creature);
                 m_uiOverrunTimer = urand(25000, 40000);
             }
@@ -230,7 +242,7 @@ struct boss_doomwalkerAI : public ScriptedAI
         // Spell Chain Lightning
         if (m_uiChainTimer < uiDiff)
         {
-            Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, nullptr, SELECT_FLAG_PLAYER);
+            Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, nullptr, SELECT_FLAG_PLAYER);
             if (!pTarget)
                 pTarget = m_creature->GetVictim();
 
@@ -256,14 +268,14 @@ struct boss_doomwalkerAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_doomwalker(Creature* pCreature)
+UnitAI *GetAI_boss_doomwalker(Creature *pCreature)
 {
     return new boss_doomwalkerAI(pCreature);
 }
 
 void AddSC_boss_doomwalker()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_doomwalker";
     pNewScript->GetAI = &GetAI_boss_doomwalker;
     pNewScript->RegisterSelf();

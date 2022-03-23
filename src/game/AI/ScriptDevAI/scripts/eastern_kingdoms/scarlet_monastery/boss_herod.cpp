@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -21,30 +21,33 @@ SDComment: Should in addition spawn Myrmidons in the hallway outside
 SDCategory: Scarlet Monastery
 EndScriptData */
 
-#include "AI/ScriptDevAI/include/sc_common.h"
 #include "AI/ScriptDevAI/base/escort_ai.h"
+#include "AI/ScriptDevAI/include/sc_common.h"
 
 enum
 {
-    SAY_AGGRO              = -1189000,
-    SAY_WHIRLWIND          = -1189001,
-    SAY_ENRAGE             = -1189002,
-    SAY_KILL               = -1189003,
-    EMOTE_GENERIC_ENRAGED  = -1000003,
+    SAY_AGGRO = -1189000,
+    SAY_WHIRLWIND = -1189001,
+    SAY_ENRAGE = -1189002,
+    SAY_KILL = -1189003,
+    EMOTE_GENERIC_ENRAGED = -1000003,
 
-    SAY_TRAINEE_SPAWN      = -1189035,
+    SAY_TRAINEE_SPAWN = -1189035,
 
-    SPELL_RUSHINGCHARGE    = 8260,
-    SPELL_CLEAVE           = 15496,
-    SPELL_WHIRLWIND        = 8989,
-    SPELL_FRENZY           = 8269,
+    SPELL_RUSHINGCHARGE = 8260,
+    SPELL_CLEAVE = 15496,
+    SPELL_WHIRLWIND = 8989,
+    SPELL_FRENZY = 8269,
 
-    NPC_SCARLET_TRAINEE    = 6575
+    NPC_SCARLET_TRAINEE = 6575
 };
 
 struct boss_herodAI : public ScriptedAI
 {
-    boss_herodAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+    boss_herodAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     bool m_bEnrage;
     bool m_bTraineeSay;
@@ -55,19 +58,19 @@ struct boss_herodAI : public ScriptedAI
     void Reset() override
     {
         m_bTraineeSay = false;
-        m_bEnrage     = false;
+        m_bEnrage = false;
 
-        m_uiCleaveTimer    = 7500;
+        m_uiCleaveTimer = 7500;
         m_uiWhirlwindTimer = 14500;
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         DoScriptText(SAY_AGGRO, m_creature);
         DoCastSpellIfCan(m_creature, SPELL_RUSHINGCHARGE);
     }
 
-    void SummonedCreature(Creature* pSummoned)
+    void SummonedCreature(Creature *pSummoned)
     {
         // make first Scarlet Trainee say text
         if (pSummoned->GetEntry() == NPC_SCARLET_TRAINEE && !m_bTraineeSay)
@@ -77,15 +80,16 @@ struct boss_herodAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit* /*pVictim*/) override
+    void KilledUnit(Unit * /*pVictim*/) override
     {
         DoScriptText(SAY_KILL, m_creature);
     }
 
-    void JustDied(Unit* /*pKiller*/) override
+    void JustDied(Unit * /*pKiller*/) override
     {
         for (uint8 i = 0; i < 20; ++i)
-            m_creature->SummonCreature(NPC_SCARLET_TRAINEE, 1939.18f, -431.58f, 17.09f, 6.22f, TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 600000);
+            m_creature->SummonCreature(NPC_SCARLET_TRAINEE, 1939.18f, -431.58f, 17.09f, 6.22f,
+                                       TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 600000);
     }
 
     void UpdateAI(const uint32 uiDiff) override
@@ -128,14 +132,14 @@ struct boss_herodAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_herod(Creature* pCreature)
+UnitAI *GetAI_boss_herod(Creature *pCreature)
 {
     return new boss_herodAI(pCreature);
 }
 
 struct mob_scarlet_traineeAI : public npc_escortAI
 {
-    mob_scarlet_traineeAI(Creature* pCreature) : npc_escortAI(pCreature)
+    mob_scarlet_traineeAI(Creature *pCreature) : npc_escortAI(pCreature)
     {
         m_uiStartTimer = urand(1000, 6000);
         Reset();
@@ -143,8 +147,12 @@ struct mob_scarlet_traineeAI : public npc_escortAI
 
     uint32 m_uiStartTimer;
 
-    void Reset() override { }
-    void WaypointReached(uint32 /*uiPointId*/) override {}
+    void Reset() override
+    {
+    }
+    void WaypointReached(uint32 /*uiPointId*/) override
+    {
+    }
 
     void UpdateEscortAI(const uint32 uiDiff) override
     {
@@ -166,14 +174,14 @@ struct mob_scarlet_traineeAI : public npc_escortAI
     }
 };
 
-UnitAI* GetAI_mob_scarlet_trainee(Creature* pCreature)
+UnitAI *GetAI_mob_scarlet_trainee(Creature *pCreature)
 {
     return new mob_scarlet_traineeAI(pCreature);
 }
 
 void AddSC_boss_herod()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_herod";
     pNewScript->GetAI = &GetAI_boss_herod;
     pNewScript->RegisterSelf();

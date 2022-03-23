@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +18,7 @@
  */
 
 #include "Maps/InstanceData.h"
+
 #include "Database/DatabaseEnv.h"
 #include "Maps/Map.h"
 
@@ -33,14 +35,19 @@ void InstanceData::SaveToDB() const
     CharacterDatabase.escape_string(data);
 
     if (instance->Instanceable())
-        CharacterDatabase.PExecute("UPDATE instance SET data = '%s' WHERE id = '%u'", data.c_str(), instance->GetInstanceId());
+        CharacterDatabase.PExecute("UPDATE instance SET data = '%s' WHERE id = '%u'", data.c_str(),
+                                   instance->GetInstanceId());
     else
         CharacterDatabase.PExecute("UPDATE world SET data = '%s' WHERE map = '%u'", data.c_str(), instance->GetId());
 }
 
-bool InstanceData::CheckConditionCriteriaMeet(Player const* /*source*/, uint32 instance_condition_id, WorldObject const* /*conditionSource*/, uint32 conditionSourceType) const
+bool InstanceData::CheckConditionCriteriaMeet(Player const * /*source*/, uint32 instance_condition_id,
+                                              WorldObject const * /*conditionSource*/, uint32 conditionSourceType) const
 {
-    sLog.outError("Condition system call InstanceData::CheckConditionCriteriaMeet but instance script for map %u not have implementation for player condition criteria with internal id %u (called from %u)",
+    sLog.outError("Condition system call InstanceData::CheckConditionCriteriaMeet but "
+                  "instance script for map %u not have implementation for player "
+                  "condition "
+                  "criteria with internal id %u (called from %u)",
                   instance->GetId(), instance_condition_id, uint32(conditionSourceType));
     return false;
 }

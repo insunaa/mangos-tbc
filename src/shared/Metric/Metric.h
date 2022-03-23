@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,8 +29,8 @@
 #include <thread>
 #include <vector>
 
-#include "Measurement.h"
 #include "Common.h"
+#include "Measurement.h"
 
 struct MetricConnectionInfo
 {
@@ -42,103 +43,111 @@ struct MetricConnectionInfo
 
 namespace metric
 {
-    class measurement
+class measurement
+{
+  public:
+    measurement(
+        std::string name, std::function<bool()> condition = [] { return true; });
+    measurement(
+        std::string name, std::string key, boost::any value, std::function<bool()> condition = [] { return true; });
+    measurement(
+        std::string name, std::string key, boost::any value, std::map<std::string, std::string> tags,
+        std::function<bool()> condition = [] { return true; });
+    measurement(
+        std::string name, std::map<std::string, std::string> tags,
+        std::function<bool()> condition = [] { return true; });
+    virtual ~measurement();
+
+    void add_tag(std::string key, std::string value);
+    void add_field(std::string key, boost::any value);
+    const boost::any get_field(std::string key);
+
+  protected:
+    void set_condition(std::function<bool()> condition);
+
+  private:
+    std::string m_name;
+    std::map<std::string, std::string> m_tags;
+    std::map<std::string, boost::any> m_fields;
+    std::chrono::system_clock::time_point m_timestamp;
+    std::function<bool()> m_condition;
+};
+
+template <class precision> class duration : public measurement
+{
+  public:
+    duration(std::string name) : measurement(name), m_startTime(std::chrono::high_resolution_clock::now())
     {
-        public:
-            measurement(std::string name, std::function<bool()> condition = [] { return true; });
-            measurement(std::string name, std::string key, boost::any value, std::function<bool()> condition = [] { return true; });
-            measurement(std::string name, std::string key, boost::any value, std::map<std::string, std::string> tags, std::function<bool()> condition = [] { return true; });
-            measurement(std::string name, std::map<std::string, std::string> tags, std::function<bool()> condition = [] { return true; });
-            virtual ~measurement();
+    }
 
-            void add_tag(std::string key, std::string value);
-            void add_field(std::string key, boost::any value);
-            const boost::any get_field(std::string key);
-
-        protected:
-            void set_condition(std::function<bool()> condition);
-
-        private:
-            std::string m_name;
-            std::map<std::string, std::string> m_tags;
-            std::map<std::string, boost::any> m_fields;
-            std::chrono::system_clock::time_point m_timestamp;
-            std::function<bool()> m_condition;
-    };
-
-    template <class precision>
-    class duration : public measurement
+    duration(std::string name, std::map<std::string, std::string> tags)
+        : measurement(name, tags), m_startTime(std::chrono::high_resolution_clock::now())
     {
-        public:
-            duration(std::string name)
-                : measurement(name), m_startTime(std::chrono::high_resolution_clock::now())
-            {}
+    }
 
-            duration(std::string name, std::map<std::string, std::string> tags)
-                : measurement(name, tags), m_startTime(std::chrono::high_resolution_clock::now())
-            {}
-
-            duration(std::string name, std::map<std::string, std::string> tags, int64 threshold)
-                : measurement(name, tags), m_startTime(std::chrono::high_resolution_clock::now())
-            {
-                auto condition = [&, threshold] {
-                    auto value = get_field("duration");
-                    if (value.empty())
-                        return false;
-
-                    auto duration = boost::any_cast<int64>(value);
-                    return duration >= threshold;
-                };
-
-                set_condition(std::move(condition));
-            }
-
-            ~duration()
-            {
-                auto endTime = std::chrono::high_resolution_clock::now();
-                auto duration = std::chrono::duration_cast<precision>(endTime - m_startTime).count();
-
-                add_field("duration", static_cast<int64>(duration));
-            }
-
-        private:
-            std::chrono::high_resolution_clock::time_point m_startTime;
-    };
-
-    class metric
+    duration(std::string name, std::map<std::string, std::string> tags, int64 threshold)
+        : measurement(name, tags), m_startTime(std::chrono::high_resolution_clock::now())
     {
-        public:
-            metric();
-            ~metric();
+        auto condition = [&, threshold] {
+            auto value = get_field("duration");
+            if (value.empty())
+                return false;
 
-            void initialize();
-            static metric& instance();
+            auto duration = boost::any_cast<int64>(value);
+            return duration >= threshold;
+        };
 
-            void reload_config();
+        set_condition(std::move(condition));
+    }
 
-            void report(std::string measurement, std::string key, boost::any value, std::map<std::string, std::string> tags = {});
-            void report(std::string measurement, std::map<std::string, boost::any> fields, std::map<std::string, std::string> tags = {});
+    ~duration()
+    {
+        auto endTime = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<precision>(endTime - m_startTime).count();
 
-        private:
-            boost::asio::io_service m_queueService;
-            boost::asio::io_service m_writeService;
+        add_field("duration", static_cast<int64>(duration));
+    }
 
-            std::unique_ptr<boost::asio::deadline_timer> m_sendTimer;
-            std::unique_ptr<boost::asio::io_service::work> m_queueServiceWork;
-            std::unique_ptr<boost::asio::io_service::work> m_writeServiceWork;
-            std::thread m_queueServiceThread;
-            std::thread m_writeServiceThread;
+  private:
+    std::chrono::high_resolution_clock::time_point m_startTime;
+};
 
-            bool m_enabled;
-            MetricConnectionInfo m_connectionInfo;
+class metric
+{
+  public:
+    metric();
+    ~metric();
 
-            std::mutex m_queueWriteLock;
-            std::vector<std::unique_ptr<Measurement>> m_measurementQueue;
+    void initialize();
+    static metric &instance();
 
-            void schedule_timer();
-            void prepare_send(const boost::system::error_code& ec);
-            void send();
-    };
-}
+    void reload_config();
+
+    void report(std::string measurement, std::string key, boost::any value,
+                std::map<std::string, std::string> tags = {});
+    void report(std::string measurement, std::map<std::string, boost::any> fields,
+                std::map<std::string, std::string> tags = {});
+
+  private:
+    boost::asio::io_service m_queueService;
+    boost::asio::io_service m_writeService;
+
+    std::unique_ptr<boost::asio::deadline_timer> m_sendTimer;
+    std::unique_ptr<boost::asio::io_service::work> m_queueServiceWork;
+    std::unique_ptr<boost::asio::io_service::work> m_writeServiceWork;
+    std::thread m_queueServiceThread;
+    std::thread m_writeServiceThread;
+
+    bool m_enabled;
+    MetricConnectionInfo m_connectionInfo;
+
+    std::mutex m_queueWriteLock;
+    std::vector<std::unique_ptr<Measurement>> m_measurementQueue;
+
+    void schedule_timer();
+    void prepare_send(const boost::system::error_code &ec);
+    void send();
+};
+} // namespace metric
 
 #endif // MANGOSSERVER_METRIC_H

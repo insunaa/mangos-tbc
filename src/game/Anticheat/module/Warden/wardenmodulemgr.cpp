@@ -6,38 +6,39 @@
  */
 
 #include "WardenModuleMgr.hpp"
-#include "WardenModule.hpp"
-#include "../config.hpp"
 
+#include <boost/filesystem.hpp>
+#include <fstream>
+#include <string>
+#include <vector>
+
+#include "../config.hpp"
+#include "Log.h"
 #include "Platform/Define.h"
 #include "Policies/Singleton.h"
 #include "Util.h"
-#include "Log.h"
-
-#include <vector>
-#include <string>
-#include <fstream>
-#include <boost/filesystem.hpp>
+#include "WardenModule.hpp"
 
 INSTANTIATE_SINGLETON_1(WardenModuleMgr);
 
 namespace
 {
-    std::vector<std::string> GetModuleNames(const std::string &moduleDir)
+std::vector<std::string> GetModuleNames(const std::string &moduleDir)
+{
+    std::vector<std::string> results;
+
+    if (boost::filesystem::exists(moduleDir))
     {
-        std::vector<std::string> results;
-
-        if (boost::filesystem::exists(moduleDir))
-        {
-            // look only for .bin files, and assume (for now) that the corresponding .key and .cr files exist
-            for (const auto& entry : boost::filesystem::directory_iterator(moduleDir))
-                if (entry.path().extension() == ".bin")
-                    results.emplace_back(moduleDir + "/" + entry.path().filename().string());
-        }
-
-        return results;
+        // look only for .bin files, and assume (for now) that the corresponding
+        // .key and .cr files exist
+        for (const auto &entry : boost::filesystem::directory_iterator(moduleDir))
+            if (entry.path().extension() == ".bin")
+                results.emplace_back(moduleDir + "/" + entry.path().filename().string());
     }
+
+    return results;
 }
+} // namespace
 
 WardenModuleMgr::WardenModuleMgr()
 {
@@ -64,7 +65,8 @@ WardenModuleMgr::WardenModuleMgr()
         }
     }
 
-    sLog.outBasic(">> %lu Windows Warden modules and %lu Mac Warden modules loaded", uint64(_winModules.size()), uint64(_macModules.size()));
+    sLog.outBasic(">> %lu Windows Warden modules and %lu Mac Warden modules loaded", uint64(_winModules.size()),
+                  uint64(_macModules.size()));
 
     if (_winModules.empty() && _macModules.empty())
         throw std::runtime_error("Failed to locate Warden modules");

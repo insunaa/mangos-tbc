@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +18,9 @@
  */
 
 #include "Auth/BigNumber.h"
+
 #include <openssl/bn.h>
+
 #include <algorithm>
 
 BigNumber::BigNumber()
@@ -26,7 +29,7 @@ BigNumber::BigNumber()
     _array = nullptr;
 }
 
-BigNumber::BigNumber(const BigNumber& bn)
+BigNumber::BigNumber(const BigNumber &bn)
 {
     _bn = BN_dup(bn._bn);
     _array = nullptr;
@@ -42,7 +45,8 @@ BigNumber::BigNumber(uint32 val)
 BigNumber::~BigNumber()
 {
     BN_free(_bn);
-    if (_array) delete[] _array;
+    if (_array)
+        delete[] _array;
 }
 
 void BigNumber::SetDword(uint32 val)
@@ -57,7 +61,7 @@ void BigNumber::SetQword(uint64 val)
     BN_add_word(_bn, (uint32)(val & 0xFFFFFFFF));
 }
 
-void BigNumber::SetBinary(const uint8* bytes, int len)
+void BigNumber::SetBinary(const uint8 *bytes, int len)
 {
     uint8 t[1000];
     for (int i = 0; i < len; ++i)
@@ -65,7 +69,7 @@ void BigNumber::SetBinary(const uint8* bytes, int len)
     BN_bin2bn(t, len, _bn);
 }
 
-int BigNumber::SetHexStr(const char* str)
+int BigNumber::SetHexStr(const char *str)
 {
     return BN_hex2bn(&_bn, str);
 }
@@ -75,67 +79,67 @@ void BigNumber::SetRand(int numbits)
     BN_rand(_bn, numbits, 0, 1);
 }
 
-BigNumber BigNumber::operator=(const BigNumber& bn)
+BigNumber BigNumber::operator=(const BigNumber &bn)
 {
     BN_copy(_bn, bn._bn);
     return *this;
 }
 
-BigNumber BigNumber::operator+=(const BigNumber& bn)
+BigNumber BigNumber::operator+=(const BigNumber &bn)
 {
     BN_add(_bn, _bn, bn._bn);
     return *this;
 }
 
-BigNumber BigNumber::operator-=(const BigNumber& bn)
+BigNumber BigNumber::operator-=(const BigNumber &bn)
 {
     BN_sub(_bn, _bn, bn._bn);
     return *this;
 }
 
-BigNumber BigNumber::operator*=(const BigNumber& bn)
+BigNumber BigNumber::operator*=(const BigNumber &bn)
 {
-    BN_CTX* bnctx = BN_CTX_new();
+    BN_CTX *bnctx = BN_CTX_new();
     BN_mul(_bn, _bn, bn._bn, bnctx);
     BN_CTX_free(bnctx);
 
     return *this;
 }
 
-BigNumber BigNumber::operator/=(const BigNumber& bn)
+BigNumber BigNumber::operator/=(const BigNumber &bn)
 {
-    BN_CTX* bnctx = BN_CTX_new();
+    BN_CTX *bnctx = BN_CTX_new();
     BN_div(_bn, nullptr, _bn, bn._bn, bnctx);
     BN_CTX_free(bnctx);
 
     return *this;
 }
 
-BigNumber BigNumber::operator%=(const BigNumber& bn)
+BigNumber BigNumber::operator%=(const BigNumber &bn)
 {
-    BN_CTX* bnctx = BN_CTX_new();
+    BN_CTX *bnctx = BN_CTX_new();
     BN_mod(_bn, _bn, bn._bn, bnctx);
     BN_CTX_free(bnctx);
 
     return *this;
 }
 
-BigNumber BigNumber::Exp(const BigNumber& bn)
+BigNumber BigNumber::Exp(const BigNumber &bn)
 {
     BigNumber ret;
 
-    BN_CTX* bnctx = BN_CTX_new();
+    BN_CTX *bnctx = BN_CTX_new();
     BN_exp(ret._bn, _bn, bn._bn, bnctx);
     BN_CTX_free(bnctx);
 
     return ret;
 }
 
-BigNumber BigNumber::ModExp(const BigNumber& bn1, const BigNumber& bn2)
+BigNumber BigNumber::ModExp(const BigNumber &bn1, const BigNumber &bn2)
 {
     BigNumber ret;
 
-    BN_CTX* bnctx = BN_CTX_new();
+    BN_CTX *bnctx = BN_CTX_new();
     BN_mod_exp(ret._bn, _bn, bn1._bn, bn2._bn, bnctx);
     BN_CTX_free(bnctx);
 
@@ -165,12 +169,12 @@ std::vector<uint8> BigNumber::AsByteArray(int minSize, bool reverse) const
 
     // If we need more bytes than length of BigNumber set the rest to 0
     if (length > GetNumBytes())
-        memset((void*)byteArray.data(), 0, length);
+        memset((void *)byteArray.data(), 0, length);
 
     // Padding should add leading zeroes, not trailing
     auto const paddingOffset = length - GetNumBytes();
 
-    BN_bn2bin(_bn, (unsigned char*)byteArray.data() + paddingOffset);
+    BN_bn2bin(_bn, (unsigned char *)byteArray.data() + paddingOffset);
 
     if (reverse)
         std::reverse(byteArray.begin(), byteArray.end());
@@ -178,12 +182,12 @@ std::vector<uint8> BigNumber::AsByteArray(int minSize, bool reverse) const
     return byteArray;
 }
 
-const char* BigNumber::AsHexStr() const
+const char *BigNumber::AsHexStr() const
 {
     return BN_bn2hex(_bn);
 }
 
-const char* BigNumber::AsDecStr() const
+const char *BigNumber::AsDecStr() const
 {
     return BN_bn2dec(_bn);
 }

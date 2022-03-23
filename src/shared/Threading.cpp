@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +18,11 @@
  */
 
 #include "Threading.h"
-#include "Errors.h"
 
 #include <chrono>
 #include <system_error>
+
+#include "Errors.h"
 
 using namespace MaNGOS;
 
@@ -28,7 +30,7 @@ Thread::Thread() : m_task(nullptr), m_iThreadId(), m_ThreadImp()
 {
 }
 
-Thread::Thread(Runnable* instance) : m_task(instance), m_ThreadImp(&Thread::ThreadTask, (void*)m_task)
+Thread::Thread(Runnable *instance) : m_task(instance), m_ThreadImp(&Thread::ThreadTask, (void *)m_task)
 {
     m_iThreadId = m_ThreadImp.get_id();
 
@@ -57,7 +59,7 @@ bool Thread::wait()
     {
         m_ThreadImp.join();
     }
-    catch (std::system_error&)
+    catch (std::system_error &)
     {
         res = false;
     }
@@ -78,9 +80,9 @@ void Thread::destroy()
     m_iThreadId = std::thread::id();
 }
 
-void Thread::ThreadTask(void* param)
+void Thread::ThreadTask(void *param)
 {
-    Runnable* _task = (Runnable*)param;
+    Runnable *_task = (Runnable *)param;
     _task->run();
 }
 
@@ -97,13 +99,27 @@ void Thread::setPriority(Priority priority)
 
     switch (priority)
     {
-        case Priority_Realtime: _ok = SetThreadPriority(handle, THREAD_PRIORITY_TIME_CRITICAL) != 0; break;
-        case Priority_Highest: _ok = SetThreadPriority(handle, THREAD_PRIORITY_HIGHEST) != 0; break;
-        case Priority_High: _ok = SetThreadPriority(handle, THREAD_PRIORITY_ABOVE_NORMAL) != 0; break;
-        case Priority_Normal: _ok = SetThreadPriority(handle, THREAD_PRIORITY_NORMAL) != 0; break;
-        case Priority_Low: _ok = SetThreadPriority(handle, THREAD_PRIORITY_BELOW_NORMAL) != 0; break;
-        case Priority_Lowest: _ok = SetThreadPriority(handle, THREAD_PRIORITY_LOWEST) != 0; break;
-        case Priority_Idle: _ok = SetThreadPriority(handle, THREAD_PRIORITY_IDLE) != 0; break;
+    case Priority_Realtime:
+        _ok = SetThreadPriority(handle, THREAD_PRIORITY_TIME_CRITICAL) != 0;
+        break;
+    case Priority_Highest:
+        _ok = SetThreadPriority(handle, THREAD_PRIORITY_HIGHEST) != 0;
+        break;
+    case Priority_High:
+        _ok = SetThreadPriority(handle, THREAD_PRIORITY_ABOVE_NORMAL) != 0;
+        break;
+    case Priority_Normal:
+        _ok = SetThreadPriority(handle, THREAD_PRIORITY_NORMAL) != 0;
+        break;
+    case Priority_Low:
+        _ok = SetThreadPriority(handle, THREAD_PRIORITY_BELOW_NORMAL) != 0;
+        break;
+    case Priority_Lowest:
+        _ok = SetThreadPriority(handle, THREAD_PRIORITY_LOWEST) != 0;
+        break;
+    case Priority_Idle:
+        _ok = SetThreadPriority(handle, THREAD_PRIORITY_IDLE) != 0;
+        break;
     }
 
     /* MaNGOS use priority for Windows case only
@@ -127,7 +143,8 @@ void Thread::setPriority(Priority priority)
      */
 #endif
 
-    // remove this ASSERT in case you don't want to know is thread priority change was successful or not
+    // remove this ASSERT in case you don't want to know is thread priority
+    // change was successful or not
     MANGOS_ASSERT(_ok);
 }
 

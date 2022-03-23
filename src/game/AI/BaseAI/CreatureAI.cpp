@@ -1,34 +1,36 @@
 /*
-* This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #include "AI/BaseAI/CreatureAI.h"
+
+#include "Entities/Creature.h"
+#include "Grids/CellImpl.h"
 #include "Grids/GridNotifiers.h"
 #include "Grids/GridNotifiersImpl.h"
-#include "Grids/CellImpl.h"
 #include "World/World.h"
-#include "Entities/Creature.h"
 
-CreatureAI::CreatureAI(Creature* creature) : CreatureAI(creature, 0) { }
+CreatureAI::CreatureAI(Creature *creature) : CreatureAI(creature, 0)
+{
+}
 
-CreatureAI::CreatureAI(Creature* creature, uint32 combatActions) :
-    UnitAI(creature, combatActions),
-    m_creature(creature),
-    m_deathPrevention(false), m_deathPrevented(false)
+CreatureAI::CreatureAI(Creature *creature, uint32 combatActions)
+    : UnitAI(creature, combatActions), m_creature(creature), m_deathPrevention(false), m_deathPrevented(false)
 {
     m_dismountOnAggro = !(m_creature->GetCreatureInfo()->CreatureTypeFlags & CREATURE_TYPEFLAGS_MOUNTED_COMBAT);
 
@@ -46,21 +48,23 @@ void CreatureAI::Reset()
     m_attackDistance = m_chaseDistance;
 }
 
-void CreatureAI::EnterCombat(Unit* enemy)
+void CreatureAI::EnterCombat(Unit *enemy)
 {
     UnitAI::EnterCombat(enemy);
     // TODO: Monitor this condition to see if it conflicts with any pets
-    if (m_creature->IsCritter() && !m_creature->IsPet() && !m_creature->IsInPanic() && enemy && enemy->IsPlayerControlled())
+    if (m_creature->IsCritter() && !m_creature->IsPet() && !m_creature->IsInPanic() && enemy &&
+        enemy->IsPlayerControlled())
         DoFlee(30000);
     if (enemy && (m_creature->IsGuard() || m_creature->IsCivilian()))
     {
-        // Send Zone Under Attack message to the LocalDefense and WorldDefense Channels
-        if (Player* pKiller = enemy->GetBeneficiaryPlayer())
+        // Send Zone Under Attack message to the LocalDefense and WorldDefense
+        // Channels
+        if (Player *pKiller = enemy->GetBeneficiaryPlayer())
             m_creature->SendZoneUnderAttackMessage(pKiller);
     }
 }
 
-void CreatureAI::AttackStart(Unit* who)
+void CreatureAI::AttackStart(Unit *who)
 {
     if (!who || HasReactState(REACT_PASSIVE))
         return;
@@ -78,7 +82,8 @@ void CreatureAI::AttackStart(Unit* who)
     }
 }
 
-void CreatureAI::DamageTaken(Unit* dealer, uint32& damage, DamageEffectType /*damageType*/, SpellEntry const* /*spellInfo*/)
+void CreatureAI::DamageTaken(Unit *dealer, uint32 &damage, DamageEffectType /*damageType*/,
+                             SpellEntry const * /*spellInfo*/)
 {
     if (m_deathPrevention)
     {
@@ -90,7 +95,7 @@ void CreatureAI::DamageTaken(Unit* dealer, uint32& damage, DamageEffectType /*da
                 m_deathPrevented = true;
                 JustPreventedDeath(dealer);
             }
-        }        
+        }
     }
 }
 
@@ -128,7 +133,8 @@ void CreatureAI::RetreatingArrived()
 void CreatureAI::RetreatingEnded()
 {
     if (GetAIOrder() != ORDER_RETREATING)
-        return; // prevent stack overflow by cyclic calls - TODO: remove once Motion Master is human again
+        return; // prevent stack overflow by cyclic calls - TODO: remove once
+                // Motion Master is human again
     SetAIOrder(ORDER_NONE);
     SetCombatScriptStatus(false);
     if (!m_creature->IsAlive())
@@ -138,7 +144,7 @@ void CreatureAI::RetreatingEnded()
 
 bool CreatureAI::DoRetreat()
 {
-    Unit* victim = m_creature->GetVictim();
+    Unit *victim = m_creature->GetVictim();
     if (!victim)
         return false;
 
@@ -146,7 +152,7 @@ bool CreatureAI::DoRetreat()
     if (radius <= 0)
         return false;
 
-    Creature* ally = nullptr;
+    Creature *ally = nullptr;
 
     MaNGOS::NearestAssistCreatureInCreatureRangeCheck check(m_creature, victim, radius);
     MaNGOS::CreatureLastSearcher<MaNGOS::NearestAssistCreatureInCreatureRangeCheck> searcher(ally, check);
@@ -172,9 +178,9 @@ void CreatureAI::DoCallForHelp(float radius)
     m_creature->CallForHelp(radius);
 }
 
-void CreatureAI::OnCallForHelp(Unit* caller, Unit* enemy)
+void CreatureAI::OnCallForHelp(Unit *caller, Unit *enemy)
 {
-    if (FactionTemplateEntry const* factionTemplate = m_creature->GetFactionTemplateEntry())
+    if (FactionTemplateEntry const *factionTemplate = m_creature->GetFactionTemplateEntry())
     {
         if (factionTemplate->factionFlags & FACTION_TEMPLATE_FLEE_FROM_CALL_FOR_HELP)
         {
@@ -186,11 +192,12 @@ void CreatureAI::OnCallForHelp(Unit* caller, Unit* enemy)
     AttackStart(enemy);
 }
 
-void CreatureAI::HandleAssistanceCall(Unit* sender, Unit* invoker)
+void CreatureAI::HandleAssistanceCall(Unit *sender, Unit *invoker)
 {
     if (!invoker)
         return;
-    if (m_creature->CanAssistInCombatAgainst(sender, invoker) && m_creature->CanJoinInAttacking(invoker) && invoker->IsVisibleForOrDetect(m_creature, m_creature, false))
+    if (m_creature->CanAssistInCombatAgainst(sender, invoker) && m_creature->CanJoinInAttacking(invoker) &&
+        invoker->IsVisibleForOrDetect(m_creature, m_creature, false))
     {
         m_creature->SetNoCallAssistance(true);
         AttackStart(invoker);
@@ -202,7 +209,7 @@ void CreatureAI::AddUnreachabilityCheck()
     m_teleportUnreachable = true;
 }
 
-CreatureSpellList const& CreatureAI::GetSpellList() const
+CreatureSpellList const &CreatureAI::GetSpellList() const
 {
     return m_creature->GetSpellList();
 }
@@ -212,7 +219,7 @@ void CreatureAI::TimedFleeingEnded()
     UnitAI::TimedFleeingEnded();
     if (GetAIOrder() == ORDER_FLEE_FROM_CALL_FOR_HELP && m_creature->IsAlive())
     {
-        if (FactionTemplateEntry const* factionTemplate = m_creature->GetFactionTemplateEntry())
+        if (FactionTemplateEntry const *factionTemplate = m_creature->GetFactionTemplateEntry())
             if (factionTemplate->factionFlags & FACTION_TEMPLATE_FLEE_FROM_CALL_FOR_HELP)
                 EnterEvadeMode();
     }

@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,59 +18,70 @@
  */
 
 #include "DynamicTree.h"
-#include "Log.h"
-#include "Timer.h"
+
 #include "BIHWrap.h"
-#include "RegularGrid.h"
 #include "GameObjectModel.h"
+#include "Log.h"
+#include "RegularGrid.h"
+#include "Timer.h"
 
-template<> struct HashTrait< GameObjectModel>
+template <> struct HashTrait<GameObjectModel>
 {
-    static size_t hashCode(const GameObjectModel& g) { return (size_t)(void*)&g; }
+    static size_t hashCode(const GameObjectModel &g)
+    {
+        return (size_t)(void *)&g;
+    }
 };
 
-template<> struct PositionTrait< GameObjectModel>
+template <> struct PositionTrait<GameObjectModel>
 {
-    static void getPosition(const GameObjectModel& g, Vector3& p) { p = g.getPosition(); }
+    static void getPosition(const GameObjectModel &g, Vector3 &p)
+    {
+        p = g.getPosition();
+    }
 };
 
-template<> struct BoundsTrait< GameObjectModel>
+template <> struct BoundsTrait<GameObjectModel>
 {
-    static void getBounds(const GameObjectModel& g, G3D::AABox& out) { out = g.getBounds();}
-    static void getBounds2(const GameObjectModel* g, G3D::AABox& out) { out = g->getBounds();}
+    static void getBounds(const GameObjectModel &g, G3D::AABox &out)
+    {
+        out = g.getBounds();
+    }
+    static void getBounds2(const GameObjectModel *g, G3D::AABox &out)
+    {
+        out = g->getBounds();
+    }
 };
 
 /*
-static bool operator == (const GameObjectModel& mdl, const GameObjectModel& mdl2){
-    return &mdl == &mdl2;
+static bool operator == (const GameObjectModel& mdl, const GameObjectModel&
+mdl2){ return &mdl == &mdl2;
 }
 */
 
 // int valuesPerNode = 5, numMeanSplits = 3;
 
-//int UNBALANCED_TIMES_LIMIT = 5;
+// int UNBALANCED_TIMES_LIMIT = 5;
 int CHECK_TREE_PERIOD = 200;
 
-typedef RegularGrid2D<GameObjectModel, BIHWrap<GameObjectModel> > ParentTree;
+typedef RegularGrid2D<GameObjectModel, BIHWrap<GameObjectModel>> ParentTree;
 
-struct DynTreeImpl : public ParentTree/*, public Intersectable*/
+struct DynTreeImpl : public ParentTree /*, public Intersectable*/
 {
     typedef GameObjectModel Model;
     typedef ParentTree base;
 
-    DynTreeImpl() :
-        rebalance_timer(CHECK_TREE_PERIOD),
-        unbalanced_times(0)
+    DynTreeImpl() : rebalance_timer(CHECK_TREE_PERIOD), unbalanced_times(0)
     {
     }
 
-    void insert(const Model& mdl)
+    void insert(const Model &mdl)
     {
         base::insert(mdl);
         ++unbalanced_times;
     }
 
-    void remove(const Model& mdl)
+    void remove(const Model &mdl)
     {
         base::remove(mdl);
         ++unbalanced_times;
@@ -108,17 +120,17 @@ DynamicMapTree::~DynamicMapTree()
     delete &impl;
 }
 
-void DynamicMapTree::insert(const GameObjectModel& mdl)
+void DynamicMapTree::insert(const GameObjectModel &mdl)
 {
     impl.insert(mdl);
 }
 
-void DynamicMapTree::remove(const GameObjectModel& mdl)
+void DynamicMapTree::remove(const GameObjectModel &mdl)
 {
     impl.remove(mdl);
 }
 
-bool DynamicMapTree::contains(const GameObjectModel& mdl) const
+bool DynamicMapTree::contains(const GameObjectModel &mdl) const
 {
     return impl.contains(mdl);
 }
@@ -141,13 +153,19 @@ void DynamicMapTree::update(uint32 t_diff)
 struct DynamicTreeIntersectionCallback
 {
     bool did_hit;
-    DynamicTreeIntersectionCallback() : did_hit(false) {}
-    bool operator()(const G3D::Ray& r, const GameObjectModel& obj, float& distance, bool stopAtFirst, bool ignoreM2Model)
+    DynamicTreeIntersectionCallback() : did_hit(false)
+    {
+    }
+    bool operator()(const G3D::Ray &r, const GameObjectModel &obj, float &distance, bool stopAtFirst,
+                    bool ignoreM2Model)
     {
         did_hit = obj.intersectRay(r, distance, stopAtFirst, ignoreM2Model);
         return did_hit;
     }
-    bool didHit() const { return did_hit;}
+    bool didHit() const
+    {
+        return did_hit;
+    }
 };
 
 struct DynamicTreeIntersectionCallback_WithLogger
@@ -157,7 +175,8 @@ struct DynamicTreeIntersectionCallback_WithLogger
     {
         DEBUG_LOG("Dynamic Intersection log");
     }
-    bool operator()(const G3D::Ray& r, const GameObjectModel& obj, float& distance, bool stopAtFirst, bool ignoreM2Model)
+    bool operator()(const G3D::Ray &r, const GameObjectModel &obj, float &distance, bool stopAtFirst,
+                    bool ignoreM2Model)
     {
         DEBUG_LOG("testing intersection with %s", obj.name.c_str());
         bool hit = obj.intersectRay(r, distance, stopAtFirst, ignoreM2Model);
@@ -168,16 +187,19 @@ struct DynamicTreeIntersectionCallback_WithLogger
         }
         return hit;
     }
-    bool didHit() const { return did_hit;}
+    bool didHit() const
+    {
+        return did_hit;
+    }
 };
 
 //=========================================================
 /**
-If intersection is found within pMaxDist, sets pMaxDist to intersection distance and returns true.
-Else, pMaxDist is not modified and returns false;
+If intersection is found within pMaxDist, sets pMaxDist to intersection
+distance and returns true. Else, pMaxDist is not modified and returns false;
 */
 
-bool DynamicMapTree::getIntersectionTime(const G3D::Ray& ray, const Vector3& endPos, float& pMaxDist) const
+bool DynamicMapTree::getIntersectionTime(const G3D::Ray &ray, const Vector3 &endPos, float &pMaxDist) const
 {
     float distance = pMaxDist;
     DynamicTreeIntersectionCallback callback;
@@ -188,7 +210,8 @@ bool DynamicMapTree::getIntersectionTime(const G3D::Ray& ray, const Vector3& end
 }
 //=========================================================
 
-bool DynamicMapTree::getObjectHitPos(float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float pModifyDist) const
+bool DynamicMapTree::getObjectHitPos(float x1, float y1, float z1, float x2, float y2, float z2, float &rx, float &ry,
+                                     float &rz, float pModifyDist) const
 {
     Vector3 pos1 = Vector3(x1, y1, z1);
     Vector3 pos2 = Vector3(x2, y2, z2);
@@ -202,14 +225,16 @@ bool DynamicMapTree::getObjectHitPos(float x1, float y1, float z1, float x2, flo
 
 //=========================================================
 /**
-When moving from pos1 to pos2 check if we hit an object. Return true and the position if we hit one
-Return the hit pos or the original dest pos
+When moving from pos1 to pos2 check if we hit an object. Return true and the
+position if we hit one Return the hit pos or the original dest pos
 */
-bool DynamicMapTree::getObjectHitPos(const Vector3& pPos1, const Vector3& pPos2, Vector3& pResultHitPos, float pModifyDist) const
+bool DynamicMapTree::getObjectHitPos(const Vector3 &pPos1, const Vector3 &pPos2, Vector3 &pResultHitPos,
+                                     float pModifyDist) const
 {
     bool result = false;
     float maxDist = (pPos2 - pPos1).magnitude();
-    // valid map coords should *never ever* produce float overflow, but this would produce NaNs too:
+    // valid map coords should *never ever* produce float overflow, but this
+    // would produce NaNs too:
     MANGOS_ASSERT(maxDist < std::numeric_limits<float>::max());
     // prevent NaN values which can cause BIH intersection to enter infinite loop
     if (maxDist < 1e-10f)
@@ -217,7 +242,7 @@ bool DynamicMapTree::getObjectHitPos(const Vector3& pPos1, const Vector3& pPos2,
         pResultHitPos = pPos2;
         return false;
     }
-    Vector3 dir = (pPos2 - pPos1) / maxDist;            // direction with length of 1
+    Vector3 dir = (pPos2 - pPos1) / maxDist; // direction with length of 1
     G3D::Ray ray(pPos1, dir);
     float dist = maxDist;
     if (getIntersectionTime(ray, pPos2, dist))
@@ -248,7 +273,8 @@ bool DynamicMapTree::getObjectHitPos(const Vector3& pPos1, const Vector3& pPos2,
     return result;
 }
 
-bool DynamicMapTree::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, bool ignoreM2Model) const
+bool DynamicMapTree::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2,
+                                     bool ignoreM2Model) const
 {
     Vector3 v1(x1, y1, z1), v2(x2, y2, z2);
 

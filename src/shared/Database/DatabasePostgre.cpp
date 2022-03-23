@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,13 +19,13 @@
 
 #ifdef DO_POSTGRESQL
 
-#include "Util.h"
-#include "Policies/Singleton.h"
-#include "Platform/Define.h"
-#include "Threading.h"
-#include "DatabaseEnv.h"
 #include "Database/SqlOperations.h"
+#include "DatabaseEnv.h"
+#include "Platform/Define.h"
+#include "Policies/Singleton.h"
+#include "Threading.h"
 #include "Timer.h"
+#include "Util.h"
 
 size_t DatabasePostgre::db_count = 0;
 
@@ -45,7 +46,7 @@ DatabasePostgre::~DatabasePostgre()
 {
 }
 
-SqlConnection* DatabasePostgre::CreateConnection()
+SqlConnection *DatabasePostgre::CreateConnection()
 {
     return new PostgreSQLConnection(*this);
 }
@@ -55,7 +56,7 @@ PostgreSQLConnection::~PostgreSQLConnection()
     PQfinish(mPGconn);
 }
 
-bool PostgreSQLConnection::Initialize(const char* infoString)
+bool PostgreSQLConnection::Initialize(const char *infoString)
 {
     Tokens tokens = StrSplit(infoString, ";");
 
@@ -77,26 +78,28 @@ bool PostgreSQLConnection::Initialize(const char* infoString)
         database = *iter++;
 
     if (host == ".")
-        mPGconn = PQsetdbLogin(nullptr, port_or_socket_dir == "." ? nullptr : port_or_socket_dir.c_str(), nullptr, nullptr, database.c_str(), user.c_str(), password.c_str());
+        mPGconn = PQsetdbLogin(nullptr, port_or_socket_dir == "." ? nullptr : port_or_socket_dir.c_str(), nullptr,
+                               nullptr, database.c_str(), user.c_str(), password.c_str());
     else
-        mPGconn = PQsetdbLogin(host.c_str(), port_or_socket_dir.c_str(), nullptr, nullptr, database.c_str(), user.c_str(), password.c_str());
+        mPGconn = PQsetdbLogin(host.c_str(), port_or_socket_dir.c_str(), nullptr, nullptr, database.c_str(),
+                               user.c_str(), password.c_str());
 
     /* check to see that the backend connection was successfully made */
     if (PQstatus(mPGconn) != CONNECTION_OK)
     {
-        sLog.outError("Could not connect to Postgre database at %s: %s",
-                      host.c_str(), PQerrorMessage(mPGconn));
+        sLog.outError("Could not connect to Postgre database at %s: %s", host.c_str(), PQerrorMessage(mPGconn));
         PQfinish(mPGconn);
         mPGconn = nullptr;
         return false;
     }
 
-    DETAIL_LOG("Connected to Postgre database %s@%s:%s/%s", user.c_str(), host.c_str(), port_or_socket_dir.c_str(), database.c_str());
+    DETAIL_LOG("Connected to Postgre database %s@%s:%s/%s", user.c_str(), host.c_str(), port_or_socket_dir.c_str(),
+               database.c_str());
     sLog.outString("PostgreSQL server ver: %d", PQserverVersion(mPGconn));
     return true;
 }
 
-bool PostgreSQLConnection::_Query(const char* sql, PGresult** pResult, uint64* pRowCount, uint32* pFieldCount)
+bool PostgreSQLConnection::_Query(const char *sql, PGresult **pResult, uint64 *pRowCount, uint32 *pFieldCount)
 {
     if (!mPGconn)
         return false;
@@ -116,7 +119,8 @@ bool PostgreSQLConnection::_Query(const char* sql, PGresult** pResult, uint64* p
     }
     else
     {
-        DEBUG_FILTER_LOG(LOG_FILTER_SQL_TEXT, "[%u ms] SQL: %s", WorldTimer::getMSTimeDiff(_s, WorldTimer::getMSTime()), sql);
+        DEBUG_FILTER_LOG(LOG_FILTER_SQL_TEXT, "[%u ms] SQL: %s", WorldTimer::getMSTimeDiff(_s, WorldTimer::getMSTime()),
+                         sql);
     }
 
     *pRowCount = PQntuples(*pResult);
@@ -132,30 +136,30 @@ bool PostgreSQLConnection::_Query(const char* sql, PGresult** pResult, uint64* p
     return true;
 }
 
-QueryResult* PostgreSQLConnection::Query(const char* sql)
+QueryResult *PostgreSQLConnection::Query(const char *sql)
 {
     if (!mPGconn)
         return nullptr;
 
-    PGresult* result = nullptr;
+    PGresult *result = nullptr;
     uint64 rowCount = 0;
     uint32 fieldCount = 0;
 
     if (!_Query(sql, &result, &rowCount, &fieldCount))
         return nullptr;
 
-    QueryResultPostgre* queryResult = new QueryResultPostgre(result, rowCount, fieldCount);
+    QueryResultPostgre *queryResult = new QueryResultPostgre(result, rowCount, fieldCount);
 
     queryResult->NextRow();
     return queryResult;
 }
 
-QueryNamedResult* PostgreSQLConnection::QueryNamed(const char* sql)
+QueryNamedResult *PostgreSQLConnection::QueryNamed(const char *sql)
 {
     if (!mPGconn)
         return nullptr;
 
-    PGresult* result = nullptr;
+    PGresult *result = nullptr;
     uint64 rowCount = 0;
     uint32 fieldCount = 0;
 
@@ -166,20 +170,20 @@ QueryNamedResult* PostgreSQLConnection::QueryNamed(const char* sql)
     for (uint32 i = 0; i < fieldCount; ++i)
         names[i] = PQfname(result, i);
 
-    QueryResultPostgre* queryResult = new QueryResultPostgre(result, rowCount, fieldCount);
+    QueryResultPostgre *queryResult = new QueryResultPostgre(result, rowCount, fieldCount);
 
     queryResult->NextRow();
     return new QueryNamedResult(queryResult, names);
 }
 
-bool PostgreSQLConnection::Execute(const char* sql)
+bool PostgreSQLConnection::Execute(const char *sql)
 {
     if (!mPGconn)
         return false;
 
     uint32 _s = WorldTimer::getMSTime();
 
-    PGresult* res = PQexec(mPGconn, sql);
+    PGresult *res = PQexec(mPGconn, sql);
     if (PQresultStatus(res) != PGRES_COMMAND_OK)
     {
         sLog.outErrorDb("SQL: %s", sql);
@@ -188,19 +192,20 @@ bool PostgreSQLConnection::Execute(const char* sql)
     }
     else
     {
-        DEBUG_FILTER_LOG(LOG_FILTER_SQL_TEXT, "[%u ms] SQL: %s", WorldTimer::getMSTimeDiff(_s, WorldTimer::getMSTime()), sql);
+        DEBUG_FILTER_LOG(LOG_FILTER_SQL_TEXT, "[%u ms] SQL: %s", WorldTimer::getMSTimeDiff(_s, WorldTimer::getMSTime()),
+                         sql);
     }
 
     PQclear(res);
     return true;
 }
 
-bool PostgreSQLConnection::_TransactionCmd(const char* sql)
+bool PostgreSQLConnection::_TransactionCmd(const char *sql)
 {
     if (!mPGconn)
         return false;
 
-    PGresult* res = PQexec(mPGconn, sql);
+    PGresult *res = PQexec(mPGconn, sql);
     if (PQresultStatus(res) != PGRES_COMMAND_OK)
     {
         sLog.outError("SQL: %s", sql);
@@ -229,7 +234,7 @@ bool PostgreSQLConnection::RollbackTransaction()
     return _TransactionCmd("ROLLBACK");
 }
 
-unsigned long PostgreSQLConnection::escape_string(char* to, const char* from, unsigned long length)
+unsigned long PostgreSQLConnection::escape_string(char *to, const char *from, unsigned long length)
 {
     if (!mPGconn || !to || !from || !length)
         return 0;

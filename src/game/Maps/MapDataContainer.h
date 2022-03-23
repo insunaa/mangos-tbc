@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +20,9 @@
 #ifndef MAP_DATA_CONTAINER_H
 #define MAP_DATA_CONTAINER_H
 
-#include "Platform/Define.h"
 #include <memory>
+
+#include "Platform/Define.h"
 
 struct CreatureSpellListContainer;
 struct CreatureSpellList;
@@ -29,16 +31,17 @@ struct SpawnGroupEntryContainer;
 
 class MapDataContainer
 {
-    public:
-        MapDataContainer();
-        void SetCreatureSpellListContainer(std::shared_ptr<CreatureSpellListContainer> container);
-        CreatureSpellList* GetCreatureSpellList(uint32 Id) const;
-        SpawnGroupEntry* GetSpawnGroup(uint32 Id) const;
-        SpawnGroupEntry* GetSpawnGroupByGuid(uint32 dbGuid, uint32 high) const;
-        std::shared_ptr<SpawnGroupEntryContainer> GetSpawnGroups() const;
-    private:
-        std::shared_ptr<CreatureSpellListContainer> m_spellListContainer;
-        std::shared_ptr<SpawnGroupEntryContainer> m_spawnGroupContainer;
+  public:
+    MapDataContainer();
+    void SetCreatureSpellListContainer(std::shared_ptr<CreatureSpellListContainer> container);
+    CreatureSpellList *GetCreatureSpellList(uint32 Id) const;
+    SpawnGroupEntry *GetSpawnGroup(uint32 Id) const;
+    SpawnGroupEntry *GetSpawnGroupByGuid(uint32 dbGuid, uint32 high) const;
+    std::shared_ptr<SpawnGroupEntryContainer> GetSpawnGroups() const;
+
+  private:
+    std::shared_ptr<CreatureSpellListContainer> m_spellListContainer;
+    std::shared_ptr<SpawnGroupEntryContainer> m_spawnGroupContainer;
 };
 
 #endif

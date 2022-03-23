@@ -1,18 +1,18 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 /* ScriptData
 SDName: Boss Mechano-Lord Capacitus
@@ -21,38 +21,39 @@ SDComment:
 SDCategory: Tempest Keep, The Mechanar
 EndScriptData */
 
+#include "AI/ScriptDevAI/base/CombatAI.h"
 #include "AI/ScriptDevAI/include/sc_common.h"
 #include "mechanar.h"
-#include "AI/ScriptDevAI/base/CombatAI.h"
 
 enum
 {
-    SAY_AGGRO                       = -1554005,
-    SAY_DEATH                       = -1554002,
-    SAY_ABILITY_USE_1               = -1554000,
-    SAY_ABILITY_USE_2               = -1554001,
-    SAY_PLAYER_KILL_1               = -1554003,
-    SAY_PLAYER_KILL_2               = -1554004,
+    SAY_AGGRO = -1554005,
+    SAY_DEATH = -1554002,
+    SAY_ABILITY_USE_1 = -1554000,
+    SAY_ABILITY_USE_2 = -1554001,
+    SAY_PLAYER_KILL_1 = -1554003,
+    SAY_PLAYER_KILL_2 = -1554004,
 
-    SPELL_SUMMON_NETHER_CHARGE_NE   = 35153,
-    SPELL_SUMMON_NETHER_CHARGE_NW   = 35904,
-    SPELL_SUMMON_NETHER_CHARGE_SE   = 35905,
-    SPELL_SUMMON_NETHER_CHARGE_SW   = 35906,
+    SPELL_SUMMON_NETHER_CHARGE_NE = 35153,
+    SPELL_SUMMON_NETHER_CHARGE_NW = 35904,
+    SPELL_SUMMON_NETHER_CHARGE_SE = 35905,
+    SPELL_SUMMON_NETHER_CHARGE_SW = 35906,
 
-    SPELL_POLARITY_SHIFT            = 39096,
-    SPELL_HEAD_CRACK                = 35161,
-    SPELL_BERSERK                   = 26662,
-    SPELL_REFLECTIVE_MAGIC_SHIELD   = 35158,
-    SPELL_REFLECTIVE_DAMAGE_SHIELD  = 35159,
+    SPELL_POLARITY_SHIFT = 39096,
+    SPELL_HEAD_CRACK = 35161,
+    SPELL_BERSERK = 26662,
+    SPELL_REFLECTIVE_MAGIC_SHIELD = 35158,
+    SPELL_REFLECTIVE_DAMAGE_SHIELD = 35159,
 
-    SPELL_NETHER_CHARGE_PASSIVE     = 35150,
-    SPELL_NETHER_CHARGE_PULSE       = 35151,
-    SPELL_NETHER_CHARGE_TIMER       = 37670,
+    SPELL_NETHER_CHARGE_PASSIVE = 35150,
+    SPELL_NETHER_CHARGE_PULSE = 35151,
+    SPELL_NETHER_CHARGE_TIMER = 37670,
 };
 
 struct boss_mechano_lord_capacitusAI : public ScriptedAI
 {
-    boss_mechano_lord_capacitusAI(Creature* creature) : ScriptedAI(creature), m_isRegularMode(creature->GetMap()->IsRegularDifficulty())
+    boss_mechano_lord_capacitusAI(Creature *creature)
+        : ScriptedAI(creature), m_isRegularMode(creature->GetMap()->IsRegularDifficulty())
     {
         Reset();
     }
@@ -68,8 +69,8 @@ struct boss_mechano_lord_capacitusAI : public ScriptedAI
 
     void Reset() override
     {
-        m_reflectiveShield  = true;
-        m_berserkTimer      = 180000;
+        m_reflectiveShield = true;
+        m_berserkTimer = 180000;
         m_polarityShiftTimer = 30000;
         m_headCrackTimer = urand(16100, 18600);
         m_netherChargeTimer = m_isRegularMode ? urand(2000, 5000) : urand(9000, 11000);
@@ -78,18 +79,18 @@ struct boss_mechano_lord_capacitusAI : public ScriptedAI
         DespawnNetherCharges();
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
 
-    void KilledUnit(Unit* pVictim) override
+    void KilledUnit(Unit *pVictim) override
     {
         if (pVictim->GetTypeId() == TYPEID_PLAYER)
             DoScriptText(urand(0, 1) ? SAY_PLAYER_KILL_1 : SAY_PLAYER_KILL_2, m_creature);
     }
 
-    void JustDied(Unit* /*pKiller*/) override
+    void JustDied(Unit * /*pKiller*/) override
     {
         DoScriptText(SAY_DEATH, m_creature);
         DespawnNetherCharges();
@@ -97,8 +98,8 @@ struct boss_mechano_lord_capacitusAI : public ScriptedAI
 
     void DespawnNetherCharges()
     {
-        for (ObjectGuid& guid : m_summons)
-            if (Creature* charge = m_creature->GetMap()->GetCreature(guid))
+        for (ObjectGuid &guid : m_summons)
+            if (Creature *charge = m_creature->GetMap()->GetCreature(guid))
                 charge->ForcedDespawn();
 
         m_summons.clear();
@@ -144,9 +145,14 @@ struct boss_mechano_lord_capacitusAI : public ScriptedAI
 
                 switch (urand(0, 3))
                 {
-                    case 0: DoScriptText(SAY_ABILITY_USE_1, m_creature); break;
-                    case 1: DoScriptText(SAY_ABILITY_USE_2, m_creature); break;
-                    default: break;
+                case 0:
+                    DoScriptText(SAY_ABILITY_USE_1, m_creature);
+                    break;
+                case 1:
+                    DoScriptText(SAY_ABILITY_USE_2, m_creature);
+                    break;
+                default:
+                    break;
                 }
             }
             else
@@ -159,20 +165,33 @@ struct boss_mechano_lord_capacitusAI : public ScriptedAI
             uint32 spellId;
             switch (urand(0, 3))
             {
-                case 0: spellId = SPELL_SUMMON_NETHER_CHARGE_NE; break;
-                case 1: spellId = SPELL_SUMMON_NETHER_CHARGE_NW; break;
-                case 2: spellId = SPELL_SUMMON_NETHER_CHARGE_SE; break;
-                default:
-                case 3: spellId = SPELL_SUMMON_NETHER_CHARGE_SW; break;
+            case 0:
+                spellId = SPELL_SUMMON_NETHER_CHARGE_NE;
+                break;
+            case 1:
+                spellId = SPELL_SUMMON_NETHER_CHARGE_NW;
+                break;
+            case 2:
+                spellId = SPELL_SUMMON_NETHER_CHARGE_SE;
+                break;
+            default:
+            case 3:
+                spellId = SPELL_SUMMON_NETHER_CHARGE_SW;
+                break;
             }
             m_creature->CastSpell(m_creature, spellId, TRIGGERED_NONE);
             m_netherChargeTimer = m_isRegularMode ? urand(2000, 15000) : urand(2000, 20000);
 
             switch (urand(0, 3))
             {
-                case 0: DoScriptText(SAY_ABILITY_USE_1, m_creature); break;
-                case 1: DoScriptText(SAY_ABILITY_USE_2, m_creature); break;
-                default: break;
+            case 0:
+                DoScriptText(SAY_ABILITY_USE_1, m_creature);
+                break;
+            case 1:
+                DoScriptText(SAY_ABILITY_USE_2, m_creature);
+                break;
+            default:
+                break;
             }
         }
         else
@@ -202,14 +221,10 @@ struct boss_mechano_lord_capacitusAI : public ScriptedAI
 
 struct NetherCharge : public ScriptedAI
 {
-    NetherCharge(Creature* creature) : ScriptedAI(creature), m_stopMoving(false)
+    NetherCharge(Creature *creature) : ScriptedAI(creature), m_stopMoving(false)
     {
-        AddCustomAction(1, true, [&]()
-        {
-            MoveToRandomPoint();
-        });
-        AddCustomAction(2, 10000u, [&]()
-        {
+        AddCustomAction(1, true, [&]() { MoveToRandomPoint(); });
+        AddCustomAction(2, 10000u, [&]() {
             m_stopMoving = true;
             m_creature->GetMotionMaster()->Clear(false, true);
             m_creature->GetMotionMaster()->MoveIdle();
@@ -217,7 +232,9 @@ struct NetherCharge : public ScriptedAI
         SetReactState(REACT_PASSIVE);
     }
 
-    void Reset() override { }
+    void Reset() override
+    {
+    }
 
     bool m_stopMoving;
 
@@ -226,7 +243,9 @@ struct NetherCharge : public ScriptedAI
         if (m_stopMoving)
             return;
         float x, y, z;
-        m_creature->GetPosition(x, y, z); // do some urand radius shenanigans to spawn it further and make it walk to go using doing X and Y yourself and using function in MAP to get proper Z
+        m_creature->GetPosition(x, y, z); // do some urand radius shenanigans to spawn it further and
+                                          // make it walk to go using doing X and Y yourself and using
+                                          // function in MAP to get proper Z
         float xR = x + urand(10, 20), yR = y + urand(10, 20), zR = z;
         m_creature->UpdateAllowedPositionZ(xR, yR, zR);
         m_creature->GetMotionMaster()->MovePoint(1, xR, yR, zR);
@@ -248,37 +267,39 @@ struct NetherCharge : public ScriptedAI
 
 struct NetherChargePassive : public AuraScript
 {
-    void OnApply(Aura* aura, bool /*apply*/) const
+    void OnApply(Aura *aura, bool /*apply*/) const
     {
         aura->ForcePeriodicity(2000);
     }
 
-    void OnPeriodicTickEnd(Aura* aura) const
+    void OnPeriodicTickEnd(Aura *aura) const
     {
         switch (aura->GetAuraTicks())
         {
-            case 5:
-            case 6:
-            case 7:
-                aura->GetTarget()->CastSpell(nullptr, SPELL_NETHER_CHARGE_PULSE, TRIGGERED_OLD_TRIGGERED);
-                break;
-            default: break;
+        case 5:
+        case 6:
+        case 7:
+            aura->GetTarget()->CastSpell(nullptr, SPELL_NETHER_CHARGE_PULSE, TRIGGERED_OLD_TRIGGERED);
+            break;
+        default:
+            break;
         }
     }
 };
 
 struct NetherChargeTimer : public AuraScript
 {
-    void OnApply(Aura* aura, bool apply) const
+    void OnApply(Aura *aura, bool apply) const
     {
         if (!apply)
-            aura->GetTarget()->CastSpell(nullptr, aura->GetSpellProto()->EffectTriggerSpell[aura->GetEffIndex()], TRIGGERED_OLD_TRIGGERED);
+            aura->GetTarget()->CastSpell(nullptr, aura->GetSpellProto()->EffectTriggerSpell[aura->GetEffIndex()],
+                                         TRIGGERED_OLD_TRIGGERED);
     }
 };
 
 void AddSC_boss_mechano_lord_capacitus()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_mechano_lord_capacitus";
     pNewScript->GetAI = &GetNewAIInstance<boss_mechano_lord_capacitusAI>;
     pNewScript->RegisterSelf();

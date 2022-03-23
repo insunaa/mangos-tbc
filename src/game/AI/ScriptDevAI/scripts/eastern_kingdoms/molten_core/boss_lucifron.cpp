@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -21,15 +21,15 @@ SDComment:
 SDCategory: Molten Core
 EndScriptData */
 
+#include "AI/ScriptDevAI/base/CombatAI.h"
 #include "AI/ScriptDevAI/include/sc_common.h"
 #include "molten_core.h"
-#include "AI/ScriptDevAI/base/CombatAI.h"
 
 enum
 {
-    SPELL_SHADOWSHOCK       = 19460,
-    SPELL_IMPENDINGDOOM     = 19702,
-    SPELL_LUCIFRONCURSE     = 19703,
+    SPELL_SHADOWSHOCK = 19460,
+    SPELL_IMPENDINGDOOM = 19702,
+    SPELL_LUCIFRONCURSE = 19703,
 };
 
 enum LucifronActions
@@ -42,7 +42,9 @@ enum LucifronActions
 
 struct boss_lucifronAI : public CombatAI
 {
-    boss_lucifronAI(Creature* creature) : CombatAI(creature, LUCIFRON_ACTION_MAX), m_instance(static_cast<ScriptedInstance*>(creature->GetInstanceData()))
+    boss_lucifronAI(Creature *creature)
+        : CombatAI(creature, LUCIFRON_ACTION_MAX),
+          m_instance(static_cast<ScriptedInstance *>(creature->GetInstanceData()))
     {
         AddCombatAction(LUCIFRON_IMPENDING_DOOM, 5 * IN_MILLISECONDS, 10 * IN_MILLISECONDS);
         AddCombatAction(LUCIFRON_LUCIFRONS_CURSE, 10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
@@ -50,15 +52,15 @@ struct boss_lucifronAI : public CombatAI
         Reset();
     }
 
-    ScriptedInstance* m_instance;
+    ScriptedInstance *m_instance;
 
-    void Aggro(Unit* /*who*/) override
+    void Aggro(Unit * /*who*/) override
     {
         if (m_instance)
             m_instance->SetData(TYPE_LUCIFRON, IN_PROGRESS);
     }
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit * /*killer*/) override
     {
         if (m_instance)
             m_instance->SetData(TYPE_LUCIFRON, DONE);
@@ -74,31 +76,28 @@ struct boss_lucifronAI : public CombatAI
     {
         switch (action)
         {
-            case LUCIFRON_IMPENDING_DOOM:
-            {
-                if (DoCastSpellIfCan(nullptr, SPELL_IMPENDINGDOOM) == CAST_OK)
-                    ResetCombatAction(action, urand(20 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
-                break;
-            }
-            case LUCIFRON_LUCIFRONS_CURSE:
-            {
-                if (DoCastSpellIfCan(nullptr, SPELL_LUCIFRONCURSE) == CAST_OK)
-                    ResetCombatAction(action, urand(20 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
-                break;
-            }
-            case LUCIFRON_SHADOWSHOCK:
-            {
-                if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SHADOWSHOCK) == CAST_OK)
-                    ResetCombatAction(action, urand(3 * IN_MILLISECONDS, 6 * IN_MILLISECONDS));
-                break;
-            }
+        case LUCIFRON_IMPENDING_DOOM: {
+            if (DoCastSpellIfCan(nullptr, SPELL_IMPENDINGDOOM) == CAST_OK)
+                ResetCombatAction(action, urand(20 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
+            break;
+        }
+        case LUCIFRON_LUCIFRONS_CURSE: {
+            if (DoCastSpellIfCan(nullptr, SPELL_LUCIFRONCURSE) == CAST_OK)
+                ResetCombatAction(action, urand(20 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
+            break;
+        }
+        case LUCIFRON_SHADOWSHOCK: {
+            if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SHADOWSHOCK) == CAST_OK)
+                ResetCombatAction(action, urand(3 * IN_MILLISECONDS, 6 * IN_MILLISECONDS));
+            break;
+        }
         }
     }
 };
 
 void AddSC_boss_lucifron()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_lucifron";
     pNewScript->GetAI = &GetNewAIInstance<boss_lucifronAI>;
     pNewScript->RegisterSelf();

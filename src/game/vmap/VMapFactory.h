@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,16 +28,16 @@ This is the access point to the VMapManager.
 
 namespace VMAP
 {
-    //===========================================================
+//===========================================================
 
-    class VMapFactory
-    {
-        public:
-            static IVMapManager* createOrGetVMapManager();
-            static void clear();
+class VMapFactory
+{
+  public:
+    static IVMapManager *createOrGetVMapManager();
+    static void clear();
 
-            static void chompAndTrim(std::string& str);
-            static bool getNextId(const std::string& pString, unsigned int& pStartPos, unsigned int& pId);
-    };
-}
+    static void chompAndTrim(std::string &str);
+    static bool getNextId(const std::string &pString, unsigned int &pStartPos, unsigned int &pId);
+};
+} // namespace VMAP
 #endif

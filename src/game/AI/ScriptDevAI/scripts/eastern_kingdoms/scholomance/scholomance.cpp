@@ -1,18 +1,18 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 /* ScriptData
 SDName: scholomance.cpp
@@ -33,16 +33,19 @@ EndContentData */
 
 enum
 {
-    SPELL_IMAGE_PROJECTION          = 17651,
-    SPELL_IMAGE_PROJECTION_HEAL     = 17652,
-    SPELL_IMAGE_PROJECTION_SUMMON   = 17653,
-    SPELL_MANA_BURN                 = 17630,
-    SPELL_SILENCE                   = 12528,
+    SPELL_IMAGE_PROJECTION = 17651,
+    SPELL_IMAGE_PROJECTION_HEAL = 17652,
+    SPELL_IMAGE_PROJECTION_SUMMON = 17653,
+    SPELL_MANA_BURN = 17630,
+    SPELL_SILENCE = 12528,
 };
 
 struct npc_spectral_tutorAI : public ScriptedAI
 {
-    npc_spectral_tutorAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_spectral_tutorAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiManaBurnTimer;
     uint32 m_uiSilenceTimer;
@@ -51,9 +54,9 @@ struct npc_spectral_tutorAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiProjEndTimer    = 0;
-        m_uiManaBurnTimer   = urand(4000, 19000);
-        m_uiSilenceTimer    = urand(0, 3000);
+        m_uiProjEndTimer = 0;
+        m_uiManaBurnTimer = urand(4000, 19000);
+        m_uiSilenceTimer = urand(0, 3000);
         m_uiProjectionTimer = urand(12000, 13000);
     }
 
@@ -116,14 +119,14 @@ struct npc_spectral_tutorAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_npc_spectral_tutor(Creature* pCreature)
+UnitAI *GetAI_npc_spectral_tutor(Creature *pCreature)
 {
     return new npc_spectral_tutorAI(pCreature);
 }
 
 void AddSC_scholomance()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "npc_spectral_tutor";
     pNewScript->GetAI = &GetAI_npc_spectral_tutor;
     pNewScript->RegisterSelf();

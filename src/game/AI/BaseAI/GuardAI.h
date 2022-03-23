@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,20 +28,24 @@ class Creature;
 
 class GuardAI : public CreatureAI
 {
-        enum GuardState
-        {
-            STATE_NORMAL = 1,
-            STATE_LOOK_AT_VICTIM = 2
-        };
+    enum GuardState
+    {
+        STATE_NORMAL = 1,
+        STATE_LOOK_AT_VICTIM = 2
+    };
 
-    public:
-        explicit GuardAI(Creature* creature);
+  public:
+    explicit GuardAI(Creature *creature);
 
-        void MoveInLineOfSight(Unit* who) override;
+    void MoveInLineOfSight(Unit *who) override;
 
-        void UpdateAI(const uint32 diff) override;
-        static int Permissible(const Creature* creature);
-    protected:
-        std::string GetAIName() override { return "GuardAI"; }
+    void UpdateAI(const uint32 diff) override;
+    static int Permissible(const Creature *creature);
+
+  protected:
+    std::string GetAIName() override
+    {
+        return "GuardAI";
+    }
 };
 #endif

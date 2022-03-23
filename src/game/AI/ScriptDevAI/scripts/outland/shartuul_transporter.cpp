@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -14,10 +14,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "AI/ScriptDevAI/base/CombatAI.h"
 #include "AI/ScriptDevAI/include/sc_common.h"
 #include "AI/ScriptDevAI/scripts/outland/world_outland.h"
 #include "Spells/Scripts/SpellScript.h"
-#include "AI/ScriptDevAI/base/CombatAI.h"
 
 enum Possession
 {
@@ -43,7 +43,9 @@ enum PunisherActions
 
 struct npc_doomguard_punisherAI : public CombatAI
 {
-    npc_doomguard_punisherAI(Creature* creature) : CombatAI(creature, PUNISHER_ACTION_MAX), m_instance(static_cast<ScriptedInstance*>(creature->GetInstanceData()))
+    npc_doomguard_punisherAI(Creature *creature)
+        : CombatAI(creature, PUNISHER_ACTION_MAX),
+          m_instance(static_cast<ScriptedInstance *>(creature->GetInstanceData()))
     {
         m_creature->GetCombatManager().SetLeashingDisable(true);
         AddTimerlessCombatAction(PUNISHER_POSSESSION_TRANSFER, false);
@@ -58,10 +60,10 @@ struct npc_doomguard_punisherAI : public CombatAI
         SetDeathPrevention(true);
     }
 
-    ScriptedInstance* m_instance;
+    ScriptedInstance *m_instance;
     ObjectGuid m_demonGuid;
 
-    void ReceiveAIEvent(AIEventType eventType, Unit* /*sender*/, Unit* invoker, uint32 /*miscValue*/)
+    void ReceiveAIEvent(AIEventType eventType, Unit * /*sender*/, Unit *invoker, uint32 /*miscValue*/)
     {
         if (eventType == AI_EVENT_CUSTOM_A)
         {
@@ -75,15 +77,16 @@ struct npc_doomguard_punisherAI : public CombatAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PLAYER);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->SetFactionTemporary(SHARTUUL_FACTION_HOSTILE, TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_REACH_HOME);
+        m_creature->SetFactionTemporary(SHARTUUL_FACTION_HOSTILE,
+                                        TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_REACH_HOME);
         m_creature->RemoveAurasDueToSpell(SPELL_SHADOWFORM);
-        if (Creature* demon = m_creature->GetMap()->GetCreature(m_demonGuid))
+        if (Creature *demon = m_creature->GetMap()->GetCreature(m_demonGuid))
             AttackStart(demon);
         else if (m_instance)
             m_instance->SetData(TYPE_SHARTUUL, EVENT_FAIL);
     }
 
-    void JustPreventedDeath(Unit* killer) override
+    void JustPreventedDeath(Unit *killer) override
     {
         SetActionReadyStatus(PUNISHER_POSSESSION_TRANSFER, true);
     }
@@ -98,14 +101,14 @@ struct npc_doomguard_punisherAI : public CombatAI
     {
         switch (action)
         {
-            case PUNISHER_POSSESSION_TRANSFER:
-                if (DoCastSpellIfCan(nullptr, SPELL_POSSESSION_TRANSFER_P1) == CAST_OK)
-                    SetActionReadyStatus(action, false);
-                break;
-            case PUNISHER_FEL_FLAMES:
-                if (DoCastSpellIfCan(nullptr, SPELL_FEL_FLAMES) == CAST_OK)
-                    ResetCombatAction(action, 60000);
-                break;
+        case PUNISHER_POSSESSION_TRANSFER:
+            if (DoCastSpellIfCan(nullptr, SPELL_POSSESSION_TRANSFER_P1) == CAST_OK)
+                SetActionReadyStatus(action, false);
+            break;
+        case PUNISHER_FEL_FLAMES:
+            if (DoCastSpellIfCan(nullptr, SPELL_FEL_FLAMES) == CAST_OK)
+                ResetCombatAction(action, 60000);
+            break;
         }
     }
 };
@@ -120,7 +123,9 @@ enum ShivanActions
 
 struct npc_shivan_assassinAI : public CombatAI
 {
-    npc_shivan_assassinAI(Creature* creature) : CombatAI(creature, SHIVAN_ACTION_MAX), m_instance(static_cast<ScriptedInstance*>(creature->GetInstanceData()))
+    npc_shivan_assassinAI(Creature *creature)
+        : CombatAI(creature, SHIVAN_ACTION_MAX),
+          m_instance(static_cast<ScriptedInstance *>(creature->GetInstanceData()))
     {
         m_creature->GetCombatManager().SetLeashingDisable(true);
         AddCombatAction(SHIVAN_POSSESSION_TRANSFER, true);
@@ -135,11 +140,11 @@ struct npc_shivan_assassinAI : public CombatAI
         SetDeathPrevention(true);
     }
 
-    ScriptedInstance* m_instance;
+    ScriptedInstance *m_instance;
 
     ObjectGuid m_demonGuid;
 
-    void ReceiveAIEvent(AIEventType eventType, Unit* /*sender*/, Unit* invoker, uint32 /*miscValue*/)
+    void ReceiveAIEvent(AIEventType eventType, Unit * /*sender*/, Unit *invoker, uint32 /*miscValue*/)
     {
         if (eventType == AI_EVENT_CUSTOM_A)
         {
@@ -154,9 +159,10 @@ struct npc_shivan_assassinAI : public CombatAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PLAYER);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->SetFactionTemporary(SHARTUUL_FACTION_HOSTILE, TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_REACH_HOME);
+        m_creature->SetFactionTemporary(SHARTUUL_FACTION_HOSTILE,
+                                        TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_REACH_HOME);
         m_creature->RemoveAurasDueToSpell(SPELL_SHADOWFORM);
-        if (Creature* demon = m_creature->GetMap()->GetCreature(m_demonGuid))
+        if (Creature *demon = m_creature->GetMap()->GetCreature(m_demonGuid))
             AttackStart(demon);
         else if (m_instance)
             m_instance->SetData(TYPE_SHARTUUL, EVENT_FAIL);
@@ -176,13 +182,13 @@ struct npc_shivan_assassinAI : public CombatAI
     void HandleOocAnim()
     {
         if (m_instance)
-            if (Creature* dummy = m_instance->GetSingleCreatureFromStorage(NPC_WARP_GATE_SHIELD_SHARTUUL))
+            if (Creature *dummy = m_instance->GetSingleCreatureFromStorage(NPC_WARP_GATE_SHIELD_SHARTUUL))
                 m_creature->CastSpell(dummy, SPELL_LEGION_RING_SHIELD_LIGHTNING, TRIGGERED_NONE);
 
         ResetTimer(SHIVAN_OOC_ANIM, 8000);
     }
 
-    void JustPreventedDeath(Unit* killer) override
+    void JustPreventedDeath(Unit *killer) override
     {
         SetActionReadyStatus(SHIVAN_POSSESSION_TRANSFER, true);
     }
@@ -191,10 +197,10 @@ struct npc_shivan_assassinAI : public CombatAI
     {
         switch (action)
         {
-            case SHIVAN_POSSESSION_TRANSFER:
-                if (DoCastSpellIfCan(nullptr, SPELL_POSSESSION_TRANSFER_P2) == CAST_OK)
-                    SetActionReadyStatus(action, false);
-                break;
+        case SHIVAN_POSSESSION_TRANSFER:
+            if (DoCastSpellIfCan(nullptr, SPELL_POSSESSION_TRANSFER_P2) == CAST_OK)
+                SetActionReadyStatus(action, false);
+            break;
         }
     }
 };
@@ -219,7 +225,8 @@ enum EyeActions
 
 struct npc_eye_of_shartuulAI : public CombatAI
 {
-    npc_eye_of_shartuulAI(Creature* creature) : CombatAI(creature, EYE_ACTION_MAX), m_instance(static_cast<ScriptedInstance*>(creature->GetInstanceData()))
+    npc_eye_of_shartuulAI(Creature *creature)
+        : CombatAI(creature, EYE_ACTION_MAX), m_instance(static_cast<ScriptedInstance *>(creature->GetInstanceData()))
     {
         m_creature->GetCombatManager().SetLeashingDisable(true);
         AddCombatAction(EYE_DARK_GLARE, 60000u);
@@ -235,11 +242,11 @@ struct npc_eye_of_shartuulAI : public CombatAI
         SetDeathPrevention(true);
     }
 
-    ScriptedInstance* m_instance;
+    ScriptedInstance *m_instance;
 
     ObjectGuid m_demonGuid;
 
-    void ReceiveAIEvent(AIEventType eventType, Unit* /*sender*/, Unit* invoker, uint32 /*miscValue*/)
+    void ReceiveAIEvent(AIEventType eventType, Unit * /*sender*/, Unit *invoker, uint32 /*miscValue*/)
     {
         if (eventType == AI_EVENT_CUSTOM_A)
         {
@@ -253,14 +260,15 @@ struct npc_eye_of_shartuulAI : public CombatAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PLAYER);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->SetFactionTemporary(SHARTUUL_FACTION_HOSTILE, TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_REACH_HOME);
-        if (Creature* demon = m_creature->GetMap()->GetCreature(m_demonGuid))
+        m_creature->SetFactionTemporary(SHARTUUL_FACTION_HOSTILE,
+                                        TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_REACH_HOME);
+        if (Creature *demon = m_creature->GetMap()->GetCreature(m_demonGuid))
             AttackStart(demon);
         else if (m_instance)
             m_instance->SetData(TYPE_SHARTUUL, EVENT_FAIL);
     }
 
-    void JustPreventedDeath(Unit* killer) override
+    void JustPreventedDeath(Unit *killer) override
     {
         if (m_instance)
             m_instance->SetData(TYPE_SHARTUUL, EVENT_EYE_OF_SHARTUUL_DEATH);
@@ -277,34 +285,34 @@ struct npc_eye_of_shartuulAI : public CombatAI
     {
         switch (action)
         {
-            case EYE_DARK_GLARE:
-                if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_DARK_GLARE) == CAST_OK)
-                {
-                    DoScriptText(SAY_EYE_GLARE, m_creature);
-                    ResetCombatAction(action, 60000);
-                }
-                break;
-            case EYE_DISRUPTION_RAY:
-                if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_DISRUPTION_RAY) == CAST_OK)
-                    ResetCombatAction(action, 30000);
-                break;
-            case EYE_TONGUE_LASH:
-                if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_TONGUE_LASH) == CAST_OK)
-                    ResetCombatAction(action, 5000);
-                break;
-            case EYE_FEL_FIREBALL:
-                if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_FEL_FIREBALL) == CAST_OK)
-                    ResetCombatAction(action, 15000);
-                break;
+        case EYE_DARK_GLARE:
+            if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_DARK_GLARE) == CAST_OK)
+            {
+                DoScriptText(SAY_EYE_GLARE, m_creature);
+                ResetCombatAction(action, 60000);
+            }
+            break;
+        case EYE_DISRUPTION_RAY:
+            if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_DISRUPTION_RAY) == CAST_OK)
+                ResetCombatAction(action, 30000);
+            break;
+        case EYE_TONGUE_LASH:
+            if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_TONGUE_LASH) == CAST_OK)
+                ResetCombatAction(action, 5000);
+            break;
+        case EYE_FEL_FIREBALL:
+            if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_FEL_FIREBALL) == CAST_OK)
+                ResetCombatAction(action, 15000);
+            break;
         }
     }
 };
 
 enum
 {
-    SPELL_RAMPAGING_CHARGE  = 41939,
-    SPELL_GROWTH            = 41953,
-    SPELL_LACERATING_BITE   = 41940,
+    SPELL_RAMPAGING_CHARGE = 41939,
+    SPELL_GROWTH = 41953,
+    SPELL_LACERATING_BITE = 41940,
 };
 
 enum DreadmawActions
@@ -317,7 +325,9 @@ enum DreadmawActions
 
 struct npc_dreadmawAI : public CombatAI
 {
-    npc_dreadmawAI(Creature* creature) : CombatAI(creature, DREADMAW_ACTION_MAX), m_instance(static_cast<ScriptedInstance*>(creature->GetInstanceData()))
+    npc_dreadmawAI(Creature *creature)
+        : CombatAI(creature, DREADMAW_ACTION_MAX),
+          m_instance(static_cast<ScriptedInstance *>(creature->GetInstanceData()))
     {
         m_creature->GetCombatManager().SetLeashingDisable(true);
         AddCombatAction(DREADMAW_RAMPAGING_CHARGE, 60000u);
@@ -331,11 +341,11 @@ struct npc_dreadmawAI : public CombatAI
         SetDeathPrevention(true);
     }
 
-    ScriptedInstance* m_instance;
+    ScriptedInstance *m_instance;
 
     ObjectGuid m_demonGuid;
 
-    void ReceiveAIEvent(AIEventType eventType, Unit* /*sender*/, Unit* invoker, uint32 /*miscValue*/)
+    void ReceiveAIEvent(AIEventType eventType, Unit * /*sender*/, Unit *invoker, uint32 /*miscValue*/)
     {
         if (eventType == AI_EVENT_CUSTOM_A)
         {
@@ -349,14 +359,15 @@ struct npc_dreadmawAI : public CombatAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PLAYER);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->SetFactionTemporary(SHARTUUL_FACTION_HOSTILE, TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_REACH_HOME);
-        if (Creature* demon = m_creature->GetMap()->GetCreature(m_demonGuid))
+        m_creature->SetFactionTemporary(SHARTUUL_FACTION_HOSTILE,
+                                        TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_REACH_HOME);
+        if (Creature *demon = m_creature->GetMap()->GetCreature(m_demonGuid))
             AttackStart(demon);
         else if (m_instance)
             m_instance->SetData(TYPE_SHARTUUL, EVENT_FAIL);
     }
 
-    void JustPreventedDeath(Unit* killer) override
+    void JustPreventedDeath(Unit *killer) override
     {
         if (m_instance)
             m_instance->SetData(TYPE_SHARTUUL, EVENT_DREADMAW_DEATH);
@@ -369,7 +380,7 @@ struct npc_dreadmawAI : public CombatAI
             m_instance->SetData(TYPE_SHARTUUL, EVENT_FAIL);
     }
 
-    void SpellHitTarget(Unit* target, const SpellEntry* spellInfo) override
+    void SpellHitTarget(Unit *target, const SpellEntry *spellInfo) override
     {
         if (spellInfo->Id == SPELL_LACERATING_BITE)
             DoScriptText(SAY_DREADMAW_LASH, m_creature, target);
@@ -379,14 +390,14 @@ struct npc_dreadmawAI : public CombatAI
     {
         switch (action)
         {
-            case DREADMAW_RAMPAGING_CHARGE:
-                if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_RAMPAGING_CHARGE) == CAST_OK)
-                    ResetCombatAction(action, 60000);
-                break;
-            case DREADMAW_GROWTH:
-                if (DoCastSpellIfCan(nullptr, SPELL_GROWTH) == CAST_OK)
-                    ResetCombatAction(action, 60000);
-                break;
+        case DREADMAW_RAMPAGING_CHARGE:
+            if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_RAMPAGING_CHARGE) == CAST_OK)
+                ResetCombatAction(action, 60000);
+            break;
+        case DREADMAW_GROWTH:
+            if (DoCastSpellIfCan(nullptr, SPELL_GROWTH) == CAST_OK)
+                ResetCombatAction(action, 60000);
+            break;
         }
     }
 };
@@ -414,7 +425,9 @@ enum ShartuulActions
 
 struct npc_shartuulAI : public CombatAI
 {
-    npc_shartuulAI(Creature* creature) : CombatAI(creature, SHARTUUL_ACTION_MAX), m_instance(static_cast<ScriptedInstance*>(creature->GetInstanceData())), m_fightSequenceStage(0)
+    npc_shartuulAI(Creature *creature)
+        : CombatAI(creature, SHARTUUL_ACTION_MAX),
+          m_instance(static_cast<ScriptedInstance *>(creature->GetInstanceData())), m_fightSequenceStage(0)
     {
         m_creature->GetCombatManager().SetLeashingDisable(true);
         // AddCombatAction(SHARTUUL_TELEPORT, 60000u);
@@ -433,11 +446,11 @@ struct npc_shartuulAI : public CombatAI
         SetDeathPrevention(true);
     }
 
-    ScriptedInstance* m_instance;
+    ScriptedInstance *m_instance;
 
     uint32 m_fightSequenceStage;
 
-    void JustPreventedDeath(Unit* killer) override
+    void JustPreventedDeath(Unit *killer) override
     {
         if (m_instance)
             m_instance->SetData(TYPE_SHARTUUL, EVENT_SHARTUUL_DEATH);
@@ -451,30 +464,31 @@ struct npc_shartuulAI : public CombatAI
         uint32 timer = 0;
         switch (m_fightSequenceStage)
         {
-            case 0:
-                if (Unit* spawner = m_creature->GetSpawner())
-                    m_creature->SetFacingToObject(spawner->GetCharm());
-                timer = 2000;
-                break;
-            case 1:
-                DoScriptText(SAY_SHARTUUL_AGGRO, m_creature, m_creature->GetSpawner());
-                timer = 10000;
-                break;
-            case 2:
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PLAYER);
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                m_creature->SetFactionTemporary(SHARTUUL_FACTION_HOSTILE, TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_REACH_HOME);
-                m_creature->RemoveAurasDueToSpell(SPELL_SHADOWFORM);
-                Unit* spawner = m_creature->GetSpawner();
-                Unit* charm = nullptr;
-                if (spawner)
-                    charm = spawner->GetCharm();
-                if (charm)
-                    AttackStart(charm);
-                else if (m_instance)
-                    m_instance->SetData(TYPE_SHARTUUL, EVENT_FAIL);
-                break;
+        case 0:
+            if (Unit *spawner = m_creature->GetSpawner())
+                m_creature->SetFacingToObject(spawner->GetCharm());
+            timer = 2000;
+            break;
+        case 1:
+            DoScriptText(SAY_SHARTUUL_AGGRO, m_creature, m_creature->GetSpawner());
+            timer = 10000;
+            break;
+        case 2:
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PLAYER);
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            m_creature->SetFactionTemporary(SHARTUUL_FACTION_HOSTILE,
+                                            TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_REACH_HOME);
+            m_creature->RemoveAurasDueToSpell(SPELL_SHADOWFORM);
+            Unit *spawner = m_creature->GetSpawner();
+            Unit *charm = nullptr;
+            if (spawner)
+                charm = spawner->GetCharm();
+            if (charm)
+                AttackStart(charm);
+            else if (m_instance)
+                m_instance->SetData(TYPE_SHARTUUL, EVENT_FAIL);
+            break;
         }
         ++m_fightSequenceStage;
         if (timer)
@@ -498,39 +512,39 @@ struct npc_shartuulAI : public CombatAI
     {
         switch (action)
         {
-            case SHARTUUL_INCINERATE:
-                if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_INCINERATE) == CAST_OK)
-                    ResetCombatAction(action, 60000);
-                break;
-            case SHARTUUL_IMMOLATE:
-                if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_IMMOLATE) == CAST_OK)
-                    ResetCombatAction(action, 30000u);
-                break;
-            case SHARTUUL_SHADOW_RESONANCE:
-                if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SHADOW_RESONANCE) == CAST_OK)
-                    ResetCombatAction(action, 15000u);
-                break;
-            case SHARTUUL_SHADOW_BOLT:
-                if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SHADOW_BOLT) == CAST_OK)
-                    ResetCombatAction(action, 3000);
-                break;
+        case SHARTUUL_INCINERATE:
+            if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_INCINERATE) == CAST_OK)
+                ResetCombatAction(action, 60000);
+            break;
+        case SHARTUUL_IMMOLATE:
+            if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_IMMOLATE) == CAST_OK)
+                ResetCombatAction(action, 30000u);
+            break;
+        case SHARTUUL_SHADOW_RESONANCE:
+            if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SHADOW_RESONANCE) == CAST_OK)
+                ResetCombatAction(action, 15000u);
+            break;
+        case SHARTUUL_SHADOW_BOLT:
+            if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SHADOW_BOLT) == CAST_OK)
+                ResetCombatAction(action, 3000);
+            break;
         }
     }
 };
 
 struct PossessionTransfer : public AuraScript
 {
-    void OnApply(Aura* aura, bool apply) const override
+    void OnApply(Aura *aura, bool apply) const override
     {
         if (aura->GetEffIndex() != EFFECT_INDEX_2)
             return;
         if (!apply)
         {
-            Unit* caster = aura->GetTarget();
-            Unit* target = dynamic_cast<Unit*>(caster->GetChannelObject());
+            Unit *caster = aura->GetTarget();
+            Unit *target = dynamic_cast<Unit *>(caster->GetChannelObject());
             if (!target)
                 return;
-            Unit* charmer = target->GetCharmer();
+            Unit *charmer = target->GetCharmer();
             if (!charmer || !caster || caster == target)
                 return;
             uint32 removalSpell;
@@ -552,7 +566,7 @@ struct PossessionTransfer : public AuraScript
             charmer->RemoveAurasDueToSpell(removalSpell);
             target->RemoveAurasDueToSpell(removalSpell);
             if (target->IsCreature())
-                static_cast<Creature*>(target)->ForcedDespawn();
+                static_cast<Creature *>(target)->ForcedDespawn();
             charmer->CastSpell(nullptr, newSpell, TRIGGERED_OLD_TRIGGERED);
             caster->CombatStop();
             if (target->GetInstanceData())
@@ -561,23 +575,25 @@ struct PossessionTransfer : public AuraScript
     }
 };
 
-bool ProcessEventId_CharmDegrader(uint32 /*uiEventId*/, Object* pSource, Object* /*pTarget*/, bool /*bIsStart*/)
+bool ProcessEventId_CharmDegrader(uint32 /*uiEventId*/, Object *pSource, Object * /*pTarget*/, bool /*bIsStart*/)
 {
     if (pSource->IsPlayer())
     {
-        Player* player = static_cast<Player*>(pSource);
-        if (Unit* overseer = static_cast<ScriptedInstance*>(player->GetInstanceData())->GetSingleCreatureFromStorage(NPC_OVERSEER_SHARTUUL))
+        Player *player = static_cast<Player *>(pSource);
+        if (Unit *overseer = static_cast<ScriptedInstance *>(player->GetInstanceData())
+                                 ->GetSingleCreatureFromStorage(NPC_OVERSEER_SHARTUUL))
             DoScriptText(SAY_SECOND_DEMON, overseer, player);
     }
     return true;
 }
 
-bool ProcessEventId_CharmShivan(uint32 /*uiEventId*/, Object* pSource, Object* /*pTarget*/, bool /*bIsStart*/)
+bool ProcessEventId_CharmShivan(uint32 /*uiEventId*/, Object *pSource, Object * /*pTarget*/, bool /*bIsStart*/)
 {
     if (pSource->IsPlayer())
     {
-        Player* player = static_cast<Player*>(pSource);
-        if (Unit* overseer = static_cast<ScriptedInstance*>(player->GetInstanceData())->GetSingleCreatureFromStorage(NPC_OVERSEER_SHARTUUL))
+        Player *player = static_cast<Player *>(pSource);
+        if (Unit *overseer = static_cast<ScriptedInstance *>(player->GetInstanceData())
+                                 ->GetSingleCreatureFromStorage(NPC_OVERSEER_SHARTUUL))
             DoScriptText(SAY_THIRD_DEMON, overseer, player);
     }
     return true;
@@ -585,7 +601,7 @@ bool ProcessEventId_CharmShivan(uint32 /*uiEventId*/, Object* pSource, Object* /
 
 struct TouchOfMadness : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex /*effIdx*/) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex /*effIdx*/) const override
     {
         if (!spell->GetUnitTarget())
             return;
@@ -596,9 +612,9 @@ struct TouchOfMadness : public SpellScript
 
 struct MadnessRift : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex /*effIdx*/) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex /*effIdx*/) const override
     {
-        Unit* target = spell->GetUnitTarget();
+        Unit *target = spell->GetUnitTarget();
         if (!target || !target->IsCreature())
             return;
 
@@ -606,19 +622,20 @@ struct MadnessRift : public SpellScript
         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PLAYER);
         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        static_cast<Creature*>(target)->SetFactionTemporary(SHARTUUL_FACTION_HOSTILE, TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_REACH_HOME);
+        static_cast<Creature *>(target)->SetFactionTemporary(
+            SHARTUUL_FACTION_HOSTILE, TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_REACH_HOME);
     }
 };
 
 struct EredarPreGateBeam : public AuraScript
 {
-    void OnApply(Aura* aura, bool apply) const override
+    void OnApply(Aura *aura, bool apply) const override
     {
         if (apply)
             aura->ForcePeriodicity(3000);
     }
 
-    void OnPeriodicTickEnd(Aura* aura) const override
+    void OnPeriodicTickEnd(Aura *aura) const override
     {
         aura->GetTarget()->CastSpell(nullptr, SPELL_ARCANE_EXPLOSION, TRIGGERED_OLD_TRIGGERED);
     }
@@ -626,7 +643,7 @@ struct EredarPreGateBeam : public AuraScript
 
 struct ThrowAxe : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (!spell->GetUnitTarget() || effIdx != EFFECT_INDEX_1)
             return;
@@ -636,12 +653,13 @@ struct ThrowAxe : public SpellScript
 
 struct SuperJump : public SpellScript
 {
-    void OnCast(Spell* spell) const override
+    void OnCast(Spell *spell) const override
     {
-        spell->GetCaster()->CastSpell(nullptr, spell->m_spellInfo->EffectTriggerSpell[EFFECT_INDEX_2], TRIGGERED_OLD_TRIGGERED);
+        spell->GetCaster()->CastSpell(nullptr, spell->m_spellInfo->EffectTriggerSpell[EFFECT_INDEX_2],
+                                      TRIGGERED_OLD_TRIGGERED);
     }
 
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx == EFFECT_INDEX_1 && spell->GetUnitTarget())
             spell->GetUnitTarget()->CastSpell(spell->GetCaster(), spell->GetDamage(), TRIGGERED_OLD_TRIGGERED);
@@ -650,7 +668,7 @@ struct SuperJump : public SpellScript
 
 struct CleansingFlame : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex /*effIdx*/) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex /*effIdx*/) const override
     {
         spell->GetCaster()->RemoveAurasDueToSpell(SPELL_LACERATING_BITE);
     }
@@ -658,7 +676,7 @@ struct CleansingFlame : public SpellScript
 
 struct RampagingCharge : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx == EFFECT_INDEX_1)
             spell->GetCaster()->CastSpell(spell->GetUnitTarget(), SPELL_LACERATING_BITE, TRIGGERED_OLD_TRIGGERED);
@@ -670,26 +688,27 @@ enum
     ITEM_CHARGED_CRYSTAL_FOCUS = 32578,
     SPELL_CRYSTAL_CHARGE_VACUUM = 40660,
 
-    SPELL_CHAOS_STRIKE          = 40741,
-    SPELL_CHAOS_STRIKE_TRIGGER  = 41964,
-    SPELL_CHAOS_FORM            = 42006,
-    SPELL_FLAME_BUFFET          = 41596,
-    SPELL_CORRUPTED_LIGHT       = 41965,
+    SPELL_CHAOS_STRIKE = 40741,
+    SPELL_CHAOS_STRIKE_TRIGGER = 41964,
+    SPELL_CHAOS_FORM = 42006,
+    SPELL_FLAME_BUFFET = 41596,
+    SPELL_CORRUPTED_LIGHT = 41965,
 
     SPELL_ABSORB_LIFE = 40501,
 
     SPELL_FLYING_ATTACK_AURA = 40557,
     SPELL_KNOCKBACK_IMMUNE_FLY = 40795,
-    SPELL_BOMBING_RUN   = 41076,
+    SPELL_BOMBING_RUN = 41076,
 };
 
 struct CheckCrystalFocusSpell : public SpellScript
 {
-    SpellCastResult OnCheckCast(Spell* spell, bool /*strict*/) const override
+    SpellCastResult OnCheckCast(Spell *spell, bool /*strict*/) const override
     {
-        if (Unit* master = spell->GetCaster()->GetMaster())
+        if (Unit *master = spell->GetCaster()->GetMaster())
             if (master->IsPlayer())
-                if (static_cast<Player*>(master)->HasItemCount(ITEM_CHARGED_CRYSTAL_FOCUS, spell->m_spellInfo->Id == SPELL_CHAOS_STRIKE ? 2 : 1))
+                if (static_cast<Player *>(master)->HasItemCount(ITEM_CHARGED_CRYSTAL_FOCUS,
+                                                                spell->m_spellInfo->Id == SPELL_CHAOS_STRIKE ? 2 : 1))
                     return SPELL_CAST_OK;
         return SPELL_FAILED_REAGENTS;
     }
@@ -697,7 +716,7 @@ struct CheckCrystalFocusSpell : public SpellScript
 
 struct AbsorbLife : public CheckCrystalFocusSpell
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx != EFFECT_INDEX_0)
             return;
@@ -709,7 +728,7 @@ struct AbsorbLife : public CheckCrystalFocusSpell
 
 struct ShartuulDiveBomb : public CheckCrystalFocusSpell
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx != EFFECT_INDEX_0)
             return;
@@ -721,7 +740,7 @@ struct ShartuulDiveBomb : public CheckCrystalFocusSpell
 
 struct FlyingAttackAura : public AuraScript
 {
-    void OnApply(Aura* aura, bool apply) const override
+    void OnApply(Aura *aura, bool apply) const override
     {
         if (apply)
             aura->GetTarget()->CastSpell(nullptr, SPELL_KNOCKBACK_IMMUNE_FLY, TRIGGERED_OLD_TRIGGERED);
@@ -732,7 +751,7 @@ struct FlyingAttackAura : public AuraScript
 
 struct ShartuulFireballBarrage : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx != EFFECT_INDEX_0 || !spell->GetUnitTarget())
             return;
@@ -743,7 +762,7 @@ struct ShartuulFireballBarrage : public SpellScript
 
 struct ChaosStrike : public CheckCrystalFocusSpell
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx != EFFECT_INDEX_0)
             return;
@@ -763,25 +782,25 @@ enum
 
 struct ChaosStrikeDamage : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
-        Unit* target = spell->GetUnitTarget();
+        Unit *target = spell->GetUnitTarget();
         if (effIdx != EFFECT_INDEX_0 || !target)
             return;
 
         uint32 damage = spell->GetDamage();
         if (target->isFrozen())
             damage *= 3;
-        if (Aura* aura = target->GetAura(SPELL_FLAME_BUFFET, EFFECT_INDEX_1))
+        if (Aura *aura = target->GetAura(SPELL_FLAME_BUFFET, EFFECT_INDEX_1))
             damage += aura->GetAmount();
     }
 
-    void OnAfterHit(Spell* spell) const override
+    void OnAfterHit(Spell *spell) const override
     {
-        Unit* target = spell->GetUnitTarget();
+        Unit *target = spell->GetUnitTarget();
         if (!target)
             return;
-        
+
         if (target->HasAura(SPELL_SIPHON_LIFE))
             spell->GetCaster()->CastSpell(nullptr, SPELL_CORRUPTED_LIGHT, TRIGGERED_OLD_TRIGGERED);
     }
@@ -789,7 +808,7 @@ struct ChaosStrikeDamage : public SpellScript
 
 struct ChaosStrikeTransform : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx != EFFECT_INDEX_2)
             return;
@@ -800,14 +819,15 @@ struct ChaosStrikeTransform : public SpellScript
 
 struct DeathBlast : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx == EFFECT_INDEX_1 && spell->GetUnitTarget())
         {
-            if (Aura* aura = spell->GetUnitTarget()->GetAura(SPELL_SIPHON_LIFE, EFFECT_INDEX_0))
+            if (Aura *aura = spell->GetUnitTarget()->GetAura(SPELL_SIPHON_LIFE, EFFECT_INDEX_0))
             {
                 int32 amount = aura->GetAmount() * 5;
-                spell->GetCaster()->CastCustomSpell(nullptr, SPELL_DARK_MENDING, &amount, nullptr, nullptr, TRIGGERED_OLD_TRIGGERED);
+                spell->GetCaster()->CastCustomSpell(nullptr, SPELL_DARK_MENDING, &amount, nullptr, nullptr,
+                                                    TRIGGERED_OLD_TRIGGERED);
             }
         }
     }
@@ -815,9 +835,9 @@ struct DeathBlast : public SpellScript
 
 struct Iceblast : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex /*effIdx*/) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex /*effIdx*/) const override
     {
-        Unit* target = spell->GetUnitTarget();
+        Unit *target = spell->GetUnitTarget();
         if (!target || !target->isFrozen())
             return;
 
@@ -828,33 +848,39 @@ struct Iceblast : public SpellScript
 
 enum
 {
-    SPELL_ASPECT_OF_THE_FLAME   = 41593,
-    SPELL_ASPECT_OF_THE_ICE     = 41594,
-    SPELL_ASPECT_OF_THE_SHADOW  = 41595,
+    SPELL_ASPECT_OF_THE_FLAME = 41593,
+    SPELL_ASPECT_OF_THE_ICE = 41594,
+    SPELL_ASPECT_OF_THE_SHADOW = 41595,
 };
 
 struct ShivanShapeshiftForm : public AuraScript
 {
-    void OnApply(Aura* aura, bool apply) const override
+    void OnApply(Aura *aura, bool apply) const override
     {
-        Unit* target = aura->GetTarget();
+        Unit *target = aura->GetTarget();
         if (apply && target->IsCreature())
         {
-            Creature* demon = static_cast<Creature*>(target);
-            CharmInfo* charmInfo = demon->GetCharmInfo();
+            Creature *demon = static_cast<Creature *>(target);
+            CharmInfo *charmInfo = demon->GetCharmInfo();
             if (!charmInfo)
                 return;
             uint32 spellSet;
             switch (aura->GetId())
             {
-                default:
-                case SPELL_ASPECT_OF_THE_FLAME:     spellSet = 1; break;
-                case SPELL_ASPECT_OF_THE_ICE:       spellSet = 2; break;
-                case SPELL_ASPECT_OF_THE_SHADOW:    spellSet = 0; break;
+            default:
+            case SPELL_ASPECT_OF_THE_FLAME:
+                spellSet = 1;
+                break;
+            case SPELL_ASPECT_OF_THE_ICE:
+                spellSet = 2;
+                break;
+            case SPELL_ASPECT_OF_THE_SHADOW:
+                spellSet = 0;
+                break;
             }
             demon->SetSpellList(spellSet);
             charmInfo->InitPossessCreateSpells();
-            if (Player* player = dynamic_cast<Player*>(demon->GetCharmer()))
+            if (Player *player = dynamic_cast<Player *>(demon->GetCharmer()))
                 player->PossessSpellInitialize();
         }
     }
@@ -862,16 +888,17 @@ struct ShivanShapeshiftForm : public AuraScript
 
 struct BuildPortableFelCannon : public AuraScript
 {
-    void OnApply(Aura* aura, bool apply) const override
+    void OnApply(Aura *aura, bool apply) const override
     {
         if (!apply && aura->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
         {
-            Unit* target = aura->GetTarget();
+            Unit *target = aura->GetTarget();
             target->CastSpell(nullptr, SPELL_LEGION_RING_FEL_CANNON_TRANSFORM, TRIGGERED_OLD_TRIGGERED);
             target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PLAYER);
             target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
             target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            static_cast<Creature*>(target)->SetFactionTemporary(SHARTUUL_FACTION_HOSTILE, TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_REACH_HOME);
+            static_cast<Creature *>(target)->SetFactionTemporary(
+                SHARTUUL_FACTION_HOSTILE, TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_REACH_HOME);
         }
     }
 };
@@ -881,14 +908,16 @@ enum
     SPELL_SUMMON_STUN_ZONE_GRAPHIC_NS = 40776,
     SPELL_SUMMON_STUN_ZONE_GRAPHIC_WE = 40783,
 
-    SPELL_STUN_ROPE_ATTUNEMENT      = 40777,
-    SPELL_STUN_ROPE                 = 40778,
-    SPELL_STUN_ZONE                 = 40775,
+    SPELL_STUN_ROPE_ATTUNEMENT = 40777,
+    SPELL_STUN_ROPE = 40778,
+    SPELL_STUN_ZONE = 40775,
 };
 
 struct StunField : public ScriptedAI
 {
-    StunField(Creature* creature) : ScriptedAI(creature) {}
+    StunField(Creature *creature) : ScriptedAI(creature)
+    {
+    }
 
     void Reset() override
     {
@@ -902,7 +931,7 @@ struct StunField : public ScriptedAI
         m_creature->CastSpell(nullptr, SPELL_SUMMON_STUN_ZONE_GRAPHIC_WE, TRIGGERED_OLD_TRIGGERED);
     }
 
-    void JustSummoned(Creature* summoned) override
+    void JustSummoned(Creature *summoned) override
     {
         m_creature->CastSpell(summoned, SPELL_STUN_ROPE_ATTUNEMENT, TRIGGERED_OLD_TRIGGERED);
     }
@@ -910,9 +939,9 @@ struct StunField : public ScriptedAI
 
 struct StunRopeAttunement : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex /*effIdx*/) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex /*effIdx*/) const override
     {
-        Unit* target = spell->GetUnitTarget();
+        Unit *target = spell->GetUnitTarget();
         if (!target)
             return;
 
@@ -923,7 +952,7 @@ struct StunRopeAttunement : public SpellScript
 
 void AddSC_shartuul_transporter()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "npc_doomguard_punisher";
     pNewScript->GetAI = &GetNewAIInstance<npc_doomguard_punisherAI>;
     pNewScript->RegisterSelf();

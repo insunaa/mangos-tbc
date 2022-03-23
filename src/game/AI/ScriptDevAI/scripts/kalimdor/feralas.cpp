@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -21,7 +21,6 @@ SDComment: Quest support: 2767, 2845, 2969.
 SDCategory: Feralas
 EndScriptData */
 
-
 /* ContentData
 npc_oox22fe
 npc_shay_leafrunner
@@ -30,12 +29,12 @@ npc_captured_sprite_darter
 npc_kindal_moonweaver
 EndContentData */
 
-#include "Grids/GridNotifiers.h"
-#include "Grids/CellImpl.h"
-#include "AI/ScriptDevAI/include/sc_common.h"
 #include "AI/ScriptDevAI/base/escort_ai.h"
 #include "AI/ScriptDevAI/base/follower_ai.h"
+#include "AI/ScriptDevAI/include/sc_common.h"
 #include "AI/ScriptDevAI/scripts/kalimdor/world_kalimdor.h"
+#include "Grids/CellImpl.h"
+#include "Grids/GridNotifiers.h"
 #include "Spells/Scripts/SpellScript.h"
 
 /*######
@@ -44,25 +43,28 @@ EndContentData */
 
 enum
 {
-    SAY_OOX_START           = -1000287,
-    SAY_OOX_AGGRO1          = -1000288,
-    SAY_OOX_AGGRO2          = -1000289,
-    SAY_OOX_AMBUSH          = -1000290,
-    SAY_OOX_END             = -1000292,
+    SAY_OOX_START = -1000287,
+    SAY_OOX_AGGRO1 = -1000288,
+    SAY_OOX_AGGRO2 = -1000289,
+    SAY_OOX_AMBUSH = -1000290,
+    SAY_OOX_END = -1000292,
 
-    NPC_YETI                = 7848,
-    NPC_GORILLA             = 5260,
-    NPC_WOODPAW_REAVER      = 5255,
-    NPC_WOODPAW_BRUTE       = 5253,
-    NPC_WOODPAW_ALPHA       = 5258,
-    NPC_WOODPAW_MYSTIC      = 5254,
+    NPC_YETI = 7848,
+    NPC_GORILLA = 5260,
+    NPC_WOODPAW_REAVER = 5255,
+    NPC_WOODPAW_BRUTE = 5253,
+    NPC_WOODPAW_ALPHA = 5258,
+    NPC_WOODPAW_MYSTIC = 5254,
 
-    QUEST_RESCUE_OOX22FE    = 2767
+    QUEST_RESCUE_OOX22FE = 2767
 };
 
 struct npc_oox22feAI : public npc_escortAI
 {
-    npc_oox22feAI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
+    npc_oox22feAI(Creature *pCreature) : npc_escortAI(pCreature)
+    {
+        Reset();
+    }
 
     GuidList m_lSummonsList;
 
@@ -70,34 +72,44 @@ struct npc_oox22feAI : public npc_escortAI
     {
         switch (i)
         {
-            // First Ambush(3 Yetis)
-            case 12:
-                DoScriptText(SAY_OOX_AMBUSH, m_creature);
-                m_creature->SummonCreature(NPC_YETI, -4841.01f, 1593.91f, 73.42f, 3.98f, TEMPSPAWN_CORPSE_TIMED_DESPAWN, 10000);
-                m_creature->SummonCreature(NPC_YETI, -4837.61f, 1568.58f, 78.21f, 3.13f, TEMPSPAWN_CORPSE_TIMED_DESPAWN, 10000);
-                m_creature->SummonCreature(NPC_YETI, -4841.89f, 1569.95f, 76.53f, 0.68f, TEMPSPAWN_CORPSE_TIMED_DESPAWN, 10000);
-                break;
-            // Second Ambush(3 Gorillas)
-            case 22:
-                DoScriptText(SAY_OOX_AMBUSH, m_creature);
-                m_creature->SummonCreature(NPC_GORILLA, -4595.81f, 2005.99f, 53.08f, 3.74f, TEMPSPAWN_CORPSE_TIMED_DESPAWN, 10000);
-                m_creature->SummonCreature(NPC_GORILLA, -4597.53f, 2008.31f, 52.70f, 3.78f, TEMPSPAWN_CORPSE_TIMED_DESPAWN, 10000);
-                m_creature->SummonCreature(NPC_GORILLA, -4599.37f, 2010.59f, 52.77f, 3.84f, TEMPSPAWN_CORPSE_TIMED_DESPAWN, 10000);
-                break;
-            // Third Ambush(4 Gnolls)
-            case 31:
-                DoScriptText(SAY_OOX_AMBUSH, m_creature);
-                m_creature->SummonCreature(NPC_WOODPAW_REAVER, -4425.14f, 2075.87f, 47.77f, 3.77f, TEMPSPAWN_CORPSE_TIMED_DESPAWN, 10000);
-                m_creature->SummonCreature(NPC_WOODPAW_BRUTE, -4426.68f, 2077.98f, 47.57f, 3.77f, TEMPSPAWN_CORPSE_TIMED_DESPAWN, 10000);
-                m_creature->SummonCreature(NPC_WOODPAW_MYSTIC, -4428.33f, 2080.24f, 47.43f, 3.87f, TEMPSPAWN_CORPSE_TIMED_DESPAWN, 10000);
-                m_creature->SummonCreature(NPC_WOODPAW_ALPHA, -4430.04f, 2075.54f, 46.83f, 3.81f, TEMPSPAWN_CORPSE_TIMED_DESPAWN, 10000);
-                break;
-            case 38:
-                DoScriptText(SAY_OOX_END, m_creature);
-                // Award quest credit
-                if (Player* pPlayer = GetPlayerForEscort())
-                    pPlayer->RewardPlayerAndGroupAtEventExplored(QUEST_RESCUE_OOX22FE, m_creature);
-                break;
+        // First Ambush(3 Yetis)
+        case 12:
+            DoScriptText(SAY_OOX_AMBUSH, m_creature);
+            m_creature->SummonCreature(NPC_YETI, -4841.01f, 1593.91f, 73.42f, 3.98f, TEMPSPAWN_CORPSE_TIMED_DESPAWN,
+                                       10000);
+            m_creature->SummonCreature(NPC_YETI, -4837.61f, 1568.58f, 78.21f, 3.13f, TEMPSPAWN_CORPSE_TIMED_DESPAWN,
+                                       10000);
+            m_creature->SummonCreature(NPC_YETI, -4841.89f, 1569.95f, 76.53f, 0.68f, TEMPSPAWN_CORPSE_TIMED_DESPAWN,
+                                       10000);
+            break;
+        // Second Ambush(3 Gorillas)
+        case 22:
+            DoScriptText(SAY_OOX_AMBUSH, m_creature);
+            m_creature->SummonCreature(NPC_GORILLA, -4595.81f, 2005.99f, 53.08f, 3.74f, TEMPSPAWN_CORPSE_TIMED_DESPAWN,
+                                       10000);
+            m_creature->SummonCreature(NPC_GORILLA, -4597.53f, 2008.31f, 52.70f, 3.78f, TEMPSPAWN_CORPSE_TIMED_DESPAWN,
+                                       10000);
+            m_creature->SummonCreature(NPC_GORILLA, -4599.37f, 2010.59f, 52.77f, 3.84f, TEMPSPAWN_CORPSE_TIMED_DESPAWN,
+                                       10000);
+            break;
+        // Third Ambush(4 Gnolls)
+        case 31:
+            DoScriptText(SAY_OOX_AMBUSH, m_creature);
+            m_creature->SummonCreature(NPC_WOODPAW_REAVER, -4425.14f, 2075.87f, 47.77f, 3.77f,
+                                       TEMPSPAWN_CORPSE_TIMED_DESPAWN, 10000);
+            m_creature->SummonCreature(NPC_WOODPAW_BRUTE, -4426.68f, 2077.98f, 47.57f, 3.77f,
+                                       TEMPSPAWN_CORPSE_TIMED_DESPAWN, 10000);
+            m_creature->SummonCreature(NPC_WOODPAW_MYSTIC, -4428.33f, 2080.24f, 47.43f, 3.87f,
+                                       TEMPSPAWN_CORPSE_TIMED_DESPAWN, 10000);
+            m_creature->SummonCreature(NPC_WOODPAW_ALPHA, -4430.04f, 2075.54f, 46.83f, 3.81f,
+                                       TEMPSPAWN_CORPSE_TIMED_DESPAWN, 10000);
+            break;
+        case 38:
+            DoScriptText(SAY_OOX_END, m_creature);
+            // Award quest credit
+            if (Player *pPlayer = GetPlayerForEscort())
+                pPlayer->RewardPlayerAndGroupAtEventExplored(QUEST_RESCUE_OOX22FE, m_creature);
+            break;
         }
     }
 
@@ -107,27 +119,31 @@ struct npc_oox22feAI : public npc_escortAI
             m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
     }
 
-    void Aggro(Unit* /*who*/) override
+    void Aggro(Unit * /*who*/) override
     {
         // For an small probability the npc says something when he get aggro
         switch (urand(0, 9))
         {
-            case 0: DoScriptText(SAY_OOX_AGGRO1, m_creature); break;
-            case 1: DoScriptText(SAY_OOX_AGGRO2, m_creature); break;
+        case 0:
+            DoScriptText(SAY_OOX_AGGRO1, m_creature);
+            break;
+        case 1:
+            DoScriptText(SAY_OOX_AGGRO2, m_creature);
+            break;
         }
     }
 
-    void JustSummoned(Creature* summoned) override
+    void JustSummoned(Creature *summoned) override
     {
         summoned->AI()->AttackStart(m_creature);
         m_lSummonsList.push_back(summoned->GetObjectGuid());
     }
 
-    void JustDied(Unit* pKiller) override
+    void JustDied(Unit *pKiller) override
     {
         for (GuidList::const_iterator itr = m_lSummonsList.begin(); itr != m_lSummonsList.end(); ++itr)
         {
-            if (Creature* pSummoned = m_creature->GetMap()->GetCreature(*itr))
+            if (Creature *pSummoned = m_creature->GetMap()->GetCreature(*itr))
                 pSummoned->ForcedDespawn();
         }
 
@@ -135,21 +151,22 @@ struct npc_oox22feAI : public npc_escortAI
     }
 };
 
-UnitAI* GetAI_npc_oox22fe(Creature* pCreature)
+UnitAI *GetAI_npc_oox22fe(Creature *pCreature)
 {
     return new npc_oox22feAI(pCreature);
 }
 
-bool QuestAccept_npc_oox22fe(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+bool QuestAccept_npc_oox22fe(Player *pPlayer, Creature *pCreature, const Quest *pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_RESCUE_OOX22FE)
     {
         DoScriptText(SAY_OOX_START, pCreature);
         pCreature->SetActiveObjectState(true);
         pCreature->SetStandState(UNIT_STAND_STATE_STAND);
-        pCreature->SetFactionTemporary(FACTION_ESCORT_N_FRIEND_ACTIVE, TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_TOGGLE_IMMUNE_TO_NPC);
+        pCreature->SetFactionTemporary(FACTION_ESCORT_N_FRIEND_ACTIVE,
+                                       TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_TOGGLE_IMMUNE_TO_NPC);
 
-        if (npc_oox22feAI* pEscortAI = dynamic_cast<npc_oox22feAI*>(pCreature->AI()))
+        if (npc_oox22feAI *pEscortAI = dynamic_cast<npc_oox22feAI *>(pCreature->AI()))
             pEscortAI->Start(false, pPlayer, pQuest);
     }
     return true;
@@ -161,26 +178,26 @@ bool QuestAccept_npc_oox22fe(Player* pPlayer, Creature* pCreature, const Quest* 
 
 enum
 {
-    SAY_ESCORT_START                    = -1001106,
-    SAY_WANDER_1                        = -1001107,
-    SAY_WANDER_2                        = -1001108,
-    SAY_WANDER_3                        = -1001109,
-    SAY_WANDER_4                        = -1001110,
-    SAY_WANDER_DONE_1                   = -1001111,
-    SAY_WANDER_DONE_2                   = -1001112,
-    SAY_WANDER_DONE_3                   = -1001113,
-    EMOTE_WANDER                        = -1001114,
-    SAY_EVENT_COMPLETE_1                = -1001115,
-    SAY_EVENT_COMPLETE_2                = -1001116,
+    SAY_ESCORT_START = -1001106,
+    SAY_WANDER_1 = -1001107,
+    SAY_WANDER_2 = -1001108,
+    SAY_WANDER_3 = -1001109,
+    SAY_WANDER_4 = -1001110,
+    SAY_WANDER_DONE_1 = -1001111,
+    SAY_WANDER_DONE_2 = -1001112,
+    SAY_WANDER_DONE_3 = -1001113,
+    EMOTE_WANDER = -1001114,
+    SAY_EVENT_COMPLETE_1 = -1001115,
+    SAY_EVENT_COMPLETE_2 = -1001116,
 
-    SPELL_SHAYS_BELL                    = 11402,
-    NPC_ROCKBITER                       = 7765,
-    QUEST_ID_WANDERING_SHAY             = 2845,
+    SPELL_SHAYS_BELL = 11402,
+    NPC_ROCKBITER = 7765,
+    QUEST_ID_WANDERING_SHAY = 2845,
 };
 
 struct npc_shay_leafrunnerAI : public FollowerAI
 {
-    npc_shay_leafrunnerAI(Creature* pCreature) : FollowerAI(pCreature)
+    npc_shay_leafrunnerAI(Creature *pCreature) : FollowerAI(pCreature)
     {
         m_uiWanderTimer = 0;
         Reset();
@@ -196,13 +213,13 @@ struct npc_shay_leafrunnerAI : public FollowerAI
         m_bIsComplete = false;
     }
 
-    void MoveInLineOfSight(Unit* pWho) override
+    void MoveInLineOfSight(Unit *pWho) override
     {
         FollowerAI::MoveInLineOfSight(pWho);
 
         if (!m_bIsComplete && pWho->GetEntry() == NPC_ROCKBITER && m_creature->IsWithinDistInMap(pWho, 20.0f))
         {
-            Player* pPlayer = GetLeaderForFollower();
+            Player *pPlayer = GetLeaderForFollower();
             if (!pPlayer)
                 return;
 
@@ -221,27 +238,34 @@ struct npc_shay_leafrunnerAI : public FollowerAI
             pWho->GetContactPoint(m_creature, fX, fY, fZ, INTERACTION_DISTANCE);
             m_creature->GetMotionMaster()->MovePoint(0, fX, fY, fZ);
         }
-        else if (m_bIsRecalled && pWho->GetTypeId() == TYPEID_PLAYER && pWho->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+        else if (m_bIsRecalled && pWho->GetTypeId() == TYPEID_PLAYER &&
+                 pWho->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
         {
             m_uiWanderTimer = 60000;
             m_bIsRecalled = false;
 
             switch (urand(0, 2))
             {
-                case 0: DoScriptText(SAY_WANDER_DONE_1, m_creature); break;
-                case 1: DoScriptText(SAY_WANDER_DONE_2, m_creature); break;
-                case 2: DoScriptText(SAY_WANDER_DONE_3, m_creature); break;
+            case 0:
+                DoScriptText(SAY_WANDER_DONE_1, m_creature);
+                break;
+            case 1:
+                DoScriptText(SAY_WANDER_DONE_2, m_creature);
+                break;
+            case 2:
+                DoScriptText(SAY_WANDER_DONE_3, m_creature);
+                break;
             }
         }
     }
 
-    void ReceiveAIEvent(AIEventType eventType, Unit* /*pSender*/, Unit* pInvoker, uint32 uiMiscValue) override
+    void ReceiveAIEvent(AIEventType eventType, Unit * /*pSender*/, Unit *pInvoker, uint32 uiMiscValue) override
     {
         // start following
         if (eventType == AI_EVENT_START_EVENT && pInvoker->GetTypeId() == TYPEID_PLAYER)
         {
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-            StartFollow((Player*)pInvoker, 0, GetQuestTemplateStore(uiMiscValue));
+            StartFollow((Player *)pInvoker, 0, GetQuestTemplateStore(uiMiscValue));
             m_uiWanderTimer = 30000;
         }
         else if (eventType == AI_EVENT_CUSTOM_A)
@@ -267,10 +291,18 @@ struct npc_shay_leafrunnerAI : public FollowerAI
 
                     switch (urand(0, 3))
                     {
-                        case 0: DoScriptText(SAY_WANDER_1, m_creature); break;
-                        case 1: DoScriptText(SAY_WANDER_2, m_creature); break;
-                        case 2: DoScriptText(SAY_WANDER_3, m_creature); break;
-                        case 3: DoScriptText(SAY_WANDER_4, m_creature); break;
+                    case 0:
+                        DoScriptText(SAY_WANDER_1, m_creature);
+                        break;
+                    case 1:
+                        DoScriptText(SAY_WANDER_2, m_creature);
+                        break;
+                    case 2:
+                        DoScriptText(SAY_WANDER_3, m_creature);
+                        break;
+                    case 3:
+                        DoScriptText(SAY_WANDER_4, m_creature);
+                        break;
                     }
 
                     float fX, fY, fZ;
@@ -288,12 +320,12 @@ struct npc_shay_leafrunnerAI : public FollowerAI
     }
 };
 
-UnitAI* GetAI_npc_shay_leafrunner(Creature* pCreature)
+UnitAI *GetAI_npc_shay_leafrunner(Creature *pCreature)
 {
     return new npc_shay_leafrunnerAI(pCreature);
 }
 
-bool QuestAccept_npc_shay_leafrunner(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+bool QuestAccept_npc_shay_leafrunner(Player *pPlayer, Creature *pCreature, const Quest *pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_ID_WANDERING_SHAY)
     {
@@ -303,7 +335,8 @@ bool QuestAccept_npc_shay_leafrunner(Player* pPlayer, Creature* pCreature, const
     return true;
 }
 
-bool EffectDummyCreature_npc_shay_leafrunner(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget, ObjectGuid /*originalCasterGuid*/)
+bool EffectDummyCreature_npc_shay_leafrunner(Unit *pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex,
+                                             Creature *pCreatureTarget, ObjectGuid /*originalCasterGuid*/)
 {
     if (uiSpellId == SPELL_SHAYS_BELL && uiEffIndex == EFFECT_INDEX_0)
     {
@@ -321,24 +354,25 @@ bool EffectDummyCreature_npc_shay_leafrunner(Unit* pCaster, uint32 uiSpellId, Sp
 ## Quest Freedom for all creatures
 ######*/
 
-enum {
-    SAY_KINDAL_QUEST_START      = -1010023,
-    SAY_KINDAL_INITIAL_AGGRO    = -1010024,
-    SAY_KINDAL_AGGRO            = -1010025,
-    SAY_KINDAL_QUEST_COMPLETE   = -1010026,
+enum
+{
+    SAY_KINDAL_QUEST_START = -1010023,
+    SAY_KINDAL_INITIAL_AGGRO = -1010024,
+    SAY_KINDAL_AGGRO = -1010025,
+    SAY_KINDAL_QUEST_COMPLETE = -1010026,
 
-    NPC_CAPTURED_SPRITE_DARTER  = 7997,
-    NPC_GRIMTOTEM_RAIDER        = 7725,
-    NPC_KINDAL_MOONWEAVER       = 7956,
+    NPC_CAPTURED_SPRITE_DARTER = 7997,
+    NPC_GRIMTOTEM_RAIDER = 7725,
+    NPC_KINDAL_MOONWEAVER = 7956,
 
     QUEST_FREEDOM_ALL_CREATURES = 2969,
 
-    SPELL_MANA_BURN             = 11981,
-    SPELL_SHOOT                 = 14443,
-    SPELL_MULTI_SHOT            = 6660
+    SPELL_MANA_BURN = 11981,
+    SPELL_SHOOT = 14443,
+    SPELL_MULTI_SHOT = 6660
 };
 
-static const float raiderSpawnPos[4] = { -4515.35f, 811.36f, 62.99f, 3.60244f };
+static const float raiderSpawnPos[4] = {-4515.35f, 811.36f, 62.99f, 3.60244f};
 
 /*######
 ## npc_captured_sprite_darter
@@ -346,13 +380,13 @@ static const float raiderSpawnPos[4] = { -4515.35f, 811.36f, 62.99f, 3.60244f };
 
 struct npc_captured_sprite_darterAI : public npc_escortAI
 {
-    npc_captured_sprite_darterAI(Creature* creature) : npc_escortAI(creature)
+    npc_captured_sprite_darterAI(Creature *creature) : npc_escortAI(creature)
     {
-        m_map = (ScriptedMap*)creature->GetInstanceData();
+        m_map = (ScriptedMap *)creature->GetInstanceData();
         Reset();
     }
 
-    ScriptedMap* m_map;
+    ScriptedMap *m_map;
     uint32 m_manaBurnTimer;
 
     void Reset() override
@@ -364,7 +398,8 @@ struct npc_captured_sprite_darterAI : public npc_escortAI
 
     void WaypointReached(uint32 pointId) override
     {
-        // When we reach the end of the path, despawn and inform map script that we are free
+        // When we reach the end of the path, despawn and inform map script that we
+        // are free
         if (pointId == 8)
         {
             m_map->SetData(TYPE_FREEDOM_CREATURES, SPECIAL);
@@ -379,9 +414,10 @@ struct npc_captured_sprite_darterAI : public npc_escortAI
 
         if (m_manaBurnTimer < diff)
         {
-            if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_MANA_BURN, SELECT_FLAG_POWER_MANA))
+            if (Unit *target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_MANA_BURN,
+                                                                 SELECT_FLAG_POWER_MANA))
             {
-                if(DoCastSpellIfCan(target, SPELL_MANA_BURN) == CAST_OK)
+                if (DoCastSpellIfCan(target, SPELL_MANA_BURN) == CAST_OK)
                     m_manaBurnTimer = urand(7, 10) * IN_MILLISECONDS;
             }
         }
@@ -392,7 +428,7 @@ struct npc_captured_sprite_darterAI : public npc_escortAI
     }
 };
 
-UnitAI* GetAI_npc_captured_sprite_darter(Creature* pCreature)
+UnitAI *GetAI_npc_captured_sprite_darter(Creature *pCreature)
 {
     return new npc_captured_sprite_darterAI(pCreature);
 }
@@ -401,15 +437,16 @@ UnitAI* GetAI_npc_captured_sprite_darter(Creature* pCreature)
 ## go_cage_door
 ######*/
 
-bool GOUse_go_cage_door(Player* player, GameObject* go)
+bool GOUse_go_cage_door(Player *player, GameObject *go)
 {
-    ScriptedInstance* mapScript = (ScriptedInstance*)go->GetInstanceData();
+    ScriptedInstance *mapScript = (ScriptedInstance *)go->GetInstanceData();
 
     if (!mapScript)
         return false;
 
     // Omen encounter is set to NOT_STARTED every time the GO cluster is used
-    // This increases an internal counter that handles the event in the map script
+    // This increases an internal counter that handles the event in the map
+    // script
     mapScript->SetData(TYPE_FREEDOM_CREATURES, IN_PROGRESS);
 
     // Make all Captured Sprite Darters flee
@@ -418,17 +455,19 @@ bool GOUse_go_cage_door(Player* player, GameObject* go)
     MaNGOS::CreatureListSearcher<MaNGOS::AllCreaturesOfEntryInRangeCheck> searcher(spriteDarts, checkerForWaypoint);
     Cell::VisitGridObjects(go, searcher, 20.0f);
 
-    for (auto& spriteDart : spriteDarts)
+    for (auto &spriteDart : spriteDarts)
     {
         spriteDart->SetFactionTemporary(FACTION_ESCORT_N_FRIEND_ACTIVE, TEMPFACTION_RESTORE_RESPAWN);
-        if (auto* escortAI = dynamic_cast<npc_captured_sprite_darterAI*>(spriteDart->AI()))
+        if (auto *escortAI = dynamic_cast<npc_captured_sprite_darterAI *>(spriteDart->AI()))
             escortAI->Start(true, player, nullptr);
     }
     // Spawn a Grimtotem Raider
-    if (Creature* grimtotemRaider = player->SummonCreature(NPC_GRIMTOTEM_RAIDER, raiderSpawnPos[0], raiderSpawnPos[1], raiderSpawnPos[2], raiderSpawnPos[3],TEMPSPAWN_DEAD_DESPAWN, 10 * MINUTE * IN_MILLISECONDS))
+    if (Creature *grimtotemRaider =
+            player->SummonCreature(NPC_GRIMTOTEM_RAIDER, raiderSpawnPos[0], raiderSpawnPos[1], raiderSpawnPos[2],
+                                   raiderSpawnPos[3], TEMPSPAWN_DEAD_DESPAWN, 10 * MINUTE * IN_MILLISECONDS))
     {
         grimtotemRaider->AI()->AttackStart(player);
-        if (Creature* kindal = GetClosestCreatureWithEntry(player, NPC_KINDAL_MOONWEAVER, 20.0f))
+        if (Creature *kindal = GetClosestCreatureWithEntry(player, NPC_KINDAL_MOONWEAVER, 20.0f))
         {
             DoScriptText(SAY_KINDAL_INITIAL_AGGRO, kindal, grimtotemRaider);
             kindal->AI()->AttackStart(grimtotemRaider);
@@ -443,13 +482,13 @@ bool GOUse_go_cage_door(Player* player, GameObject* go)
 
 struct npc_kindal_moonweaverAI : public FollowerAI
 {
-    npc_kindal_moonweaverAI(Creature* creature) : FollowerAI(creature)
+    npc_kindal_moonweaverAI(Creature *creature) : FollowerAI(creature)
     {
-        m_map = (ScriptedMap*)creature->GetInstanceData();
+        m_map = (ScriptedMap *)creature->GetInstanceData();
         Reset();
     }
 
-    ScriptedMap* m_map;
+    ScriptedMap *m_map;
     uint32 m_checkCompletionTimer;
     uint32 m_shootTimer;
     uint32 m_multiShotTimer;
@@ -465,7 +504,7 @@ struct npc_kindal_moonweaverAI : public FollowerAI
         m_hasFleed = false;
     }
 
-    void Aggro(Unit* target) override
+    void Aggro(Unit *target) override
     {
         if (!urand(0, 3))
             DoScriptText(SAY_KINDAL_AGGRO, m_creature, target);
@@ -481,7 +520,7 @@ struct npc_kindal_moonweaverAI : public FollowerAI
                 if (m_map->GetData(TYPE_FREEDOM_CREATURES) == DONE)
                 {
                     m_map->SetData(TYPE_FREEDOM_CREATURES, NOT_STARTED);
-                    if (Player* player = GetLeaderForFollower())
+                    if (Player *player = GetLeaderForFollower())
                     {
                         if (player->GetQuestStatus(QUEST_FREEDOM_ALL_CREATURES) == QUEST_STATUS_INCOMPLETE)
                             player->RewardPlayerAndGroupAtEventExplored(QUEST_FREEDOM_ALL_CREATURES, m_creature);
@@ -554,16 +593,16 @@ struct npc_kindal_moonweaverAI : public FollowerAI
     }
 };
 
-UnitAI* GetAI_npc_kindal_moonweaver(Creature* pCreature)
+UnitAI *GetAI_npc_kindal_moonweaver(Creature *pCreature)
 {
     return new npc_kindal_moonweaverAI(pCreature);
 }
 
-bool QuestAccept_npc_kindal_moonweaver(Player* player, Creature* creature, const Quest* quest)
+bool QuestAccept_npc_kindal_moonweaver(Player *player, Creature *creature, const Quest *quest)
 {
     if (quest->GetQuestId() == QUEST_FREEDOM_ALL_CREATURES)
     {
-        if (npc_kindal_moonweaverAI* kindal = dynamic_cast<npc_kindal_moonweaverAI*>(creature->AI()))
+        if (npc_kindal_moonweaverAI *kindal = dynamic_cast<npc_kindal_moonweaverAI *>(creature->AI()))
             kindal->StartFollow(player, FACTION_ESCORT_A_NEUTRAL_ACTIVE, quest);
         DoScriptText(SAY_KINDAL_QUEST_START, creature);
         creature->SetStandState(UNIT_STAND_STATE_STAND);
@@ -575,14 +614,14 @@ bool QuestAccept_npc_kindal_moonweaver(Player* player, Creature* creature, const
 
 struct SpecificTargetScript : public SpellScript
 {
-    virtual std::set<uint32> const& GetRequiredTargets() const = 0;
+    virtual std::set<uint32> const &GetRequiredTargets() const = 0;
 
-    SpellCastResult OnCheckCast(Spell* spell, bool /*strict*/) const override
+    SpellCastResult OnCheckCast(Spell *spell, bool /*strict*/) const override
     {
-        Unit* target = spell->m_targets.getUnitTarget();
+        Unit *target = spell->m_targets.getUnitTarget();
         if (!target)
             return SPELL_FAILED_BAD_TARGETS;
-        auto& targets = GetRequiredTargets();
+        auto &targets = GetRequiredTargets();
         if (targets.find(target->GetObjectGuid().GetEntry()) == targets.end())
             return SPELL_FAILED_BAD_TARGETS;
         return SPELL_CAST_OK;
@@ -591,42 +630,57 @@ struct SpecificTargetScript : public SpellScript
 
 struct CaptureWildkin : public SpecificTargetScript // 11886
 {
-    std::set<uint32> m_targets = { 2927, 2928, 7808 };
+    std::set<uint32> m_targets = {2927, 2928, 7808};
 
-    std::set<uint32> const& GetRequiredTargets() const override { return m_targets; }
+    std::set<uint32> const &GetRequiredTargets() const override
+    {
+        return m_targets;
+    }
 };
 
 struct CaptureHippogryph : public SpecificTargetScript // 11887
 {
-    std::set<uint32> m_targets = { 5300, 5304, 5305, 5306 };
+    std::set<uint32> m_targets = {5300, 5304, 5305, 5306};
 
-    std::set<uint32> const& GetRequiredTargets() const override { return m_targets; }
+    std::set<uint32> const &GetRequiredTargets() const override
+    {
+        return m_targets;
+    }
 };
 
 struct CaptureFaerieDragon : public SpecificTargetScript // 11888
 {
-    std::set<uint32> m_targets = { 5276, 5278 };
+    std::set<uint32> m_targets = {5276, 5278};
 
-    std::set<uint32> const& GetRequiredTargets() const override { return m_targets; }
+    std::set<uint32> const &GetRequiredTargets() const override
+    {
+        return m_targets;
+    }
 };
 
 struct CaptureTreant : public SpecificTargetScript // 11885
 {
-    std::set<uint32> m_targets = { 7584 };
+    std::set<uint32> m_targets = {7584};
 
-    std::set<uint32> const& GetRequiredTargets() const override { return m_targets; }
+    std::set<uint32> const &GetRequiredTargets() const override
+    {
+        return m_targets;
+    }
 };
 
 struct CaptureMountainGiant : public SpecificTargetScript // 11889
 {
-    std::set<uint32> m_targets = { 5357, 5358 };
+    std::set<uint32> m_targets = {5357, 5358};
 
-    std::set<uint32> const& GetRequiredTargets() const override { return m_targets; }
+    std::set<uint32> const &GetRequiredTargets() const override
+    {
+        return m_targets;
+    }
 };
 
 void AddSC_feralas()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "npc_oox22fe";
     pNewScript->GetAI = &GetAI_npc_oox22fe;
     pNewScript->pQuestAcceptNPC = &QuestAccept_npc_oox22fe;

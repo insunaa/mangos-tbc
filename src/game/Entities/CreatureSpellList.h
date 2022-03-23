@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,29 +20,30 @@
 #ifndef CREATURE_SPELL_LIST_H
 #define CREATURE_SPELL_LIST_H
 
-#include "Platform/Define.h"
 #include <map>
 #include <string>
+
+#include "Platform/Define.h"
 
 enum SpellListTargetingType
 {
     SPELL_LIST_TARGETING_HARDCODED = 0,
-    SPELL_LIST_TARGETING_ATTACK    = 1,
-    SPELL_LIST_TARGETING_SUPPORT   = 2,
+    SPELL_LIST_TARGETING_ATTACK = 1,
+    SPELL_LIST_TARGETING_SUPPORT = 2,
     SPELL_LIST_TARGETING_MAX
 };
 
 enum SpellListTargetingHardcoded
 {
-    SPELL_LIST_TARGET_NONE    = 0,
+    SPELL_LIST_TARGET_NONE = 0,
     SPELL_LIST_TARGET_CURRENT = 1,
-    SPELL_LIST_TARGET_SELF    = 2,
+    SPELL_LIST_TARGET_SELF = 2,
     SPELL_LIST_TARGET_DISPELLABLE_FRIENDLY = 3,
     SPELL_LIST_TARGET_DISPELLABLE_FRIENDLY_NO_SELF = 4,
     SPELL_LIST_TARGET_FRIENDLY_MISSING_BUFF = 5,
     SPELL_LIST_TARGET_FRIENDLY_MISSING_BUFF_NO_SELF = 6,
     SPELL_LIST_TARGET_CURRENT_NOT_ALONE = 7, // current target exists and more than 1 on threat list
-    SPELL_LIST_HARDCODED_MAX  = 100,
+    SPELL_LIST_HARDCODED_MAX = 100,
 };
 
 struct CreatureSpellListTargeting
@@ -56,8 +58,8 @@ struct CreatureSpellListTargeting
 
 enum SpellListFlags
 {
-    SPELL_LIST_FLAG_SUPPORT_ACTION  = 1,
-    SPELL_LIST_FLAG_RANGED_ACTION   = 2, // previously known as main ranged spell in EAI
+    SPELL_LIST_FLAG_SUPPORT_ACTION = 1,
+    SPELL_LIST_FLAG_RANGED_ACTION = 2, // previously known as main ranged spell in EAI
 };
 
 struct CreatureSpellListSpell
@@ -66,7 +68,7 @@ struct CreatureSpellListSpell
     uint32 Position;
     uint32 SpellId;
     uint32 Flags;
-    CreatureSpellListTargeting* Target;
+    CreatureSpellListTargeting *Target;
     uint32 ScriptId;
     uint32 Availability;
     uint32 Probability;
@@ -82,7 +84,8 @@ struct CreatureSpellList
     std::string Name;
     uint32 ChanceSupportAction;
     uint32 ChanceRangedAttack;
-    bool Disabled; // Compatibility layer until creature_template_spells is removed
+    bool Disabled; // Compatibility layer until creature_template_spells is
+                   // removed
     std::map<uint32, CreatureSpellListSpell> Spells;
 };
 

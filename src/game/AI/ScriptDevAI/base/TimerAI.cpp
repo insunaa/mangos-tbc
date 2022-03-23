@@ -1,27 +1,31 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #include "TimerAI.h"
-#include "Chat/Chat.h"
-#include "Log.h"
+
 #include <string>
 
+#include "Chat/Chat.h"
+#include "Log.h"
+
 Timer::Timer(uint32 id, std::function<void()> functor, uint32 timerMin, uint32 timerMax, bool disabled)
-    : id(id), timer(urand(timerMin, timerMax)), disabled(disabled), functor(functor), initialMin(timerMin), initialMax(timerMax), initialDisabled(disabled)
-    {}
+    : id(id), timer(urand(timerMin, timerMax)), disabled(disabled), functor(functor), initialMin(timerMin),
+      initialMax(timerMax), initialDisabled(disabled)
+{
+}
 
 bool Timer::UpdateTimer(const uint32 diff)
 {
@@ -34,7 +38,8 @@ bool Timer::UpdateTimer(const uint32 diff)
         disabled = true;
         return true;
     }
-    else timer -= diff;
+    else
+        timer -= diff;
 
     return false;
 }
@@ -59,12 +64,13 @@ bool CombatTimer::UpdateTimer(const uint32 diff, bool combat)
         disabled = true;
         return true;
     }
-    else timer -= diff;
+    else
+        timer -= diff;
 
     return false;
 }
 
-void TimerManager::AddTimer(uint32 id, Timer&& timer)
+void TimerManager::AddTimer(uint32 id, Timer &&timer)
 {
     m_timers.emplace(id, timer);
 }
@@ -92,7 +98,8 @@ void TimerManager::ResetTimer(uint32 index, uint32 timer)
         sLog.outError("Timer index %u does not exist.", index);
         return;
     }
-    (*data).second.timer = timer; (*data).second.disabled = false;
+    (*data).second.timer = timer;
+    (*data).second.disabled = false;
 }
 
 void TimerManager::DisableTimer(uint32 index)
@@ -103,7 +110,8 @@ void TimerManager::DisableTimer(uint32 index)
         sLog.outError("Timer index %u does not exist.", index);
         return;
     }
-    (*data).second.timer = 0; (*data).second.disabled = true;
+    (*data).second.timer = 0;
+    (*data).second.disabled = true;
 }
 
 void TimerManager::ReduceTimer(uint32 index, uint32 timer)
@@ -146,9 +154,9 @@ void TimerManager::ResetIfNotStarted(uint32 index, uint32 timer)
 
 void TimerManager::UpdateTimers(const uint32 diff)
 {
-    for (auto& data : m_timers)
+    for (auto &data : m_timers)
     {
-        Timer& timer = data.second;
+        Timer &timer = data.second;
         if (timer.UpdateTimer(diff))
             timer.functor();
     }
@@ -156,18 +164,19 @@ void TimerManager::UpdateTimers(const uint32 diff)
 
 void TimerManager::ResetAllTimers()
 {
-    for (auto& data : m_timers)
+    for (auto &data : m_timers)
         data.second.ResetTimer();
 }
 
-void TimerManager::GetAIInformation(ChatHandler& reader)
+void TimerManager::GetAIInformation(ChatHandler &reader)
 {
     reader.PSendSysMessage("TimerAI: Timers:");
     std::string output = "";
     for (auto itr = m_timers.begin(); itr != m_timers.end(); ++itr)
     {
-        Timer& timer = (*itr).second;
-        output += "Timer ID: " + std::to_string(timer.id) + " Timer: " + std::to_string(timer.timer), +" Disabled: " + std::to_string(timer.disabled) + "\n";
+        Timer &timer = (*itr).second;
+        output += "Timer ID: " + std::to_string(timer.id) + " Timer: " + std::to_string(timer.timer),
+            +" Disabled: " + std::to_string(timer.disabled) + "\n";
     }
     reader.PSendSysMessage("%s", output.data());
 }
@@ -175,9 +184,9 @@ void TimerManager::GetAIInformation(ChatHandler& reader)
 void CombatActions::UpdateTimers(const uint32 diff, bool combat)
 {
     TimerManager::UpdateTimers(diff);
-    for (auto& data : m_CombatActions)
+    for (auto &data : m_CombatActions)
     {
-        CombatTimer& timer = data.second;
+        CombatTimer &timer = data.second;
         if (timer.UpdateTimer(diff, combat))
             timer.functor();
     }
@@ -193,26 +202,29 @@ void CombatActions::ResetAllTimers()
         else
             m_actionReadyStatus[i] = (*itr).second;
     }
-    for (auto& data : m_CombatActions)
+    for (auto &data : m_CombatActions)
         data.second.ResetTimer();
     TimerManager::ResetAllTimers();
 }
 
 void CombatActions::AddCombatAction(uint32 id, bool disabled)
 {
-    m_CombatActions.emplace(id, CombatTimer(id, [&, id] { m_actionReadyStatus[id] = true; }, true, 0, 0, disabled));
+    m_CombatActions.emplace(id, CombatTimer(
+                                    id, [&, id] { m_actionReadyStatus[id] = true; }, true, 0, 0, disabled));
     m_actionReadyStatus[id] = !disabled;
 }
 
 void CombatActions::AddCombatAction(uint32 id, uint32 timer)
 {
-    m_CombatActions.emplace(id, CombatTimer(id, [&, id] { m_actionReadyStatus[id] = true; }, true, timer, timer, false));
+    m_CombatActions.emplace(id, CombatTimer(
+                                    id, [&, id] { m_actionReadyStatus[id] = true; }, true, timer, timer, false));
     m_actionReadyStatus[id] = false;
 }
 
 void CombatActions::AddCombatAction(uint32 id, uint32 timerMin, uint32 timerMax)
 {
-    m_CombatActions.emplace(id, CombatTimer(id, [&, id] { m_actionReadyStatus[id] = true; }, true, timerMin, timerMax, false));
+    m_CombatActions.emplace(id, CombatTimer(
+                                    id, [&, id] { m_actionReadyStatus[id] = true; }, true, timerMin, timerMax, false));
     m_actionReadyStatus[id] = false;
 }
 
@@ -283,14 +295,15 @@ void CombatActions::DisableCombatAction(uint32 index)
     SetActionReadyStatus(index, false);
 }
 
-void CombatActions::GetAIInformation(ChatHandler& reader)
+void CombatActions::GetAIInformation(ChatHandler &reader)
 {
     reader.PSendSysMessage("Combat Timers:");
     std::string output = "";
     for (auto itr = m_CombatActions.begin(); itr != m_CombatActions.end(); ++itr)
     {
-        Timer& timer = (*itr).second;
-        output += "Timer ID: " + std::to_string(timer.id) + " Timer: " + std::to_string(timer.timer), +" Disabled: " + std::to_string(timer.disabled) + "\n";
+        Timer &timer = (*itr).second;
+        output += "Timer ID: " + std::to_string(timer.id) + " Timer: " + std::to_string(timer.timer),
+            +" Disabled: " + std::to_string(timer.disabled) + "\n";
     }
     reader.PSendSysMessage("%s", output.data());
 }

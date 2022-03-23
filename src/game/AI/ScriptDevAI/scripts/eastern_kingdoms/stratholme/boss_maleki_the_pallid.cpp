@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -25,15 +25,18 @@ EndScriptData */
 
 enum
 {
-    SPELL_FROSTBOLT     = 17503,
-    SPELL_DRAIN_LIFE    = 17238,
-    SPELL_DRAIN_MANA    = 17243,
-    SPELL_ICE_TOMB      = 16869
+    SPELL_FROSTBOLT = 17503,
+    SPELL_DRAIN_LIFE = 17238,
+    SPELL_DRAIN_MANA = 17243,
+    SPELL_ICE_TOMB = 16869
 };
 
 struct boss_maleki_the_pallidAI : public ScriptedAI
 {
-    boss_maleki_the_pallidAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_maleki_the_pallidAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiDrainManaTimer;
     uint32 m_uiFrostboltTimer;
@@ -42,10 +45,10 @@ struct boss_maleki_the_pallidAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiDrainManaTimer  = 30000;
-        m_uiFrostboltTimer  = 0;
-        m_uiIceTombTimer    = 15000;
-        m_uiDrainLifeTimer  = 20000;
+        m_uiDrainManaTimer = 30000;
+        m_uiFrostboltTimer = 0;
+        m_uiIceTombTimer = 15000;
+        m_uiDrainLifeTimer = 20000;
     }
 
     void UpdateAI(const uint32 uiDiff) override
@@ -56,7 +59,7 @@ struct boss_maleki_the_pallidAI : public ScriptedAI
         // Frostbolt
         if (m_uiFrostboltTimer < uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+            if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_FROSTBOLT) == CAST_OK)
                     m_uiFrostboltTimer = urand(3000, 4000);
@@ -68,7 +71,7 @@ struct boss_maleki_the_pallidAI : public ScriptedAI
         // IceTomb
         if (m_uiIceTombTimer < uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
+            if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_ICE_TOMB) == CAST_OK)
                     m_uiIceTombTimer = urand(15000, 20000);
@@ -80,7 +83,7 @@ struct boss_maleki_the_pallidAI : public ScriptedAI
         // Drain Life
         if (m_uiDrainLifeTimer < uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+            if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_DRAIN_LIFE) == CAST_OK)
                     m_uiDrainLifeTimer = urand(15000, 20000);
@@ -92,7 +95,8 @@ struct boss_maleki_the_pallidAI : public ScriptedAI
         // Drain mana
         if (m_uiDrainManaTimer < uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_DRAIN_MANA, SELECT_FLAG_POWER_MANA))
+            if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_DRAIN_MANA,
+                                                                  SELECT_FLAG_POWER_MANA))
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_DRAIN_MANA) == CAST_OK)
                     m_uiDrainManaTimer = urand(20000, 30000);
@@ -105,14 +109,14 @@ struct boss_maleki_the_pallidAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_maleki_the_pallid(Creature* pCreature)
+UnitAI *GetAI_boss_maleki_the_pallid(Creature *pCreature)
 {
     return new boss_maleki_the_pallidAI(pCreature);
 }
 
 void AddSC_boss_maleki_the_pallid()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_maleki_the_pallid";
     pNewScript->GetAI = &GetAI_boss_maleki_the_pallid;
     pNewScript->RegisterSelf();

@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -27,17 +27,19 @@ EndScriptData
 
 enum
 {
-    SAY_TELEPORT                = -1000100,
+    SAY_TELEPORT = -1000100,
 
-    SPELL_ARCANE_VACUUM         = 21147,
-    SPELL_MARK_OF_FROST_PLAYER  = 23182,
-    SPELL_MARK_OF_FROST_AURA    = 23184,                    // Triggers 23186 on players that have 23182; unfortunatelly 23183 is missing from dbc
-    SPELL_MANA_STORM            = 21097,
-    SPELL_CHILL                 = 21098,
-    SPELL_FROST_BREATH          = 21099,
-    SPELL_REFLECT               = 22067,
-    SPELL_CLEAVE                = 19983,                    // Was 8255; this one is from wowhead and seems to be the correct one
-    SPELL_ENRAGE                = 23537,
+    SPELL_ARCANE_VACUUM = 21147,
+    SPELL_MARK_OF_FROST_PLAYER = 23182,
+    SPELL_MARK_OF_FROST_AURA = 23184, // Triggers 23186 on players that have 23182; unfortunatelly 23183
+                                      // is missing from dbc
+    SPELL_MANA_STORM = 21097,
+    SPELL_CHILL = 21098,
+    SPELL_FROST_BREATH = 21099,
+    SPELL_REFLECT = 22067,
+    SPELL_CLEAVE = 19983, // Was 8255; this one is from wowhead and seems to be
+                          // the correct one
+    SPELL_ENRAGE = 23537,
 };
 
 enum AzuregosActions
@@ -52,12 +54,12 @@ enum AzuregosActions
     AZUREGOS_ACTION_MAX,
 };
 
-
 struct boss_azuregosAI : public CombatAI
 {
-    boss_azuregosAI(Creature* creature) : CombatAI(creature, AZUREGOS_ACTION_MAX)
+    boss_azuregosAI(Creature *creature) : CombatAI(creature, AZUREGOS_ACTION_MAX)
     {
-        AddTimerlessCombatAction(AZUREGOS_ENRAGE_HP_CHECK, true);         // Soft enrage at 25%
+        AddTimerlessCombatAction(AZUREGOS_ENRAGE_HP_CHECK,
+                                 true); // Soft enrage at 25%
         AddCombatAction(AZUREGOS_MANASTORM, 5u * IN_MILLISECONDS, 17u * IN_MILLISECONDS);
         AddCombatAction(AZUREGOS_CHILL, 10u * IN_MILLISECONDS, 30u * IN_MILLISECONDS);
         AddCombatAction(AZUREGOS_FROSTBREATH, 2u * IN_MILLISECONDS, 8u * IN_MILLISECONDS);
@@ -71,14 +73,15 @@ struct boss_azuregosAI : public CombatAI
         CombatAI::Reset();
     }
 
-    void KilledUnit(Unit* victim) override
+    void KilledUnit(Unit *victim) override
     {
         // Mark killed players with Mark of Frost
         if (victim->GetTypeId() == TYPEID_PLAYER)
-            victim->CastSpell(victim, SPELL_MARK_OF_FROST_PLAYER, TRIGGERED_OLD_TRIGGERED, nullptr, nullptr, m_creature->GetObjectGuid());
+            victim->CastSpell(victim, SPELL_MARK_OF_FROST_PLAYER, TRIGGERED_OLD_TRIGGERED, nullptr, nullptr,
+                              m_creature->GetObjectGuid());
     }
 
-    void Aggro(Unit* /*who*/) override
+    void Aggro(Unit * /*who*/) override
     {
         // Boss aura which triggers the stun effect on dead players who resurrect
         DoCastSpellIfCan(m_creature, SPELL_MARK_OF_FROST_AURA);
@@ -86,7 +89,7 @@ struct boss_azuregosAI : public CombatAI
         m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
     }
 
-    void EnterEvadeMode () override
+    void EnterEvadeMode() override
     {
         m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
@@ -97,66 +100,59 @@ struct boss_azuregosAI : public CombatAI
     {
         switch (action)
         {
-            case AZUREGOS_ENRAGE_HP_CHECK:
+        case AZUREGOS_ENRAGE_HP_CHECK: {
+            if (m_creature->GetHealthPercent() < 25.0f)
             {
-                if (m_creature->GetHealthPercent() < 25.0f)
-                {
-                    if (DoCastSpellIfCan(m_creature, SPELL_ENRAGE) == CAST_OK)
-                        DisableCombatAction(action);
-                }
-                break;
+                if (DoCastSpellIfCan(m_creature, SPELL_ENRAGE) == CAST_OK)
+                    DisableCombatAction(action);
             }
-            case AZUREGOS_MANASTORM:
+            break;
+        }
+        case AZUREGOS_MANASTORM: {
+            if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_NEAREST_BY, 0))
             {
-                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_NEAREST_BY, 0))
-                {
-                    if (DoCastSpellIfCan(pTarget, SPELL_MANA_STORM) == CAST_OK)
-                        ResetCombatAction(action, urand(18, 35) * IN_MILLISECONDS);
-                }
-                break;
+                if (DoCastSpellIfCan(pTarget, SPELL_MANA_STORM) == CAST_OK)
+                    ResetCombatAction(action, urand(18, 35) * IN_MILLISECONDS);
             }
-            case AZUREGOS_TELEPORT:
+            break;
+        }
+        case AZUREGOS_TELEPORT: {
+            if (DoCastSpellIfCan(m_creature, SPELL_ARCANE_VACUUM) == CAST_OK)
             {
-                if (DoCastSpellIfCan(m_creature, SPELL_ARCANE_VACUUM) == CAST_OK)
-                {
-                    DoScriptText(SAY_TELEPORT, m_creature);
-                    ResetCombatAction(action, urand(20, 30) * IN_MILLISECONDS);
-                }
-                break;
+                DoScriptText(SAY_TELEPORT, m_creature);
+                ResetCombatAction(action, urand(20, 30) * IN_MILLISECONDS);
             }
-            case AZUREGOS_CHILL:
-            {
-                if (DoCastSpellIfCan(m_creature, SPELL_CHILL) == CAST_OK)
-                    ResetCombatAction(action, urand(13, 25) * IN_MILLISECONDS);
-                break;
-            }
-            case AZUREGOS_FROSTBREATH:
-            {
-                if (DoCastSpellIfCan(m_creature, SPELL_FROST_BREATH) == CAST_OK)
-                    ResetCombatAction(action, urand(10, 25) * IN_MILLISECONDS);
-                break;
-            }
-            case AZUREGOS_REFLECTMAGIC:
-            {
-                if (DoCastSpellIfCan(m_creature, SPELL_REFLECT) == CAST_OK)
-                    ResetCombatAction(action, urand(20, 35) * IN_MILLISECONDS);
-                break;
-            }
-            case AZUREGOS_CLEAVE:
-            {
-                if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_CLEAVE) == CAST_OK)
-                    ResetCombatAction(action, 7 * IN_MILLISECONDS);
-                break;
-            }
-            default:
-                break;
+            break;
+        }
+        case AZUREGOS_CHILL: {
+            if (DoCastSpellIfCan(m_creature, SPELL_CHILL) == CAST_OK)
+                ResetCombatAction(action, urand(13, 25) * IN_MILLISECONDS);
+            break;
+        }
+        case AZUREGOS_FROSTBREATH: {
+            if (DoCastSpellIfCan(m_creature, SPELL_FROST_BREATH) == CAST_OK)
+                ResetCombatAction(action, urand(10, 25) * IN_MILLISECONDS);
+            break;
+        }
+        case AZUREGOS_REFLECTMAGIC: {
+            if (DoCastSpellIfCan(m_creature, SPELL_REFLECT) == CAST_OK)
+                ResetCombatAction(action, urand(20, 35) * IN_MILLISECONDS);
+            break;
+        }
+        case AZUREGOS_CLEAVE: {
+            if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_CLEAVE) == CAST_OK)
+                ResetCombatAction(action, 7 * IN_MILLISECONDS);
+            break;
+        }
+        default:
+            break;
         }
     }
 };
 
 void AddSC_boss_azuregos()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_azuregos";
     pNewScript->GetAI = &GetNewAIInstance<boss_azuregosAI>;
     pNewScript->RegisterSelf();

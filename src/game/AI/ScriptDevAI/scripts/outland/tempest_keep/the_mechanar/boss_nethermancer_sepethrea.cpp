@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -22,42 +22,40 @@ SDCategory: Tempest Keep, The Mechanar
 EndScriptData */
 
 #include "AI/ScriptDevAI/include/sc_common.h"
-#include "mechanar.h"
 #include "Entities/TemporarySpawn.h"
+#include "mechanar.h"
 
 enum
 {
-    SAY_AGGRO                       = -1554013,
-    SAY_SUMMON                      = -1554014,
-    SAY_DRAGONS_BREATH_1            = -1554015,
-    SAY_DRAGONS_BREATH_2            = -1554016,
-    SAY_SLAY1                       = -1554017,
-    SAY_SLAY2                       = -1554018,
-    SAY_DEATH                       = -1554019,
+    SAY_AGGRO = -1554013,
+    SAY_SUMMON = -1554014,
+    SAY_DRAGONS_BREATH_1 = -1554015,
+    SAY_DRAGONS_BREATH_2 = -1554016,
+    SAY_SLAY1 = -1554017,
+    SAY_SLAY2 = -1554018,
+    SAY_DEATH = -1554019,
 
-    SPELL_SUMMON_RAGING_FLAMES      = 35275,
-    SPELL_SUMMON_RAGING_FLAMES_H    = 39084,
-    SPELL_FROST_ATTACK              = 45196, // serverside - triggers 45195
-    SPELL_ARCANE_BLAST              = 35314,
-    SPELL_DRAGONS_BREATH            = 35250,
+    SPELL_SUMMON_RAGING_FLAMES = 35275,
+    SPELL_SUMMON_RAGING_FLAMES_H = 39084,
+    SPELL_FROST_ATTACK = 45196, // serverside - triggers 45195
+    SPELL_ARCANE_BLAST = 35314,
+    SPELL_DRAGONS_BREATH = 35250,
 
-    NPC_RAGING_FLAMES               = 20481,
+    NPC_RAGING_FLAMES = 20481,
 };
 
 struct boss_nethermancer_sepethreaAI : public ScriptedAI
 {
-    boss_nethermancer_sepethreaAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_nethermancer_sepethreaAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (ScriptedInstance *)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
-        m_creature->GetCombatManager().SetLeashingCheck([&](Unit* /*unit*/, float x, float /*y*/, float /*z*/)->bool
-        {
-            return x < 266.0f;
-        });
+        m_creature->GetCombatManager().SetLeashingCheck(
+            [&](Unit * /*unit*/, float x, float /*y*/, float /*z*/) -> bool { return x < 266.0f; });
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    ScriptedInstance *m_pInstance;
     bool m_bIsRegularMode;
 
     uint32 m_uiArcaneBlastTimer;
@@ -65,11 +63,11 @@ struct boss_nethermancer_sepethreaAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiArcaneBlastTimer    = urand(14000, 25000);
-        m_uiDragonsBreathTimer  = urand(20000, 26000);
+        m_uiArcaneBlastTimer = urand(14000, 25000);
+        m_uiDragonsBreathTimer = urand(20000, 26000);
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         m_creature->SetInCombatWithZone();
         DoScriptText(SAY_AGGRO, m_creature);
@@ -80,12 +78,12 @@ struct boss_nethermancer_sepethreaAI : public ScriptedAI
             m_pInstance->SetData(TYPE_SEPETHREA, IN_PROGRESS);
     }
 
-    void KilledUnit(Unit* /*pVictim*/) override
+    void KilledUnit(Unit * /*pVictim*/) override
     {
         DoScriptText(urand(0, 1) ? SAY_SLAY1 : SAY_SLAY2, m_creature);
     }
 
-    void JustDied(Unit* /*pKiller*/) override
+    void JustDied(Unit * /*pKiller*/) override
     {
         DoScriptText(SAY_DEATH, m_creature);
 
@@ -135,7 +133,7 @@ struct boss_nethermancer_sepethreaAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_nethermancer_sepethrea(Creature* pCreature)
+UnitAI *GetAI_boss_nethermancer_sepethrea(Creature *pCreature)
 {
     return new boss_nethermancer_sepethreaAI(pCreature);
 }
@@ -149,9 +147,9 @@ enum
 
 struct npc_raging_flamesAI : public ScriptedAI
 {
-    npc_raging_flamesAI(Creature* pCreature) : ScriptedAI(pCreature)
+    npc_raging_flamesAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (ScriptedInstance *)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         if (m_creature->IsTemporarySummon())
             m_summonerGuid = m_creature->GetSpawnerGuid();
@@ -159,7 +157,7 @@ struct npc_raging_flamesAI : public ScriptedAI
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    ScriptedInstance *m_pInstance;
     bool m_bIsRegularMode;
 
     uint32 m_uiInfernoTimer;
@@ -172,7 +170,7 @@ struct npc_raging_flamesAI : public ScriptedAI
         DoCastSpellIfCan(nullptr, SPELL_RAGING_FLAMES, CAST_TRIGGERED | CAST_AURA_NOT_PRESENT);
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         FixateRandomTarget();
     }
@@ -181,8 +179,9 @@ struct npc_raging_flamesAI : public ScriptedAI
     {
         DoResetThreat();
 
-        if (Creature* pSummoner = m_creature->GetMap()->GetCreature(m_summonerGuid))
-            if (Unit* pNewTarget = pSummoner->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, nullptr, SELECT_FLAG_PLAYER))
+        if (Creature *pSummoner = m_creature->GetMap()->GetCreature(m_summonerGuid))
+            if (Unit *pNewTarget =
+                    pSummoner->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, nullptr, SELECT_FLAG_PLAYER))
                 m_creature->AddThreat(pNewTarget, 10000000.0f);
     }
 
@@ -208,14 +207,14 @@ struct npc_raging_flamesAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_npc_raging_flames(Creature* pCreature)
+UnitAI *GetAI_npc_raging_flames(Creature *pCreature)
 {
     return new npc_raging_flamesAI(pCreature);
 }
 
 void AddSC_boss_nethermancer_sepethrea()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_nethermancer_sepethrea";
     pNewScript->GetAI = &GetAI_boss_nethermancer_sepethrea;
     pNewScript->RegisterSelf();

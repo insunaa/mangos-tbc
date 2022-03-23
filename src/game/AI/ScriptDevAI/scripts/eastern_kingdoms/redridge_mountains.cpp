@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -24,8 +24,8 @@ EndScriptData */
 /* ContentData
 npc_corporal_keeshan */
 
-#include "AI/ScriptDevAI/include/sc_common.h"
 #include "AI/ScriptDevAI/base/escort_ai.h"
+#include "AI/ScriptDevAI/include/sc_common.h"
 
 /*######
 ## npc_corporal_leehsan
@@ -35,19 +35,22 @@ enum
 {
     QUEST_MISSING_IN_ACTION = 219,
 
-    SPELL_MOCKING_BLOW      = 21008,
-    SPELL_SHIELD_BASH       = 11972,
+    SPELL_MOCKING_BLOW = 21008,
+    SPELL_SHIELD_BASH = 11972,
 
-    SAY_CORPORAL_KEESHAN_1  = -1000561,
-    SAY_CORPORAL_KEESHAN_2  = -1000562,
-    SAY_CORPORAL_KEESHAN_3  = -1000563,
-    SAY_CORPORAL_KEESHAN_4  = -1000564,
-    SAY_CORPORAL_KEESHAN_5  = -1000565,
+    SAY_CORPORAL_KEESHAN_1 = -1000561,
+    SAY_CORPORAL_KEESHAN_2 = -1000562,
+    SAY_CORPORAL_KEESHAN_3 = -1000563,
+    SAY_CORPORAL_KEESHAN_4 = -1000564,
+    SAY_CORPORAL_KEESHAN_5 = -1000565,
 };
 
 struct npc_corporal_keeshan_escortAI : public npc_escortAI
 {
-    npc_corporal_keeshan_escortAI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
+    npc_corporal_keeshan_escortAI(Creature *pCreature) : npc_escortAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiMockingBlowTimer;
     uint32 m_uiShieldBashTimer;
@@ -55,16 +58,16 @@ struct npc_corporal_keeshan_escortAI : public npc_escortAI
     void Reset() override
     {
         m_uiMockingBlowTimer = 5000;
-        m_uiShieldBashTimer  = 8000;
+        m_uiShieldBashTimer = 8000;
     }
 
-    void ReceiveAIEvent(AIEventType eventType, Unit* /*pSender*/, Unit* pInvoker, uint32 uiMiscValue) override
+    void ReceiveAIEvent(AIEventType eventType, Unit * /*pSender*/, Unit *pInvoker, uint32 uiMiscValue) override
     {
         if (eventType == AI_EVENT_START_ESCORT && pInvoker->GetTypeId() == TYPEID_PLAYER)
         {
             DoScriptText(SAY_CORPORAL_KEESHAN_1, m_creature);
             m_creature->SetFactionTemporary(FACTION_ESCORT_A_NEUTRAL_ACTIVE, TEMPFACTION_RESTORE_RESPAWN);
-            Start(false, (Player*)pInvoker, GetQuestTemplateStore(uiMiscValue));
+            Start(false, (Player *)pInvoker, GetQuestTemplateStore(uiMiscValue));
         }
     }
 
@@ -72,13 +75,13 @@ struct npc_corporal_keeshan_escortAI : public npc_escortAI
     {
         switch (uiWP)
         {
-            case 27:                                        // break outside
-                DoScriptText(SAY_CORPORAL_KEESHAN_3, m_creature);
-                m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-                break;
-            case 54:                                        // say goodbye
-                DoScriptText(SAY_CORPORAL_KEESHAN_5, m_creature);
-                break;
+        case 27: // break outside
+            DoScriptText(SAY_CORPORAL_KEESHAN_3, m_creature);
+            m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+            break;
+        case 54: // say goodbye
+            DoScriptText(SAY_CORPORAL_KEESHAN_5, m_creature);
+            break;
         }
     }
 
@@ -86,18 +89,18 @@ struct npc_corporal_keeshan_escortAI : public npc_escortAI
     {
         switch (uiWP)
         {
-            case 26:                                        // break outside
-                m_creature->SetStandState(UNIT_STAND_STATE_SIT);
-                DoScriptText(SAY_CORPORAL_KEESHAN_2, m_creature);
-                break;
-            case 37:
-                SetRun(true);                               // run now until the destination
-                break;
-            case 53:                                        // quest_complete
-                DoScriptText(SAY_CORPORAL_KEESHAN_4, m_creature);
-                if (Player* pPlayer = GetPlayerForEscort())
-                    pPlayer->RewardPlayerAndGroupAtEventExplored(QUEST_MISSING_IN_ACTION, m_creature);
-                break;
+        case 26: // break outside
+            m_creature->SetStandState(UNIT_STAND_STATE_SIT);
+            DoScriptText(SAY_CORPORAL_KEESHAN_2, m_creature);
+            break;
+        case 37:
+            SetRun(true); // run now until the destination
+            break;
+        case 53: // quest_complete
+            DoScriptText(SAY_CORPORAL_KEESHAN_4, m_creature);
+            if (Player *pPlayer = GetPlayerForEscort())
+                pPlayer->RewardPlayerAndGroupAtEventExplored(QUEST_MISSING_IN_ACTION, m_creature);
+            break;
         }
     }
 
@@ -127,12 +130,12 @@ struct npc_corporal_keeshan_escortAI : public npc_escortAI
     }
 };
 
-UnitAI* GetAI_npc_corporal_keeshan(Creature* pCreature)
+UnitAI *GetAI_npc_corporal_keeshan(Creature *pCreature)
 {
     return new npc_corporal_keeshan_escortAI(pCreature);
 }
 
-bool QuestAccept_npc_corporal_keeshan(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+bool QuestAccept_npc_corporal_keeshan(Player *pPlayer, Creature *pCreature, const Quest *pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_MISSING_IN_ACTION)
         pCreature->AI()->SendAIEvent(AI_EVENT_START_ESCORT, pPlayer, pCreature, pQuest->GetQuestId());
@@ -142,7 +145,7 @@ bool QuestAccept_npc_corporal_keeshan(Player* pPlayer, Creature* pCreature, cons
 
 void AddSC_redridge_mountains()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "npc_corporal_keeshan";
     pNewScript->GetAI = &GetAI_npc_corporal_keeshan;
     pNewScript->pQuestAcceptNPC = &QuestAccept_npc_corporal_keeshan;

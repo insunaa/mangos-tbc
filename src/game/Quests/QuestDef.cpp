@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +18,11 @@
  */
 
 #include "Quests/QuestDef.h"
+
 #include "Entities/Player.h"
 #include "World/World.h"
 
-Quest::Quest(Field* questRecord)
+Quest::Quest(Field *questRecord)
 {
     QuestId = questRecord[0].GetUInt32();
     QuestMethod = questRecord[1].GetUInt32();
@@ -170,7 +172,7 @@ Quest::Quest(Field* questRecord)
     }
 }
 
-uint32 Quest::XPValue(Player* pPlayer) const
+uint32 Quest::XPValue(Player *pPlayer) const
 {
     if (pPlayer)
     {
@@ -192,15 +194,15 @@ uint32 Quest::XPValue(Player* pPlayer) const
             else if (qLevel > 0 && qLevel <= 60)
                 fullxp = RewMoneyMaxLevel / 0.6f;
 
-            if (pLevel <= qLevel +  5)
+            if (pLevel <= qLevel + 5)
                 return uint32(ceilf(fullxp));
-            else if (pLevel == qLevel +  6)
+            else if (pLevel == qLevel + 6)
                 return uint32(ceilf(fullxp * 0.8f));
-            else if (pLevel == qLevel +  7)
+            else if (pLevel == qLevel + 7)
                 return uint32(ceilf(fullxp * 0.6f));
-            else if (pLevel == qLevel +  8)
+            else if (pLevel == qLevel + 8)
                 return uint32(ceilf(fullxp * 0.4f));
-            else if (pLevel == qLevel +  9)
+            else if (pLevel == qLevel + 9)
                 return uint32(ceilf(fullxp * 0.2f));
             else
                 return uint32(ceilf(fullxp * 0.1f));
@@ -210,7 +212,7 @@ uint32 Quest::XPValue(Player* pPlayer) const
     return 0;
 }
 
-int32  Quest::GetRewOrReqMoney() const
+int32 Quest::GetRewOrReqMoney() const
 {
     if (RewOrReqMoney <= 0)
         return RewOrReqMoney;
@@ -230,7 +232,7 @@ uint32 Quest::GetCharTitleBitIndex() const
 {
     if (!CharTitleId)
         return 0;
-    CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(CharTitleId);
+    CharTitlesEntry const *titleEntry = sCharTitlesStore.LookupEntry(CharTitleId);
     return titleEntry ? titleEntry->bit_index : 0;
 }
 

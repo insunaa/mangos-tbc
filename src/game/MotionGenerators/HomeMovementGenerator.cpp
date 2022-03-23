@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +18,14 @@
  */
 
 #include "HomeMovementGenerator.h"
-#include "Maps/Map.h"
-#include "Entities/Creature.h"
-#include "AI/BaseAI/CreatureAI.h"
-#include "Movement/MoveSplineInit.h"
-#include "Movement/MoveSpline.h"
 
-void HomeMovementGenerator<Creature>::Initialize(Creature& owner)
+#include "AI/BaseAI/CreatureAI.h"
+#include "Entities/Creature.h"
+#include "Maps/Map.h"
+#include "Movement/MoveSpline.h"
+#include "Movement/MoveSplineInit.h"
+
+void HomeMovementGenerator<Creature>::Initialize(Creature &owner)
 {
     wasActive = owner.isActiveObject();
     if (!wasActive)
@@ -33,23 +35,25 @@ void HomeMovementGenerator<Creature>::Initialize(Creature& owner)
     _setTargetLocation(owner);
 }
 
-void HomeMovementGenerator<Creature>::Reset(Creature&)
+void HomeMovementGenerator<Creature>::Reset(Creature &)
 {
 }
 
-void HomeMovementGenerator<Creature>::_setTargetLocation(Creature& owner)
+void HomeMovementGenerator<Creature>::_setTargetLocation(Creature &owner)
 {
     if (owner.hasUnitState(UNIT_STAT_NOT_MOVE))
         return;
 
     Position pos;
     // at apply we can select more nice return points base at current movegen
-    if (owner.GetMotionMaster()->empty() || !owner.GetMotionMaster()->top()->GetResetPosition(owner, pos.x, pos.y, pos.z, pos.o))
+    if (owner.GetMotionMaster()->empty() ||
+        !owner.GetMotionMaster()->top()->GetResetPosition(owner, pos.x, pos.y, pos.z, pos.o))
         owner.GetCombatStartPosition(pos);
 
     if (pos.IsEmpty())
         owner.GetRespawnCoord(pos.x, pos.y, pos.z, &pos.o);
-    if (owner.GetDistance(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), DIST_CALC_NONE, owner.GetTransport()) > 150.f * 150.f)
+    if (owner.GetDistance(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), DIST_CALC_NONE,
+                          owner.GetTransport()) > 150.f * 150.f)
     {
         if (!owner.IsInWorld() || !owner.GetMap()->IsDungeon())
         {
@@ -65,7 +69,8 @@ void HomeMovementGenerator<Creature>::_setTargetLocation(Creature& owner)
 
     Position curPos = owner.GetPosition(owner.GetTransport());
     // source and target pos must be local coords
-    path.calculate(G3D::Vector3(curPos.GetPositionX(), curPos.GetPositionY(), curPos.GetPositionZ()), G3D::Vector3(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()), true);
+    path.calculate(G3D::Vector3(curPos.GetPositionX(), curPos.GetPositionY(), curPos.GetPositionZ()),
+                   G3D::Vector3(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()), true);
 
     Movement::MoveSplineInit init(owner);
     init.MovebyPath(path.getPath());
@@ -79,13 +84,13 @@ void HomeMovementGenerator<Creature>::_setTargetLocation(Creature& owner)
     owner.clearUnitState(static_cast<uint32>(UNIT_STAT_ALL_DYN_STATES));
 }
 
-bool HomeMovementGenerator<Creature>::Update(Creature& owner, const uint32& /*time_diff*/)
+bool HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32 & /*time_diff*/)
 {
     arrived = owner.movespline->Finalized();
     return !arrived;
 }
 
-void HomeMovementGenerator<Creature>::Finalize(Creature& owner)
+void HomeMovementGenerator<Creature>::Finalize(Creature &owner)
 {
     owner.GetCombatManager().SetEvadeState(EVADE_NONE);
     if (arrived)
@@ -98,7 +103,7 @@ void HomeMovementGenerator<Creature>::Finalize(Creature& owner)
         if (owner.IsTemporarySummon())
         {
             if (owner.GetSpawnerGuid().IsCreatureOrPet())
-                if (Creature* pSummoner = owner.GetMap()->GetAnyTypeCreature(owner.GetSpawnerGuid()))
+                if (Creature *pSummoner = owner.GetMap()->GetAnyTypeCreature(owner.GetSpawnerGuid()))
                     if (pSummoner->AI())
                         pSummoner->AI()->SummonedJustReachedHome(&owner);
         }

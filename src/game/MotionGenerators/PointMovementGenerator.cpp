@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,15 +18,16 @@
  */
 
 #include "MotionGenerators/PointMovementGenerator.h"
-#include "Movement/MoveSpline.h"
-#include "Movement/MoveSplineInit.h"
+
+#include "AI/BaseAI/UnitAI.h"
 #include "Entities/Creature.h"
 #include "Entities/TemporarySpawn.h"
-#include "AI/BaseAI/UnitAI.h"
+#include "Movement/MoveSpline.h"
+#include "Movement/MoveSplineInit.h"
 
 //----- Point Movement Generator
 
-void PointMovementGenerator::Initialize(Unit& unit)
+void PointMovementGenerator::Initialize(Unit &unit)
 {
     if (unit.hasUnitState(UNIT_STAT_NO_FREE_MOVE | UNIT_STAT_NOT_MOVE))
         return;
@@ -46,7 +48,7 @@ void PointMovementGenerator::Initialize(Unit& unit)
     m_speedChanged = false;
 }
 
-void PointMovementGenerator::Finalize(Unit& unit)
+void PointMovementGenerator::Finalize(Unit &unit)
 {
     unit.clearUnitState(UNIT_STAT_ROAMING | UNIT_STAT_ROAMING_MOVE);
 
@@ -62,19 +64,19 @@ void PointMovementGenerator::Finalize(Unit& unit)
         MovementInform(unit);
 }
 
-void PointMovementGenerator::Interrupt(Unit& unit)
+void PointMovementGenerator::Interrupt(Unit &unit)
 {
     unit.clearUnitState(UNIT_STAT_ROAMING | UNIT_STAT_ROAMING_MOVE);
     unit.InterruptMoving();
 }
 
-void PointMovementGenerator::Reset(Unit& unit)
+void PointMovementGenerator::Reset(Unit &unit)
 {
     unit.addUnitState(UNIT_STAT_ROAMING);
     Initialize(unit);
 }
 
-bool PointMovementGenerator::Update(Unit& unit, const uint32&/* diff*/)
+bool PointMovementGenerator::Update(Unit &unit, const uint32 & /* diff*/)
 {
     if (unit.hasUnitState(UNIT_STAT_CAN_NOT_MOVE))
     {
@@ -88,7 +90,7 @@ bool PointMovementGenerator::Update(Unit& unit, const uint32&/* diff*/)
     return !unit.movespline->Finalized();
 }
 
-void PointMovementGenerator::Move(Unit& unit)
+void PointMovementGenerator::Move(Unit &unit)
 {
     Movement::MoveSplineInit init(unit);
     init.MoveTo(m_x, m_y, m_z, m_generatePath);
@@ -106,34 +108,36 @@ void PointMovementGenerator::Move(Unit& unit)
     init.Launch();
 }
 
-void PointMovementGenerator::MovementInform(Unit& unit)
+void PointMovementGenerator::MovementInform(Unit &unit)
 {
     MovementGeneratorType const type = GetMovementGeneratorType();
 
-    if (UnitAI* ai = unit.AI())
+    if (UnitAI *ai = unit.AI())
         ai->MovementInform(type, m_id);
 
-    if (unit.GetTypeId() == TYPEID_UNIT && static_cast<Creature&>(unit).IsTemporarySummon())
+    if (unit.GetTypeId() == TYPEID_UNIT && static_cast<Creature &>(unit).IsTemporarySummon())
     {
         if (unit.GetSpawnerGuid().IsCreatureOrPet())
-            if (Creature* pSummoner = unit.GetMap()->GetAnyTypeCreature(unit.GetSpawnerGuid()))
+            if (Creature *pSummoner = unit.GetMap()->GetAnyTypeCreature(unit.GetSpawnerGuid()))
             {
-                if (UnitAI* ai = pSummoner->AI())
-                    ai->SummonedMovementInform(static_cast<Creature*>(&unit), type, m_id);
+                if (UnitAI *ai = pSummoner->AI())
+                    ai->SummonedMovementInform(static_cast<Creature *>(&unit), type, m_id);
             }
     }
 
     if (m_relayId)
-        unit.GetMap()->ScriptsStart(sRelayScripts, m_relayId, &unit, m_guid ? unit.GetMap()->GetWorldObject(m_guid) : nullptr);
+        unit.GetMap()->ScriptsStart(sRelayScripts, m_relayId, &unit,
+                                    m_guid ? unit.GetMap()->GetWorldObject(m_guid) : nullptr);
 }
 
-void RetreatMovementGenerator::Initialize(Unit& unit)
+void RetreatMovementGenerator::Initialize(Unit &unit)
 {
     // Non-client controlled unit with an AI should drop target
     if (unit.AI() && !unit.IsClientControlled())
     {
         unit.SetTarget(nullptr);
-        // FIXME: do we need to send attack stop here? verify protocol if possible
+        // FIXME: do we need to send attack stop here? verify protocol if
+        // possible
     }
 
     unit.addUnitState(UNIT_STAT_RETREATING);
@@ -142,31 +146,31 @@ void RetreatMovementGenerator::Initialize(Unit& unit)
         PointMovementGenerator::Initialize(unit);
 }
 
-void RetreatMovementGenerator::Finalize(Unit& unit)
+void RetreatMovementGenerator::Finalize(Unit &unit)
 {
     unit.clearUnitState(UNIT_STAT_RETREATING);
 
     PointMovementGenerator::Finalize(unit);
 
-    if (UnitAI* ai = unit.AI())
+    if (UnitAI *ai = unit.AI())
         ai->RetreatingEnded();
 }
 
-void RetreatMovementGenerator::Interrupt(Unit& unit)
+void RetreatMovementGenerator::Interrupt(Unit &unit)
 {
     PointMovementGenerator::Interrupt(unit);
 
-    if (UnitAI* ai = unit.AI())
+    if (UnitAI *ai = unit.AI())
         ai->RetreatingEnded();
 }
 
-void RetreatMovementGenerator::Reset(Unit& unit)
+void RetreatMovementGenerator::Reset(Unit &unit)
 {
     if (!m_arrived)
         PointMovementGenerator::Reset(unit);
 }
 
-bool RetreatMovementGenerator::Update(Unit& unit, const uint32& diff)
+bool RetreatMovementGenerator::Update(Unit &unit, const uint32 &diff)
 {
     if (!PointMovementGenerator::Update(unit, diff))
     {
@@ -174,7 +178,7 @@ bool RetreatMovementGenerator::Update(Unit& unit, const uint32& diff)
         {
             m_arrived = true;
 
-            if (UnitAI* ai = unit.AI())
+            if (UnitAI *ai = unit.AI())
                 ai->RetreatingArrived();
         }
 
@@ -197,13 +201,13 @@ void StayMovementGenerator::Finalize(Unit &unit)
     PointMovementGenerator::Finalize(unit);
 }
 
-void StayMovementGenerator::Interrupt(Unit& unit)
+void StayMovementGenerator::Interrupt(Unit &unit)
 {
     m_arrived = false;
     PointMovementGenerator::Interrupt(unit);
 }
 
-bool StayMovementGenerator::Update(Unit& unit, const uint32& diff)
+bool StayMovementGenerator::Update(Unit &unit, const uint32 &diff)
 {
     if (!m_arrived && !PointMovementGenerator::Update(unit, diff))
     {
@@ -213,7 +217,7 @@ bool StayMovementGenerator::Update(Unit& unit, const uint32& diff)
     return true;
 }
 
-void PointTOLMovementGenerator::Move(Unit& unit)
+void PointTOLMovementGenerator::Move(Unit &unit)
 {
     Movement::MoveSplineInit init(unit);
     init.MoveTo(m_x, m_y, m_z, false);

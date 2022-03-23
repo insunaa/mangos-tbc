@@ -1,56 +1,35 @@
 #include "config.hpp"
-#include "Anticheat/Anticheat.hpp"
 
+#include "Anticheat/Anticheat.hpp"
 #include "Policies/Singleton.h"
 
 INSTANTIATE_SINGLETON_1(NamreebAnticheat::AnticheatConfig);
 
 namespace
 {
-static const char *sCheatTypeNames[] =
-{
-    "WallClimb",
-    "WaterWalk",
-    "SlowFall",
-    "FlyHack",
-    "Forbidden",
-    "MultiJump",
-    "TimeBack",
-    "FastJump",
-    "JumpSpeedChange",
-    "NullClientTime",
-    "RootMove",
-    "Explore",
-    "ExploreHigh",
-    "OverspeedZ",
-    "HeartbeatSkip",
-    "ClockDesync",
-    "FakeTransport",
-    "TeleToTransport",
-    "Teleport",
-    "TeleportFar",
-    "FixedZ",
-    "BadOrderAck",
-    "Warden"
-};
+static const char *sCheatTypeNames[] = {
+    "WallClimb",   "WaterWalk",   "SlowFall",        "FlyHack",        "Forbidden",     "MultiJump",
+    "TimeBack",    "FastJump",    "JumpSpeedChange", "NullClientTime", "RootMove",      "Explore",
+    "ExploreHigh", "OverspeedZ",  "HeartbeatSkip",   "ClockDesync",    "FakeTransport", "TeleToTransport",
+    "Teleport",    "TeleportFar", "FixedZ",          "BadOrderAck",    "Warden"};
 
 static_assert(sizeof(sCheatTypeNames) / sizeof(sCheatTypeNames[0]) == NamreebAnticheat::CheatType::CHEATS_COUNT,
-    "sCheatTypeNames has the wrong number of strings");
-}
+              "sCheatTypeNames has the wrong number of strings");
+} // namespace
 
 namespace NamreebAnticheat
 {
-void AnticheatConfig::setConfig(AnticheatConfigUInt32Values index, char const* fieldname, uint32 defvalue)
+void AnticheatConfig::setConfig(AnticheatConfigUInt32Values index, char const *fieldname, uint32 defvalue)
 {
     setConfig(index, GetIntDefault(fieldname, defvalue));
 }
 
-void AnticheatConfig::setConfig(AnticheatConfigBoolValues index, char const* fieldname, bool defvalue)
+void AnticheatConfig::setConfig(AnticheatConfigBoolValues index, char const *fieldname, bool defvalue)
 {
     setConfig(index, GetBoolDefault(fieldname, defvalue));
 }
 
-void AnticheatConfig::setConfig(AnticheatConfigFloatValues index, char const* fieldname, float defvalue)
+void AnticheatConfig::setConfig(AnticheatConfigFloatValues index, char const *fieldname, float defvalue)
 {
     setConfig(index, GetFloatDefault(fieldname, defvalue));
 }
@@ -109,7 +88,7 @@ void AnticheatConfig::loadConfigSettings()
         if (i == CHEAT_TYPE_WARDEN)
         {
             tickCount << GetDetectorName(static_cast<CheatType>(i)) << ".TickCount";
-            tickAction <<GetDetectorName(static_cast<CheatType>(i)) << ".TickAction";
+            tickAction << GetDetectorName(static_cast<CheatType>(i)) << ".TickAction";
             totalCount << GetDetectorName(static_cast<CheatType>(i)) << ".TotalCount";
             totalAction << GetDetectorName(static_cast<CheatType>(i)) << ".TotalAction";
         }
@@ -121,13 +100,10 @@ void AnticheatConfig::loadConfigSettings()
             totalAction << "Movement." << GetDetectorName(static_cast<CheatType>(i)) << ".TotalAction";
         }
 
-        _responseRules[i] =
-        {
-            static_cast<uint32>(GetIntDefault(tickCount.str().c_str(), 0)),
-            static_cast<uint32>(GetIntDefault(tickAction.str().c_str(), 0)),
-            static_cast<uint32>(GetIntDefault(totalCount.str().c_str(), 0)),
-            static_cast<uint32>(GetIntDefault(totalAction.str().c_str(), 0))
-        };
+        _responseRules[i] = {static_cast<uint32>(GetIntDefault(tickCount.str().c_str(), 0)),
+                             static_cast<uint32>(GetIntDefault(tickAction.str().c_str(), 0)),
+                             static_cast<uint32>(GetIntDefault(totalCount.str().c_str(), 0)),
+                             static_cast<uint32>(GetIntDefault(totalAction.str().c_str(), 0))};
     }
 
     setConfig(CONFIG_UINT32_AC_WARDEN_TIMEOUT, "Warden.Timeout", 30);
@@ -147,13 +123,11 @@ bool AnticheatConfig::CheckResponse(CheatType cheatType, uint32 tickCount, uint3
     actionMask = CHEAT_ACTION_NONE;
 
     // too many for this tick?  append these actions
-    if (tickCount && _responseRules[cheatType].tickCount &&
-        tickCount >= _responseRules[cheatType].tickCount)
+    if (tickCount && _responseRules[cheatType].tickCount && tickCount >= _responseRules[cheatType].tickCount)
         actionMask |= _responseRules[cheatType].tickAction;
 
     // too many total?  append these actions
-    if (totalCount && _responseRules[cheatType].totalCount &&
-        totalCount >= _responseRules[cheatType].totalCount)
+    if (totalCount && _responseRules[cheatType].totalCount && totalCount >= _responseRules[cheatType].totalCount)
         actionMask |= _responseRules[cheatType].totalAction;
 
     return actionMask != CHEAT_ACTION_NONE;
@@ -164,7 +138,7 @@ uint32 AnticheatConfig::GetKickDelay() const
     auto const minDelay = getConfig(CONFIG_UINT32_AC_KICK_DELAY_MIN);
     auto const maxDelay = getConfig(CONFIG_UINT32_AC_KICK_DELAY_MAX);
 
-    return urand(minDelay*1000, maxDelay*1000);
+    return urand(minDelay * 1000, maxDelay * 1000);
 }
 
 uint32 AnticheatConfig::GetBanDelay() const
@@ -196,4 +170,4 @@ const char *AnticheatConfig::GetDetectorName(CheatType cheatType)
 
     return sCheatTypeNames[cheatType];
 }
-}
+} // namespace NamreebAnticheat

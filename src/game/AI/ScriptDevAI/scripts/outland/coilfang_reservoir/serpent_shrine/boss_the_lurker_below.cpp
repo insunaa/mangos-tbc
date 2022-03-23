@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -21,38 +21,39 @@ SDComment:
 SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
-#include "AI/ScriptDevAI/include/sc_common.h"
-#include "serpent_shrine.h"
 #include "AI/ScriptDevAI/base/CombatAI.h"
+#include "AI/ScriptDevAI/include/sc_common.h"
 #include "Spells/Scripts/SpellScript.h"
+#include "serpent_shrine.h"
 
 enum
 {
-    EMOTE_DEEP_BREATH               = -1548056,
+    EMOTE_DEEP_BREATH = -1548056,
 
-    // SPELL_LURKER_SPAWN_TRIGGER    = 54587,               // spell used only after 243
-    SPELL_WHIRL                     = 37660,
-    SPELL_GEYSER                    = 37478,
-    SPELL_SPOUT                     = 37431,                // trigger spells 37429, 37430
-    SPELL_SPOUT_LEFT                = 37429,
-    SPELL_SPOUT_RIGHT               = 37430,
-    SPELL_SPOUT_DAMAGE              = 37433,
-    SPELL_WATERBOLT                 = 37138,
-    SPELL_SUBMERGE                  = 28819,
-    SPELL_CLEAR_ALL_DEBUFFS         = 34098,
+    // SPELL_LURKER_SPAWN_TRIGGER    = 54587,               // spell used only
+    // after 243
+    SPELL_WHIRL = 37660,
+    SPELL_GEYSER = 37478,
+    SPELL_SPOUT = 37431, // trigger spells 37429, 37430
+    SPELL_SPOUT_LEFT = 37429,
+    SPELL_SPOUT_RIGHT = 37430,
+    SPELL_SPOUT_DAMAGE = 37433,
+    SPELL_WATERBOLT = 37138,
+    SPELL_SUBMERGE = 28819,
+    SPELL_CLEAR_ALL_DEBUFFS = 34098,
 
-    NPC_COILFANG_AMBUSHER           = 21865,
-    NPC_COILFANG_GUARDIAN           = 21873,
+    NPC_COILFANG_AMBUSHER = 21865,
+    NPC_COILFANG_GUARDIAN = 21873,
 
-    MAX_SUBMERGE_ADDS               = 9,
+    MAX_SUBMERGE_ADDS = 9,
 };
 
 enum Phases
 {
-    PHASE_EMERGING              = 0,
-    PHASE_NORMAL                = 1,
-    PHASE_SPOUT                 = 2,
-    PHASE_SUBMERGED             = 3,           
+    PHASE_EMERGING = 0,
+    PHASE_NORMAL = 1,
+    PHASE_SPOUT = 2,
+    PHASE_SUBMERGED = 3,
 };
 
 struct AddsLocations
@@ -62,8 +63,7 @@ struct AddsLocations
     uint32 uiPathId;
 };
 
-static const AddsLocations aLurkerLoc[MAX_SUBMERGE_ADDS] =
-{
+static const AddsLocations aLurkerLoc[MAX_SUBMERGE_ADDS] = {
     {NPC_COILFANG_AMBUSHER, 99.992676f, -275.775f, -21.852718f, 0},
     {NPC_COILFANG_AMBUSHER, 158.81189f, -316.7783f, -20.568338f, 1},
     {NPC_COILFANG_AMBUSHER, 82.55382f, -550.19965f, -20.765057f, 2},
@@ -71,7 +71,13 @@ static const AddsLocations aLurkerLoc[MAX_SUBMERGE_ADDS] =
     {NPC_COILFANG_AMBUSHER, -14.230728f, -549.0762f, -21.056725f, 4},
     {NPC_COILFANG_AMBUSHER, -1.9712651f, -540.2956f, -21.792835f, 5},
     {NPC_COILFANG_GUARDIAN, 106.962f, -468.5177f, -21.63681f, 0},
-    {NPC_COILFANG_GUARDIAN, 65.17899f, -340.6617f, -21.5217f, 1,},
+    {
+        NPC_COILFANG_GUARDIAN,
+        65.17899f,
+        -340.6617f,
+        -21.5217f,
+        1,
+    },
     {NPC_COILFANG_GUARDIAN, -49.6826f, -414.9719f, -20.54604f, 2},
 };
 
@@ -90,7 +96,9 @@ enum LurkerActions
 
 struct boss_the_lurker_belowAI : public CombatAI
 {
-    boss_the_lurker_belowAI(Creature* pCreature) : CombatAI(pCreature, LURKER_ACTION_MAX), m_instance(static_cast<ScriptedInstance*>(pCreature->GetInstanceData()))
+    boss_the_lurker_belowAI(Creature *pCreature)
+        : CombatAI(pCreature, LURKER_ACTION_MAX),
+          m_instance(static_cast<ScriptedInstance *>(pCreature->GetInstanceData()))
     {
         AddCombatAction(LURKER_SUBMERGE_PHASE, 90000u);
         AddCombatAction(LURKER_SPOUT, 42000u);
@@ -104,7 +112,7 @@ struct boss_the_lurker_belowAI : public CombatAI
         SetReactState(REACT_PASSIVE);
     }
 
-    ScriptedInstance* m_instance;
+    ScriptedInstance *m_instance;
 
     uint32 m_submergePhases;
 
@@ -113,7 +121,7 @@ struct boss_the_lurker_belowAI : public CombatAI
     void Reset() override
     {
         CombatAI::Reset();
-        m_rangeCheckState   = -1;
+        m_rangeCheckState = -1;
 
         m_submergePhases = 0;
 
@@ -130,13 +138,13 @@ struct boss_the_lurker_belowAI : public CombatAI
         m_creature->ForcedDespawn();
     }
 
-    void JustDied(Unit* /*victim*/) override
+    void JustDied(Unit * /*victim*/) override
     {
         if (m_instance)
             m_instance->SetData(TYPE_THELURKER_EVENT, DONE);
     }
 
-    void SummonedMovementInform(Creature* summoned, uint32 motionType, uint32 pointId) override
+    void SummonedMovementInform(Creature *summoned, uint32 motionType, uint32 pointId) override
     {
         if (motionType != WAYPOINT_MOTION_TYPE || pointId != 6)
             return;
@@ -156,11 +164,12 @@ struct boss_the_lurker_belowAI : public CombatAI
     // Wrapper to summon adds in phase 2
     void DoSummonCoilfangNaga()
     {
-        for (auto& i : aLurkerLoc)
-            m_creature->SummonCreature(i.uiEntry, i.fX, i.fY, i.fZ, 0.0f, TEMPSPAWN_DEAD_DESPAWN, 0, false, true, i.uiPathId);
+        for (auto &i : aLurkerLoc)
+            m_creature->SummonCreature(i.uiEntry, i.fX, i.fY, i.fZ, 0.0f, TEMPSPAWN_DEAD_DESPAWN, 0, false, true,
+                                       i.uiPathId);
     }
 
-    void JustSummoned(Creature* summoned) override
+    void JustSummoned(Creature *summoned) override
     {
         summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SWIMMING);
     }
@@ -178,29 +187,26 @@ struct boss_the_lurker_belowAI : public CombatAI
         uint32 timer = 0;
         switch (m_submergePhases)
         {
-            case 0:
-            {
-                m_creature->RemoveAurasDueToSpell(SPELL_SUBMERGE);
-                m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-                timer = 2000;
-                break;
-            }
-            case 1:
-            {
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                timer = 1000;
-                break;
-            }
-            case 2:
-            {
-                ResetCombatAction(LURKER_WHIRL, 0);
-                ResetCombatAction(LURKER_SUBMERGE_PHASE, 2 * MINUTE * IN_MILLISECONDS);
-                ResetCombatAction(LURKER_SPOUT, 2000);
-                ResetCombatAction(LURKER_GEYSER, 50000);
-                ResetCombatAction(LURKER_WATERBOLT, 2000);
-                SetCombatScriptStatus(false);
-                break;
-            }
+        case 0: {
+            m_creature->RemoveAurasDueToSpell(SPELL_SUBMERGE);
+            m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+            timer = 2000;
+            break;
+        }
+        case 1: {
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            timer = 1000;
+            break;
+        }
+        case 2: {
+            ResetCombatAction(LURKER_WHIRL, 0);
+            ResetCombatAction(LURKER_SUBMERGE_PHASE, 2 * MINUTE * IN_MILLISECONDS);
+            ResetCombatAction(LURKER_SPOUT, 2000);
+            ResetCombatAction(LURKER_GEYSER, 50000);
+            ResetCombatAction(LURKER_WATERBOLT, 2000);
+            SetCombatScriptStatus(false);
+            break;
+        }
         }
         ++m_submergePhases;
         if (timer)
@@ -227,89 +233,92 @@ struct boss_the_lurker_belowAI : public CombatAI
     {
         switch (action)
         {
-            case LURKER_SUBMERGE_PHASE:
+        case LURKER_SUBMERGE_PHASE: {
+            m_creature->CastSpell(nullptr, SPELL_CLEAR_ALL_DEBUFFS, TRIGGERED_NONE);
+            if (DoCastSpellIfCan(nullptr, SPELL_SUBMERGE) == CAST_OK)
             {
-                m_creature->CastSpell(nullptr, SPELL_CLEAR_ALL_DEBUFFS, TRIGGERED_NONE);
-                if (DoCastSpellIfCan(nullptr, SPELL_SUBMERGE) == CAST_OK)
-                {
-                    DoSummonCoilfangNaga();
-                    SetCombatScriptStatus(true);
-                    m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE); // UNIT_STAND_STATE_CUSTOM
-                    m_creature->SetStandState(UNIT_STAND_STATE_CUSTOM); // TODO investigate Submerge visual spell to see if it shouldnt do this instead in aura
-                    m_submergePhases = 0;
-                    ResetTimer(LURKER_SUBMERGE_ACTIONS, MINUTE * IN_MILLISECONDS);
-                    DisableCombatAction(LURKER_WHIRL);
-                    DisableCombatAction(LURKER_SUBMERGE_PHASE);
-                    DisableCombatAction(LURKER_SPOUT);
-                    DisableCombatAction(LURKER_GEYSER);
-                    DisableCombatAction(LURKER_WATERBOLT);
-                    break;
-                }
+                DoSummonCoilfangNaga();
+                SetCombatScriptStatus(true);
+                m_creature->SetFlag(UNIT_FIELD_FLAGS,
+                                    UNIT_FLAG_NOT_SELECTABLE);      // UNIT_STAND_STATE_CUSTOM
+                m_creature->SetStandState(UNIT_STAND_STATE_CUSTOM); // TODO investigate Submerge visual
+                                                                    // spell to see if it shouldnt do
+                                                                    // this instead in aura
+                m_submergePhases = 0;
+                ResetTimer(LURKER_SUBMERGE_ACTIONS, MINUTE * IN_MILLISECONDS);
+                DisableCombatAction(LURKER_WHIRL);
+                DisableCombatAction(LURKER_SUBMERGE_PHASE);
+                DisableCombatAction(LURKER_SPOUT);
+                DisableCombatAction(LURKER_GEYSER);
+                DisableCombatAction(LURKER_WATERBOLT);
                 break;
             }
-            case LURKER_SPOUT:
+            break;
+        }
+        case LURKER_SPOUT: {
+            if (DoCastSpellIfCan(nullptr, SPELL_SPOUT) == CAST_OK)
             {
-                if (DoCastSpellIfCan(nullptr, SPELL_SPOUT) == CAST_OK)
-                {
-                    DoScriptText(EMOTE_DEEP_BREATH, m_creature);
+                DoScriptText(EMOTE_DEEP_BREATH, m_creature);
 
-                    // Remove the target focus but allow the boss to face the current victim
-                    SetCombatScriptStatus(true);
-                    m_meleeEnabled = false;
-                    m_creature->MeleeAttackStop(m_creature->GetVictim());
-                    m_creature->SetTarget(nullptr);
+                // Remove the target focus but allow the boss to face the current
+                // victim
+                SetCombatScriptStatus(true);
+                m_meleeEnabled = false;
+                m_creature->MeleeAttackStop(m_creature->GetVictim());
+                m_creature->SetTarget(nullptr);
 
-                    ResetTimer(LURKER_SPOUT_END, 16000);
-                    ResetCombatAction(action, 45000);
-                }
-                break;
+                ResetTimer(LURKER_SPOUT_END, 16000);
+                ResetCombatAction(action, 45000);
             }
-            case LURKER_WHIRL:
+            break;
+        }
+        case LURKER_WHIRL: {
+            if (DoCastSpellIfCan(nullptr, SPELL_WHIRL) == CAST_OK)
+                ResetCombatAction(action, 18000);
+            break;
+        }
+        case LURKER_GEYSER: {
+            if (Unit *target =
+                    m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_GEYSER, SELECT_FLAG_PLAYER))
+                if (DoCastSpellIfCan(target, SPELL_GEYSER) == CAST_OK)
+                    ResetCombatAction(action, urand(50000, 60000));
+            break;
+        }
+        case LURKER_WATERBOLT: {
+            uint32 timer = 500;
+            // If victim exists we have a target in melee range
+            if (m_creature->GetVictim() && m_creature->CanReachWithMeleeAttack(m_creature->GetVictim()))
+                m_rangeCheckState = -1;
+            // Spam Waterbolt spell when not tanked
+            else
             {
-                if (DoCastSpellIfCan(nullptr, SPELL_WHIRL) == CAST_OK)
-                    ResetCombatAction(action, 18000);
-                break;
+                ++m_rangeCheckState;
+                if (m_rangeCheckState > 1)
+                    if (Unit *target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_WATERBOLT,
+                                                                         SELECT_FLAG_PLAYER))
+                        if (DoCastSpellIfCan(target, SPELL_WATERBOLT) == CAST_OK)
+                            timer = 2500;
             }
-            case LURKER_GEYSER:
-            {
-                if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_GEYSER, SELECT_FLAG_PLAYER))
-                    if (DoCastSpellIfCan(target, SPELL_GEYSER) == CAST_OK)
-                        ResetCombatAction(action, urand(50000, 60000));
-                break;
-            }
-            case LURKER_WATERBOLT:
-            {
-                uint32 timer = 500;
-                // If victim exists we have a target in melee range
-                if (m_creature->GetVictim() && m_creature->CanReachWithMeleeAttack(m_creature->GetVictim()))
-                    m_rangeCheckState = -1;
-                // Spam Waterbolt spell when not tanked
-                else
-                {
-                    ++m_rangeCheckState;
-                    if (m_rangeCheckState > 1)
-                        if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_WATERBOLT, SELECT_FLAG_PLAYER))
-                            if (DoCastSpellIfCan(target, SPELL_WATERBOLT) == CAST_OK)
-                                timer = 2500;
-                }
-                ResetCombatAction(action, timer);
-                break;
-            }
+            ResetCombatAction(action, timer);
+            break;
+        }
         }
     }
 };
 
 // Cast the spell that should summon the Lurker-Below
-bool GOUse_go_strange_pool(Player* /*player*/, GameObject* go)
+bool GOUse_go_strange_pool(Player * /*player*/, GameObject *go)
 {
-    // There is some chance to fish The Lurker Below, sources are from 20s to 10minutes, average 5min => 20 tries, hence 5%
+    // There is some chance to fish The Lurker Below, sources are from 20s to
+    // 10minutes, average 5min => 20 tries, hence 5%
     if (urand(0, 99) < 10)
     {
-        if (ScriptedInstance* pInstance = (ScriptedInstance*)go->GetInstanceData())
+        if (ScriptedInstance *pInstance = (ScriptedInstance *)go->GetInstanceData())
         {
-            if (pInstance->GetData(TYPE_THELURKER_EVENT) == NOT_STARTED || pInstance->GetData(TYPE_THELURKER_EVENT) == FAIL)
+            if (pInstance->GetData(TYPE_THELURKER_EVENT) == NOT_STARTED ||
+                pInstance->GetData(TYPE_THELURKER_EVENT) == FAIL)
             {
-                pInstance->SetData(TYPE_THELURKER_EVENT, IN_PROGRESS);          
+                pInstance->SetData(TYPE_THELURKER_EVENT, IN_PROGRESS);
                 go->SetRespawnTime(7 * DAY); // dont respawn until reset
                 return true;
             }
@@ -320,21 +329,22 @@ bool GOUse_go_strange_pool(Player* /*player*/, GameObject* go)
 
 struct Spout : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex /*effIdx*/) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex /*effIdx*/) const override
     {
         if (!spell->GetUnitTarget())
             return;
 
-        spell->GetUnitTarget()->CastSpell(nullptr, urand(0, 1) ? SPELL_SPOUT_LEFT : SPELL_SPOUT_RIGHT, TRIGGERED_OLD_TRIGGERED);
+        spell->GetUnitTarget()->CastSpell(nullptr, urand(0, 1) ? SPELL_SPOUT_LEFT : SPELL_SPOUT_RIGHT,
+                                          TRIGGERED_OLD_TRIGGERED);
         return;
     }
 };
 
 struct SpoutTurning : public AuraScript
 {
-    void OnPeriodicTrigger(Aura* aura, PeriodicTriggerData& data) const override
+    void OnPeriodicTrigger(Aura *aura, PeriodicTriggerData &data) const override
     {
-        Unit* target = aura->GetTarget();
+        Unit *target = aura->GetTarget();
         float newAngle = target->GetOrientation();
 
         if (aura->GetId() == 37429)
@@ -355,7 +365,7 @@ struct SpoutTurning : public AuraScript
 
 void AddSC_boss_the_lurker_below()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_the_lurker_below";
     pNewScript->GetAI = &GetNewAIInstance<boss_the_lurker_belowAI>;
     pNewScript->RegisterSelf();

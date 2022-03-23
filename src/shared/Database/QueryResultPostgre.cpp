@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +21,9 @@
 
 #include "DatabaseEnv.h"
 
-QueryResultPostgre::QueryResultPostgre(PGresult* result, uint64 rowCount, uint32 fieldCount) :
-    QueryResult(rowCount, fieldCount), mResult(result),  mTableIndex(0)
+QueryResultPostgre::QueryResultPostgre(PGresult *result, uint64 rowCount, uint32 fieldCount)
+    : QueryResult(rowCount, fieldCount), mResult(result), mTableIndex(0)
 {
-
     mCurrentRow = new Field[mFieldCount];
     MANGOS_ASSERT(mCurrentRow);
 
@@ -47,7 +47,7 @@ bool QueryResultPostgre::NextRow()
         return false;
     }
 
-    char* pPQgetvalue;
+    char *pPQgetvalue;
     for (int j = 0; j < mFieldCount; ++j)
     {
         pPQgetvalue = PQgetvalue(mResult, mTableIndex, j);
@@ -74,59 +74,59 @@ void QueryResultPostgre::EndQuery()
 }
 
 // see types in #include <postgre/pg_type.h>
-enum Field::DataTypes QueryResultPostgre::ConvertNativeType(Oid  pOid) const
+enum Field::DataTypes QueryResultPostgre::ConvertNativeType(Oid pOid) const
 {
     switch (pOid)
     {
-        case BPCHAROID:
-        case CIDOID:
-        case CIDROID:
-        case CIRCLEOID:
-        case INETOID:
-        case NAMEOID:
-        case TEXTOID:
-        case VARCHAROID:
-            return Field::DB_TYPE_STRING;
-        case CASHOID:
-        case FLOAT4OID:
-        case FLOAT8OID:
-        case NUMERICOID:
-            return Field::DB_TYPE_FLOAT;
-        case DATEOID:                                       // Date
-        case RELTIMEOID:                                    // Date
-        case TIMEOID:                                       // Time
-        case TIMETZOID:                                     // Time
-        case ABSTIMEOID:                                    // DateTime
-        case INTERVALOID:                                   // DateTime
-        case TIMESTAMPOID:                                  // DateTime
-        case TIMESTAMPTZOID:                                // DateTime
-        case INT2OID:                                       // Int
-        case INT2VECTOROID:                                 // Int
-        case INT4OID:                                       // Int
-        case OIDOID:                                        // Int
-        case CHAROID:                                       // UInt
-        case INT8OID:                                       // LongLong
-            return Field::DB_TYPE_INTEGER;
-        case BOOLOID:
-            return Field::DB_TYPE_BOOL;                     // Bool
-        /*
-                case BOXOID:    Rect;
-                case LINEOID:   Rect;
-                case VARBITOID: BitArray;
-                case BYTEAOID:  ByteArray;
-        */
-        case LSEGOID:
-        case OIDVECTOROID:
-        case PATHOID:
-        case POINTOID:
-        case POLYGONOID:
-        case REGPROCOID:
-        case TIDOID:
-        case TINTERVALOID:
-        case UNKNOWNOID:
-        case XIDOID:
-        default:
-            return Field::DB_TYPE_UNKNOWN;
+    case BPCHAROID:
+    case CIDOID:
+    case CIDROID:
+    case CIRCLEOID:
+    case INETOID:
+    case NAMEOID:
+    case TEXTOID:
+    case VARCHAROID:
+        return Field::DB_TYPE_STRING;
+    case CASHOID:
+    case FLOAT4OID:
+    case FLOAT8OID:
+    case NUMERICOID:
+        return Field::DB_TYPE_FLOAT;
+    case DATEOID:        // Date
+    case RELTIMEOID:     // Date
+    case TIMEOID:        // Time
+    case TIMETZOID:      // Time
+    case ABSTIMEOID:     // DateTime
+    case INTERVALOID:    // DateTime
+    case TIMESTAMPOID:   // DateTime
+    case TIMESTAMPTZOID: // DateTime
+    case INT2OID:        // Int
+    case INT2VECTOROID:  // Int
+    case INT4OID:        // Int
+    case OIDOID:         // Int
+    case CHAROID:        // UInt
+    case INT8OID:        // LongLong
+        return Field::DB_TYPE_INTEGER;
+    case BOOLOID:
+        return Field::DB_TYPE_BOOL; // Bool
+    /*
+            case BOXOID:    Rect;
+            case LINEOID:   Rect;
+            case VARBITOID: BitArray;
+            case BYTEAOID:  ByteArray;
+    */
+    case LSEGOID:
+    case OIDVECTOROID:
+    case PATHOID:
+    case POINTOID:
+    case POLYGONOID:
+    case REGPROCOID:
+    case TIDOID:
+    case TINTERVALOID:
+    case UNKNOWNOID:
+    case XIDOID:
+    default:
+        return Field::DB_TYPE_UNKNOWN;
     }
     return Field::DB_TYPE_UNKNOWN;
 }

@@ -30,6 +30,6 @@
 
 #include <stdint.h>
 
-int base32_decode(char const* encoded, char* result, int bufSize);
+int base32_decode(char const *encoded, char *result, int bufSize);
 
 #endif /* _BASE32_H_ */

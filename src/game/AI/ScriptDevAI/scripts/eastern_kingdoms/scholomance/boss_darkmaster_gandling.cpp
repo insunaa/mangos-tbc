@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -26,21 +26,21 @@ EndScriptData */
 
 enum
 {
-    SPELL_ARCANE_MISSILES          = 15790,
-    SPELL_SHADOW_SHIELD            = 12040,
-    SPELL_CURSE_SD                 = 18702,
-    SPELL_SHADOW_PORTAL            = 17950
+    SPELL_ARCANE_MISSILES = 15790,
+    SPELL_SHADOW_SHIELD = 12040,
+    SPELL_CURSE_SD = 18702,
+    SPELL_SHADOW_PORTAL = 17950
 };
 
 struct boss_darkmaster_gandlingAI : public ScriptedAI
 {
-    boss_darkmaster_gandlingAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_darkmaster_gandlingAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (ScriptedInstance *)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    ScriptedInstance *m_pInstance;
 
     uint32 m_uiArcaneMissilesTimer;
     uint32 m_uiShadowShieldTimer;
@@ -87,13 +87,15 @@ struct boss_darkmaster_gandlingAI : public ScriptedAI
         else
             m_uiCurseTimer -= uiDiff;
 
-        // Teleporting Random Target to one of the six pre boss rooms and spawn 3-4 skeletons near the gamer.
-        // We will only telport if gandling has more than 3% of hp so teleported gamers can always loot.
+        // Teleporting Random Target to one of the six pre boss rooms and spawn 3-4
+        // skeletons near the gamer. We will only telport if gandling has more than
+        // 3% of hp so teleported gamers can always loot.
         if (m_creature->GetHealthPercent() > 3.0f)
         {
             if (m_uiTeleportTimer < uiDiff)
             {
-                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_SHADOW_PORTAL, SELECT_FLAG_PLAYER))
+                if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_SHADOW_PORTAL,
+                                                                      SELECT_FLAG_PLAYER))
                 {
                     if (DoCastSpellIfCan(pTarget, SPELL_SHADOW_PORTAL) == CAST_OK)
                     {
@@ -113,14 +115,14 @@ struct boss_darkmaster_gandlingAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_darkmaster_gandling(Creature* pCreature)
+UnitAI *GetAI_boss_darkmaster_gandling(Creature *pCreature)
 {
     return new boss_darkmaster_gandlingAI(pCreature);
 }
 
 void AddSC_boss_darkmaster_gandling()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_darkmaster_gandling";
     pNewScript->GetAI = &GetAI_boss_darkmaster_gandling;
     pNewScript->RegisterSelf();

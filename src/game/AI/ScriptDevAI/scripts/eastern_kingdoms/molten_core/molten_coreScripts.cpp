@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -31,9 +31,9 @@ EndContentData */
 ## go_molten_core_rune
 ######*/
 
-bool GOUse_go_molten_core_rune(Player* /*pPlayer*/, GameObject* pGo)
+bool GOUse_go_molten_core_rune(Player * /*pPlayer*/, GameObject *pGo)
 {
-    ScriptedInstance* pInstance = (ScriptedInstance*)pGo->GetInstanceData();
+    ScriptedInstance *pInstance = (ScriptedInstance *)pGo->GetInstanceData();
 
     if (!pInstance)
         return true;
@@ -56,7 +56,7 @@ bool GOUse_go_molten_core_rune(Player* /*pPlayer*/, GameObject* pGo)
 
 void AddSC_molten_core()
 {
-    Script* pNewScript;
+    Script *pNewScript;
 
     pNewScript = new Script;
     pNewScript->Name = "go_molten_core_rune";

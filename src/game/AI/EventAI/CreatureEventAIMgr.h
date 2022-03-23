@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,23 +25,32 @@
 
 class CreatureEventAIMgr
 {
-    public:
-        CreatureEventAIMgr() {};
-        ~CreatureEventAIMgr() {};
+  public:
+    CreatureEventAIMgr(){};
+    ~CreatureEventAIMgr(){};
 
-        void LoadCreatureEventAI_Summons(bool check_entry_use);
-        void LoadCreatureEventAI_Scripts();
+    void LoadCreatureEventAI_Summons(bool check_entry_use);
+    void LoadCreatureEventAI_Scripts();
 
-        CreatureEventAI_Event_Map  const& GetCreatureEventAIMap()       const { return m_CreatureEventAI_Event_Map; }
-        CreatureEventAI_Summon_Map const& GetCreatureEventAISummonMap() const { return m_CreatureEventAI_Summon_Map; }
-        CreatureEventAI_EventComputedData_Map const& GetEAIComputedDataMap() const { return m_creatureEventAI_ComputedDataMap; }
+    CreatureEventAI_Event_Map const &GetCreatureEventAIMap() const
+    {
+        return m_CreatureEventAI_Event_Map;
+    }
+    CreatureEventAI_Summon_Map const &GetCreatureEventAISummonMap() const
+    {
+        return m_CreatureEventAI_Summon_Map;
+    }
+    CreatureEventAI_EventComputedData_Map const &GetEAIComputedDataMap() const
+    {
+        return m_creatureEventAI_ComputedDataMap;
+    }
 
-    private:
-        void CheckUnusedAISummons();
+  private:
+    void CheckUnusedAISummons();
 
-        CreatureEventAI_Event_Map  m_CreatureEventAI_Event_Map;
-        CreatureEventAI_Summon_Map m_CreatureEventAI_Summon_Map;
-        CreatureEventAI_EventComputedData_Map m_creatureEventAI_ComputedDataMap;
+    CreatureEventAI_Event_Map m_CreatureEventAI_Event_Map;
+    CreatureEventAI_Summon_Map m_CreatureEventAI_Summon_Map;
+    CreatureEventAI_EventComputedData_Map m_creatureEventAI_ComputedDataMap;
 };
 
 #define sEventAIMgr MaNGOS::Singleton<CreatureEventAIMgr>::Instance()

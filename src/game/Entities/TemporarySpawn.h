@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,44 +25,60 @@
 
 class TemporarySpawn : public Creature
 {
-    public:
-        explicit TemporarySpawn(ObjectGuid summoner = ObjectGuid());
-        virtual ~TemporarySpawn() {};
+  public:
+    explicit TemporarySpawn(ObjectGuid summoner = ObjectGuid());
+    virtual ~TemporarySpawn(){};
 
-        void Update(const uint32 diff) override;
-        void SetSummonProperties(TempSpawnType type, uint32 lifetime);
-        void Summon(TempSpawnType type, uint32 lifetime);
-        void UnSummon();
-        void SaveToDB();
-        ObjectGuid const GetSpawnerGuid() const override { return m_spawner ; }
-        void SetLinkedToOwnerAura(uint32 flags) { m_linkedToOwnerAura |= flags; };
+    void Update(const uint32 diff) override;
+    void SetSummonProperties(TempSpawnType type, uint32 lifetime);
+    void Summon(TempSpawnType type, uint32 lifetime);
+    void UnSummon();
+    void SaveToDB();
+    ObjectGuid const GetSpawnerGuid() const override
+    {
+        return m_spawner;
+    }
+    void SetLinkedToOwnerAura(uint32 flags)
+    {
+        m_linkedToOwnerAura |= flags;
+    };
 
-        void SetDeathState(DeathState state) override;
-    private:
-        bool IsExpired() const;
+    void SetDeathState(DeathState state) override;
 
-        bool CheckAuraOnOwner();
-        void RemoveAuraFromOwner();
-        TempSpawnType m_type;
-        TimePoint m_expirationTimestamp;
-        uint32 m_lifetime;
-        ObjectGuid m_spawner;
-        uint32 m_linkedToOwnerAura;
+  private:
+    bool IsExpired() const;
+
+    bool CheckAuraOnOwner();
+    void RemoveAuraFromOwner();
+    TempSpawnType m_type;
+    TimePoint m_expirationTimestamp;
+    uint32 m_lifetime;
+    ObjectGuid m_spawner;
+    uint32 m_linkedToOwnerAura;
 };
 
 class TemporarySpawnWaypoint : public TemporarySpawn
 {
-    public:
-        explicit TemporarySpawnWaypoint(ObjectGuid summoner, uint32 waypoint_id, int32 path_id, uint32 pathOrigin);
+  public:
+    explicit TemporarySpawnWaypoint(ObjectGuid summoner, uint32 waypoint_id, int32 path_id, uint32 pathOrigin);
 
-        uint32 GetWaypointId() const { return m_waypoint_id; }
-        int32 GetPathId() const { return m_path_id; }
-        uint32 GetPathOrigin() const { return m_pathOrigin; }
+    uint32 GetWaypointId() const
+    {
+        return m_waypoint_id;
+    }
+    int32 GetPathId() const
+    {
+        return m_path_id;
+    }
+    uint32 GetPathOrigin() const
+    {
+        return m_pathOrigin;
+    }
 
-    private:
-        uint32 m_waypoint_id;
-        int32 m_path_id;
-        uint32 m_pathOrigin;
+  private:
+    uint32 m_waypoint_id;
+    int32 m_path_id;
+    uint32 m_pathOrigin;
 };
 
 #endif

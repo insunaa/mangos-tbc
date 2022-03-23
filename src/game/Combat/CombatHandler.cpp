@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +18,13 @@
  */
 
 #include "Common.h"
-#include "Log.h"
-#include "WorldPacket.h"
-#include "Server/WorldSession.h"
 #include "Entities/ObjectGuid.h"
 #include "Entities/Player.h"
+#include "Log.h"
+#include "Server/WorldSession.h"
+#include "WorldPacket.h"
 
-void WorldSession::HandleAttackSwingOpcode(WorldPacket& recv_data)
+void WorldSession::HandleAttackSwingOpcode(WorldPacket &recv_data)
 {
     ObjectGuid guid;
     recv_data >> guid;
@@ -36,7 +37,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recv_data)
         return;
     }
 
-    Unit* enemy = _player->GetMap()->GetUnit(guid);
+    Unit *enemy = _player->GetMap()->GetUnit(guid);
 
     if (!enemy)
     {
@@ -44,7 +45,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recv_data)
         return;
     }
 
-    Unit* mover = _player->GetMover();
+    Unit *mover = _player->GetMover();
 
     if (!mover->CanAttackNow(enemy))
     {
@@ -56,17 +57,18 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recv_data)
     mover->Attack(enemy, true);
 }
 
-void WorldSession::HandleAttackStopOpcode(WorldPacket& /*recv_data*/)
+void WorldSession::HandleAttackStopOpcode(WorldPacket & /*recv_data*/)
 {
     GetPlayer()->AttackStop(false, false, false, true);
 }
 
-void WorldSession::HandleSetSheathedOpcode(WorldPacket& recv_data)
+void WorldSession::HandleSetSheathedOpcode(WorldPacket &recv_data)
 {
     uint32 sheathed;
     recv_data >> sheathed;
 
-    DEBUG_LOG("WORLD: Received opcode CMSG_SETSHEATHED for %s - value: %u", GetPlayer()->GetGuidStr().c_str(), sheathed);
+    DEBUG_LOG("WORLD: Received opcode CMSG_SETSHEATHED for %s - value: %u", GetPlayer()->GetGuidStr().c_str(),
+              sheathed);
 
     if (sheathed >= MAX_SHEATH_STATE)
     {
@@ -77,11 +79,11 @@ void WorldSession::HandleSetSheathedOpcode(WorldPacket& recv_data)
     GetPlayer()->SetSheath(SheathState(sheathed));
 }
 
-void WorldSession::SendAttackStop(Unit const* enemy) const
+void WorldSession::SendAttackStop(Unit const *enemy) const
 {
-    WorldPacket data(SMSG_ATTACKSTOP, (4 + 20));            // we guess size
+    WorldPacket data(SMSG_ATTACKSTOP, (4 + 20)); // we guess size
     data << GetPlayer()->GetPackGUID();
-    data << (enemy ? enemy->GetPackGUID() : PackedGuid());  // must be packed guid
-    data << uint32(0);                                      // unk, can be 1 also
+    data << (enemy ? enemy->GetPackGUID() : PackedGuid()); // must be packed guid
+    data << uint32(0);                                     // unk, can be 1 also
     SendPacket(data);
 }

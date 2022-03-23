@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,24 +18,22 @@
  */
 
 #include "OutdoorPvPSI.h"
-#include "WorldPacket.h"
-#include "World/World.h"
-#include "Globals/ObjectMgr.h"
-#include "Entities/Object.h"
+
 #include "Entities/Creature.h"
 #include "Entities/GameObject.h"
+#include "Entities/Object.h"
 #include "Entities/Player.h"
+#include "Globals/ObjectMgr.h"
 #include "Tools/Language.h"
+#include "World/World.h"
+#include "WorldPacket.h"
 
-OutdoorPvPSI::OutdoorPvPSI() : OutdoorPvP(),
-    m_resourcesAlliance(0),
-    m_resourcesHorde(0),
-    m_zoneOwner(TEAM_NONE)
+OutdoorPvPSI::OutdoorPvPSI() : OutdoorPvP(), m_resourcesAlliance(0), m_resourcesHorde(0), m_zoneOwner(TEAM_NONE)
 {
 }
 
 // Send initial world states
-void OutdoorPvPSI::FillInitialWorldStates(WorldPacket& data, uint32& count)
+void OutdoorPvPSI::FillInitialWorldStates(WorldPacket &data, uint32 &count)
 {
     FillInitialWorldState(data, count, WORLD_STATE_SI_GATHERED_A, m_resourcesAlliance);
     FillInitialWorldState(data, count, WORLD_STATE_SI_GATHERED_H, m_resourcesHorde);
@@ -42,11 +41,12 @@ void OutdoorPvPSI::FillInitialWorldStates(WorldPacket& data, uint32& count)
 }
 
 // Handle buffs when player enters the zone
-void OutdoorPvPSI::HandlePlayerEnterZone(Player* player, bool isMainZone)
+void OutdoorPvPSI::HandlePlayerEnterZone(Player *player, bool isMainZone)
 {
     OutdoorPvP::HandlePlayerEnterZone(player, isMainZone);
 
-    // remove the buff from the player first; Sometimes on relog players still have the aura
+    // remove the buff from the player first; Sometimes on relog players still
+    // have the aura
     player->RemoveAurasDueToSpell(SPELL_CENARION_FAVOR);
 
     // buff the player if same team is controlling the zone
@@ -55,7 +55,7 @@ void OutdoorPvPSI::HandlePlayerEnterZone(Player* player, bool isMainZone)
 }
 
 // Remove buffs when player leaves zone
-void OutdoorPvPSI::HandlePlayerLeaveZone(Player* player, bool isMainZone)
+void OutdoorPvPSI::HandlePlayerLeaveZone(Player *player, bool isMainZone)
 {
     // remove the buff from the player
     player->RemoveAurasDueToSpell(SPELL_CENARION_FAVOR);
@@ -64,75 +64,77 @@ void OutdoorPvPSI::HandlePlayerLeaveZone(Player* player, bool isMainZone)
 }
 
 // Handle case when player returns a silithyst
-bool OutdoorPvPSI::HandleAreaTrigger(Player* player, uint32 triggerId)
+bool OutdoorPvPSI::HandleAreaTrigger(Player *player, uint32 triggerId)
 {
     if (player->IsGameMaster() || player->IsDead())
         return false;
 
     switch (triggerId)
     {
-        case AREATRIGGER_SILITHUS_ALLIANCE:
-            if (player->GetTeam() != ALLIANCE || !player->HasAura(SPELL_SILITHYST))
-                return false;
+    case AREATRIGGER_SILITHUS_ALLIANCE:
+        if (player->GetTeam() != ALLIANCE || !player->HasAura(SPELL_SILITHYST))
+            return false;
 
-            // update counter
-            ++ m_resourcesAlliance;
-            SendUpdateWorldState(WORLD_STATE_SI_GATHERED_A, m_resourcesAlliance);
+        // update counter
+        ++m_resourcesAlliance;
+        SendUpdateWorldState(WORLD_STATE_SI_GATHERED_A, m_resourcesAlliance);
 
-            // handle the case when the faction has reached maximum resources allowed
-            if (m_resourcesAlliance == MAX_SILITHYST)
-            {
-                // NOTE: On retail it would not reset until server restart but we do not support weekly restart :)
-                m_zoneOwner = ALLIANCE;
-                m_resourcesAlliance = 0;
-                m_resourcesHorde = 0;
+        // handle the case when the faction has reached maximum resources allowed
+        if (m_resourcesAlliance == MAX_SILITHYST)
+        {
+            // NOTE: On retail it would not reset until server restart but we do
+            // not support weekly restart :)
+            m_zoneOwner = ALLIANCE;
+            m_resourcesAlliance = 0;
+            m_resourcesHorde = 0;
 
-                // also update the horde counter if resources were reset
-                SendUpdateWorldState(WORLD_STATE_SI_GATHERED_H, m_resourcesHorde);
-
-                // apply buff to owner team
-                BuffTeam(ALLIANCE, SPELL_CENARION_FAVOR);
-
-                // Send defense message
-                sWorld.SendDefenseMessage(ZONE_ID_SILITHUS, LANG_OPVP_SI_CAPTURE_A);
-            }
-
-            // give quest credit if necessary
-            if (player->GetQuestStatus(QUEST_SCOURING_DESERT_ALLIANCE) == QUEST_STATUS_INCOMPLETE)
-                player->KilledMonsterCredit(NPC_SILITHUS_DUST_QUEST_ALLIANCE);
-            break;
-        case AREATRIGGER_SILITHUS_HORDE:
-            if (player->GetTeam() != HORDE || !player->HasAura(SPELL_SILITHYST))
-                return false;
-
-            // update counter
-            ++ m_resourcesHorde;
+            // also update the horde counter if resources were reset
             SendUpdateWorldState(WORLD_STATE_SI_GATHERED_H, m_resourcesHorde);
 
-            // handle the case when the faction has reached maximum resources allowed
-            if (m_resourcesHorde == MAX_SILITHYST)
-            {
-                // NOTE: On retail it would not reset until server restart but we do not support weekly restart :)
-                m_zoneOwner = HORDE;
-                m_resourcesAlliance = 0;
-                m_resourcesHorde = 0;
+            // apply buff to owner team
+            BuffTeam(ALLIANCE, SPELL_CENARION_FAVOR);
 
-                // also update the alliance counter if resources were reset
-                SendUpdateWorldState(WORLD_STATE_SI_GATHERED_A, m_resourcesAlliance);
+            // Send defense message
+            sWorld.SendDefenseMessage(ZONE_ID_SILITHUS, LANG_OPVP_SI_CAPTURE_A);
+        }
 
-                // apply buff to owner team
-                BuffTeam(HORDE, SPELL_CENARION_FAVOR);
-
-                // Send defense message
-                sWorld.SendDefenseMessage(ZONE_ID_SILITHUS, LANG_OPVP_SI_CAPTURE_H);
-            }
-
-            // give quest credit if necessary
-            if (player->GetQuestStatus(QUEST_SCOURING_DESERT_HORDE) == QUEST_STATUS_INCOMPLETE)
-                player->KilledMonsterCredit(NPC_SILITHUS_DUST_QUEST_HORDE);
-            break;
-        default:
+        // give quest credit if necessary
+        if (player->GetQuestStatus(QUEST_SCOURING_DESERT_ALLIANCE) == QUEST_STATUS_INCOMPLETE)
+            player->KilledMonsterCredit(NPC_SILITHUS_DUST_QUEST_ALLIANCE);
+        break;
+    case AREATRIGGER_SILITHUS_HORDE:
+        if (player->GetTeam() != HORDE || !player->HasAura(SPELL_SILITHYST))
             return false;
+
+        // update counter
+        ++m_resourcesHorde;
+        SendUpdateWorldState(WORLD_STATE_SI_GATHERED_H, m_resourcesHorde);
+
+        // handle the case when the faction has reached maximum resources allowed
+        if (m_resourcesHorde == MAX_SILITHYST)
+        {
+            // NOTE: On retail it would not reset until server restart but we do
+            // not support weekly restart :)
+            m_zoneOwner = HORDE;
+            m_resourcesAlliance = 0;
+            m_resourcesHorde = 0;
+
+            // also update the alliance counter if resources were reset
+            SendUpdateWorldState(WORLD_STATE_SI_GATHERED_A, m_resourcesAlliance);
+
+            // apply buff to owner team
+            BuffTeam(HORDE, SPELL_CENARION_FAVOR);
+
+            // Send defense message
+            sWorld.SendDefenseMessage(ZONE_ID_SILITHUS, LANG_OPVP_SI_CAPTURE_H);
+        }
+
+        // give quest credit if necessary
+        if (player->GetQuestStatus(QUEST_SCOURING_DESERT_HORDE) == QUEST_STATUS_INCOMPLETE)
+            player->KilledMonsterCredit(NPC_SILITHUS_DUST_QUEST_HORDE);
+        break;
+    default:
+        return false;
     }
 
     // remove silithyst aura
@@ -141,7 +143,8 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player* player, uint32 triggerId)
     // reward the player
     player->CastSpell(player, SPELL_TRACES_OF_SILITHYST, TRIGGERED_OLD_TRIGGERED);
     player->RewardHonor(nullptr, 1, HONOR_REWARD_SILITHYST);
-    player->GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry<FactionEntry>(FACTION_CENARION_CIRCLE), REPUTATION_REWARD_SILITHYST);
+    player->GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry<FactionEntry>(FACTION_CENARION_CIRCLE),
+                                                REPUTATION_REWARD_SILITHYST);
 
     return true;
 }
@@ -153,31 +156,33 @@ struct SilithusSpawnLocation
     float x, y, z;
 };
 // Area trigger location - workaround to check the flag drop handling
-static SilithusSpawnLocation silithusFlagDropLocations[2] =
-{
-    { -7142.04f, 1397.92f, 4.327f},     // alliance
-    { -7588.48f, 756.806f, -16.425f}    // horde
+static SilithusSpawnLocation silithusFlagDropLocations[2] = {
+    {-7142.04f, 1397.92f, 4.327f},  // alliance
+    {-7588.48f, 756.806f, -16.425f} // horde
 };
 
-bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
+bool OutdoorPvPSI::HandleDropFlag(Player *player, uint32 spellId)
 {
     if (spellId != SPELL_SILITHYST)
         return false;
 
     // don't drop flag at area trigger
-    // we are checking distance from the AT hard-coded coordinates because it's much faster than checking the area trigger store
+    // we are checking distance from the AT hard-coded coordinates because it's
+    // much faster than checking the area trigger store
     switch (player->GetTeam())
     {
-        case ALLIANCE:
-            if (player->IsWithinDist3d(silithusFlagDropLocations[0].x, silithusFlagDropLocations[0].y, silithusFlagDropLocations[0].z, 5.0f))
-                return false;
-            break;
-        case HORDE:
-            if (player->IsWithinDist3d(silithusFlagDropLocations[1].x, silithusFlagDropLocations[1].y, silithusFlagDropLocations[1].z, 5.0f))
-                return false;
-            break;
-        default:
-            break;
+    case ALLIANCE:
+        if (player->IsWithinDist3d(silithusFlagDropLocations[0].x, silithusFlagDropLocations[0].y,
+                                   silithusFlagDropLocations[0].z, 5.0f))
+            return false;
+        break;
+    case HORDE:
+        if (player->IsWithinDist3d(silithusFlagDropLocations[1].x, silithusFlagDropLocations[1].y,
+                                   silithusFlagDropLocations[1].z, 5.0f))
+            return false;
+        break;
+    default:
+        break;
     }
 
     // drop the flag in other case
@@ -187,7 +192,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
 
 // Handle the case when player picks a silithyst mound or geyser
 // This needs to be done because the spells used by these objects are missing
-bool OutdoorPvPSI::HandleGameObjectUse(Player* player, GameObject* go)
+bool OutdoorPvPSI::HandleGameObjectUse(Player *player, GameObject *go)
 {
     if (go->GetEntry() == GO_SILITHYST_MOUND || go->GetEntry() == GO_SILITHYST_GEYSER)
     {

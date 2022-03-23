@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,22 +27,23 @@ class ObjectGuid;
 
 class GuildMgr
 {
-        typedef std::unordered_map<uint32, Guild*> GuildMap;
+    typedef std::unordered_map<uint32, Guild *> GuildMap;
 
-        GuildMap m_GuildMap;
-    public:
-        GuildMgr();
-        ~GuildMgr();
+    GuildMap m_GuildMap;
 
-        void AddGuild(Guild* guild);
-        void RemoveGuild(uint32 guildId);
+  public:
+    GuildMgr();
+    ~GuildMgr();
 
-        Guild* GetGuildById(uint32 guildId) const;
-        Guild* GetGuildByName(std::string const& name) const;
-        Guild* GetGuildByLeader(ObjectGuid const& guid) const;
-        std::string GetGuildNameById(uint32 guildId) const;
+    void AddGuild(Guild *guild);
+    void RemoveGuild(uint32 guildId);
 
-        void LoadGuilds();
+    Guild *GetGuildById(uint32 guildId) const;
+    Guild *GetGuildByName(std::string const &name) const;
+    Guild *GetGuildByLeader(ObjectGuid const &guid) const;
+    std::string GetGuildNameById(uint32 guildId) const;
+
+    void LoadGuilds();
 };
 
 #define sGuildMgr MaNGOS::Singleton<GuildMgr>::Instance()

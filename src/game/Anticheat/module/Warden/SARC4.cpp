@@ -17,6 +17,7 @@
  */
 
 #include "SARC4.hpp"
+
 #include <openssl/sha.h>
 
 SARC4::SARC4(size_t len) : m_ctx(EVP_CIPHER_CTX_new())

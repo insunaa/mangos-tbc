@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -33,19 +33,22 @@ EndContentData */
 
 enum
 {
-    EMOTE_SEE_LUNCH         = -1000340,
-    EMOTE_EAT_LUNCH         = -1000341,
-    EMOTE_DANCE             = -1000342,
+    EMOTE_SEE_LUNCH = -1000340,
+    EMOTE_EAT_LUNCH = -1000341,
+    EMOTE_DANCE = -1000342,
 
-    SPELL_LUNCH             = 42222,
-    NPC_KYLE_FRENZIED       = 23616,
-    NPC_KYLE_FRIENDLY       = 23622,
-    POINT_ID                = 1
+    SPELL_LUNCH = 42222,
+    NPC_KYLE_FRENZIED = 23616,
+    NPC_KYLE_FRIENDLY = 23622,
+    POINT_ID = 1
 };
 
 struct npc_kyle_the_frenziedAI : public ScriptedAI
 {
-    npc_kyle_the_frenziedAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+    npc_kyle_the_frenziedAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     bool m_bEvent;
     bool m_bIsMovingToLunch;
@@ -65,7 +68,7 @@ struct npc_kyle_the_frenziedAI : public ScriptedAI
             m_creature->UpdateEntry(NPC_KYLE_FRENZIED);
     }
 
-    void SpellHit(Unit* pCaster, SpellEntry const* pSpell) override
+    void SpellHit(Unit *pCaster, SpellEntry const *pSpell) override
     {
         if (!m_creature->GetVictim() && !m_bEvent && pSpell->Id == SPELL_LUNCH)
         {
@@ -108,52 +111,52 @@ struct npc_kyle_the_frenziedAI : public ScriptedAI
 
                 switch (m_uiEventPhase)
                 {
-                    case 1:
-                        if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_playerGuid))
+                case 1:
+                    if (Player *pPlayer = m_creature->GetMap()->GetPlayer(m_playerGuid))
+                    {
+                        GameObject *pGo = pPlayer->GetGameObject(SPELL_LUNCH);
+
+                        // Workaround for broken function GetGameObject
+                        if (!pGo)
                         {
-                            GameObject* pGo = pPlayer->GetGameObject(SPELL_LUNCH);
+                            const SpellEntry *pSpell = GetSpellStore()->LookupEntry<SpellEntry>(SPELL_LUNCH);
 
-                            // Workaround for broken function GetGameObject
-                            if (!pGo)
-                            {
-                                const SpellEntry* pSpell = GetSpellStore()->LookupEntry<SpellEntry>(SPELL_LUNCH);
+                            uint32 uiGameobjectEntry = pSpell->EffectMiscValue[EFFECT_INDEX_1];
 
-                                uint32 uiGameobjectEntry = pSpell->EffectMiscValue[EFFECT_INDEX_1];
-
-                                pGo = GetClosestGameObjectWithEntry(pPlayer, uiGameobjectEntry, 2 * INTERACTION_DISTANCE);
-                            }
-
-                            if (pGo)
-                            {
-                                m_bIsMovingToLunch = true;
-
-                                float fX, fY, fZ;
-                                pGo->GetContactPoint(m_creature, fX, fY, fZ, CONTACT_DISTANCE);
-
-                                m_creature->GetMotionMaster()->MovePoint(POINT_ID, fX, fY, fZ);
-                            }
+                            pGo = GetClosestGameObjectWithEntry(pPlayer, uiGameobjectEntry, 2 * INTERACTION_DISTANCE);
                         }
-                        break;
-                    case 2:
-                        DoScriptText(EMOTE_EAT_LUNCH, m_creature);
-                        m_creature->HandleEmote(EMOTE_STATE_USESTANDING);
-                        break;
-                    case 3:
-                        if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_playerGuid))
-                            pPlayer->TalkedToCreature(m_creature->GetEntry(), m_creature->GetObjectGuid());
 
-                        m_creature->UpdateEntry(NPC_KYLE_FRIENDLY);
-                        break;
-                    case 4:
-                        m_uiEventTimer = 30000;
-                        DoScriptText(EMOTE_DANCE, m_creature);
-                        m_creature->HandleEmote(EMOTE_STATE_DANCESPECIAL);
-                        break;
-                    case 5:
-                        m_creature->HandleEmote(EMOTE_STATE_NONE);
-                        Reset();
-                        m_creature->GetMotionMaster()->Clear();
-                        break;
+                        if (pGo)
+                        {
+                            m_bIsMovingToLunch = true;
+
+                            float fX, fY, fZ;
+                            pGo->GetContactPoint(m_creature, fX, fY, fZ, CONTACT_DISTANCE);
+
+                            m_creature->GetMotionMaster()->MovePoint(POINT_ID, fX, fY, fZ);
+                        }
+                    }
+                    break;
+                case 2:
+                    DoScriptText(EMOTE_EAT_LUNCH, m_creature);
+                    m_creature->HandleEmote(EMOTE_STATE_USESTANDING);
+                    break;
+                case 3:
+                    if (Player *pPlayer = m_creature->GetMap()->GetPlayer(m_playerGuid))
+                        pPlayer->TalkedToCreature(m_creature->GetEntry(), m_creature->GetObjectGuid());
+
+                    m_creature->UpdateEntry(NPC_KYLE_FRIENDLY);
+                    break;
+                case 4:
+                    m_uiEventTimer = 30000;
+                    DoScriptText(EMOTE_DANCE, m_creature);
+                    m_creature->HandleEmote(EMOTE_STATE_DANCESPECIAL);
+                    break;
+                case 5:
+                    m_creature->HandleEmote(EMOTE_STATE_NONE);
+                    Reset();
+                    m_creature->GetMotionMaster()->Clear();
+                    break;
                 }
             }
             else
@@ -162,14 +165,14 @@ struct npc_kyle_the_frenziedAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_npc_kyle_the_frenzied(Creature* pCreature)
+UnitAI *GetAI_npc_kyle_the_frenzied(Creature *pCreature)
 {
     return new npc_kyle_the_frenziedAI(pCreature);
 }
 
 void AddSC_mulgore()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "npc_kyle_the_frenzied";
     pNewScript->GetAI = &GetAI_npc_kyle_the_frenzied;
     pNewScript->RegisterSelf();

@@ -1,5 +1,6 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,10 +19,10 @@
 #ifndef TRINITY_PACKETLOG_H
 #define TRINITY_PACKETLOG_H
 
-#include "Common.h"
-
 #include <boost/asio/ip/address.hpp>
 #include <mutex>
+
+#include "Common.h"
 
 enum Direction
 {
@@ -33,22 +34,25 @@ class WorldPacket;
 
 class PacketLog
 {
-    private:
-        PacketLog();
-        ~PacketLog();
-        std::mutex _logPacketLock;
-        std::once_flag _initializeFlag;
+  private:
+    PacketLog();
+    ~PacketLog();
+    std::mutex _logPacketLock;
+    std::once_flag _initializeFlag;
 
-    public:
-        static PacketLog* instance();
+  public:
+    static PacketLog *instance();
 
-        void Initialize();
-        void Reinitialize();
-        bool CanLogPacket() const { return (_file != nullptr); }
-        void LogPacket(WorldPacket const& packet, Direction direction, boost::asio::ip::address const& addr, uint16 port);
+    void Initialize();
+    void Reinitialize();
+    bool CanLogPacket() const
+    {
+        return (_file != nullptr);
+    }
+    void LogPacket(WorldPacket const &packet, Direction direction, boost::asio::ip::address const &addr, uint16 port);
 
-    private:
-        FILE* _file;
+  private:
+    FILE *_file;
 };
 
 #define sPacketLog PacketLog::instance()

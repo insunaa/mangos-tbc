@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,16 +18,18 @@
  */
 
 #include "Entities/Taxi.h"
+
+#include <sstream>
+
 #include "Entities/Player.h"
 #include "Globals/ObjectMgr.h"
 #include "World/World.h"
 
-#include <sstream>
-
 /////////////////////////////////////////////////
 /// @file       Taxi.cpp
 /// @date       May, 2018
-/// @brief      Helper containers implementations for updated player taxi system.
+/// @brief      Helper containers implementations for updated player taxi
+/// system.
 /////////////////////////////////////////////////
 
 using namespace Taxi;
@@ -35,9 +38,13 @@ std::string Tracker::Save()
 {
     // Writes in modified format.
 
-    // Original numbers format: "src dest dest dest "                   variable amount of destinations in the string, dangling destinations possible, trailing space @ the end)
-    // Updated  numbers format: "resumenode:src:dest:dest:dest"         strictly formatted, introduced in taxi system rewrite
-    // Modified numbers format: "resumenode#pathid#pathid#pathid"       strictly formatted, directly uses flights, introduced in an update for redesigned taxi system
+    // Original numbers format: "src dest dest dest "                   variable
+    // amount of destinations in the string, dangling destinations possible,
+    // trailing space @ the end) Updated  numbers format:
+    // "resumenode:src:dest:dest:dest"         strictly formatted, introduced in
+    // taxi system rewrite Modified numbers format:
+    // "resumenode#pathid#pathid#pathid"       strictly formatted, directly uses
+    // flights, introduced in an update for redesigned taxi system
 
     if (m_state < TRACKER_FLIGHT)
         return "";
@@ -49,7 +56,8 @@ std::string Tracker::Save()
 
     // Save resume node for the current route
     uint32 node = GetMap().at(size_t(m_locationIndex))->index;
-    // Make sure resume node is not the very first one or the very last one - saving and loading those makes no practical sense to us
+    // Make sure resume node is not the very first one or the very last one -
+    // saving and loading those makes no practical sense to us
     node = std::max(std::min(node, (GetRoute().nodeEnd - 1)), (GetRoute().nodeStart + 1));
     stream << node;
 
@@ -61,45 +69,51 @@ std::string Tracker::Save()
     return stream.str();
 }
 
-bool Tracker::Load(std::string& string, DestID &destOrphan)
+bool Tracker::Load(std::string &string, DestID &destOrphan)
 {
     if (!Clear())
         return false;
 
-    // Read a modified format. All old entries were converted to orphaned taxi node records via DB update for failsafe loading.
+    // Read a modified format. All old entries were converted to orphaned taxi
+    // node records via DB update for failsafe loading.
 
-    // Original numbers format: "src dest dest dest "                   variable amount of destinations in the string, dangling destinations possible, trailing space @ the end)
-    // Updated  numbers format: "resumenode:src:dest:dest:dest"         strictly formatted, introduced in taxi system rewrite
-    // Modified numbers format: "resumenode#pathid#pathid#pathid"       strictly formatted, directly uses flights, introduced in an update for redesigned taxi system
+    // Original numbers format: "src dest dest dest "                   variable
+    // amount of destinations in the string, dangling destinations possible,
+    // trailing space @ the end) Updated  numbers format:
+    // "resumenode:src:dest:dest:dest"         strictly formatted, introduced in
+    // taxi system rewrite Modified numbers format:
+    // "resumenode#pathid#pathid#pathid"       strictly formatted, directly uses
+    // flights, introduced in an update for redesigned taxi system
 
     Tokens tokens = StrSplit(string, "#");
 
     std::deque<PathID> numbers;
 
-    for (auto& token : tokens)
+    for (auto &token : tokens)
         numbers.push_back(uint32(std::stoi(token)));
 
     // Try to parse as robustly as possible
     switch (numbers.size())
     {
-        case 0:             // No routes
-            return true;
-        case 1:             // Orphaned: probably loading from an outdated format, just dangling destination node
-            destOrphan = numbers.front();
-            return false;
-        default:
-        {
-            // Extract and verify last known flight path node index
-            uint32 nodeResume = numbers.front();
-            numbers.pop_front();
+    case 0: // No routes
+        return true;
+    case 1: // Orphaned: probably loading from an outdated format, just
+            // dangling destination node
+        destOrphan = numbers.front();
+        return false;
+    default: {
+        // Extract and verify last known flight path node index
+        uint32 nodeResume = numbers.front();
+        numbers.pop_front();
 
-            // On successful load, prepares the container right away, otherwise does all the housekeeping
-            if (!AddRoutes(numbers, 0.0f, false) || !Prepare(nodeResume))
-            {
-                Clear();
-                return false;
-            }
+        // On successful load, prepares the container right away, otherwise
+        // does all the housekeeping
+        if (!AddRoutes(numbers, 0.0f, false) || !Prepare(nodeResume))
+        {
+            Clear();
+            return false;
         }
+    }
     }
     return true;
 }
@@ -108,15 +122,15 @@ bool Tracker::SetState(TrackerState state)
 {
     switch (state)
     {
-        case TRACKER_FLIGHT:
-            m_state = ((m_state == TRACKER_STANDBY || m_state == TRACKER_TRANSFER) ? state : m_state);
-            return (m_state == state);
-        case TRACKER_TRANSFER:
-            m_state = ((m_state == TRACKER_FLIGHT) ? state : m_state);
-            return (m_state == state);
-        // The rest can't be set outside of the container under any circumstances
-        default:
-            break;
+    case TRACKER_FLIGHT:
+        m_state = ((m_state == TRACKER_STANDBY || m_state == TRACKER_TRANSFER) ? state : m_state);
+        return (m_state == state);
+    case TRACKER_TRANSFER:
+        m_state = ((m_state == TRACKER_FLIGHT) ? state : m_state);
+        return (m_state == state);
+    // The rest can't be set outside of the container under any circumstances
+    default:
+        break;
     }
     return false;
 }
@@ -153,7 +167,7 @@ bool Tracker::AddRoute(const TaxiPathEntry *entry, float discountMulti /*= 0.0f*
             cost = 0;
     }
 
-    TaxiPathNodeList const& nodes = sTaxiPathNodesByPath[entry->ID];
+    TaxiPathNodeList const &nodes = sTaxiPathNodesByPath[entry->ID];
     m_routes.push_back(Route(entry->ID, entry->from, entry->to, nodes.front()->index, nodes.back()->index, cost));
 
     const size_t count = m_routes.size();
@@ -171,7 +185,7 @@ bool Tracker::AddRoute(PathID pathID, float discountMulti /*= 0.0f*/, bool requi
     if (m_state > TRACKER_STAGING)
         return false;
 
-    TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(pathID);
+    TaxiPathEntry const *entry = sTaxiPathStore.LookupEntry(pathID);
 
     return (entry && AddRoute(entry, discountMulti, requireModel));
 }
@@ -188,7 +202,8 @@ bool Tracker::AddRoute(DestID start, DestID end, float discountMulti /*= 0.0f*/,
     return (pathID && AddRoute(pathID, discountMulti, requireModel));
 }
 
-bool Tracker::AddRoutes(const std::vector<DestID>& destinations, float discountMulti /*= 0.0f*/, bool requireModel /*= true*/)
+bool Tracker::AddRoutes(const std::vector<DestID> &destinations, float discountMulti /*= 0.0f*/,
+                        bool requireModel /*= true*/)
 {
     if (!Clear())
         return false;
@@ -204,7 +219,7 @@ bool Tracker::AddRoutes(const std::vector<DestID>& destinations, float discountM
     return !m_routes.empty();
 }
 
-bool Tracker::AddRoutes(const std::deque<PathID>& paths, float discountMulti /*= 0.0f*/, bool requireModel /*= true*/)
+bool Tracker::AddRoutes(const std::deque<PathID> &paths, float discountMulti /*= 0.0f*/, bool requireModel /*= true*/)
 {
     if (!Clear())
         return false;
@@ -230,23 +245,25 @@ bool Tracker::Prepare(Index nodeResume /*= 0*/)
     if (m_routes.empty())
         return false;
 
-    Route& current = m_routes.front();
+    Route &current = m_routes.front();
 
-    // If global preference is set, we will charge total cost for the entire ride on first flight at once
+    // If global preference is set, we will charge total cost for the entire ride
+    // on first flight at once
     if (sWorld.getConfig(CONFIG_BOOL_LONG_TAXI_PATHS_PERSISTENCE))
         current.cost = m_cost;
 
-    // Sanity check: make sure that resume node for current route hasn't gotten cut off or out of bounds
+    // Sanity check: make sure that resume node for current route hasn't gotten
+    // cut off or out of bounds
     nodeResume = std::min(nodeResume, current.nodeEnd);
 
     m_atlas.clear();
     // Open a new map in the atlas
     m_atlas.push_back(Map());
     // Start populating map(s)
-    const TaxiPathNodeEntry* prev = nullptr;
+    const TaxiPathNodeEntry *prev = nullptr;
     for (auto i = m_routes.begin(); i != m_routes.end(); ++i)
     {
-        const TaxiPathNodeList& nodes = sTaxiPathNodesByPath[(*i).pathID];
+        const TaxiPathNodeList &nodes = sTaxiPathNodesByPath[(*i).pathID];
         for (auto j = nodes.begin(); j != nodes.end(); ++j)
         {
             // Abide route trimmed routes when building a spline
@@ -256,11 +273,14 @@ bool Tracker::Prepare(Index nodeResume /*= 0*/)
             // Resume node defined: we are loading, additional care is required
             if (nodeResume && (*i).pathID == current.pathID)
             {
-                // Internal algorithm sanity check: make sure resume node for current route will end up on the same map
-                // Dont build spline for preceding nodes which are located on another map
+                // Internal algorithm sanity check: make sure resume node for
+                // current route will end up on the same map Dont build spline
+                // for preceding nodes which are located on another map
                 if ((*j)->index < nodes[nodeResume]->index && (*j)->mapid != nodes[nodeResume]->mapid)
                     continue;
-                // When resume node reached on the route: calculate resume location index on the spline (which will be equal to the current size on push)
+                // When resume node reached on the route: calculate resume
+                // location index on the spline (which will be equal to the
+                // current size on push)
                 if ((*j)->index == nodeResume)
                 {
                     m_resumeIndex = m_atlas.back().size();
@@ -275,13 +295,17 @@ bool Tracker::Prepare(Index nodeResume /*= 0*/)
                     // Detect map change and advance atlas by adding a new map
                     if (sMapStore.LookupEntry((*j)->mapid))
                     {
-                        // Bugcheck: latest finished map spline is suspiciously short
+                        // Bugcheck: latest finished map spline is suspiciously
+                        // short
                         MANGOS_ASSERT(m_atlas.back().size() > 2);
                         m_atlas.push_back(Map());
                     }
                     else
                     {
-                        sLog.outError("TAXI: Malformed flight path node detected and ignored. Node %u on flight path id %u refers non-existent mapid %u",
+                        sLog.outError("TAXI: Malformed flight path node "
+                                      "detected and ignored. Node "
+                                      "%u on flight path id %u refers "
+                                      "non-existent mapid %u",
                                       (*j)->index, (*j)->path, (*j)->mapid);
                         continue;
                     }
@@ -316,7 +340,7 @@ bool Tracker::Clear(bool forced)
     return true;
 }
 
-bool Tracker::UpdateRoute(const TaxiPathNodeEntry* entry, PathID& start, PathID& end)
+bool Tracker::UpdateRoute(const TaxiPathNodeEntry *entry, PathID &start, PathID &end)
 {
     if (!entry)
         return false;
@@ -328,7 +352,7 @@ bool Tracker::UpdateRoute(const TaxiPathNodeEntry* entry, PathID& start, PathID&
     // Bugcheck: continuity error - either routes or splines are missing
     MANGOS_ASSERT(!m_atlas.empty() && !m_routes.empty())
 
-    const Map& map = GetMap();
+    const Map &map = GetMap();
 
     // Advance internal spline node counter only if not on the first waypoint
     if (m_location)
@@ -344,15 +368,16 @@ bool Tracker::UpdateRoute(const TaxiPathNodeEntry* entry, PathID& start, PathID&
 
     if (entry == map.back())
     {
-        // Acknowledge spline end: nuke current map in the atlas, reset location index
-        // That does not mean, however, that taxi ride was completed right away, as it can be a multimap flight route
+        // Acknowledge spline end: nuke current map in the atlas, reset location
+        // index That does not mean, however, that taxi ride was completed right
+        // away, as it can be a multimap flight route
         m_atlas.pop_front();
         m_location = nullptr;
         m_locationIndex = 0;
         m_resumeIndex = 0;
     }
 
-    const Route& route = GetRoute();
+    const Route &route = GetRoute();
 
     if (entry->index == route.nodeEnd)
     {
@@ -378,14 +403,16 @@ bool Tracker::UpdateRoute(const TaxiPathNodeEntry* entry, PathID& start, PathID&
     return false;
 }
 
-bool Tracker::Trim(Route& first, Route& second)
+bool Tracker::Trim(Route &first, Route &second)
 {
     if (first.destEnd != second.destStart || first.pathID == second.pathID)
         return false;
 
-    // Retail uses serverside pre-definied junction points for all interconnected flight paths.
-    // We have a fallback custom automatic runtime trimmer. The result will not match retail and can be visually unpleasing at times.
-    // For best experience, the taxi shortcuts table needs to be populated with faithful data.
+    // Retail uses serverside pre-definied junction points for all interconnected
+    // flight paths. We have a fallback custom automatic runtime trimmer. The
+    // result will not match retail and can be visually unpleasing at times. For
+    // best experience, the taxi shortcuts table needs to be populated with
+    // faithful data.
 
     // Lookup known shortcuts first
     uint32 lengthTakeoff = 0;
@@ -414,15 +441,15 @@ bool Tracker::Trim(Route& first, Route& second)
     }
 
     // Try to trim dynamically if data is not available or incomplete
-    TaxiPathNodeList const& waypoints1 = sTaxiPathNodesByPath[first.pathID];
-    TaxiPathNodeList const& waypoints2 = sTaxiPathNodesByPath[second.pathID];
-    TaxiNodesEntry const* destination = sTaxiNodesStore.LookupEntry(first.destEnd);
+    TaxiPathNodeList const &waypoints1 = sTaxiPathNodesByPath[first.pathID];
+    TaxiPathNodeList const &waypoints2 = sTaxiPathNodesByPath[second.pathID];
+    TaxiNodesEntry const *destination = sTaxiNodesStore.LookupEntry(first.destEnd);
 
     if (destination && waypoints1 != waypoints2)
     {
         // Linear complexity for better performance
-        const TaxiPathNodeEntry* last1 = nullptr;
-        const TaxiPathNodeEntry* last2 = nullptr;
+        const TaxiPathNodeEntry *last1 = nullptr;
+        const TaxiPathNodeEntry *last2 = nullptr;
         const double refdistsq = double(48.0f * 48.0f);
         auto i1 = (waypoints1.rbegin() + lengthLanding);
         auto i2 = (waypoints2.begin() + lengthTakeoff);
@@ -435,7 +462,7 @@ bool Tracker::Trim(Route& first, Route& second)
             if ((last1 && last1->mapid != (*i1)->mapid) || (last2 && last2->mapid != (*i2)->mapid))
                 break;
             // Quick check for distance to destination on 2d plane
-            auto distsq = [&destination] (TaxiPathNodeEntry const* node) {
+            auto distsq = [&destination](TaxiPathNodeEntry const *node) {
                 return (std::pow((destination->x - node->x), 2) + std::pow((destination->y - node->y), 2));
             };
             if (distsq(*i1) > refdistsq && distsq(*i2) > refdistsq)

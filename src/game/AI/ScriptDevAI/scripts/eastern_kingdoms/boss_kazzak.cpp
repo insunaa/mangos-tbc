@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -22,32 +22,32 @@ SDCategory: Bosses
 EndScriptData
 */
 
-#include "AI/ScriptDevAI/include/sc_common.h"
 #include "AI/ScriptDevAI/base/TimerAI.h"
+#include "AI/ScriptDevAI/include/sc_common.h"
 
 enum
 {
-    SAY_INTRO                 = -1000147,
-    SAY_AGGRO1                = -1000148,
-    SAY_AGGRO2                = -1000149,
-    SAY_SURPREME1             = -1000150,
-    SAY_SURPREME2             = -1000151,
-    SAY_KILL1                 = -1000152,
-    SAY_KILL2                 = -1000153,
-    SAY_KILL3                 = -1000154,
-    SAY_DEATH                 = -1000155,
-    EMOTE_FRENZY              = -1000002,
-    SAY_RAND1                 = -1000157,
-    SAY_RAND2                 = -1000158,
+    SAY_INTRO = -1000147,
+    SAY_AGGRO1 = -1000148,
+    SAY_AGGRO2 = -1000149,
+    SAY_SURPREME1 = -1000150,
+    SAY_SURPREME2 = -1000151,
+    SAY_KILL1 = -1000152,
+    SAY_KILL2 = -1000153,
+    SAY_KILL3 = -1000154,
+    SAY_DEATH = -1000155,
+    EMOTE_FRENZY = -1000002,
+    SAY_RAND1 = -1000157,
+    SAY_RAND2 = -1000158,
 
-    SPELL_SHADOW_VOLLEY       = 21341,
-    SPELL_BERSERK             = 21340,
-    SPELL_CLEAVE              = 20691,
-    SPELL_THUNDERCLAP         = 26554,
-    SPELL_VOIDBOLT            = 21066,
-    SPELL_MARK_OF_KAZZAK      = 21056,                  // triggers 21058 when target gets to 0 mana
-    SPELL_CAPTURESOUL         = 21053,                  // procs 21054 on kill
-    SPELL_TWISTED_REFLECTION   = 21063
+    SPELL_SHADOW_VOLLEY = 21341,
+    SPELL_BERSERK = 21340,
+    SPELL_CLEAVE = 20691,
+    SPELL_THUNDERCLAP = 26554,
+    SPELL_VOIDBOLT = 21066,
+    SPELL_MARK_OF_KAZZAK = 21056, // triggers 21058 when target gets to 0 mana
+    SPELL_CAPTURESOUL = 21053,    // procs 21054 on kill
+    SPELL_TWISTED_REFLECTION = 21063
 };
 
 enum KazzakActions // order based on priority
@@ -63,10 +63,9 @@ enum KazzakActions // order based on priority
     KAZZAK_ACTION_MAX,
 };
 
-
 struct boss_kazzakAI : public ScriptedAI
 {
-    boss_kazzakAI(Creature* creature) : ScriptedAI(creature, KAZZAK_ACTION_MAX)
+    boss_kazzakAI(Creature *creature) : ScriptedAI(creature, KAZZAK_ACTION_MAX)
     {
         AddCombatAction(KAZZAK_ACTION_SUPREME, 0u);
         AddCombatAction(KAZZAK_ACTION_VOIDBOLT, 0u);
@@ -77,7 +76,6 @@ struct boss_kazzakAI : public ScriptedAI
         AddCombatAction(KAZZAK_ACTION_CLEAVE, 0u);
         Reset();
     }
-
 
     void Reset() override
     {
@@ -100,14 +98,22 @@ struct boss_kazzakAI : public ScriptedAI
     {
         switch (action)
         {
-            case KAZZAK_ACTION_SUPREME: return 3 * MINUTE * IN_MILLISECONDS;
-            case KAZZAK_ACTION_VOIDBOLT: return 30000;
-            case KAZZAK_ACTION_TWISTED_REFLECTION: return 33000;
-            case KAZZAK_ACTION_MARK_OF_KAZZAK: return 25000;
-            case KAZZAK_ACTION_SHADOW_BOLT_VOLLEY: return urand(3000, 12000);
-            case KAZZAK_ACTION_THUNDERCLAP: return urand(16000, 20000);
-            case KAZZAK_ACTION_CLEAVE: return 7000;
-            default: return 0; // never occurs but for compiler
+        case KAZZAK_ACTION_SUPREME:
+            return 3 * MINUTE * IN_MILLISECONDS;
+        case KAZZAK_ACTION_VOIDBOLT:
+            return 30000;
+        case KAZZAK_ACTION_TWISTED_REFLECTION:
+            return 33000;
+        case KAZZAK_ACTION_MARK_OF_KAZZAK:
+            return 25000;
+        case KAZZAK_ACTION_SHADOW_BOLT_VOLLEY:
+            return urand(3000, 12000);
+        case KAZZAK_ACTION_THUNDERCLAP:
+            return urand(16000, 20000);
+        case KAZZAK_ACTION_CLEAVE:
+            return 7000;
+        default:
+            return 0; // never occurs but for compiler
         }
     }
 
@@ -115,14 +121,22 @@ struct boss_kazzakAI : public ScriptedAI
     {
         switch (action)
         {
-            case KAZZAK_ACTION_SUPREME: return 0;
-            case KAZZAK_ACTION_VOIDBOLT: return urand(15000, 28000);
-            case KAZZAK_ACTION_TWISTED_REFLECTION: return 15000;
-            case KAZZAK_ACTION_MARK_OF_KAZZAK: return  20000;
-            case KAZZAK_ACTION_SHADOW_BOLT_VOLLEY: return urand(5000, 30000);
-            case KAZZAK_ACTION_THUNDERCLAP: return urand(10000, 14000);
-            case KAZZAK_ACTION_CLEAVE: return urand(8000, 12000);
-            default: return 0; // never occurs but for compiler
+        case KAZZAK_ACTION_SUPREME:
+            return 0;
+        case KAZZAK_ACTION_VOIDBOLT:
+            return urand(15000, 28000);
+        case KAZZAK_ACTION_TWISTED_REFLECTION:
+            return 15000;
+        case KAZZAK_ACTION_MARK_OF_KAZZAK:
+            return 20000;
+        case KAZZAK_ACTION_SHADOW_BOLT_VOLLEY:
+            return urand(5000, 30000);
+        case KAZZAK_ACTION_THUNDERCLAP:
+            return urand(10000, 14000);
+        case KAZZAK_ACTION_CLEAVE:
+            return urand(8000, 12000);
+        default:
+            return 0; // never occurs but for compiler
         }
     }
 
@@ -131,26 +145,32 @@ struct boss_kazzakAI : public ScriptedAI
         DoScriptText(SAY_INTRO, m_creature);
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         DoCastSpellIfCan(m_creature, SPELL_CAPTURESOUL, CAST_TRIGGERED);
         DoScriptText(urand(0, 1) ? SAY_AGGRO1 : SAY_AGGRO2, m_creature);
     }
 
-    void KilledUnit(Unit* pVictim) override
+    void KilledUnit(Unit *pVictim) override
     {
         if (pVictim->GetTypeId() != TYPEID_PLAYER)
             return;
 
         switch (urand(0, 3))
         {
-            case 0: DoScriptText(SAY_KILL1, m_creature); break;
-            case 1: DoScriptText(SAY_KILL2, m_creature); break;
-            case 2: DoScriptText(SAY_KILL3, m_creature); break;
+        case 0:
+            DoScriptText(SAY_KILL1, m_creature);
+            break;
+        case 1:
+            DoScriptText(SAY_KILL2, m_creature);
+            break;
+        case 2:
+            DoScriptText(SAY_KILL3, m_creature);
+            break;
         }
     }
 
-    void JustDied(Unit* /*pKiller*/) override
+    void JustDied(Unit * /*pKiller*/) override
     {
         DoScriptText(SAY_DEATH, m_creature);
     }
@@ -166,20 +186,44 @@ struct boss_kazzakAI : public ScriptedAI
             {
                 switch (i)
                 {
-                    case KAZZAK_ACTION_SUPREME:
+                case KAZZAK_ACTION_SUPREME: {
+                    // Enrage - cast shadowbolt volley every second
+                    if (DoCastSpellIfCan(m_creature, SPELL_BERSERK) == CAST_OK)
                     {
-                        // Enrage - cast shadowbolt volley every second
-                        if (DoCastSpellIfCan(m_creature, SPELL_BERSERK) == CAST_OK)
+                        DoScriptText(urand(0, 1) ? SAY_SURPREME1 : SAY_SURPREME2, m_creature);
+                        DisableCombatAction(KAZZAK_ACTION_SUPREME);
+                        return;
+                    }
+                    break;
+                }
+                case KAZZAK_ACTION_VOIDBOLT: {
+                    if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_VOIDBOLT) == CAST_OK)
+                    {
+                        ResetTimer(i, GetSubsequentActionTimer(i));
+                        SetActionReadyStatus(i, false);
+                        return;
+                    }
+                    break;
+                }
+                case KAZZAK_ACTION_TWISTED_REFLECTION: {
+                    if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1,
+                                                                          SPELL_TWISTED_REFLECTION, SELECT_FLAG_PLAYER))
+                    {
+                        if (DoCastSpellIfCan(pTarget, SPELL_TWISTED_REFLECTION) == CAST_OK)
                         {
-                            DoScriptText(urand(0, 1) ? SAY_SURPREME1 : SAY_SURPREME2, m_creature);
-                            DisableCombatAction(KAZZAK_ACTION_SUPREME);
+                            ResetTimer(i, GetSubsequentActionTimer(i));
+                            SetActionReadyStatus(i, false);
                             return;
                         }
-                        break;
                     }
-                    case KAZZAK_ACTION_VOIDBOLT:
+                    break;
+                }
+                case KAZZAK_ACTION_MARK_OF_KAZZAK: {
+                    if (Unit *pTarget =
+                            m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_MARK_OF_KAZZAK,
+                                                              SELECT_FLAG_PLAYER | SELECT_FLAG_POWER_MANA))
                     {
-                        if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_VOIDBOLT) == CAST_OK)
+                        if (DoCastSpellIfCan(pTarget, SPELL_MARK_OF_KAZZAK) == CAST_OK)
                         {
                             ResetTimer(i, GetSubsequentActionTimer(i));
                             SetActionReadyStatus(i, false);
@@ -187,63 +231,35 @@ struct boss_kazzakAI : public ScriptedAI
                         }
                         break;
                     }
-                    case KAZZAK_ACTION_TWISTED_REFLECTION:
+                }
+                case KAZZAK_ACTION_SHADOW_BOLT_VOLLEY: {
+                    // Cast shadowbolt volley on timer before Berserk
+                    if (DoCastSpellIfCan(m_creature, SPELL_SHADOW_VOLLEY, SELECT_FLAG_USE_EFFECT_RADIUS) == CAST_OK)
                     {
-                        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, SPELL_TWISTED_REFLECTION, SELECT_FLAG_PLAYER))
-                        {
-                            if (DoCastSpellIfCan(pTarget, SPELL_TWISTED_REFLECTION) == CAST_OK)
-                            {
-                                ResetTimer(i, GetSubsequentActionTimer(i));
-                                SetActionReadyStatus(i, false);
-                                return;
-                            }
-                        }
-                        break;
+                        ResetTimer(i, GetSubsequentActionTimer(i));
+                        SetActionReadyStatus(i, false);
+                        return;
                     }
-                    case KAZZAK_ACTION_MARK_OF_KAZZAK:
+                    break;
+                }
+                case KAZZAK_ACTION_THUNDERCLAP: {
+                    if (DoCastSpellIfCan(nullptr, SPELL_THUNDERCLAP, SELECT_FLAG_USE_EFFECT_RADIUS) == CAST_OK)
                     {
-                        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_MARK_OF_KAZZAK, SELECT_FLAG_PLAYER | SELECT_FLAG_POWER_MANA))
-                        {
-                            if (DoCastSpellIfCan(pTarget, SPELL_MARK_OF_KAZZAK) == CAST_OK)
-                            {
-                                ResetTimer(i, GetSubsequentActionTimer(i));
-                                SetActionReadyStatus(i, false);
-                                return;
-                            }
-                            break;
-                        }
+                        ResetTimer(i, GetSubsequentActionTimer(i));
+                        SetActionReadyStatus(i, false);
+                        return;
                     }
-                    case KAZZAK_ACTION_SHADOW_BOLT_VOLLEY:
+                    break;
+                }
+                case KAZZAK_ACTION_CLEAVE: {
+                    if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_CLEAVE) == CAST_OK)
                     {
-                        // Cast shadowbolt volley on timer before Berserk
-                        if (DoCastSpellIfCan(m_creature, SPELL_SHADOW_VOLLEY, SELECT_FLAG_USE_EFFECT_RADIUS) == CAST_OK)
-                        {
-                            ResetTimer(i, GetSubsequentActionTimer(i));
-                            SetActionReadyStatus(i, false);
-                            return;
-                        }
-                        break;
+                        ResetTimer(i, GetSubsequentActionTimer(i));
+                        SetActionReadyStatus(i, false);
+                        return;
                     }
-                    case KAZZAK_ACTION_THUNDERCLAP:
-                    {
-                        if (DoCastSpellIfCan(nullptr, SPELL_THUNDERCLAP, SELECT_FLAG_USE_EFFECT_RADIUS) == CAST_OK)
-                        {
-                            ResetTimer(i, GetSubsequentActionTimer(i));
-                            SetActionReadyStatus(i, false);
-                            return;
-                        }
-                        break;
-                    }
-                    case KAZZAK_ACTION_CLEAVE:
-                    {
-                        if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_CLEAVE) == CAST_OK)
-                        {
-                            ResetTimer(i, GetSubsequentActionTimer(i));
-                            SetActionReadyStatus(i, false);
-                            return;
-                        }
-                        break;
-                    }
+                    break;
+                }
                 }
             }
         }
@@ -261,14 +277,14 @@ struct boss_kazzakAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_kazzak(Creature* pCreature)
+UnitAI *GetAI_boss_kazzak(Creature *pCreature)
 {
     return new boss_kazzakAI(pCreature);
 }
 
 void AddSC_boss_kazzakAI()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_kazzak";
     pNewScript->GetAI = &GetAI_boss_kazzak;
     pNewScript->RegisterSelf();

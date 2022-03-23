@@ -6,32 +6,32 @@
  */
 
 #include "antispammgr.hpp"
-#include "antispam.hpp"
+
+#include <algorithm>
+#include <array>
+#include <chrono>
+#include <memory>
+#include <mutex>
+#include <regex>
+#include <string>
+#include <thread>
+#include <unordered_set>
+#include <vector>
+
 #include "../config.hpp"
+#include "Accounts/AccountMgr.h"
+#include "Database/DatabaseEnv.h"
+#include "Log.h"
+#include "Policies/Singleton.h"
 #include "Server/WorldSession.h"
 #include "World/World.h"
-#include "Accounts/AccountMgr.h"
-#include "Log.h"
-
-#include "Database/DatabaseEnv.h"
-#include "Policies/Singleton.h"
-
-#include <string>
-#include <mutex>
-#include <vector>
-#include <regex>
-#include <algorithm>
-#include <memory>
-#include <unordered_set>
-#include <thread>
-#include <chrono>
-#include <array>
+#include "antispam.hpp"
 
 INSTANTIATE_SINGLETON_1(NamreebAnticheat::AntispamMgr);
 
 namespace
 {
-void ReplaceAll(std::string &str, const std::string& from, const std::string& to)
+void ReplaceAll(std::string &str, const std::string &from, const std::string &to)
 {
     size_t startPos = 0;
     while ((startPos = str.find(from, startPos)) != std::string::npos)
@@ -41,7 +41,7 @@ void ReplaceAll(std::string &str, const std::string& from, const std::string& to
     }
 }
 
-void ReplaceAllW(std::wstring &str, const std::wstring& from, const std::wstring& to)
+void ReplaceAllW(std::wstring &str, const std::wstring &from, const std::wstring &to)
 {
     size_t startPos = 0;
     while ((startPos = str.find(from, startPos)) != std::wstring::npos)
@@ -50,7 +50,7 @@ void ReplaceAllW(std::wstring &str, const std::wstring& from, const std::wstring
         startPos += to.length();
     }
 }
-}
+} // namespace
 
 namespace NamreebAnticheat
 {
@@ -75,7 +75,7 @@ std::string AntispamMgr::NormalizeStringInternal(const std::string &string, uint
 
     if (mask & NF_REPLACE_WORDS)
     {
-        for (auto const& e : _asciiReplace)
+        for (auto const &e : _asciiReplace)
             ReplaceAll(newMsg, e.first, e.second);
     }
 
@@ -111,7 +111,7 @@ std::string AntispamMgr::NormalizeStringInternal(const std::string &string, uint
 
         if (!isBasicLatinString(w_tempMsg, true))
         {
-            for (auto const& s : _unicodeReplace)
+            for (auto const &s : _unicodeReplace)
                 ReplaceAllW(w_tempMsg, s.first, s.second);
 
             if (mask & NF_REMOVE_NON_LATIN)
@@ -137,7 +137,9 @@ std::string AntispamMgr::NormalizeStringInternal(const std::string &string, uint
     return newMsg;
 }
 
-AntispamMgr::AntispamMgr() : _shutdownRequested(false), _worker(&AntispamMgr::WorkerLoop, this) {}
+AntispamMgr::AntispamMgr() : _shutdownRequested(false), _worker(&AntispamMgr::WorkerLoop, this)
+{
+}
 
 AntispamMgr::~AntispamMgr()
 {
@@ -157,14 +159,15 @@ void AntispamMgr::WorkerLoop()
 
         if (sAnticheatConfig.EnableAntispam())
         {
-            std::unordered_set<std::shared_ptr<Antispam> > workQueue;
+            std::unordered_set<std::shared_ptr<Antispam>> workQueue;
 
-            // lock the mutex only long enough to move the work queue to a local container and expire old blacklist history
+            // lock the mutex only long enough to move the work queue to a local
+            // container and expire old blacklist history
             {
                 std::lock_guard<std::mutex> guard(_mutex);
                 workQueue = std::move(_workQueue);
 
-                for (auto i = _temporaryCache.begin(); i != _temporaryCache.end(); )
+                for (auto i = _temporaryCache.begin(); i != _temporaryCache.end();)
                 {
                     if (i->second.first + expireMS <= startMS)
                         i = _temporaryCache.erase(i);
@@ -257,7 +260,7 @@ void AntispamMgr::LoadFromDB()
             std::wostringstream wss;
 
             auto fields = result->Fetch();
-            
+
             wss.str(std::wstring());
             wss << wchar_t(fields[0].GetUInt32());
             std::wstring key = wss.str();
@@ -317,13 +320,15 @@ uint32 AntispamMgr::CheckBlacklist(const std::string &string, std::string &log) 
 
     uint32 result = 0;
 
-    // for each entry, search the given string for multiple occurrences of both the original and normalized form of the entry
-    for (auto const& entry : _blacklist)
+    // for each entry, search the given string for multiple occurrences of both
+    // the original and normalized form of the entry
+    for (auto const &entry : _blacklist)
     {
         // search the original string for the original blacklist entry
         if (!entry.first.empty())
         {
-            for (auto pos = string.find(entry.first); pos != std::string::npos; pos = string.find(entry.first, pos + entry.first.length()))
+            for (auto pos = string.find(entry.first); pos != std::string::npos;
+                 pos = string.find(entry.first, pos + entry.first.length()))
             {
                 logstr << "\nOriginal: \"" << entry.first << "\"";
                 ++result;
@@ -333,7 +338,8 @@ uint32 AntispamMgr::CheckBlacklist(const std::string &string, std::string &log) 
         // search for the normalized blacklist entry
         if (!entry.second.empty())
         {
-            for (auto pos = msg.find(entry.second); pos != std::string::npos; pos = msg.find(entry.second, pos + entry.second.length()))
+            for (auto pos = msg.find(entry.second); pos != std::string::npos;
+                 pos = msg.find(entry.second, pos + entry.second.length()))
             {
                 logstr << "\nNormalized: \"" << entry.second << "\"";
                 ++result;
@@ -365,7 +371,7 @@ void AntispamMgr::CacheSession(std::shared_ptr<Antispam> session)
 std::shared_ptr<Antispam> AntispamMgr::GetSession(uint32 accountId)
 {
     std::lock_guard<std::mutex> guard(_mutex);
-    
+
     auto const i = _temporaryCache.find(accountId);
 
     if (i == _temporaryCache.end())
@@ -432,4 +438,4 @@ void AntispamMgr::Unsilence(uint32 accountId) const
 
     LoginDatabase.CommitTransaction();
 }
-}
+} // namespace NamreebAnticheat

@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +29,8 @@ char const CharSectionsEntryfmt[] = "diiiiixxxi";
 char const CharacterFacialHairStylesfmt[] = "iiixxxxxxxx";
 const char CharStartOutfitEntryfmt[] = "diiiiiiiiiiiiixxxxxxxxxxxxxxxxxxxxxxxxxxx";
 // 3*12 new item fields in 3.0.x
-// const char CharStartOutfitEntryfmt[]="diiiiiiiiiiiiiiiiiiiiiiiiixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+// const char
+// CharStartOutfitEntryfmt[]="diiiiiiiiiiiiiiiiiiiiiiiiixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 const char CharTitlesEntryfmt[] = "nxssssssssssssssssxxxxxxxxxxxxxxxxxxi";
 const char ChatChannelsEntryfmt[] = "iixssssssssssssssssxxxxxxxxxxxxxxxxxx";
 // ChatChannelsEntryfmt, index not used (more compact store)
@@ -46,7 +48,8 @@ const char DurabilityCostsfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 const char DurabilityQualityfmt[] = "nf";
 const char EmotesEntryfmt[] = "nxxiiix";
 const char EmotesTextEntryfmt[] = "nxixxxxxxxxxxxxxxxx";
-// const char FactionEntryfmt[] = "niiiiiiiiiiiiiiiiiissssssssssssssssxxxxxxxxxxxxxxxxxx";
+// const char FactionEntryfmt[] =
+// "niiiiiiiiiiiiiiiiiissssssssssssssssxxxxxxxxxxxxxxxxxx";
 const char FactionTemplateEntryfmt[] = "niiiiiiiiiiiii";
 const char GameObjectArtKitfmt[] = "nxxxxxxx";
 const char GameObjectDisplayInfofmt[] = "nsxxxxxxxxxxffffff";
@@ -77,7 +80,9 @@ const char ItemSetEntryfmt[] = "dssssssssssssssssxxxxxxxxxxxxxxxxxxiiiiiiiiiiiii
 const char LiquidTypefmt[] = "niii";
 const char LockEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiixxxxxxxx";
 const char MailTemplateEntryfmt[] = "nxxxxxxxxxxxxxxxxxssssssssssssssssx";
-const char MapEntryfmt[] = "nxixssssssssssssssssxxxxxxxixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxiffiixxi";
+const char MapEntryfmt[] = "nxixssssssssssssssssxxxxxxxixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxixxxxxxxx"
+                           "xxx"
+                           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxiffiixxi";
 const char QuestSortEntryfmt[] = "nxxxxxxxxxxxxxxxxx";
 const char RandomPropertiesPointsfmt[] = "niiiiiiiiiiiiiii";
 const char SkillLinefmt[] = "nixssssssssssssssssxxxxxxxxxxxxxxxxxxi";
@@ -93,7 +98,8 @@ const char SpellItemEnchantmentConditionfmt[] = "nbbbbbxxxxxbbbbbbbbbbiiiiiXXXXX
 const char SpellRadiusfmt[] = "nfxx";
 const char SpellRangefmt[] = "nffixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 const char SpellShapeshiftfmt[] = "nxxxxxxxxxxxxxxxxxxiixiixxxiiiiiiii";
-const char SpellVisualfmt[] = "nxxxxxiixxxxxxxxxxxxxxxxx"; // wotlk - "nxxxxxxiixxxxxxxxxxxxxxxxxxxxxxx"
+const char SpellVisualfmt[] = "nxxxxxiixxxxxxxxxxxxxxxxx"; // wotlk -
+                                                           // "nxxxxxxiixxxxxxxxxxxxxxxxxxxxxxx"
 const char StableSlotPricesfmt[] = "ni";
 const char SummonPropertiesfmt[] = "niiiii";
 const char TalentEntryfmt[] = "niiiiiiiixxxxixxixxxi";

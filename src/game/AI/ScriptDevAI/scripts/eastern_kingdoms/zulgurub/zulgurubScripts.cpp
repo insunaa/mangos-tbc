@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -29,13 +29,13 @@ EndContentData */
 enum
 {
     // npc_soulflayer
-    SPELL_SOUL_TAP               = 24619,
-    SPELL_LIGHTNING_BREATH       = 20543,
-    SPELL_THRASH                 = 12787,
-    SPELL_KNOCKDOWN              = 20276,
-    SPELL_FEAR                   = 22678,
-    SPELL_FRENZY                 = 28371,
-    SPELL_ENRAGE                 = 8269
+    SPELL_SOUL_TAP = 24619,
+    SPELL_LIGHTNING_BREATH = 20543,
+    SPELL_THRASH = 12787,
+    SPELL_KNOCKDOWN = 20276,
+    SPELL_FEAR = 22678,
+    SPELL_FRENZY = 28371,
+    SPELL_ENRAGE = 8269
 };
 
 /*######
@@ -44,7 +44,10 @@ enum
 
 struct npc_soulflayerAI : public ScriptedAI
 {
-    npc_soulflayerAI(Creature* pCreature) : ScriptedAI(pCreature), m_uiRandomBuffAbility(0) { Reset(); }
+    npc_soulflayerAI(Creature *pCreature) : ScriptedAI(pCreature), m_uiRandomBuffAbility(0)
+    {
+        Reset();
+    }
 
     uint32 m_uiSoulTapTimer;
     uint32 m_uiLightingBreathTimer;
@@ -52,8 +55,8 @@ struct npc_soulflayerAI : public ScriptedAI
     uint32 m_uiRandomCcAbilityTimer;
     uint32 m_uiRandomBuffAbility;
 
-    const uint32 spell_list_cc[2] = { SPELL_FEAR, SPELL_KNOCKDOWN };
-    const uint32 spell_list_buff[3] = { SPELL_ENRAGE, SPELL_FRENZY, SPELL_THRASH };
+    const uint32 spell_list_cc[2] = {SPELL_FEAR, SPELL_KNOCKDOWN};
+    const uint32 spell_list_buff[3] = {SPELL_ENRAGE, SPELL_FRENZY, SPELL_THRASH};
 
     void JustRespawned() override
     {
@@ -84,14 +87,16 @@ struct npc_soulflayerAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // Check if we are casting / channelling, return to not interrupt process and pause CDs
+        // Check if we are casting / channelling, return to not interrupt process
+        // and pause CDs
         if (m_creature->IsNonMeleeSpellCasted(false))
             return;
 
         // Soul Tap
         if (m_uiSoulTapTimer < uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_SOUL_TAP, SELECT_TARGET_ANY_ENEMY))
+            if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_SOUL_TAP,
+                                                                  SELECT_TARGET_ANY_ENEMY))
                 if (DoCastSpellIfCan(pTarget, SPELL_SOUL_TAP) == CAST_OK)
                     m_uiSoulTapTimer = urand(10000, 15000);
         }
@@ -128,28 +133,28 @@ struct npc_soulflayerAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_npc_soulflayer(Creature* pCreature)
+UnitAI *GetAI_npc_soulflayer(Creature *pCreature)
 {
     return new npc_soulflayerAI(pCreature);
 }
 
 enum // leftover hazzarah enum for future docu
 {
-    SPELL_CHAIN_BURN            = 24684,
-    SPELL_SLEEP                 = 24664,
-    SPELL_EARTH_SHOCK           = 24685,
-    SPELL_SUMMON_ILLUSION_1     = 24681,
-    SPELL_SUMMON_ILLUSION_2     = 24728, // main spell with script effect
-    SPELL_SUMMON_ILLUSION_3     = 24729,
+    SPELL_CHAIN_BURN = 24684,
+    SPELL_SLEEP = 24664,
+    SPELL_EARTH_SHOCK = 24685,
+    SPELL_SUMMON_ILLUSION_1 = 24681,
+    SPELL_SUMMON_ILLUSION_2 = 24728, // main spell with script effect
+    SPELL_SUMMON_ILLUSION_3 = 24729,
 };
 
 struct SummonNightmareIllusion : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx == EFFECT_INDEX_1)
         {
-            Unit* caster = spell->GetCaster();
+            Unit *caster = spell->GetCaster();
             caster->CastSpell(nullptr, SPELL_SUMMON_ILLUSION_1, TRIGGERED_OLD_TRIGGERED);
             caster->CastSpell(nullptr, SPELL_SUMMON_ILLUSION_3, TRIGGERED_OLD_TRIGGERED);
         }
@@ -158,16 +163,16 @@ struct SummonNightmareIllusion : public SpellScript
 
 struct DelusionsOfJindo : public SpellScript
 {
-    void OnHit(Spell* spell, SpellMissInfo /*missInfo*/) const
+    void OnHit(Spell *spell, SpellMissInfo /*missInfo*/) const
     {
-        Unit* caster = spell->GetCaster();
+        Unit *caster = spell->GetCaster();
         caster->CastSpell(nullptr, 24308, TRIGGERED_OLD_TRIGGERED);
     }
 };
 
 struct SummonShadeOfJindo : public SpellScript
 {
-    void OnSummon(Spell* /*spell*/, Creature* summon) const
+    void OnSummon(Spell * /*spell*/, Creature *summon) const
     {
         summon->CastSpell(nullptr, 24307, TRIGGERED_NONE);
         summon->CastSpell(nullptr, 23878, TRIGGERED_NONE);
@@ -177,9 +182,9 @@ struct SummonShadeOfJindo : public SpellScript
 
 struct RandomAggro : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
-        Unit* caster = spell->GetCaster();
+        Unit *caster = spell->GetCaster();
         if (effIdx != EFFECT_INDEX_0 || !caster->AI())
             return;
 
@@ -189,7 +194,7 @@ struct RandomAggro : public SpellScript
 
 void AddSC_zulgurub()
 {
-    Script* pNewScript = new Script();
+    Script *pNewScript = new Script();
     pNewScript->Name = "npc_soulflayer";
     pNewScript->GetAI = &GetAI_npc_soulflayer;
     pNewScript->RegisterSelf();

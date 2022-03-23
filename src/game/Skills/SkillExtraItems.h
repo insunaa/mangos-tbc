@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,8 +24,9 @@
 
 // predef classes used in functions
 class Player;
-// returns true and sets the appropriate info if the player can create extra items with the given spellId
-bool canCreateExtraItems(Player* player, uint32 spellId, float& additionalChance, uint8& additionalMax);
+// returns true and sets the appropriate info if the player can create extra
+// items with the given spellId
+bool canCreateExtraItems(Player *player, uint32 spellId, float &additionalChance, uint8 &additionalMax);
 // function to load the extra item creation info from DB
 void LoadSkillExtraItemTable();
 #endif

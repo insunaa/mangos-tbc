@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,21 +19,22 @@
 
 #include "TransportMgr.h"
 
-#include "Server/DBCStores.h"
-#include "Server/SQLStorages.h"
-#include "Movement/MoveSpline.h"
+#include <algorithm>
+
 #include "Entities/GameObject.h"
 #include "Maps/MapManager.h"
-#include <algorithm>
+#include "Movement/MoveSpline.h"
+#include "Server/DBCStores.h"
+#include "Server/SQLStorages.h"
 
 void TransportMgr::LoadTransportAnimationAndRotation()
 {
     for (uint32 i = 0; i < sTransportAnimationStore.GetNumRows(); ++i)
-        if (TransportAnimationEntry const* anim = sTransportAnimationStore.LookupEntry(i))
+        if (TransportAnimationEntry const *anim = sTransportAnimationStore.LookupEntry(i))
             AddPathNodeToTransport(anim->TransportEntry, anim->TimeSeg, anim);
 }
 
-TransportTemplate* TransportMgr::GetTransportTemplate(uint32 entry)
+TransportTemplate *TransportMgr::GetTransportTemplate(uint32 entry)
 {
     auto itr = m_transportTemplates.find(entry);
     if (itr != m_transportTemplates.end())
@@ -48,7 +50,7 @@ void TransportMgr::LoadTransportTemplates()
         auto data = sGOStorage.LookupEntry<GameObjectInfo>(entry);
         if (data && data->type == GAMEOBJECT_TYPE_MO_TRANSPORT)
         {
-            TransportTemplate& transportTemplate = m_transportTemplates[entry];
+            TransportTemplate &transportTemplate = m_transportTemplates[entry];
             transportTemplate.entry = entry;
             if (!GenerateWaypoints(data, transportTemplate))
                 m_transportTemplates.erase(entry);
@@ -58,30 +60,32 @@ void TransportMgr::LoadTransportTemplates()
 
 class SplineRawInitializer
 {
-    public:
-        SplineRawInitializer(Movement::PointsArray& points) : _points(points) { }
+  public:
+    SplineRawInitializer(Movement::PointsArray &points) : _points(points)
+    {
+    }
 
-        void operator()(uint8& mode, bool& cyclic, Movement::PointsArray& points, int& lo, int& hi) const
-        {
-            mode = Movement::SplineBase::ModeCatmullrom;
-            cyclic = false;
-            points.assign(_points.begin(), _points.end());
-            lo = 1;
-            hi = points.size() - 2;
-        }
+    void operator()(uint8 &mode, bool &cyclic, Movement::PointsArray &points, int &lo, int &hi) const
+    {
+        mode = Movement::SplineBase::ModeCatmullrom;
+        cyclic = false;
+        points.assign(_points.begin(), _points.end());
+        lo = 1;
+        hi = points.size() - 2;
+    }
 
-        Movement::PointsArray& _points;
+    Movement::PointsArray &_points;
 };
 
-bool TransportMgr::GenerateWaypoints(GameObjectInfo const* goinfo, TransportTemplate& transportTemplate)
+bool TransportMgr::GenerateWaypoints(GameObjectInfo const *goinfo, TransportTemplate &transportTemplate)
 {
     uint32 pathid = goinfo->moTransport.taxiPathId;
     if (pathid >= sTaxiPathNodesByPath.size())
         return false;
 
     uint32 pathId = goinfo->moTransport.taxiPathId;
-    TaxiPathNodeList const& path = sTaxiPathNodesByPath[pathId];
-    std::vector<KeyFrame>& keyFrames = transportTemplate.keyFrames;
+    TaxiPathNodeList const &path = sTaxiPathNodesByPath[pathId];
+    std::vector<KeyFrame> &keyFrames = transportTemplate.keyFrames;
     Movement::PointsArray splinePath, allPoints;
     bool mapChange = false;
     for (size_t i = 0; i < path.size(); ++i)
@@ -101,7 +105,7 @@ bool TransportMgr::GenerateWaypoints(GameObjectInfo const* goinfo, TransportTemp
     {
         if (!mapChange)
         {
-            TaxiPathNodeEntry const& node_i = *path[i];
+            TaxiPathNodeEntry const &node_i = *path[i];
             if (i != path.size() - 1 && (node_i.actionFlag & 1 || node_i.mapid != path[i + 1]->mapid))
             {
                 keyFrames.back().Teleport = true;
@@ -165,7 +169,7 @@ bool TransportMgr::GenerateWaypoints(GameObjectInfo const* goinfo, TransportTemp
         if (keyFrames[i - 1].Teleport || i + 1 == keyFrames.size())
         {
             size_t extra = !keyFrames[i - 1].Teleport ? 1 : 0;
-            TransportSpline* spline = new TransportSpline();
+            TransportSpline *spline = new TransportSpline();
             spline->init_spline(&splinePath[start], i - start + extra, Movement::SplineBase::ModeCatmullrom);
             spline->initLengths();
             for (size_t j = start; j < i + extra; ++j)
@@ -204,7 +208,8 @@ bool TransportMgr::GenerateWaypoints(GameObjectInfo const* goinfo, TransportTemp
 
     // at stopping keyframes, we define distSinceStop == 0,
     // and distUntilStop is to the next stopping keyframe.
-    // this is required to properly handle cases of two stopping frames in a row (yes they do exist)
+    // this is required to properly handle cases of two stopping frames in a row
+    // (yes they do exist)
     float tmpDist = 0.0f;
     for (size_t i = 0; i < keyFrames.size(); ++i)
     {
@@ -226,7 +231,7 @@ bool TransportMgr::GenerateWaypoints(GameObjectInfo const* goinfo, TransportTemp
             tmpDist = 0.0f;
     }
 
-    for (auto& keyFrame : keyFrames)
+    for (auto &keyFrame : keyFrames)
     {
         float total_dist = keyFrame.DistSinceStop + keyFrame.DistUntilStop;
         if (total_dist < 2 * accel_dist) // won't reach full speed
@@ -293,8 +298,8 @@ bool TransportMgr::GenerateWaypoints(GameObjectInfo const* goinfo, TransportTemp
     }
 
     keyFrames.back().NextArriveTime = keyFrames.back().DepartureTime;
-    // the client destroys a transport by itself after a while, refresh is needed mid course
-    // Feathermoon 303 & Teldrassil 293 ferries
+    // the client destroys a transport by itself after a while, refresh is needed
+    // mid course Feathermoon 303 & Teldrassil 293 ferries
     if (pathId == 303 || pathId == 293)
         keyFrames[12].Update = true;
     transportTemplate.pathTime = keyFrames.back().DepartureTime;
@@ -302,16 +307,16 @@ bool TransportMgr::GenerateWaypoints(GameObjectInfo const* goinfo, TransportTemp
     return true;
 }
 
-void TransportMgr::AddPathNodeToTransport(uint32 transportEntry, uint32 timeSeg, TransportAnimationEntry const* node)
+void TransportMgr::AddPathNodeToTransport(uint32 transportEntry, uint32 timeSeg, TransportAnimationEntry const *node)
 {
-    TransportAnimation& animNode = m_transportAnimations[transportEntry];
+    TransportAnimation &animNode = m_transportAnimations[transportEntry];
     if (animNode.TotalTime < timeSeg)
         animNode.TotalTime = timeSeg;
 
     animNode.Path[timeSeg] = node;
 }
 
-TransportAnimationEntry const* TransportAnimation::GetPrevAnimNode(uint32 time) const
+TransportAnimationEntry const *TransportAnimation::GetPrevAnimNode(uint32 time) const
 {
     auto itr = Path.lower_bound(time);
     if (itr != Path.end() && itr != Path.begin())
@@ -323,7 +328,7 @@ TransportAnimationEntry const* TransportAnimation::GetPrevAnimNode(uint32 time) 
     return nullptr;
 }
 
-TransportAnimationEntry const* TransportAnimation::GetNextAnimNode(uint32 time) const
+TransportAnimationEntry const *TransportAnimation::GetNextAnimNode(uint32 time) const
 {
     auto itr = Path.lower_bound(time);
     if (itr != Path.end())

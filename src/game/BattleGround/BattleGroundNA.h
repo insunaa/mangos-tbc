@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,26 +23,26 @@ class BattleGround;
 
 class BattleGroundNAScore : public BattleGroundScore
 {
-    public:
-        BattleGroundNAScore() {};
-        virtual ~BattleGroundNAScore() {};
-        // TODO fix me
+  public:
+    BattleGroundNAScore(){};
+    virtual ~BattleGroundNAScore(){};
+    // TODO fix me
 };
 
 class BattleGroundNA : public BattleGround
 {
-        friend class BattleGroundMgr;
+    friend class BattleGroundMgr;
 
-    public:
-        BattleGroundNA();
+  public:
+    BattleGroundNA();
 
-        /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player* plr) override;
-        virtual void StartingEventOpenDoors() override;
+    /* inherited from BattlegroundClass */
+    virtual void AddPlayer(Player *plr) override;
+    virtual void StartingEventOpenDoors() override;
 
-        void RemovePlayer(Player* plr, ObjectGuid guid) override;
-        virtual void FillInitialWorldStates(WorldPacket& data, uint32& count) override;
-        void HandleKillPlayer(Player* player, Player* killer) override;
-        bool HandlePlayerUnderMap(Player* player) override;
+    void RemovePlayer(Player *plr, ObjectGuid guid) override;
+    virtual void FillInitialWorldStates(WorldPacket &data, uint32 &count) override;
+    void HandleKillPlayer(Player *player, Player *killer) override;
+    bool HandlePlayerUnderMap(Player *player) override;
 };
 #endif

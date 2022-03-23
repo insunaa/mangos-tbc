@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,13 +24,13 @@
 
 // Format is YYYYMMDDRR where RR is the change in the conf file
 // for that day.
-#define PLAYERBOT_CONF_VERSION    2018101401
+#define PLAYERBOT_CONF_VERSION 2018101401
 
 #if PLATFORM == PLATFORM_WINDOWS
 #define _D_PLAYERBOT_CONFIG "playerbot.conf"
 #else
-#define _D_PLAYERBOT_CONFIG  SYSCONFDIR "playerbot.conf"
+#define _D_PLAYERBOT_CONFIG SYSCONFDIR "playerbot.conf"
 #endif
-#define _PLAYERBOT_CONFIG  MaNGOS::Singleton<std::string>::Instance()
+#define _PLAYERBOT_CONFIG MaNGOS::Singleton<std::string>::Instance()
 
 #endif

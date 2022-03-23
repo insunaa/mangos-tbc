@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,11 +19,13 @@
 
 #ifdef _WIN32
 
-#include "Common.h"
-#include "Log.h"
-#include <cstring>
 #include <windows.h>
 #include <winsvc.h>
+
+#include <cstring>
+
+#include "Common.h"
+#include "Log.h"
 
 #if !defined(WINADVAPI)
 #if !defined(_ADVAPI32_)
@@ -32,7 +35,7 @@
 #endif
 #endif
 
-extern int main(int argc, char** argv);
+extern int main(int argc, char **argv);
 extern char serviceLongName[];
 extern char serviceName[];
 extern char serviceDescription[];
@@ -43,7 +46,7 @@ SERVICE_STATUS serviceStatus;
 
 SERVICE_STATUS_HANDLE serviceStatusHandle = nullptr;
 
-typedef WINADVAPI BOOL (WINAPI* CSD_T)(SC_HANDLE, DWORD, LPCVOID);
+typedef WINADVAPI BOOL(WINAPI *CSD_T)(SC_HANDLE, DWORD, LPCVOID);
 
 bool WinServiceInstall()
 {
@@ -66,9 +69,9 @@ bool WinServiceInstall()
     std::strcat(path, " -s run");
 
     SC_HANDLE service = CreateService(serviceControlManager,
-                                      serviceName,          // name of service
-                                      serviceLongName,      // service name to display
-                                      SERVICE_ALL_ACCESS,   // desired access
+                                      serviceName,        // name of service
+                                      serviceLongName,    // service name to display
+                                      SERVICE_ALL_ACCESS, // desired access
                                       // service type
                                       SERVICE_WIN32_OWN_PROCESS | SERVICE_INTERACTIVE_PROCESS,
                                       SERVICE_AUTO_START,   // start type
@@ -107,10 +110,9 @@ bool WinServiceInstall()
 
     SERVICE_DESCRIPTION sdBuf;
     sdBuf.lpDescription = serviceDescription;
-    ChangeService_Config2(
-        service,                                // handle to service
-        SERVICE_CONFIG_DESCRIPTION,             // change: description
-        &sdBuf);                                // new data
+    ChangeService_Config2(service,                    // handle to service
+                          SERVICE_CONFIG_DESCRIPTION, // change: description
+                          &sdBuf);                    // new data
 
     SC_ACTION _action[1];
     _action[0].Type = SC_ACTION_RESTART;
@@ -120,10 +122,9 @@ bool WinServiceInstall()
     sfa.lpsaActions = _action;
     sfa.cActions = 1;
     sfa.dwResetPeriod = INFINITE;
-    ChangeService_Config2(
-        service,                                // handle to service
-        SERVICE_CONFIG_FAILURE_ACTIONS,         // information level
-        &sfa);                                  // new data
+    ChangeService_Config2(service,                        // handle to service
+                          SERVICE_CONFIG_FAILURE_ACTIONS, // information level
+                          &sfa);                          // new data
 
     CloseServiceHandle(service);
     CloseServiceHandle(serviceControlManager);
@@ -140,8 +141,7 @@ bool WinServiceUninstall()
         return false;
     }
 
-    SC_HANDLE service = OpenService(serviceControlManager,
-                                    serviceName, SERVICE_QUERY_STATUS | DELETE);
+    SC_HANDLE service = OpenService(serviceControlManager, serviceName, SERVICE_QUERY_STATUS | DELETE);
 
     if (!service)
     {
@@ -166,43 +166,42 @@ void WINAPI ServiceControlHandler(DWORD controlCode)
 {
     switch (controlCode)
     {
-        case SERVICE_CONTROL_INTERROGATE:
+    case SERVICE_CONTROL_INTERROGATE:
+        break;
+
+    case SERVICE_CONTROL_SHUTDOWN:
+    case SERVICE_CONTROL_STOP:
+        serviceStatus.dwCurrentState = SERVICE_STOP_PENDING;
+        SetServiceStatus(serviceStatusHandle, &serviceStatus);
+
+        m_ServiceStatus = 0;
+        return;
+
+    case SERVICE_CONTROL_PAUSE:
+        m_ServiceStatus = 2;
+        serviceStatus.dwCurrentState = SERVICE_PAUSED;
+        SetServiceStatus(serviceStatusHandle, &serviceStatus);
+        break;
+
+    case SERVICE_CONTROL_CONTINUE:
+        serviceStatus.dwCurrentState = SERVICE_RUNNING;
+        SetServiceStatus(serviceStatusHandle, &serviceStatus);
+        m_ServiceStatus = 1;
+        break;
+
+    default: {
+        if (controlCode >= 128 && controlCode <= 255)
+            // user defined control code
             break;
-
-        case SERVICE_CONTROL_SHUTDOWN:
-        case SERVICE_CONTROL_STOP:
-            serviceStatus.dwCurrentState = SERVICE_STOP_PENDING;
-            SetServiceStatus(serviceStatusHandle, &serviceStatus);
-
-            m_ServiceStatus = 0;
-            return;
-
-        case SERVICE_CONTROL_PAUSE:
-            m_ServiceStatus = 2;
-            serviceStatus.dwCurrentState = SERVICE_PAUSED;
-            SetServiceStatus(serviceStatusHandle, &serviceStatus);
-            break;
-
-        case SERVICE_CONTROL_CONTINUE:
-            serviceStatus.dwCurrentState = SERVICE_RUNNING;
-            SetServiceStatus(serviceStatusHandle, &serviceStatus);
-            m_ServiceStatus = 1;
-            break;
-
-        default:
-        {
-            if (controlCode >= 128 && controlCode <= 255)
-                // user defined control code
-                break;
-                // unrecognized control code
-            break;
-        }
+        // unrecognized control code
+        break;
+    }
     }
 
     SetServiceStatus(serviceStatusHandle, &serviceStatus);
 }
 
-void WINAPI ServiceMain(DWORD argc, char* argv[])
+void WINAPI ServiceMain(DWORD argc, char *argv[])
 {
     // initialise service status
     serviceStatus.dwServiceType = SERVICE_WIN32;
@@ -224,7 +223,8 @@ void WINAPI ServiceMain(DWORD argc, char* argv[])
 
         for (unsigned int i = 0; i < std::strlen(path); ++i)
         {
-            if (path[i] == '\\') last_slash = i;
+            if (path[i] == '\\')
+                last_slash = i;
         }
 
         path[last_slash] = 0;
@@ -264,11 +264,7 @@ void WINAPI ServiceMain(DWORD argc, char* argv[])
 
 bool WinServiceRun()
 {
-    SERVICE_TABLE_ENTRY serviceTable[] =
-    {
-        { serviceName, ServiceMain },
-        { nullptr, nullptr }
-    };
+    SERVICE_TABLE_ENTRY serviceTable[] = {{serviceName, ServiceMain}, {nullptr, nullptr}};
 
     if (!StartServiceCtrlDispatcher(serviceTable))
     {

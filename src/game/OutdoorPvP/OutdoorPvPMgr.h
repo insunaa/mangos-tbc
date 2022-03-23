@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +25,8 @@
 
 enum
 {
-    TIMER_OPVP_MGR_UPDATE           = MINUTE * IN_MILLISECONDS // 1 minute is enough for us but this might change with wintergrasp support
+    TIMER_OPVP_MGR_UPDATE = MINUTE * IN_MILLISECONDS // 1 minute is enough for us but this might
+                                                     // change with wintergrasp support
 };
 
 enum OutdoorPvPTypes
@@ -41,41 +43,45 @@ enum OutdoorPvPTypes
 
 enum OutdoorPvPZones
 {
-    ZONE_ID_SILITHUS                = 1377,
-    ZONE_ID_TEMPLE_OF_AQ            = 3428,
-    ZONE_ID_RUINS_OF_AQ             = 3429,
-    ZONE_ID_GATES_OF_AQ             = 3478,
+    ZONE_ID_SILITHUS = 1377,
+    ZONE_ID_TEMPLE_OF_AQ = 3428,
+    ZONE_ID_RUINS_OF_AQ = 3429,
+    ZONE_ID_GATES_OF_AQ = 3478,
 
-    ZONE_ID_EASTERN_PLAGUELANDS     = 139,
-    ZONE_ID_STRATHOLME              = 2017,
-    ZONE_ID_SCHOLOMANCE             = 2057,
+    ZONE_ID_EASTERN_PLAGUELANDS = 139,
+    ZONE_ID_STRATHOLME = 2017,
+    ZONE_ID_SCHOLOMANCE = 2057,
 
-    ZONE_ID_HELLFIRE_PENINSULA      = 3483,
-    ZONE_ID_HELLFIRE_RAMPARTS       = 3562,
-    ZONE_ID_HELLFIRE_CITADEL        = 3563,
-    ZONE_ID_BLOOD_FURNACE           = 3713,
-    ZONE_ID_SHATTERED_HALLS         = 3714,
-    ZONE_ID_MAGTHERIDON_LAIR        = 3836,
+    ZONE_ID_HELLFIRE_PENINSULA = 3483,
+    ZONE_ID_HELLFIRE_RAMPARTS = 3562,
+    ZONE_ID_HELLFIRE_CITADEL = 3563,
+    ZONE_ID_BLOOD_FURNACE = 3713,
+    ZONE_ID_SHATTERED_HALLS = 3714,
+    ZONE_ID_MAGTHERIDON_LAIR = 3836,
 
-    ZONE_ID_ZANGARMARSH             = 3521,
-    ZONE_ID_SERPENTSHRINE_CAVERN    = 3607,
-    ZONE_ID_STEAMVAULT              = 3715,
-    ZONE_ID_UNDERBOG                = 3716,
-    ZONE_ID_SLAVE_PENS              = 3717,
+    ZONE_ID_ZANGARMARSH = 3521,
+    ZONE_ID_SERPENTSHRINE_CAVERN = 3607,
+    ZONE_ID_STEAMVAULT = 3715,
+    ZONE_ID_UNDERBOG = 3716,
+    ZONE_ID_SLAVE_PENS = 3717,
 
-    ZONE_ID_TEROKKAR_FOREST         = 3519,
-    ZONE_ID_SHADOW_LABYRINTH        = 3789,
-    ZONE_ID_AUCHENAI_CRYPTS         = 3790,
-    ZONE_ID_SETHEKK_HALLS           = 3791,
-    ZONE_ID_MANA_TOMBS              = 3792,
+    ZONE_ID_TEROKKAR_FOREST = 3519,
+    ZONE_ID_SHADOW_LABYRINTH = 3789,
+    ZONE_ID_AUCHENAI_CRYPTS = 3790,
+    ZONE_ID_SETHEKK_HALLS = 3791,
+    ZONE_ID_MANA_TOMBS = 3792,
 
-    ZONE_ID_NAGRAND                 = 3518
+    ZONE_ID_NAGRAND = 3518
 };
 
 struct CapturePointSlider
 {
-    CapturePointSlider() : Value(0.0f), IsLocked(false) {}
-    CapturePointSlider(float value, bool isLocked) : Value(value), IsLocked(isLocked) {}
+    CapturePointSlider() : Value(0.0f), IsLocked(false)
+    {
+    }
+    CapturePointSlider(float value, bool isLocked) : Value(value), IsLocked(isLocked)
+    {
+    }
 
     float Value;
     bool IsLocked;
@@ -86,43 +92,50 @@ class GameObject;
 class Creature;
 class OutdoorPvP;
 
-typedef std::map<uint32 /*capture point entry*/, CapturePointSlider /*slider value and lock state*/> CapturePointSliderMap;
+typedef std::map<uint32 /*capture point entry*/, CapturePointSlider /*slider value and lock state*/>
+    CapturePointSliderMap;
 
 class OutdoorPvPMgr
 {
-    public:
-        OutdoorPvPMgr();
-        ~OutdoorPvPMgr();
+  public:
+    OutdoorPvPMgr();
+    ~OutdoorPvPMgr();
 
-        // load all outdoor pvp scripts
-        void InitOutdoorPvP();
+    // load all outdoor pvp scripts
+    void InitOutdoorPvP();
 
-        // called when a player enters an outdoor pvp area
-        void HandlePlayerEnterZone(Player* player, uint32 zoneId);
+    // called when a player enters an outdoor pvp area
+    void HandlePlayerEnterZone(Player *player, uint32 zoneId);
 
-        // called when player leaves an outdoor pvp area
-        void HandlePlayerLeaveZone(Player* player, uint32 zoneId);
+    // called when player leaves an outdoor pvp area
+    void HandlePlayerLeaveZone(Player *player, uint32 zoneId);
 
-        // return assigned outdoor pvp script
-        OutdoorPvP* GetScript(uint32 zoneId);
+    // return assigned outdoor pvp script
+    OutdoorPvP *GetScript(uint32 zoneId);
 
-        void Update(uint32 diff);
+    void Update(uint32 diff);
 
-        // Save and load capture point slider
-        CapturePointSliderMap const* GetCapturePointSliderMap() const { return &m_capturePointSlider; }
-        void SetCapturePointSlider(uint32 entry, CapturePointSlider value) { m_capturePointSlider[entry] = value; }
+    // Save and load capture point slider
+    CapturePointSliderMap const *GetCapturePointSliderMap() const
+    {
+        return &m_capturePointSlider;
+    }
+    void SetCapturePointSlider(uint32 entry, CapturePointSlider value)
+    {
+        m_capturePointSlider[entry] = value;
+    }
 
-    private:
-        // return assigned outdoor pvp script
-        OutdoorPvP* GetScriptOfAffectedZone(uint32 zoneId);
+  private:
+    // return assigned outdoor pvp script
+    OutdoorPvP *GetScriptOfAffectedZone(uint32 zoneId);
 
-        // contains all outdoor pvp scripts
-        OutdoorPvP* m_scripts[MAX_OPVP_ID];
+    // contains all outdoor pvp scripts
+    OutdoorPvP *m_scripts[MAX_OPVP_ID];
 
-        CapturePointSliderMap m_capturePointSlider;
+    CapturePointSliderMap m_capturePointSlider;
 
-        // update interval
-        ShortIntervalTimer m_updateTimer;
+    // update interval
+    ShortIntervalTimer m_updateTimer;
 };
 
 #define sOutdoorPvPMgr MaNGOS::Singleton<OutdoorPvPMgr>::Instance()

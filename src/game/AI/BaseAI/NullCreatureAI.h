@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,20 +24,40 @@
 
 class NullCreatureAI : public CreatureAI
 {
-    public:
-        explicit NullCreatureAI(Creature* creature);
-        ~NullCreatureAI();
+  public:
+    explicit NullCreatureAI(Creature *creature);
+    ~NullCreatureAI();
 
-        void MoveInLineOfSight(Unit*) override {}
-        void AttackStart(Unit*) override {}
-        void AttackedBy(Unit*) override {}
-        void EnterEvadeMode() override {}
+    void MoveInLineOfSight(Unit *) override
+    {
+    }
+    void AttackStart(Unit *) override
+    {
+    }
+    void AttackedBy(Unit *) override
+    {
+    }
+    void EnterEvadeMode() override
+    {
+    }
 
-        bool IsVisible(Unit*) const override { return false;  }
+    bool IsVisible(Unit *) const override
+    {
+        return false;
+    }
 
-        void UpdateAI(const uint32) override {}
-        static int Permissible(const Creature*) { return PERMIT_BASE_IDLE;  }
-    protected:
-        std::string GetAIName() override { return "NullAI"; }
+    void UpdateAI(const uint32) override
+    {
+    }
+    static int Permissible(const Creature *)
+    {
+        return PERMIT_BASE_IDLE;
+    }
+
+  protected:
+    std::string GetAIName() override
+    {
+        return "NullAI";
+    }
 };
 #endif

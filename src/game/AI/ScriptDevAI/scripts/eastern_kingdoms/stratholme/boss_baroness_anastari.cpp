@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -27,21 +27,21 @@ EndScriptData */
 
 enum
 {
-    SPELL_BANSHEE_WAIL      = 16565,
-    SPELL_BANSHEE_CURSE     = 16867,
-    SPELL_SILENCE           = 18327,
-    SPELL_POSSESS           = 17244,
-    SPELL_POSSESSED         = 17246,
-    SPELL_POSSESS_INV       = 17250,        // baroness becomes invisible while possessing a target
+    SPELL_BANSHEE_WAIL = 16565,
+    SPELL_BANSHEE_CURSE = 16867,
+    SPELL_SILENCE = 18327,
+    SPELL_POSSESS = 17244,
+    SPELL_POSSESSED = 17246,
+    SPELL_POSSESS_INV = 17250, // baroness becomes invisible while possessing a target
 };
 
 struct boss_baroness_anastariAI : public ScriptedAI
 {
-    boss_baroness_anastariAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_baroness_anastariAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        // Note: This should be generic Player AI behaviour - if no target - break charm
-        m_creature->GetCombatManager().SetLeashingCheck([](Unit* unit, float, float, float) -> bool
-        {
+        // Note: This should be generic Player AI behaviour - if no target - break
+        // charm
+        m_creature->GetCombatManager().SetLeashingCheck([](Unit *unit, float, float, float) -> bool {
             if (unit->HasAura(SPELL_POSSESS_INV) && unit->getThreatManager().getThreatList().size() <= 1)
             {
                 unit->RemoveAurasDueToSpell(SPELL_POSSESS_INV);
@@ -63,11 +63,11 @@ struct boss_baroness_anastariAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiBansheeWailTimer    = 0;
-        m_uiBansheeCurseTimer   = 10000;
-        m_uiSilenceTimer        = 25000;
-        m_uiPossessTimer        = 15000;
-        m_uiPossessEndTimer     = 0;
+        m_uiBansheeWailTimer = 0;
+        m_uiBansheeCurseTimer = 10000;
+        m_uiSilenceTimer = 25000;
+        m_uiPossessTimer = 15000;
+        m_uiPossessEndTimer = 0;
     }
 
     void EnterEvadeMode() override
@@ -94,7 +94,7 @@ struct boss_baroness_anastariAI : public ScriptedAI
                 }
 
                 // Check for possessed player
-                Player* pPlayer = m_creature->GetMap()->GetPlayer(m_possessedPlayer);
+                Player *pPlayer = m_creature->GetMap()->GetPlayer(m_possessedPlayer);
                 if (!pPlayer || !pPlayer->IsAlive())
                 {
                     m_creature->RemoveAurasDueToSpell(SPELL_POSSESS_INV);
@@ -124,7 +124,7 @@ struct boss_baroness_anastariAI : public ScriptedAI
         // BansheeWail
         if (m_uiBansheeWailTimer < uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+            if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_BANSHEE_WAIL) == CAST_OK)
                     m_uiBansheeWailTimer = urand(2000, 3000);
@@ -145,7 +145,7 @@ struct boss_baroness_anastariAI : public ScriptedAI
         // Silence
         if (m_uiSilenceTimer < uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+            if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_SILENCE) == CAST_OK)
                     m_uiSilenceTimer = 25000;
@@ -157,7 +157,8 @@ struct boss_baroness_anastariAI : public ScriptedAI
         // Possess
         if (m_uiPossessTimer < uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, SPELL_POSSESS, SELECT_FLAG_PLAYER))
+            if (Unit *pTarget =
+                    m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, SPELL_POSSESS, SELECT_FLAG_PLAYER))
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_POSSESS) == CAST_OK)
                 {
@@ -176,11 +177,11 @@ struct boss_baroness_anastariAI : public ScriptedAI
 
 struct AnastariPossess : public AuraScript
 {
-    void OnApply(Aura* aura, bool apply) const override
+    void OnApply(Aura *aura, bool apply) const override
     {
         if (apply)
         {
-            Unit* caster = aura->GetCaster();
+            Unit *caster = aura->GetCaster();
             if (caster)
             {
                 caster->CastSpell(aura->GetTarget(), SPELL_POSSESSED, TRIGGERED_OLD_TRIGGERED);
@@ -190,13 +191,13 @@ struct AnastariPossess : public AuraScript
         }
         else
         {
-            if (Unit* caster = aura->GetCaster())
+            if (Unit *caster = aura->GetCaster())
                 caster->RemoveAurasDueToSpell(SPELL_POSSESS_INV);
             aura->GetTarget()->RemoveAurasDueToSpell(SPELL_POSSESSED);
         }
     }
 
-    void OnPeriodicTickEnd(Aura* aura) const override
+    void OnPeriodicTickEnd(Aura *aura) const override
     {
         if (aura->GetTarget()->GetHealthPercent() < 50.f)
             aura->GetTarget()->RemoveAurasDueToSpell(SPELL_POSSESS);
@@ -205,7 +206,7 @@ struct AnastariPossess : public AuraScript
 
 void AddSC_boss_baroness_anastari()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_baroness_anastari";
     pNewScript->GetAI = &GetNewAIInstance<boss_baroness_anastariAI>;
     pNewScript->RegisterSelf();

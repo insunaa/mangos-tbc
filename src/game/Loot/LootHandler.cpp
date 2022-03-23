@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,34 +18,35 @@
  */
 
 #include "Common.h"
-#include "WorldPacket.h"
-#include "Log.h"
+#include "Entities/Object.h"
+#include "Entities/ObjectGuid.h"
 #include "Entities/Player.h"
 #include "Globals/ObjectAccessor.h"
-#include "Entities/ObjectGuid.h"
-#include "Server/WorldSession.h"
-#include "Loot/LootMgr.h"
-#include "Entities/Object.h"
 #include "Groups/Group.h"
+#include "Log.h"
+#include "Loot/LootMgr.h"
+#include "Server/WorldSession.h"
+#include "WorldPacket.h"
 
-void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recv_data)
+void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket &recv_data)
 {
     uint8 itemSlot;
     recv_data >> itemSlot;
 
     DEBUG_LOG("WORLD: CMSG_AUTOSTORE_LOOT_ITEM > requesting item in slot %u", uint32(itemSlot));
 
-    Loot* loot = sLootMgr.GetLoot(_player);
+    Loot *loot = sLootMgr.GetLoot(_player);
 
     if (!loot)
     {
-        sLog.outError("HandleAutostoreLootItemOpcode> Cannot retrieve loot for player %s", _player->GetGuidStr().c_str());
+        sLog.outError("HandleAutostoreLootItemOpcode> Cannot retrieve loot for player %s",
+                      _player->GetGuidStr().c_str());
         return;
     }
 
-    ObjectGuid const& lguid = loot->GetLootGuid();
+    ObjectGuid const &lguid = loot->GetLootGuid();
 
-    LootItem* lootItem = loot->GetLootItemInSlot(itemSlot);
+    LootItem *lootItem = loot->GetLootItemInSlot(itemSlot);
 
     if (!lootItem)
     {
@@ -53,10 +55,12 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recv_data)
         return;
     }
 
-    // item may be blocked by roll system or already looted or another cheating possibility
+    // item may be blocked by roll system or already looted or another cheating
+    // possibility
     if (lootItem->isBlocked || lootItem->GetSlotTypeForSharedLoot(_player, loot) == MAX_LOOT_SLOT_TYPE)
     {
-        sLog.outDebug("HandleAutostoreLootItemOpcode> %s have no right to loot itemId(%u)", _player->GetGuidStr().c_str(), lootItem->itemId);
+        sLog.outDebug("HandleAutostoreLootItemOpcode> %s have no right to loot itemId(%u)",
+                      _player->GetGuidStr().c_str(), lootItem->itemId);
         loot->SendReleaseFor(_player);
         return;
     }
@@ -65,16 +69,16 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recv_data)
 
     if (result == EQUIP_ERR_OK && lguid.IsItem())
     {
-        if (Item* item = _player->GetItemByGuid(lguid))
+        if (Item *item = _player->GetItemByGuid(lguid))
             item->SetLootState(ITEM_LOOT_CHANGED);
     }
 }
 
-void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recv_data*/)
+void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
 {
     DEBUG_LOG("WORLD: CMSG_LOOT_MONEY");
 
-    Loot* pLoot = sLootMgr.GetLoot(_player);
+    Loot *pLoot = sLootMgr.GetLoot(_player);
 
     if (!pLoot)
     {
@@ -85,7 +89,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recv_data*/)
     pLoot->SendGold(_player);
 }
 
-void WorldSession::HandleLootOpcode(WorldPacket& recv_data)
+void WorldSession::HandleLootOpcode(WorldPacket &recv_data)
 {
     DEBUG_LOG("WORLD: CMSG_LOOT");
 
@@ -96,7 +100,7 @@ void WorldSession::HandleLootOpcode(WorldPacket& recv_data)
     if (!_player->IsAlive())
         return;
 
-    if (Loot* loot = sLootMgr.GetLoot(_player, lguid))
+    if (Loot *loot = sLootMgr.GetLoot(_player, lguid))
     {
         // remove stealth aura
         _player->DoLoot();
@@ -109,58 +113,67 @@ void WorldSession::HandleLootOpcode(WorldPacket& recv_data)
         GetPlayer()->InterruptNonMeleeSpells(false);
 }
 
-void WorldSession::HandleLootReleaseOpcode(WorldPacket& recv_data)
+void WorldSession::HandleLootReleaseOpcode(WorldPacket &recv_data)
 {
     DEBUG_LOG("WORLD: CMSG_LOOT_RELEASE");
 
     ObjectGuid lguid;
     recv_data >> lguid;
 
-    if (Loot* loot = sLootMgr.GetLoot(_player, lguid))
+    if (Loot *loot = sLootMgr.GetLoot(_player, lguid))
         loot->Release(_player);
 }
 
-void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recv_data)
+void WorldSession::HandleLootMasterGiveOpcode(WorldPacket &recv_data)
 {
-    uint8      itemSlot;        // slot sent in LOOT_RESPONSE
-    ObjectGuid lootguid;        // the guid of the loot object owner
-    ObjectGuid targetGuid;      // the item receiver guid
+    uint8 itemSlot;        // slot sent in LOOT_RESPONSE
+    ObjectGuid lootguid;   // the guid of the loot object owner
+    ObjectGuid targetGuid; // the item receiver guid
 
     recv_data >> lootguid >> itemSlot >> targetGuid;
 
-    Player* target = ObjectAccessor::FindPlayer(targetGuid);
+    Player *target = ObjectAccessor::FindPlayer(targetGuid);
     if (!target)
     {
         _player->SendLootError(lootguid, LOOT_ERROR_PLAYER_NOT_FOUND);
-        sLog.outError("WorldSession::HandleLootMasterGiveOpcode> Cannot retrieve target %s", targetGuid.GetString().c_str());
+        sLog.outError("WorldSession::HandleLootMasterGiveOpcode> Cannot "
+                      "retrieve target %s",
+                      targetGuid.GetString().c_str());
         return;
     }
 
-    DEBUG_LOG("WorldSession::HandleLootMasterGiveOpcode> Giver = %s, Target = %s.", _player->GetGuidStr().c_str(), targetGuid.GetString().c_str());
+    DEBUG_LOG("WorldSession::HandleLootMasterGiveOpcode> Giver = %s, Target = %s.", _player->GetGuidStr().c_str(),
+              targetGuid.GetString().c_str());
 
-    Loot* pLoot = sLootMgr.GetLoot(_player, lootguid);
+    Loot *pLoot = sLootMgr.GetLoot(_player, lootguid);
 
     if (!pLoot)
     {
-        sLog.outError("WorldSession::HandleLootMasterGiveOpcode> Cannot retrieve loot for player %s", _player->GetGuidStr().c_str());
+        sLog.outError("WorldSession::HandleLootMasterGiveOpcode> Cannot retrieve "
+                      "loot for player %s",
+                      _player->GetGuidStr().c_str());
         return;
     }
 
     if (_player->GetObjectGuid() != pLoot->GetMasterLootGuid())
     {
         _player->SendLootError(lootguid, LOOT_ERROR_DIDNT_KILL);
-        sLog.outError("WorldSession::HandleLootMasterGiveOpcode> player %s is not the loot master!", _player->GetGuidStr().c_str());
+        sLog.outError("WorldSession::HandleLootMasterGiveOpcode> player %s is not "
+                      "the loot master!",
+                      _player->GetGuidStr().c_str());
         return;
     }
 
     if (!_player->IsInGroup(target) || !_player->IsInMap(target))
     {
         _player->SendLootError(lootguid, LOOT_ERROR_MASTER_OTHER);
-        sLog.outError("WorldSession::HandleLootMasterGiveOpcode> Player %s tried to give an item to ineligible player %s !", _player->GetGuidStr().c_str(), target->GetGuidStr().c_str());
+        sLog.outError("WorldSession::HandleLootMasterGiveOpcode> Player %s tried "
+                      "to give an item to ineligible player %s !",
+                      _player->GetGuidStr().c_str(), target->GetGuidStr().c_str());
         return;
     }
 
-    LootItem* lootItem = pLoot->GetLootItemInSlot(itemSlot);
+    LootItem *lootItem = pLoot->GetLootItemInSlot(itemSlot);
 
     if (!lootItem)
     {
@@ -171,7 +184,8 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recv_data)
     // item may be already looted or another cheating possibility
     if (lootItem->GetSlotTypeForSharedLoot(_player, pLoot) == MAX_LOOT_SLOT_TYPE)
     {
-        sLog.outError("HandleAutostoreLootItemOpcode> %s have no right to loot itemId(%u)", _player->GetGuidStr().c_str(), lootItem->itemId);
+        sLog.outError("HandleAutostoreLootItemOpcode> %s have no right to loot itemId(%u)",
+                      _player->GetGuidStr().c_str(), lootItem->itemId);
         return;
     }
 
@@ -193,14 +207,14 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recv_data)
     }
 }
 
-void WorldSession::HandleLootMethodOpcode(WorldPacket& recv_data)
+void WorldSession::HandleLootMethodOpcode(WorldPacket &recv_data)
 {
     uint32 lootMethod;
     ObjectGuid lootMaster;
     uint32 lootThreshold;
     recv_data >> lootMethod >> lootMaster >> lootThreshold;
 
-    Group* group = GetPlayer()->GetGroup();
+    Group *group = GetPlayer()->GetGroup();
     if (!group)
         return;
 
@@ -216,18 +230,19 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket& recv_data)
     group->SendUpdate();
 }
 
-void WorldSession::HandleLootRoll(WorldPacket& recv_data)
+void WorldSession::HandleLootRoll(WorldPacket &recv_data)
 {
     ObjectGuid lootedTarget;
     uint32 itemSlot;
-    uint8  rollType;
-    recv_data >> lootedTarget;                              // guid of the item rolled
+    uint8 rollType;
+    recv_data >> lootedTarget; // guid of the item rolled
     recv_data >> itemSlot;
     recv_data >> rollType;
 
-    sLog.outDebug("WORLD RECIEVE CMSG_LOOT_ROLL, From:%s, rollType:%u", lootedTarget.GetString().c_str(), uint32(rollType));
+    sLog.outDebug("WORLD RECIEVE CMSG_LOOT_ROLL, From:%s, rollType:%u", lootedTarget.GetString().c_str(),
+                  uint32(rollType));
 
-    Group* group = _player->GetGroup();
+    Group *group = _player->GetGroup();
     if (!group)
         return;
 
@@ -236,4 +251,3 @@ void WorldSession::HandleLootRoll(WorldPacket& recv_data)
 
     sLootMgr.PlayerVote(GetPlayer(), lootedTarget, itemSlot, RollVote(rollType));
 }
-

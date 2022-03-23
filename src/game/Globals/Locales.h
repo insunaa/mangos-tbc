@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,13 +20,13 @@
 #ifndef MANGOS_LOCALES_H
 #define MANGOS_LOCALES_H
 
-#include "Platform/Define.h"
-
 #include <string>
+
+#include "Platform/Define.h"
 
 enum LocaleConstant : uint8
 {
-    LOCALE_enUS = 0,                                        // also enGB
+    LOCALE_enUS = 0, // also enGB
     LOCALE_koKR = 1,
     LOCALE_frFR = 2,
     LOCALE_deDE = 3,
@@ -39,13 +40,13 @@ enum LocaleConstant : uint8
 #define MAX_LOCALE 9
 #define DEFAULT_LOCALE LOCALE_enUS
 
-LocaleConstant GetLocaleByName(const std::string& name);
+LocaleConstant GetLocaleByName(const std::string &name);
 
-extern char const* localeNames[MAX_LOCALE];
+extern char const *localeNames[MAX_LOCALE];
 
 struct LocaleNameStr
 {
-    char const* name;
+    char const *name;
     LocaleConstant locale;
 };
 

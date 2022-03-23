@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,21 +17,22 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "BattleGroundAB.h"
+
+#include "BattleGround.h"
+#include "BattleGroundMgr.h"
+#include "Entities/GameObject.h"
 #include "Entities/Object.h"
 #include "Entities/Player.h"
-#include "BattleGround.h"
-#include "BattleGroundAB.h"
-#include "Entities/GameObject.h"
-#include "BattleGroundMgr.h"
+#include "Globals/ObjectMgr.h"
 #include "Tools/Language.h"
 #include "WorldPacket.h"
-#include "Globals/ObjectMgr.h"
 
-BattleGroundAB::BattleGroundAB(): m_isInformedNearVictory(false), m_honorTicks(0), m_reputationTics(0)
+BattleGroundAB::BattleGroundAB() : m_isInformedNearVictory(false), m_honorTicks(0), m_reputationTics(0)
 {
-    m_startMessageIds[BG_STARTING_EVENT_FIRST]  = 0;
+    m_startMessageIds[BG_STARTING_EVENT_FIRST] = 0;
     m_startMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_AB_START_ONE_MINUTE;
-    m_startMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_AB_START_HALF_MINUTE;
+    m_startMessageIds[BG_STARTING_EVENT_THIRD] = LANG_BG_AB_START_HALF_MINUTE;
     m_startMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_AB_HAS_BEGUN;
 }
 
@@ -43,7 +45,7 @@ void BattleGroundAB::Update(uint32 diff)
 
     // start counting the team points on every update tick;
     // every time we start from 0 for each team
-    int team_points[PVP_TEAM_COUNT] = { 0, 0 };
+    int team_points[PVP_TEAM_COUNT] = {0, 0};
 
     for (uint8 node = 0; node < BG_AB_MAX_NODES; ++node)
     {
@@ -79,17 +81,19 @@ void BattleGroundAB::Update(uint32 diff)
                 DoUpdateNodeWorldstate(node, abOccupiedStates[teamIndex][node]);
 
                 // Message to chatlog
-                ChatMsg chatSystem = teamIndex == TEAM_INDEX_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE;
+                ChatMsg chatSystem =
+                    teamIndex == TEAM_INDEX_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE;
                 uint32 factionStrig = teamIndex == TEAM_INDEX_ALLIANCE ? LANG_BG_ALLY : LANG_BG_HORDE;
 
                 SendMessage2ToAll(LANG_BG_AB_NODE_TAKEN, chatSystem, nullptr, factionStrig, GetNodeMessageId(node));
-                PlaySoundToAll(teamIndex == TEAM_INDEX_ALLIANCE ? BG_AB_SOUND_NODE_CAPTURED_ALLIANCE : BG_AB_SOUND_NODE_CAPTURED_HORDE);
+                PlaySoundToAll(teamIndex == TEAM_INDEX_ALLIANCE ? BG_AB_SOUND_NODE_CAPTURED_ALLIANCE
+                                                                : BG_AB_SOUND_NODE_CAPTURED_HORDE);
             }
             else
                 m_nodeTimers[node] -= diff;
         }
 
-        // for each occupied node we add team points; 
+        // for each occupied node we add team points;
         // this influences the abTickPoints and the abTickIntervals values
         for (uint8 teamIndex = 0; teamIndex < PVP_TEAM_COUNT; ++teamIndex)
             if (m_nodeStatus[node] == ABNodeStatus(teamIndex + BG_AB_NODE_TYPE_OCCUPIED))
@@ -107,16 +111,17 @@ void BattleGroundAB::Update(uint32 diff)
 
         if (m_lastTick[teamIndex] > abTickIntervals[points])
         {
-            m_lastTick[teamIndex]            -= abTickIntervals[points];
+            m_lastTick[teamIndex] -= abTickIntervals[points];
 
-            m_teamScores[teamIndex]          += abTickPoints[points];
-            m_honorScoreTicks[teamIndex]     += abTickPoints[points];
+            m_teamScores[teamIndex] += abTickPoints[points];
+            m_honorScoreTicks[teamIndex] += abTickPoints[points];
             m_reputationScoreTics[teamIndex] += abTickPoints[points];
 
             // update reputation
             if (m_reputationScoreTics[teamIndex] >= m_reputationTics)
             {
-                (teamIndex == TEAM_INDEX_ALLIANCE) ? RewardReputationToTeam(509, 10, ALLIANCE) : RewardReputationToTeam(510, 10, HORDE);
+                (teamIndex == TEAM_INDEX_ALLIANCE) ? RewardReputationToTeam(509, 10, ALLIANCE)
+                                                   : RewardReputationToTeam(510, 10, HORDE);
                 m_reputationScoreTics[teamIndex] -= m_reputationTics;
             }
 
@@ -130,8 +135,11 @@ void BattleGroundAB::Update(uint32 diff)
             // send info for near victory
             if (!m_isInformedNearVictory && m_teamScores[teamIndex] > BG_AB_WARNING_NEAR_VICTORY_SCORE)
             {
-                SendMessageToAll(teamIndex == TEAM_INDEX_ALLIANCE ? LANG_BG_AB_A_NEAR_VICTORY : LANG_BG_AB_H_NEAR_VICTORY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
-                PlaySoundToAll(teamIndex == TEAM_INDEX_ALLIANCE ? BG_AB_SOUND_NEAR_VICTORY_ALLIANCE : BG_AB_SOUND_NEAR_VICTORY_HORDE);
+                SendMessageToAll(teamIndex == TEAM_INDEX_ALLIANCE ? LANG_BG_AB_A_NEAR_VICTORY
+                                                                  : LANG_BG_AB_H_NEAR_VICTORY,
+                                 CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                PlaySoundToAll(teamIndex == TEAM_INDEX_ALLIANCE ? BG_AB_SOUND_NEAR_VICTORY_ALLIANCE
+                                                                : BG_AB_SOUND_NEAR_VICTORY_HORDE);
                 m_isInformedNearVictory = true;
             }
 
@@ -139,7 +147,8 @@ void BattleGroundAB::Update(uint32 diff)
                 m_teamScores[teamIndex] = BG_AB_MAX_TEAM_SCORE;
 
             // update resource world state
-            UpdateWorldState(teamIndex == TEAM_INDEX_ALLIANCE ? BG_AB_OP_RESOURCES_ALLY : BG_AB_OP_RESOURCES_HORDE, m_teamScores[teamIndex]);
+            UpdateWorldState(teamIndex == TEAM_INDEX_ALLIANCE ? BG_AB_OP_RESOURCES_ALLY : BG_AB_OP_RESOURCES_HORDE,
+                             m_teamScores[teamIndex]);
         }
     }
 
@@ -163,33 +172,33 @@ void BattleGroundAB::StartingEventOpenDoors()
     GetBgMap()->GetGraveyardManager().SetGraveYardLinkTeam(AB_GRAVEYARD_HORDE_BASE, BG_AB_ZONE_MAIN, TEAM_INVALID);
 }
 
-void BattleGroundAB::AddPlayer(Player* player)
+void BattleGroundAB::AddPlayer(Player *player)
 {
     BattleGround::AddPlayer(player);
     // create score and add it to map, default values are set in the constructor
-    BattleGroundABScore* sc = new BattleGroundABScore;
+    BattleGroundABScore *sc = new BattleGroundABScore;
 
     m_playerScores[player->GetObjectGuid()] = sc;
 }
 
-bool BattleGroundAB::HandleAreaTrigger(Player* source, uint32 trigger)
+bool BattleGroundAB::HandleAreaTrigger(Player *source, uint32 trigger)
 {
     switch (trigger)
     {
-        case AB_AT_ALLIANCE_EXIT:                                       // Arathi Basin Alliance Exit.
-            if (source->GetTeam() != ALLIANCE)
-                source->GetSession()->SendNotification(LANG_BATTLEGROUND_ONLY_ALLIANCE_USE);
-            else
-                source->LeaveBattleground();
-            break;
-        case AB_AT_HORDE_EXIT:                                          // Arathi Basin Horde Exit.
-            if (source->GetTeam() != HORDE)
-                source->GetSession()->SendNotification(LANG_BATTLEGROUND_ONLY_HORDE_USE);
-            else
-                source->LeaveBattleground();
-            break;
-        default:
-            return false;
+    case AB_AT_ALLIANCE_EXIT: // Arathi Basin Alliance Exit.
+        if (source->GetTeam() != ALLIANCE)
+            source->GetSession()->SendNotification(LANG_BATTLEGROUND_ONLY_ALLIANCE_USE);
+        else
+            source->LeaveBattleground();
+        break;
+    case AB_AT_HORDE_EXIT: // Arathi Basin Horde Exit.
+        if (source->GetTeam() != HORDE)
+            source->GetSession()->SendNotification(LANG_BATTLEGROUND_ONLY_HORDE_USE);
+        else
+            source->LeaveBattleground();
+        break;
+    default:
+        return false;
     }
     return true;
 }
@@ -205,7 +214,7 @@ void BattleGroundAB::DoUpdateBanner(uint8 node, ABNodeStatus status, bool delay)
         m_bannerTimers[node].status = status;
     }
     else
-        SpawnEvent(node, status, true);                           // will automaticly despawn other events
+        SpawnEvent(node, status, true); // will automaticly despawn other events
 }
 
 // Function that returns the message id for each node
@@ -213,16 +222,21 @@ int32 BattleGroundAB::GetNodeMessageId(uint8 node) const
 {
     switch (node)
     {
-        case BG_AB_NODE_STABLES:     return LANG_BG_AB_NODE_STABLES;
-        case BG_AB_NODE_BLACKSMITH:  return LANG_BG_AB_NODE_BLACKSMITH;
-        case BG_AB_NODE_FARM:        return LANG_BG_AB_NODE_FARM;
-        case BG_AB_NODE_LUMBER_MILL: return LANG_BG_AB_NODE_LUMBER_MILL;
-        case BG_AB_NODE_GOLD_MINE:   return LANG_BG_AB_NODE_GOLD_MINE;
+    case BG_AB_NODE_STABLES:
+        return LANG_BG_AB_NODE_STABLES;
+    case BG_AB_NODE_BLACKSMITH:
+        return LANG_BG_AB_NODE_BLACKSMITH;
+    case BG_AB_NODE_FARM:
+        return LANG_BG_AB_NODE_FARM;
+    case BG_AB_NODE_LUMBER_MILL:
+        return LANG_BG_AB_NODE_LUMBER_MILL;
+    case BG_AB_NODE_GOLD_MINE:
+        return LANG_BG_AB_NODE_GOLD_MINE;
     }
     return 0;
 }
 
-void BattleGroundAB::FillInitialWorldStates(WorldPacket& data, uint32& count)
+void BattleGroundAB::FillInitialWorldStates(WorldPacket &data, uint32 &count)
 {
     // Node icons
     for (uint8 i = 0; i < BG_AB_MAX_NODES; ++i)
@@ -232,13 +246,13 @@ void BattleGroundAB::FillInitialWorldStates(WorldPacket& data, uint32& count)
     FillInitialWorldState(data, count, BG_AB_OP_OCCUPIED_BASES_HORDE, m_capturedNodeCount[TEAM_INDEX_HORDE]);
 
     // Team scores
-    FillInitialWorldState(data, count, BG_AB_OP_RESOURCES_MAX,      BG_AB_MAX_TEAM_SCORE);
-    FillInitialWorldState(data, count, BG_AB_OP_RESOURCES_WARNING,  BG_AB_WARNING_NEAR_VICTORY_SCORE);
-    FillInitialWorldState(data, count, BG_AB_OP_RESOURCES_ALLY,     m_teamScores[TEAM_INDEX_ALLIANCE]);
-    FillInitialWorldState(data, count, BG_AB_OP_RESOURCES_HORDE,    m_teamScores[TEAM_INDEX_HORDE]);
+    FillInitialWorldState(data, count, BG_AB_OP_RESOURCES_MAX, BG_AB_MAX_TEAM_SCORE);
+    FillInitialWorldState(data, count, BG_AB_OP_RESOURCES_WARNING, BG_AB_WARNING_NEAR_VICTORY_SCORE);
+    FillInitialWorldState(data, count, BG_AB_OP_RESOURCES_ALLY, m_teamScores[TEAM_INDEX_ALLIANCE]);
+    FillInitialWorldState(data, count, BG_AB_OP_RESOURCES_HORDE, m_teamScores[TEAM_INDEX_HORDE]);
 
     // other unknown
-    FillInitialWorldState(data, count, 0x745, 0x2);         // 37 1861 unk
+    FillInitialWorldState(data, count, 0x745, 0x2); // 37 1861 unk
 }
 
 // Method that sends the world state update for the given node
@@ -272,23 +286,25 @@ void BattleGroundAB::ProcessNodeCapture(uint8 node, PvpTeamIndex teamIdx)
 }
 
 // Method that handles the banner click
-void BattleGroundAB::HandlePlayerClickedOnFlag(Player* player, GameObject* go)
+void BattleGroundAB::HandlePlayerClickedOnFlag(Player *player, GameObject *go)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    DEBUG_LOG("BattleGroundAB: Handle flag clicked by team %u for gameobject entry %u.", player->GetTeam(), go->GetEntry());
+    DEBUG_LOG("BattleGroundAB: Handle flag clicked by team %u for gameobject "
+              "entry %u.",
+              player->GetTeam(), go->GetEntry());
 
     PvpTeamIndex teamIndex = GetTeamIndexByTeamId(player->GetTeam());
-    uint32 scoreType    = 0;
-    uint32 soundId      = 0;
-    uint32 worldState   = 0;
-    int32 textEntry     = 0;
+    uint32 scoreType = 0;
+    uint32 soundId = 0;
+    uint32 worldState = 0;
+    int32 textEntry = 0;
     uint32 factionStrig = 0;
 
     // process battleground event
     uint8 event = (sBattleGroundMgr.GetGameObjectEventIndex(go->GetDbGuid())).event1;
-    if (event >= BG_AB_MAX_NODES)                           // not a node
+    if (event >= BG_AB_MAX_NODES) // not a node
         return;
 
     ABNodes node = ABNodes(event);
@@ -298,66 +314,69 @@ void BattleGroundAB::HandlePlayerClickedOnFlag(Player* player, GameObject* go)
     // Node is NEUTRAL -> change to CONTESTED
     if (m_nodeStatus[node] == ABNodeStatus(BG_AB_NODE_TYPE_NEUTRAL))
     {
-        scoreType              = SCORE_BASES_ASSAULTED;
-        worldState             = abContestedStates[teamIndex][node];
+        scoreType = SCORE_BASES_ASSAULTED;
+        worldState = abContestedStates[teamIndex][node];
 
         m_prevNodeStatus[node] = m_nodeStatus[node];
-        m_nodeStatus[node]     = ABNodeStatus(teamIndex + BG_AB_NODE_TYPE_CONTESTED);
+        m_nodeStatus[node] = ABNodeStatus(teamIndex + BG_AB_NODE_TYPE_CONTESTED);
 
-        m_nodeTimers[node]     = BG_AB_FLAG_CAPTURING_TIME;
+        m_nodeTimers[node] = BG_AB_FLAG_CAPTURING_TIME;
 
-        textEntry              = LANG_BG_AB_NODE_CLAIMED;
-        factionStrig           = teamIndex == TEAM_INDEX_ALLIANCE ? LANG_BG_ALLY : LANG_BG_HORDE;
-        soundId                = BG_AB_SOUND_NODE_CLAIMED;
+        textEntry = LANG_BG_AB_NODE_CLAIMED;
+        factionStrig = teamIndex == TEAM_INDEX_ALLIANCE ? LANG_BG_ALLY : LANG_BG_HORDE;
+        soundId = BG_AB_SOUND_NODE_CLAIMED;
     }
     // Node is CONTESTED -> change depends on previous status
-    else if (m_nodeStatus[node] == ABNodeStatus(BG_AB_NODE_STATUS_ALLY_CONTESTED) || m_nodeStatus[node] == ABNodeStatus(BG_AB_NODE_STATUS_HORDE_CONTESTED))
+    else if (m_nodeStatus[node] == ABNodeStatus(BG_AB_NODE_STATUS_ALLY_CONTESTED) ||
+             m_nodeStatus[node] == ABNodeStatus(BG_AB_NODE_STATUS_HORDE_CONTESTED))
     {
         // Last state is CONTESTED -> change to CONTESTED (change owner team)
         if (m_prevNodeStatus[node] < ABNodeStatus(BG_AB_NODE_TYPE_OCCUPIED))
         {
-            scoreType               = SCORE_BASES_ASSAULTED;
-            worldState              = abContestedStates[teamIndex][node];
+            scoreType = SCORE_BASES_ASSAULTED;
+            worldState = abContestedStates[teamIndex][node];
 
-            m_prevNodeStatus[node]  = m_nodeStatus[node];
-            m_nodeStatus[node]      = ABNodeStatus(teamIndex + BG_AB_NODE_TYPE_CONTESTED);
+            m_prevNodeStatus[node] = m_nodeStatus[node];
+            m_nodeStatus[node] = ABNodeStatus(teamIndex + BG_AB_NODE_TYPE_CONTESTED);
 
-            m_nodeTimers[node]      = BG_AB_FLAG_CAPTURING_TIME;
+            m_nodeTimers[node] = BG_AB_FLAG_CAPTURING_TIME;
 
-            textEntry               = LANG_BG_AB_NODE_ASSAULTED;
+            textEntry = LANG_BG_AB_NODE_ASSAULTED;
         }
         // Last state is OCCUPIED -> change back to OCCUPIED (defend the node)
         else
         {
-            scoreType               = SCORE_BASES_DEFENDED;
-            worldState              = abOccupiedStates[teamIndex][node];
+            scoreType = SCORE_BASES_DEFENDED;
+            worldState = abOccupiedStates[teamIndex][node];
 
-            m_prevNodeStatus[node]  = m_nodeStatus[node];
-            m_nodeStatus[node]      = ABNodeStatus(teamIndex + BG_AB_NODE_TYPE_OCCUPIED);
+            m_prevNodeStatus[node] = m_nodeStatus[node];
+            m_nodeStatus[node] = ABNodeStatus(teamIndex + BG_AB_NODE_TYPE_OCCUPIED);
 
-            m_nodeTimers[node]      = 0;
+            m_nodeTimers[node] = 0;
 
-            textEntry               = LANG_BG_AB_NODE_DEFENDED;
+            textEntry = LANG_BG_AB_NODE_DEFENDED;
 
             // apply the node capture benefits
             ProcessNodeCapture(node, teamIndex);
         }
 
-        soundId = (teamIndex == TEAM_INDEX_ALLIANCE) ? BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE : BG_AB_SOUND_NODE_ASSAULTED_HORDE;
+        soundId =
+            (teamIndex == TEAM_INDEX_ALLIANCE) ? BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE : BG_AB_SOUND_NODE_ASSAULTED_HORDE;
     }
     // Node is OCCUPIED -> change to CONTESTED
     else
     {
-        scoreType               = SCORE_BASES_ASSAULTED;
-        worldState              = abContestedStates[teamIndex][node];
+        scoreType = SCORE_BASES_ASSAULTED;
+        worldState = abContestedStates[teamIndex][node];
 
-        m_prevNodeStatus[node]  = m_nodeStatus[node];
-        m_nodeStatus[node]      = ABNodeStatus(teamIndex + BG_AB_NODE_TYPE_CONTESTED);
+        m_prevNodeStatus[node] = m_nodeStatus[node];
+        m_nodeStatus[node] = ABNodeStatus(teamIndex + BG_AB_NODE_TYPE_CONTESTED);
 
-        m_nodeTimers[node]      = BG_AB_FLAG_CAPTURING_TIME;
+        m_nodeTimers[node] = BG_AB_FLAG_CAPTURING_TIME;
 
-        textEntry               = LANG_BG_AB_NODE_ASSAULTED;
-        soundId                 = (teamIndex == TEAM_INDEX_ALLIANCE) ? BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE : BG_AB_SOUND_NODE_ASSAULTED_HORDE;
+        textEntry = LANG_BG_AB_NODE_ASSAULTED;
+        soundId =
+            (teamIndex == TEAM_INDEX_ALLIANCE) ? BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE : BG_AB_SOUND_NODE_ASSAULTED_HORDE;
 
         PvpTeamIndex otherTeamIndex = GetOtherTeamIndex(teamIndex);
         --m_capturedNodeCount[otherTeamIndex];
@@ -402,16 +421,16 @@ void BattleGroundAB::Reset()
 
     m_isInformedNearVictory = false;
     bool isBgWeekend = BattleGroundMgr::IsBgWeekend(GetTypeId());
-    m_honorTicks     = isBgWeekend ? BG_AB_WEEKEND_HONOR_INTERVAL : BG_AB_NORMAL_HONOR_INTERVAL;
+    m_honorTicks = isBgWeekend ? BG_AB_WEEKEND_HONOR_INTERVAL : BG_AB_NORMAL_HONOR_INTERVAL;
     m_reputationTics = isBgWeekend ? BG_AB_WEEKEND_REPUTATION_INTERVAL : BG_AB_NORMAL_REPUTATION_INTERVAL;
 
     for (uint8 i = 0; i < BG_AB_MAX_NODES; ++i)
     {
         m_nodeVisualState[i] = abDefaultStates[i];
-        m_nodeStatus[i]      = BG_AB_NODE_STATUS_NEUTRAL;
-        m_prevNodeStatus[i]  = BG_AB_NODE_STATUS_NEUTRAL;
+        m_nodeStatus[i] = BG_AB_NODE_STATUS_NEUTRAL;
+        m_prevNodeStatus[i] = BG_AB_NODE_STATUS_NEUTRAL;
 
-        m_nodeTimers[i]     = 0;
+        m_nodeTimers[i] = 0;
         m_bannerTimers[i].timer = 0;
 
         // all nodes owned by neutral team at beginning
@@ -437,23 +456,23 @@ void BattleGroundAB::EndBattleGround(Team winner)
     BattleGround::EndBattleGround(winner);
 }
 
-void BattleGroundAB::UpdatePlayerScore(Player* source, uint32 type, uint32 value)
+void BattleGroundAB::UpdatePlayerScore(Player *source, uint32 type, uint32 value)
 {
     BattleGroundScoreMap::iterator itr = m_playerScores.find(source->GetObjectGuid());
-    if (itr == m_playerScores.end())                        // player not found...
+    if (itr == m_playerScores.end()) // player not found...
         return;
 
     switch (type)
     {
-        case SCORE_BASES_ASSAULTED:
-            ((BattleGroundABScore*)itr->second)->basesAssaulted += value;
-            break;
-        case SCORE_BASES_DEFENDED:
-            ((BattleGroundABScore*)itr->second)->basesDefended += value;
-            break;
-        default:
-            BattleGround::UpdatePlayerScore(source, type, value);
-            break;
+    case SCORE_BASES_ASSAULTED:
+        ((BattleGroundABScore *)itr->second)->basesAssaulted += value;
+        break;
+    case SCORE_BASES_DEFENDED:
+        ((BattleGroundABScore *)itr->second)->basesDefended += value;
+        break;
+    default:
+        BattleGround::UpdatePlayerScore(source, type, value);
+        break;
     }
 }
 

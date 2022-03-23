@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +20,10 @@
 #ifndef _AUTH_HMACSHA1_H
 #define _AUTH_HMACSHA1_H
 
-#include "Common.h"
 #include <openssl/hmac.h>
 #include <openssl/sha.h>
+
+#include "Common.h"
 
 class BigNumber;
 
@@ -29,20 +31,27 @@ class BigNumber;
 
 class HMACSHA1
 {
-    public:
-        HMACSHA1(uint32 len, const uint8* seed);
-        HMACSHA1(uint32 len, const uint8* seed, bool);
-        ~HMACSHA1();
-        void UpdateBigNumber(BigNumber* bn);
-        void UpdateData(const uint8* data, int length);
-        void UpdateData(const std::string& str);
-        void Initialize();
-        void Finalize();
-        uint8* GetDigest() { return m_digest; };
-        static int GetLength() { return SHA_DIGEST_LENGTH; };
-    private:
-        HMAC_CTX* m_ctx;
-        uint8 m_key[SEED_KEY_SIZE];
-        uint8 m_digest[SHA_DIGEST_LENGTH];
+  public:
+    HMACSHA1(uint32 len, const uint8 *seed);
+    HMACSHA1(uint32 len, const uint8 *seed, bool);
+    ~HMACSHA1();
+    void UpdateBigNumber(BigNumber *bn);
+    void UpdateData(const uint8 *data, int length);
+    void UpdateData(const std::string &str);
+    void Initialize();
+    void Finalize();
+    uint8 *GetDigest()
+    {
+        return m_digest;
+    };
+    static int GetLength()
+    {
+        return SHA_DIGEST_LENGTH;
+    };
+
+  private:
+    HMAC_CTX *m_ctx;
+    uint8 m_key[SEED_KEY_SIZE];
+    uint8 m_digest[SHA_DIGEST_LENGTH];
 };
 #endif

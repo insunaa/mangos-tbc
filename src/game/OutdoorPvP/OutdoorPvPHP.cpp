@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,26 +18,25 @@
  */
 
 #include "OutdoorPvPHP.h"
-#include "WorldPacket.h"
-#include "World/World.h"
-#include "Entities/Object.h"
+
 #include "Entities/Creature.h"
 #include "Entities/GameObject.h"
+#include "Entities/Object.h"
 #include "Entities/Player.h"
+#include "World/World.h"
+#include "WorldPacket.h"
 
-OutdoorPvPHP::OutdoorPvPHP() : OutdoorPvP(),
-    m_towersAlliance(0),
-    m_towersHorde(0)
+OutdoorPvPHP::OutdoorPvPHP() : OutdoorPvP(), m_towersAlliance(0), m_towersHorde(0)
 {
     m_towerWorldState[0] = WORLD_STATE_HP_OVERLOOK_NEUTRAL;
     m_towerWorldState[1] = WORLD_STATE_HP_STADIUM_NEUTRAL;
     m_towerWorldState[2] = WORLD_STATE_HP_BROKEN_HILL_NEUTRAL;
 
-    for (auto& i : m_towerOwner)
+    for (auto &i : m_towerOwner)
         i = TEAM_NONE;
 }
 
-void OutdoorPvPHP::FillInitialWorldStates(WorldPacket& data, uint32& count)
+void OutdoorPvPHP::FillInitialWorldStates(WorldPacket &data, uint32 &count)
 {
     FillInitialWorldState(data, count, WORLD_STATE_HP_TOWER_COUNT_ALLIANCE, m_towersAlliance);
     FillInitialWorldState(data, count, WORLD_STATE_HP_TOWER_COUNT_HORDE, m_towersHorde);
@@ -47,7 +47,7 @@ void OutdoorPvPHP::FillInitialWorldStates(WorldPacket& data, uint32& count)
         FillInitialWorldState(data, count, i, WORLD_STATE_ADD);
 }
 
-void OutdoorPvPHP::SendRemoveWorldStates(Player* player)
+void OutdoorPvPHP::SendRemoveWorldStates(Player *player)
 {
     player->SendUpdateWorldState(WORLD_STATE_HP_TOWER_DISPLAY_A, WORLD_STATE_REMOVE);
     player->SendUpdateWorldState(WORLD_STATE_HP_TOWER_DISPLAY_H, WORLD_STATE_REMOVE);
@@ -56,12 +56,14 @@ void OutdoorPvPHP::SendRemoveWorldStates(Player* player)
         player->SendUpdateWorldState(i, WORLD_STATE_REMOVE);
 }
 
-void OutdoorPvPHP::HandlePlayerEnterZone(Player* player, bool isMainZone)
+void OutdoorPvPHP::HandlePlayerEnterZone(Player *player, bool isMainZone)
 {
     OutdoorPvP::HandlePlayerEnterZone(player, isMainZone);
 
-    // remove the buff from the player first; Sometimes on relog players still have the aura
-    player->RemoveAurasDueToSpell(player->GetTeam() == ALLIANCE ? SPELL_HELLFIRE_SUPERIORITY_ALLIANCE : SPELL_HELLFIRE_SUPERIORITY_HORDE);
+    // remove the buff from the player first; Sometimes on relog players still
+    // have the aura
+    player->RemoveAurasDueToSpell(player->GetTeam() == ALLIANCE ? SPELL_HELLFIRE_SUPERIORITY_ALLIANCE
+                                                                : SPELL_HELLFIRE_SUPERIORITY_HORDE);
 
     // buff the player if same team is controlling all capture points
     if (m_towersAlliance == MAX_HP_TOWERS && player->GetTeam() == ALLIANCE)
@@ -70,66 +72,70 @@ void OutdoorPvPHP::HandlePlayerEnterZone(Player* player, bool isMainZone)
         player->CastSpell(player, SPELL_HELLFIRE_SUPERIORITY_HORDE, TRIGGERED_OLD_TRIGGERED);
 }
 
-void OutdoorPvPHP::HandlePlayerLeaveZone(Player* player, bool isMainZone)
+void OutdoorPvPHP::HandlePlayerLeaveZone(Player *player, bool isMainZone)
 {
     // remove the buff from the player
-    player->RemoveAurasDueToSpell(player->GetTeam() == ALLIANCE ? SPELL_HELLFIRE_SUPERIORITY_ALLIANCE : SPELL_HELLFIRE_SUPERIORITY_HORDE);
+    player->RemoveAurasDueToSpell(player->GetTeam() == ALLIANCE ? SPELL_HELLFIRE_SUPERIORITY_ALLIANCE
+                                                                : SPELL_HELLFIRE_SUPERIORITY_HORDE);
 
     OutdoorPvP::HandlePlayerLeaveZone(player, isMainZone);
 }
 
-void OutdoorPvPHP::HandleGameObjectCreate(GameObject* go)
+void OutdoorPvPHP::HandleGameObjectCreate(GameObject *go)
 {
     OutdoorPvP::HandleGameObjectCreate(go);
 
     switch (go->GetEntry())
     {
-        case GO_TOWER_BANNER_OVERLOOK:
-            m_banners[0] = go->GetObjectGuid();
-            go->SetGoArtKit(GetBannerArtKit(m_towerOwner[0], GO_ARTKIT_OVERLOOK_ALLIANCE, GO_ARTKIT_OVERLOOK_HORDE, GO_ARTKIT_OVERLOOK_NEUTRAL));
-            break;
-        case GO_TOWER_BANNER_STADIUM:
-            m_banners[1] = go->GetObjectGuid();
-            go->SetGoArtKit(GetBannerArtKit(m_towerOwner[1], GO_ARTKIT_STADIUM_ALLIANCE, GO_ARTKIT_STADIUM_HORDE, GO_ARTKIT_STADIUM_NEUTRAL));
-            break;
-        case GO_TOWER_BANNER_BROKEN_HILL:
-            m_banners[2] = go->GetObjectGuid();
-            go->SetGoArtKit(GetBannerArtKit(m_towerOwner[2], GO_ARTKIT_BROKEN_HILL_ALLIANCE, GO_ARTKIT_BROKEN_HILL_HORDE, GO_ARTKIT_BROKEN_HILL_NEUTRAL));
-            break;
-        case GO_HELLFIRE_BANNER_OVERLOOK:
-            m_towers[0] = go->GetObjectGuid();
-            go->SetGoArtKit(GetBannerArtKit(m_towerOwner[0]));
-            break;
-        case GO_HELLFIRE_BANNER_STADIUM:
-            m_towers[1] = go->GetObjectGuid();
-            go->SetGoArtKit(GetBannerArtKit(m_towerOwner[1]));
-            break;
-        case GO_HELLFIRE_BANNER_BROKEN_HILL:
-            m_towers[2] = go->GetObjectGuid();
-            go->SetGoArtKit(GetBannerArtKit(m_towerOwner[2]));
-            break;
+    case GO_TOWER_BANNER_OVERLOOK:
+        m_banners[0] = go->GetObjectGuid();
+        go->SetGoArtKit(GetBannerArtKit(m_towerOwner[0], GO_ARTKIT_OVERLOOK_ALLIANCE, GO_ARTKIT_OVERLOOK_HORDE,
+                                        GO_ARTKIT_OVERLOOK_NEUTRAL));
+        break;
+    case GO_TOWER_BANNER_STADIUM:
+        m_banners[1] = go->GetObjectGuid();
+        go->SetGoArtKit(GetBannerArtKit(m_towerOwner[1], GO_ARTKIT_STADIUM_ALLIANCE, GO_ARTKIT_STADIUM_HORDE,
+                                        GO_ARTKIT_STADIUM_NEUTRAL));
+        break;
+    case GO_TOWER_BANNER_BROKEN_HILL:
+        m_banners[2] = go->GetObjectGuid();
+        go->SetGoArtKit(GetBannerArtKit(m_towerOwner[2], GO_ARTKIT_BROKEN_HILL_ALLIANCE, GO_ARTKIT_BROKEN_HILL_HORDE,
+                                        GO_ARTKIT_BROKEN_HILL_NEUTRAL));
+        break;
+    case GO_HELLFIRE_BANNER_OVERLOOK:
+        m_towers[0] = go->GetObjectGuid();
+        go->SetGoArtKit(GetBannerArtKit(m_towerOwner[0]));
+        break;
+    case GO_HELLFIRE_BANNER_STADIUM:
+        m_towers[1] = go->GetObjectGuid();
+        go->SetGoArtKit(GetBannerArtKit(m_towerOwner[1]));
+        break;
+    case GO_HELLFIRE_BANNER_BROKEN_HILL:
+        m_towers[2] = go->GetObjectGuid();
+        go->SetGoArtKit(GetBannerArtKit(m_towerOwner[2]));
+        break;
     }
 }
 
-void OutdoorPvPHP::HandleObjectiveComplete(uint32 eventId, const std::list<Player*>& players, Team team)
+void OutdoorPvPHP::HandleObjectiveComplete(uint32 eventId, const std::list<Player *> &players, Team team)
 {
     uint32 credit;
     switch (eventId)
     {
-        case EVENT_OVERLOOK_PROGRESS_ALLIANCE:
-        case EVENT_OVERLOOK_PROGRESS_HORDE:
-            credit = NPC_CAPTURE_CREDIT_OVERLOOK;
-            break;
-        case EVENT_STADIUM_PROGRESS_ALLIANCE:
-        case EVENT_STADIUM_PROGRESS_HORDE:
-            credit = NPC_CAPTURE_CREDIT_STADIUM;
-            break;
-        case EVENT_BROKEN_HILL_PROGRESS_ALLIANCE:
-        case EVENT_BROKEN_HILL_PROGRESS_HORDE:
-            credit = NPC_CAPTURE_CREDIT_BROKEN_HILL;
-            break;
-        default:
-            return;
+    case EVENT_OVERLOOK_PROGRESS_ALLIANCE:
+    case EVENT_OVERLOOK_PROGRESS_HORDE:
+        credit = NPC_CAPTURE_CREDIT_OVERLOOK;
+        break;
+    case EVENT_STADIUM_PROGRESS_ALLIANCE:
+    case EVENT_STADIUM_PROGRESS_HORDE:
+        credit = NPC_CAPTURE_CREDIT_STADIUM;
+        break;
+    case EVENT_BROKEN_HILL_PROGRESS_ALLIANCE:
+    case EVENT_BROKEN_HILL_PROGRESS_HORDE:
+        credit = NPC_CAPTURE_CREDIT_BROKEN_HILL;
+        break;
+    default:
+        return;
     }
 
     for (auto player : players)
@@ -143,17 +149,20 @@ void OutdoorPvPHP::HandleObjectiveComplete(uint32 eventId, const std::list<Playe
 }
 
 // Cast player spell on opponent kill
-void OutdoorPvPHP::HandlePlayerKillInsideArea(Player* player)
+void OutdoorPvPHP::HandlePlayerKillInsideArea(Player *player)
 {
     for (auto m_tower : m_towers)
     {
-        if (GameObject* capturePoint = player->GetMap()->GetGameObject(m_tower))
+        if (GameObject *capturePoint = player->GetMap()->GetGameObject(m_tower))
         {
             // check capture point range
-            GameObjectInfo const* info = capturePoint->GetGOInfo();
+            GameObjectInfo const *info = capturePoint->GetGOInfo();
             if (info && player->IsWithinDistInMap(capturePoint, info->capturePoint.radius))
             {
-                player->CastSpell(nullptr, player->GetTeam() == ALLIANCE ? SPELL_HELLFIRE_TOWER_TOKEN_ALLIANCE : SPELL_HELLFIRE_TOWER_TOKEN_HORDE, TRIGGERED_OLD_TRIGGERED);
+                player->CastSpell(nullptr,
+                                  player->GetTeam() == ALLIANCE ? SPELL_HELLFIRE_TOWER_TOKEN_ALLIANCE
+                                                                : SPELL_HELLFIRE_TOWER_TOKEN_HORDE,
+                                  TRIGGERED_OLD_TRIGGERED);
                 return;
             }
         }
@@ -161,7 +170,7 @@ void OutdoorPvPHP::HandlePlayerKillInsideArea(Player* player)
 }
 
 // process the capture events
-bool OutdoorPvPHP::HandleEvent(uint32 eventId, GameObject* go, Unit* /*invoker*/)
+bool OutdoorPvPHP::HandleEvent(uint32 eventId, GameObject *go, Unit * /*invoker*/)
 {
     for (uint8 i = 0; i < MAX_HP_TOWERS; ++i)
     {
@@ -171,13 +180,17 @@ bool OutdoorPvPHP::HandleEvent(uint32 eventId, GameObject* go, Unit* /*invoker*/
             {
                 if (hellfireTowerEvents[i][j].eventEntry == eventId)
                 {
-                    // prevent processing if the owner did not change (happens if progress event is called after contest event)
+                    // prevent processing if the owner did not change (happens if
+                    // progress event is called after contest event)
                     if (hellfireTowerEvents[i][j].team != m_towerOwner[i])
                     {
                         if (hellfireTowerEvents[i][j].defenseMessage)
-                            sWorld.SendDefenseMessage(ZONE_ID_HELLFIRE_PENINSULA, hellfireTowerEvents[i][j].defenseMessage);
+                            sWorld.SendDefenseMessage(ZONE_ID_HELLFIRE_PENINSULA,
+                                                      hellfireTowerEvents[i][j].defenseMessage);
 
-                        return ProcessCaptureEvent(go, i, hellfireTowerEvents[i][j].team, hellfireTowerEvents[i][j].worldState, hellfireTowerEvents[i][j].towerArtKit, hellfireTowerEvents[i][j].towerAnim);
+                        return ProcessCaptureEvent(
+                            go, i, hellfireTowerEvents[i][j].team, hellfireTowerEvents[i][j].worldState,
+                            hellfireTowerEvents[i][j].towerArtKit, hellfireTowerEvents[i][j].towerAnim);
                     }
                     // no need to iterate other events or towers
                     return false;
@@ -191,7 +204,8 @@ bool OutdoorPvPHP::HandleEvent(uint32 eventId, GameObject* go, Unit* /*invoker*/
     return false;
 }
 
-bool OutdoorPvPHP::ProcessCaptureEvent(GameObject* go, uint32 towerId, Team team, uint32 newWorldState, uint32 towerArtKit, uint32 towerAnim)
+bool OutdoorPvPHP::ProcessCaptureEvent(GameObject *go, uint32 towerId, Team team, uint32 newWorldState,
+                                       uint32 towerArtKit, uint32 towerAnim)
 {
     // set artkits and process buffs
     if (team == ALLIANCE)

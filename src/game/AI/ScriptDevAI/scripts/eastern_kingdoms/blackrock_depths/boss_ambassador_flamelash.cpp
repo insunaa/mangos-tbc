@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -26,21 +26,21 @@ EndScriptData */
 
 enum
 {
-    SPELL_FIREBLAST             = 15573,
-    SPELL_BURNING_SPIRIT        = 13489,
+    SPELL_FIREBLAST = 15573,
+    SPELL_BURNING_SPIRIT = 13489,
 
-    NPC_BURNING_SPIRIT          = 9178,
+    NPC_BURNING_SPIRIT = 9178,
 };
 
 struct boss_ambassador_flamelashAI : public ScriptedAI
 {
-    boss_ambassador_flamelashAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_ambassador_flamelashAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (ScriptedInstance *)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    ScriptedInstance *m_pInstance;
 
     uint32 m_uiSpiritTimer[MAX_DWARF_RUNES];
 
@@ -48,7 +48,7 @@ struct boss_ambassador_flamelashAI : public ScriptedAI
 
     void Reset() override
     {
-        for (unsigned int& i : m_uiSpiritTimer)
+        for (unsigned int &i : m_uiSpiritTimer)
             i = urand(0, 1000);
 
         m_sSpiritsGuidsSet.clear();
@@ -60,15 +60,18 @@ struct boss_ambassador_flamelashAI : public ScriptedAI
         if (!m_pInstance)
             return;
 
-        if (GameObject* pRune = m_pInstance->GetSingleGameObjectFromStorage(GO_DWARFRUNE_A01 + uiIndex))
-            m_creature->SummonCreature(NPC_BURNING_SPIRIT, pRune->GetPositionX(), pRune->GetPositionY(), pRune->GetPositionZ(), pRune->GetAngle(m_creature), TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 60000);
+        if (GameObject *pRune = m_pInstance->GetSingleGameObjectFromStorage(GO_DWARFRUNE_A01 + uiIndex))
+            m_creature->SummonCreature(NPC_BURNING_SPIRIT, pRune->GetPositionX(), pRune->GetPositionY(),
+                                       pRune->GetPositionZ(), pRune->GetAngle(m_creature),
+                                       TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN, 60000);
     }
 
-    void MoveInLineOfSight(Unit* pWho) override
+    void MoveInLineOfSight(Unit *pWho) override
     {
         ScriptedAI::MoveInLineOfSight(pWho);
 
-        if (pWho->GetEntry() == NPC_BURNING_SPIRIT && pWho->IsAlive() && m_sSpiritsGuidsSet.find(pWho->GetObjectGuid()) != m_sSpiritsGuidsSet.end() &&
+        if (pWho->GetEntry() == NPC_BURNING_SPIRIT && pWho->IsAlive() &&
+            m_sSpiritsGuidsSet.find(pWho->GetObjectGuid()) != m_sSpiritsGuidsSet.end() &&
             pWho->IsWithinDistInMap(m_creature, 2 * CONTACT_DISTANCE))
         {
             pWho->CastSpell(m_creature, SPELL_BURNING_SPIRIT, TRIGGERED_OLD_TRIGGERED);
@@ -76,20 +79,24 @@ struct boss_ambassador_flamelashAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         DoCastSpellIfCan(m_creature, SPELL_FIREBLAST);
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_FLAMELASH, IN_PROGRESS);
 
-        m_creature->SummonCreature(NPC_FIREGUARD_DESTROYER, 919.21f, -231.029f, -50.1755f, 5.65487f, TEMPSPAWN_TIMED_OOC_DESPAWN, 300000);
-        m_creature->SummonCreature(NPC_FIREGUARD_DESTROYER, 913.883f, -236.914f, -49.8527f, 6.03884f, TEMPSPAWN_TIMED_OOC_DESPAWN, 300000);
-        m_creature->SummonCreature(NPC_FIREGUARD_DESTROYER, 924.225f, -256.302f, -49.8526f, 1.16937f, TEMPSPAWN_TIMED_OOC_DESPAWN, 300000);
-        m_creature->SummonCreature(NPC_FIREGUARD_DESTROYER, 932.524f, -252.475f, -49.8526f, 1.71042f, TEMPSPAWN_TIMED_OOC_DESPAWN, 300000);
+        m_creature->SummonCreature(NPC_FIREGUARD_DESTROYER, 919.21f, -231.029f, -50.1755f, 5.65487f,
+                                   TEMPSPAWN_TIMED_OOC_DESPAWN, 300000);
+        m_creature->SummonCreature(NPC_FIREGUARD_DESTROYER, 913.883f, -236.914f, -49.8527f, 6.03884f,
+                                   TEMPSPAWN_TIMED_OOC_DESPAWN, 300000);
+        m_creature->SummonCreature(NPC_FIREGUARD_DESTROYER, 924.225f, -256.302f, -49.8526f, 1.16937f,
+                                   TEMPSPAWN_TIMED_OOC_DESPAWN, 300000);
+        m_creature->SummonCreature(NPC_FIREGUARD_DESTROYER, 932.524f, -252.475f, -49.8526f, 1.71042f,
+                                   TEMPSPAWN_TIMED_OOC_DESPAWN, 300000);
     }
 
-    void JustDied(Unit* /*pKiller*/) override
+    void JustDied(Unit * /*pKiller*/) override
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_FLAMELASH, DONE);
@@ -101,18 +108,19 @@ struct boss_ambassador_flamelashAI : public ScriptedAI
             m_pInstance->SetData(TYPE_FLAMELASH, FAIL);
     }
 
-    void JustSummoned(Creature* pSummoned) override
+    void JustSummoned(Creature *pSummoned) override
     {
         switch (pSummoned->GetEntry())
         {
-            case NPC_BURNING_SPIRIT:
-            {
-                pSummoned->GetMotionMaster()->MoveFollow(m_creature, 0, 0);
-                m_sSpiritsGuidsSet.insert(pSummoned->GetObjectGuid());
-                break;
-            }
-            case NPC_FIREGUARD_DESTROYER: break;
-            default: break;
+        case NPC_BURNING_SPIRIT: {
+            pSummoned->GetMotionMaster()->MoveFollow(m_creature, 0, 0);
+            m_sSpiritsGuidsSet.insert(pSummoned->GetObjectGuid());
+            break;
+        }
+        case NPC_FIREGUARD_DESTROYER:
+            break;
+        default:
+            break;
         }
     }
 
@@ -138,14 +146,14 @@ struct boss_ambassador_flamelashAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_ambassador_flamelash(Creature* pCreature)
+UnitAI *GetAI_boss_ambassador_flamelash(Creature *pCreature)
 {
     return new boss_ambassador_flamelashAI(pCreature);
 }
 
 void AddSC_boss_ambassador_flamelash()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_ambassador_flamelash";
     pNewScript->GetAI = &GetAI_boss_ambassador_flamelash;
     pNewScript->RegisterSelf();

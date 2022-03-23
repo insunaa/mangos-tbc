@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,38 +20,37 @@
 #ifndef _MANGOSSOAP_H
 #define _MANGOSSOAP_H
 
-#include "Common.h"
-#include "World/World.h"
-#include "Accounts/AccountMgr.h"
-#include "Log.h"
-
-#include "soapH.h"
-#include "soapStub.h"
-
 #include <string>
 #include <thread>
 
+#include "Accounts/AccountMgr.h"
+#include "Common.h"
+#include "Log.h"
+#include "World/World.h"
+#include "soapH.h"
+#include "soapStub.h"
+
 class SOAPThread
 {
-    private:
-        static const int WorkerThreads = 5;
-        static const int AcceptTimeout = 3;
-        static const int DataTimeout = 5;
-        static const int BackLogSize = 100;
+  private:
+    static const int WorkerThreads = 5;
+    static const int AcceptTimeout = 3;
+    static const int DataTimeout = 5;
+    static const int BackLogSize = 100;
 
-        const std::string m_host;
-        const int m_port;
+    const std::string m_host;
+    const int m_port;
 
-        std::thread m_workerThread;
+    std::thread m_workerThread;
 
-        void Work();
+    void Work();
 
-    public:
-        static const AccountTypes MinLevel = AccountTypes::SEC_ADMINISTRATOR;
-        static const int CommandOutputBufferSize = 256;
+  public:
+    static const AccountTypes MinLevel = AccountTypes::SEC_ADMINISTRATOR;
+    static const int CommandOutputBufferSize = 256;
 
-        SOAPThread(const std::string& host, int port);
-        ~SOAPThread();
+    SOAPThread(const std::string &host, int port);
+    ~SOAPThread();
 };
 
 #endif

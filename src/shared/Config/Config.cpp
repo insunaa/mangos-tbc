@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,18 +18,18 @@
  */
 
 #include "Config.h"
-#include "Policies/Singleton.h"
-#include <mutex>
 
 #include <boost/algorithm/string.hpp>
-
-#include <unordered_map>
-#include <string>
 #include <fstream>
+#include <mutex>
+#include <string>
+#include <unordered_map>
+
+#include "Policies/Singleton.h"
 
 INSTANTIATE_SINGLETON_1(Config);
 
-bool Config::SetSource(const std::string& file)
+bool Config::SetSource(const std::string &file)
 {
     m_filename = file;
 
@@ -63,24 +64,24 @@ bool Config::Reload()
             return false;
 
         auto const entry = boost::algorithm::trim_copy(boost::algorithm::to_lower_copy(line.substr(0, equals)));
-        auto const value = boost::algorithm::trim_copy_if(boost::algorithm::trim_copy(line.substr(equals + 1)), boost::algorithm::is_any_of("\""));
+        auto const value = boost::algorithm::trim_copy_if(boost::algorithm::trim_copy(line.substr(equals + 1)),
+                                                          boost::algorithm::is_any_of("\""));
 
         newEntries[entry] = value;
-    }
-    while (in.good());
+    } while (in.good());
 
     m_entries = std::move(newEntries);
 
     return true;
 }
 
-bool Config::IsSet(const std::string& name) const
+bool Config::IsSet(const std::string &name) const
 {
     auto const nameLower = boost::algorithm::to_lower_copy(name);
     return m_entries.find(nameLower) != m_entries.cend();
 }
 
-const std::string Config::GetStringDefault(const std::string& name, const std::string& def) const
+const std::string Config::GetStringDefault(const std::string &name, const std::string &def) const
 {
     auto const nameLower = boost::algorithm::to_lower_copy(name);
 
@@ -89,7 +90,7 @@ const std::string Config::GetStringDefault(const std::string& name, const std::s
     return entry == m_entries.cend() ? def : entry->second;
 }
 
-bool Config::GetBoolDefault(const std::string& name, bool def) const
+bool Config::GetBoolDefault(const std::string &name, bool def) const
 {
     auto const value = GetStringDefault(name, def ? "true" : "false");
 
@@ -99,17 +100,16 @@ bool Config::GetBoolDefault(const std::string& name, bool def) const
     return valueLower == "true" || valueLower == "1" || valueLower == "yes";
 }
 
-int32 Config::GetIntDefault(const std::string& name, int32 def) const
+int32 Config::GetIntDefault(const std::string &name, int32 def) const
 {
     auto const value = GetStringDefault(name, std::to_string(def));
 
     return std::stoi(value);
 }
 
-float Config::GetFloatDefault(const std::string& name, float def) const
+float Config::GetFloatDefault(const std::string &name, float def) const
 {
     auto const value = GetStringDefault(name, std::to_string(def));
 
     return std::stof(value);
 }
-

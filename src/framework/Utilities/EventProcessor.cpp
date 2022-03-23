@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +40,7 @@ void EventProcessor::Update(uint32 p_time)
     while (((i = m_events.begin()) != m_events.end()) && i->first <= m_time)
     {
         // get and remove event from queue
-        BasicEvent* Event = i->second;
+        BasicEvent *Event = i->second;
         m_events.erase(i);
 
         if (!Event->to_Abort)
@@ -75,7 +76,7 @@ void EventProcessor::KillAllEvents(bool force)
         {
             delete i_old->second;
 
-            if (!force)                                     // need per-element cleanup
+            if (!force) // need per-element cleanup
                 m_events.erase(i_old);
         }
     }
@@ -85,7 +86,7 @@ void EventProcessor::KillAllEvents(bool force)
         m_events.clear();
 }
 
-void EventProcessor::KillEvent(BasicEvent* event)
+void EventProcessor::KillEvent(BasicEvent *event)
 {
     for (EventList::iterator iter = m_events.begin(); iter != m_events.end();)
     {
@@ -94,20 +95,21 @@ void EventProcessor::KillEvent(BasicEvent* event)
             delete iter->second;
             iter = m_events.erase(iter);
         }
-        else ++iter;
+        else
+            ++iter;
     }
 }
 
-void EventProcessor::AddEvent(BasicEvent* Event, uint64 e_time, bool set_addtime)
+void EventProcessor::AddEvent(BasicEvent *Event, uint64 e_time, bool set_addtime)
 {
     if (set_addtime)
         Event->m_addTime = m_time;
 
     Event->m_execTime = e_time;
-    m_events.insert(std::pair<uint64, BasicEvent*>(e_time, Event));
+    m_events.insert(std::pair<uint64, BasicEvent *>(e_time, Event));
 }
 
-void EventProcessor::ModifyEventTime(BasicEvent* Event, uint64 msTime)
+void EventProcessor::ModifyEventTime(BasicEvent *Event, uint64 msTime)
 {
     for (auto itr = m_events.begin(); itr != m_events.end(); ++itr)
     {
@@ -116,7 +118,7 @@ void EventProcessor::ModifyEventTime(BasicEvent* Event, uint64 msTime)
 
         Event->m_execTime = msTime;
         m_events.erase(itr);
-        m_events.insert(std::pair<uint64, BasicEvent*>(msTime, Event));
+        m_events.insert(std::pair<uint64, BasicEvent *>(msTime, Event));
         break;
     }
 }

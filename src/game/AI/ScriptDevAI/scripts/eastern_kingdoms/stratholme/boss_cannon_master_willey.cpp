@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -25,15 +25,18 @@ EndScriptData */
 
 enum
 {
-    SPELL_KNOCK_AWAY        = 10101,
-    SPELL_PUMMEL            = 15615,
-    SPELL_SHOOT             = 16496,
-    SPELL_SUMMON_RIFLEMAN   = 17279,        // spell needs script target
+    SPELL_KNOCK_AWAY = 10101,
+    SPELL_PUMMEL = 15615,
+    SPELL_SHOOT = 16496,
+    SPELL_SUMMON_RIFLEMAN = 17279, // spell needs script target
 };
 
 struct boss_cannon_master_willeyAI : public ScriptedAI
 {
-    boss_cannon_master_willeyAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_cannon_master_willeyAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiKnockAwayTimer;
     uint32 m_uiPummelTimer;
@@ -42,13 +45,13 @@ struct boss_cannon_master_willeyAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiShootTimer          = 1000;
-        m_uiPummelTimer         = 7000;
-        m_uiKnockAwayTimer      = 11000;
+        m_uiShootTimer = 1000;
+        m_uiPummelTimer = 7000;
+        m_uiKnockAwayTimer = 11000;
         m_uiSummonRiflemanTimer = 15000;
     }
 
-    void JustSummoned(Creature* pSummoned) override
+    void JustSummoned(Creature *pSummoned) override
     {
         if (m_creature->GetVictim())
             pSummoned->AI()->AttackStart(m_creature->GetVictim());
@@ -81,7 +84,8 @@ struct boss_cannon_master_willeyAI : public ScriptedAI
         // Shoot
         if (m_uiShootTimer < uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_SHOOT, SELECT_FLAG_NOT_IN_MELEE_RANGE))
+            if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_SHOOT,
+                                                                  SELECT_FLAG_NOT_IN_MELEE_RANGE))
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_SHOOT) == CAST_OK)
                     m_uiShootTimer = urand(3000, 4000);
@@ -103,14 +107,14 @@ struct boss_cannon_master_willeyAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_cannon_master_willey(Creature* pCreature)
+UnitAI *GetAI_boss_cannon_master_willey(Creature *pCreature)
 {
     return new boss_cannon_master_willeyAI(pCreature);
 }
 
 void AddSC_boss_cannon_master_willey()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_cannon_master_willey";
     pNewScript->GetAI = &GetAI_boss_cannon_master_willey;
     pNewScript->RegisterSelf();

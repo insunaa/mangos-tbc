@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,15 +18,16 @@
  */
 
 #include "TotemAI.h"
-#include "Entities/Totem.h"
-#include "Entities/Creature.h"
-#include "Server/DBCStores.h"
+
 #include "AI/ScriptDevAI/ScriptDevAIMgr.h"
+#include "Entities/Creature.h"
+#include "Entities/Totem.h"
+#include "Grids/CellImpl.h"
 #include "Grids/GridNotifiers.h"
 #include "Grids/GridNotifiersImpl.h"
-#include "Grids/CellImpl.h"
+#include "Server/DBCStores.h"
 
-int TotemAI::Permissible(const Creature* creature)
+int TotemAI::Permissible(const Creature *creature)
 {
     if (creature->IsTotem())
         return PERMIT_BASE_PROACTIVE;
@@ -33,11 +35,11 @@ int TotemAI::Permissible(const Creature* creature)
     return PERMIT_BASE_NO;
 }
 
-TotemAI::TotemAI(Creature* creature) : CreatureEventAI(creature)
+TotemAI::TotemAI(Creature *creature) : CreatureEventAI(creature)
 {
 }
 
-void TotemAI::MoveInLineOfSight(Unit* /*who*/)
+void TotemAI::MoveInLineOfSight(Unit * /*who*/)
 {
 }
 
@@ -47,7 +49,7 @@ void TotemAI::EnterEvadeMode()
 
     // Handle Evade events
     IncreaseDepthIfNecessary();
-    for (auto& i : m_CreatureEventAIList)
+    for (auto &i : m_CreatureEventAIList)
     {
         if (i.event.event_type == EVENT_T_EVADE)
             CheckAndReadyEventForExecution(i);
@@ -66,27 +68,28 @@ void TotemAI::UpdateAI(const uint32 diff)
         return;
 
     // Search spell
-    SpellEntry const* spellInfo = sSpellTemplate.LookupEntry<SpellEntry>(getTotem().GetSpell());
+    SpellEntry const *spellInfo = sSpellTemplate.LookupEntry<SpellEntry>(getTotem().GetSpell());
     if (!spellInfo)
         return;
 
-	// shorthand CD check
-	if (!m_creature->IsSpellReady(*spellInfo))
-		return;
+    // shorthand CD check
+    if (!m_creature->IsSpellReady(*spellInfo))
+        return;
 
     // Get spell rangy
-    SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(spellInfo->rangeIndex);
+    SpellRangeEntry const *srange = sSpellRangeStore.LookupEntry(spellInfo->rangeIndex);
     float maxRange = GetSpellMaxRange(srange);
 
-    // SPELLMOD_RANGE not applied in this place just because nonexistent range mods for attacking totems
+    // SPELLMOD_RANGE not applied in this place just because nonexistent range
+    // mods for attacking totems
 
     // pointer to appropriate target if found any
-    Unit* victim = m_creature->GetMap()->GetUnit(i_victimGuid);
+    Unit *victim = m_creature->GetMap()->GetUnit(i_victimGuid);
 
-    // Search victim if no, not attackable, or out of range, or friendly (possible in case duel end)
-    if (!victim ||
-            !m_creature->CanAttackOnSight(victim) || !m_creature->IsWithinDistInMap(victim, maxRange) ||
-            m_creature->CanAssist(victim) || !victim->IsVisibleForOrDetect(m_creature, m_creature, false))
+    // Search victim if no, not attackable, or out of range, or friendly
+    // (possible in case duel end)
+    if (!victim || !m_creature->CanAttackOnSight(victim) || !m_creature->IsWithinDistInMap(victim, maxRange) ||
+        m_creature->CanAssist(victim) || !victim->IsVisibleForOrDetect(m_creature, m_creature, false))
     {
         victim = nullptr;
 
@@ -107,30 +110,32 @@ void TotemAI::UpdateAI(const uint32 diff)
         i_victimGuid = victim->GetObjectGuid();
 
         // attack
-        m_creature->SetInFront(victim);                     // client change orientation by self
+        m_creature->SetInFront(victim); // client change orientation by self
         m_creature->CastSpell(victim, getTotem().GetSpell(), TRIGGERED_NONE);
     }
     else
         i_victimGuid.Clear();
 }
 
-bool TotemAI::IsVisible(Unit* /*who*/) const
+bool TotemAI::IsVisible(Unit * /*who*/) const
 {
     return false;
 }
 
-void TotemAI::AttackStart(Unit* /*who*/)
+void TotemAI::AttackStart(Unit * /*who*/)
 {
 }
 
-Totem& TotemAI::getTotem() const
+Totem &TotemAI::getTotem() const
 {
-    return static_cast<Totem&>(*m_creature);
+    return static_cast<Totem &>(*m_creature);
 }
 
-void TotemAI::SpellHit(Unit* /*unit*/, const SpellEntry* /*spellInfo*/)
+void TotemAI::SpellHit(Unit * /*unit*/, const SpellEntry * /*spellInfo*/)
 {
     // TODO: Give grounding totem SD2
-    if (m_creature->GetEntry() == 5925 && !m_creature->HasAura(8178) && m_creature->IsAlive()) // Grounding Totem redirection aura
-        m_creature->CastSpell(nullptr, 45317, TRIGGERED_NONE); // Grounding Totem - Suicide spell - verified vs sniff
+    if (m_creature->GetEntry() == 5925 && !m_creature->HasAura(8178) &&
+        m_creature->IsAlive()) // Grounding Totem redirection aura
+        m_creature->CastSpell(nullptr, 45317,
+                              TRIGGERED_NONE); // Grounding Totem - Suicide spell - verified vs sniff
 }

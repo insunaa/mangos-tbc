@@ -1,26 +1,27 @@
 /*
  *
-* This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-#include "Common.h"
 #include "Chat.h"
-#include "Globals/ObjectMgr.h"
+#include "Common.h"
 #include "GMTickets/GMTicketMgr.h"
+#include "Globals/ObjectMgr.h"
 #include "Mails/Mail.h"
 #include "Tools/Language.h"
 
@@ -30,19 +31,30 @@ inline static bool HandleTicketMgrCommandResult(ChatHandler &ch, uint32 ticketId
 
     switch (result)
     {
-        case GMTicketMgr::COMMAND_RESULT_TICKET_NOT_FOUND:      error = LANG_COMMAND_TICKET_NOT_FOUND;      break;
-        case GMTicketMgr::COMMAND_RESULT_PLAYER_OFFLINE:        error = LANG_COMMAND_TICKET_PLAYER_OFFLINE; break;
-        case GMTicketMgr::COMMAND_RESULT_TICKET_UNSEEN:         error = LANG_COMMAND_TICKET_UNSEEN;         break;
-        case GMTicketMgr::COMMAND_RESULT_ACCESS_DENIED:         error = LANG_COMMAND_TICKET_ACCESS_DENIED;  break;
-        case GMTicketMgr::COMMAND_RESULT_TICKET_NOT_ASSIGNED:   error = LANG_COMMAND_TICKET_NOT_ASSIGNED;   break;
-        case GMTicketMgr::COMMAND_RESULT_SUCCESS:               return true;
+    case GMTicketMgr::COMMAND_RESULT_TICKET_NOT_FOUND:
+        error = LANG_COMMAND_TICKET_NOT_FOUND;
+        break;
+    case GMTicketMgr::COMMAND_RESULT_PLAYER_OFFLINE:
+        error = LANG_COMMAND_TICKET_PLAYER_OFFLINE;
+        break;
+    case GMTicketMgr::COMMAND_RESULT_TICKET_UNSEEN:
+        error = LANG_COMMAND_TICKET_UNSEEN;
+        break;
+    case GMTicketMgr::COMMAND_RESULT_ACCESS_DENIED:
+        error = LANG_COMMAND_TICKET_ACCESS_DENIED;
+        break;
+    case GMTicketMgr::COMMAND_RESULT_TICKET_NOT_ASSIGNED:
+        error = LANG_COMMAND_TICKET_NOT_ASSIGNED;
+        break;
+    case GMTicketMgr::COMMAND_RESULT_SUCCESS:
+        return true;
     }
 
     ch.PSendSysMessage(error, GMTicket::GetIdTag(ticketId).c_str());
     return false;
 }
 
-bool ChatHandler::HandleTicketDiscardCommand(char* args)
+bool ChatHandler::HandleTicketDiscardCommand(char *args)
 {
     uint32 ticketId;
     if (!ExtractUInt32(&args, ticketId))
@@ -61,7 +73,8 @@ bool ChatHandler::HandleTicketDiscardCommand(char* args)
         }
     }
 
-    if (!HandleTicketMgrCommandResult(*this, ticketId, sTicketMgr.Discard(sTicketMgr.GetTicketById(ticketId), conclusion, m_session)))
+    if (!HandleTicketMgrCommandResult(*this, ticketId,
+                                      sTicketMgr.Discard(sTicketMgr.GetTicketById(ticketId), conclusion, m_session)))
     {
         SetSentErrorMessage(true);
         return false;
@@ -69,7 +82,7 @@ bool ChatHandler::HandleTicketDiscardCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleTicketEscalateCommand(char* args)
+bool ChatHandler::HandleTicketEscalateCommand(char *args)
 {
     uint32 ticketId;
     if (!ExtractUInt32(&args, ticketId))
@@ -78,7 +91,8 @@ bool ChatHandler::HandleTicketEscalateCommand(char* args)
     uint32 level;
     ExtractOptUInt32(&args, level, SEC_PLAYER);
 
-    if (!HandleTicketMgrCommandResult(*this, ticketId, sTicketMgr.Escalate(sTicketMgr.GetTicketById(ticketId), m_session, uint8(level))))
+    if (!HandleTicketMgrCommandResult(*this, ticketId,
+                                      sTicketMgr.Escalate(sTicketMgr.GetTicketById(ticketId), m_session, uint8(level))))
     {
         SetSentErrorMessage(true);
         return false;
@@ -86,13 +100,13 @@ bool ChatHandler::HandleTicketEscalateCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleTicketGoCommand(char* args)
+bool ChatHandler::HandleTicketGoCommand(char *args)
 {
     uint32 ticketId;
     if (!ExtractUInt32(&args, ticketId))
         return false;
 
-    GMTicket* ticket = sTicketMgr.GetTicketById(ticketId);
+    GMTicket *ticket = sTicketMgr.GetTicketById(ticketId);
     if (!ticket)
     {
         PSendSysMessage(LANG_COMMAND_TICKET_NOT_FOUND, GMTicket::GetIdTag(ticketId).c_str());
@@ -102,16 +116,17 @@ bool ChatHandler::HandleTicketGoCommand(char* args)
 
     float z = ticket->GetPositionZ();
     float o = ticket->GetPositionO();
-    return HandleGoHelper(m_session->GetPlayer(), ticket->GetMapId(), ticket->GetPositionX(), ticket->GetPositionY(), &z, &o);
+    return HandleGoHelper(m_session->GetPlayer(), ticket->GetMapId(), ticket->GetPositionX(), ticket->GetPositionY(),
+                          &z, &o);
 }
 
-bool ChatHandler::HandleTicketGoNameCommand(char* args)
+bool ChatHandler::HandleTicketGoNameCommand(char *args)
 {
     uint32 ticketId;
     if (!ExtractUInt32(&args, ticketId))
         return false;
 
-    GMTicket* ticket = sTicketMgr.GetTicketById(ticketId);
+    GMTicket *ticket = sTicketMgr.GetTicketById(ticketId);
     if (!ticket)
     {
         PSendSysMessage(LANG_COMMAND_TICKET_NOT_FOUND, GMTicket::GetIdTag(ticketId).c_str());
@@ -119,13 +134,13 @@ bool ChatHandler::HandleTicketGoNameCommand(char* args)
         return false;
     }
 
-    char* name = mangos_strdup(ticket->GetAuthorName());
+    char *name = mangos_strdup(ticket->GetAuthorName());
     const bool result = HandleGonameCommand(name);
     delete[] name;
     return result;
 }
 
-bool ChatHandler::HandleTicketNoteCommand(char* args)
+bool ChatHandler::HandleTicketNoteCommand(char *args)
 {
     uint32 ticketId;
     if (!ExtractUInt32(&args, ticketId))
@@ -135,7 +150,8 @@ bool ChatHandler::HandleTicketNoteCommand(char* args)
     if (text.empty())
         return false;
 
-    if (!HandleTicketMgrCommandResult(*this, ticketId, sTicketMgr.Comment(sTicketMgr.GetTicketById(ticketId), m_session, text)))
+    if (!HandleTicketMgrCommandResult(*this, ticketId,
+                                      sTicketMgr.Comment(sTicketMgr.GetTicketById(ticketId), m_session, text)))
     {
         SetSentErrorMessage(true);
         return false;
@@ -143,13 +159,13 @@ bool ChatHandler::HandleTicketNoteCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleTicketReadCommand(char* args)
+bool ChatHandler::HandleTicketReadCommand(char *args)
 {
     uint32 ticketId;
     if (!ExtractUInt32(&args, ticketId))
         return false;
 
-    GMTicket* ticket = sTicketMgr.GetTicketById(ticketId);
+    GMTicket *ticket = sTicketMgr.GetTicketById(ticketId);
 
     if (!HandleTicketMgrCommandResult(*this, ticketId, sTicketMgr.Read(ticket)))
     {
@@ -162,7 +178,7 @@ bool ChatHandler::HandleTicketReadCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleTicketResolveCommand(char* args)
+bool ChatHandler::HandleTicketResolveCommand(char *args)
 {
     uint32 ticketId;
     if (!ExtractUInt32(&args, ticketId))
@@ -181,7 +197,8 @@ bool ChatHandler::HandleTicketResolveCommand(char* args)
         }
     }
 
-    if (!HandleTicketMgrCommandResult(*this, ticketId, sTicketMgr.Resolve(sTicketMgr.GetTicketById(ticketId), conclusion, m_session)))
+    if (!HandleTicketMgrCommandResult(*this, ticketId,
+                                      sTicketMgr.Resolve(sTicketMgr.GetTicketById(ticketId), conclusion, m_session)))
     {
         SetSentErrorMessage(true);
         return false;
@@ -189,7 +206,7 @@ bool ChatHandler::HandleTicketResolveCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleTicketSortCommand(char* args)
+bool ChatHandler::HandleTicketSortCommand(char *args)
 {
     uint32 ticketId;
     if (!ExtractUInt32(&args, ticketId))
@@ -199,9 +216,10 @@ bool ChatHandler::HandleTicketSortCommand(char* args)
     if (!ExtractUInt32(&args, categoryId))
         return false;
 
-    if (GMTicketCategoryEntry const* category = sGMTicketCategoryStore.LookupEntry(categoryId))
+    if (GMTicketCategoryEntry const *category = sGMTicketCategoryStore.LookupEntry(categoryId))
     {
-        if (!HandleTicketMgrCommandResult(*this, ticketId, sTicketMgr.Sort(sTicketMgr.GetTicketById(ticketId), *category, m_session)))
+        if (!HandleTicketMgrCommandResult(*this, ticketId,
+                                          sTicketMgr.Sort(sTicketMgr.GetTicketById(ticketId), *category, m_session)))
         {
             SetSentErrorMessage(true);
             return false;
@@ -214,7 +232,7 @@ bool ChatHandler::HandleTicketSortCommand(char* args)
     return false;
 }
 
-bool ChatHandler::HandleTicketWhisperCommand(char* args)
+bool ChatHandler::HandleTicketWhisperCommand(char *args)
 {
     uint32 ticketId;
     if (!ExtractUInt32(&args, ticketId))
@@ -233,7 +251,8 @@ bool ChatHandler::HandleTicketWhisperCommand(char* args)
         i += replace.length();
     }
 
-    if (!HandleTicketMgrCommandResult(*this, ticketId, sTicketMgr.Whisper(sTicketMgr.GetTicketById(ticketId), answer, m_session)))
+    if (!HandleTicketMgrCommandResult(*this, ticketId,
+                                      sTicketMgr.Whisper(sTicketMgr.GetTicketById(ticketId), answer, m_session)))
     {
         SetSentErrorMessage(true);
         return false;
@@ -241,12 +260,12 @@ bool ChatHandler::HandleTicketWhisperCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleTicketCommand(char* args)
+bool ChatHandler::HandleTicketCommand(char *args)
 {
     return HandleTicketReadCommand(args);
 }
 
-bool ChatHandler::HandleTicketsListCommand(char* args)
+bool ChatHandler::HandleTicketsListCommand(char *args)
 {
     std::ostringstream output;
 
@@ -257,7 +276,7 @@ bool ChatHandler::HandleTicketsListCommand(char* args)
     const bool last = ExtractUInt32(&args, max);
     const bool online = ExtractLiteralArg(&args, "online");
 
-    GMTicketCategoryEntry const* category = nullptr;
+    GMTicketCategoryEntry const *category = nullptr;
 
     if (first)
     {
@@ -305,7 +324,7 @@ bool ChatHandler::HandleTicketsQueueCommand(char *args)
     return true;
 }
 
-bool ChatHandler::HandleTicketsCommand(char* args)
+bool ChatHandler::HandleTicketsCommand(char *args)
 {
     // Detect cases when used as an alias for "ticket list"
     {
@@ -313,7 +332,7 @@ bool ChatHandler::HandleTicketsCommand(char* args)
             return HandleTicketsListCommand(args);
 
         std::string string = args;
-        char* input = const_cast<char*>(string.c_str());
+        char *input = const_cast<char *>(string.c_str());
 
         uint32 arg;
 
@@ -321,7 +340,7 @@ bool ChatHandler::HandleTicketsCommand(char* args)
 
         if (!listing)
         {
-            if (char* literal = ExtractLiteralArg(&input))
+            if (char *literal = ExtractLiteralArg(&input))
             {
                 std::string online = literal;
                 strToLower(online);
@@ -346,7 +365,7 @@ bool ChatHandler::HandleTicketsCommand(char* args)
         return false;
     }
 
-    Player* player = m_session->GetPlayer();
+    Player *player = m_session->GetPlayer();
 
     player->SetAcceptTicket(value);
     sTicketMgr.ShowMOTD(*player);

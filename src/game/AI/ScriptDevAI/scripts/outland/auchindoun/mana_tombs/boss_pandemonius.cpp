@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -17,33 +17,33 @@
 /* ScriptData
 SDName: Boss_Pandemonius
 SD%Complete: 80
-SDComment: Not known how void blast is done (amount of rapid cast seems to be related to players in party).
-SDCategory: Auchindoun, Mana Tombs
-EndScriptData */
+SDComment: Not known how void blast is done (amount of rapid cast seems to be
+related to players in party). SDCategory: Auchindoun, Mana Tombs EndScriptData
+*/
 
 #include "AI/ScriptDevAI/include/sc_common.h"
 
 enum
 {
-    SAY_AGGRO_1                     = -1557008,
-    SAY_AGGRO_2                     = -1557009,
-    SAY_AGGRO_3                     = -1557010,
-    SAY_KILL_1                      = -1557011,
-    SAY_KILL_2                      = -1557012,
-    SAY_DEATH                       = -1557013,
-    EMOTE_DARK_SHELL                = -1557014,
+    SAY_AGGRO_1 = -1557008,
+    SAY_AGGRO_2 = -1557009,
+    SAY_AGGRO_3 = -1557010,
+    SAY_KILL_1 = -1557011,
+    SAY_KILL_2 = -1557012,
+    SAY_DEATH = -1557013,
+    EMOTE_DARK_SHELL = -1557014,
 
-    SPELL_VOID_BLAST                = 32325,
-    SPELL_VOID_BLAST_H              = 38760,
-    SPELL_DARK_SHELL                = 32358,
-    SPELL_DARK_SHELL_H              = 38759,
+    SPELL_VOID_BLAST = 32325,
+    SPELL_VOID_BLAST_H = 38760,
+    SPELL_DARK_SHELL = 32358,
+    SPELL_DARK_SHELL_H = 38759,
 
-    MAX_VOID_BLASTS                 = 5,
+    MAX_VOID_BLASTS = 5,
 };
 
 struct boss_pandemoniusAI : public ScriptedAI
 {
-    boss_pandemoniusAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_pandemoniusAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
@@ -57,28 +57,34 @@ struct boss_pandemoniusAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiVoidBlastTimer   = urand(15000, 20000);
-        m_uiDarkShellTimer   = urand(13000, 15000);
+        m_uiVoidBlastTimer = urand(15000, 20000);
+        m_uiDarkShellTimer = urand(13000, 15000);
         m_uiVoidBlastCounter = 0;
     }
 
-    void JustDied(Unit* /*pKiller*/) override
+    void JustDied(Unit * /*pKiller*/) override
     {
         DoScriptText(SAY_DEATH, m_creature);
     }
 
-    void KilledUnit(Unit* /*pVictim*/) override
+    void KilledUnit(Unit * /*pVictim*/) override
     {
         DoScriptText(urand(0, 1) ? SAY_KILL_1 : SAY_KILL_2, m_creature);
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         switch (urand(0, 2))
         {
-            case 0: DoScriptText(SAY_AGGRO_1, m_creature); break;
-            case 1: DoScriptText(SAY_AGGRO_2, m_creature); break;
-            case 2: DoScriptText(SAY_AGGRO_3, m_creature); break;
+        case 0:
+            DoScriptText(SAY_AGGRO_1, m_creature);
+            break;
+        case 1:
+            DoScriptText(SAY_AGGRO_2, m_creature);
+            break;
+        case 2:
+            DoScriptText(SAY_AGGRO_3, m_creature);
+            break;
         }
     }
 
@@ -89,7 +95,8 @@ struct boss_pandemoniusAI : public ScriptedAI
 
         if (m_uiVoidBlastTimer < uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, m_bIsRegularMode ? SPELL_VOID_BLAST : SPELL_VOID_BLAST_H))
+            if (Unit *pTarget = m_creature->SelectAttackingTarget(
+                    ATTACKING_TARGET_RANDOM, 0, m_bIsRegularMode ? SPELL_VOID_BLAST : SPELL_VOID_BLAST_H))
                 DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_VOID_BLAST : SPELL_VOID_BLAST_H);
 
             // reset timer and counter when counter has reached the max limit
@@ -127,14 +134,14 @@ struct boss_pandemoniusAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_pandemonius(Creature* pCreature)
+UnitAI *GetAI_boss_pandemonius(Creature *pCreature)
 {
     return new boss_pandemoniusAI(pCreature);
 }
 
 void AddSC_boss_pandemonius()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_pandemonius";
     pNewScript->GetAI = &GetAI_boss_pandemonius;
     pNewScript->RegisterSelf();

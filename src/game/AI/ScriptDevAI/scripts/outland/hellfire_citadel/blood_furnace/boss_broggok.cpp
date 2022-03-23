@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -21,29 +21,29 @@ SDComment: pre-event not made
 SDCategory: Hellfire Citadel, Blood Furnace
 EndScriptData */
 
+#include "AI/ScriptDevAI/base/CombatAI.h"
 #include "AI/ScriptDevAI/include/sc_common.h"
 #include "blood_furnace.h"
-#include "AI/ScriptDevAI/base/CombatAI.h"
 
 enum
 {
-    SAY_AGGRO               = -1542008,
+    SAY_AGGRO = -1542008,
 
-    SPELL_SUMMON_INCOMBAT_TRIGGER   = 26837,    // TODO: probably cast on spawn not sure what c.16006 does
-    SPELL_SLIME_SPRAY               = 30913,
-    SPELL_SLIME_SPRAY_H             = 38458,
-    SPELL_POISON_CLOUD              = 30916,
-    SPELL_POISON_BOLT               = 30917,
-    SPELL_POISON_BOLT_H             = 38459,
+    SPELL_SUMMON_INCOMBAT_TRIGGER = 26837, // TODO: probably cast on spawn not sure what c.16006 does
+    SPELL_SLIME_SPRAY = 30913,
+    SPELL_SLIME_SPRAY_H = 38458,
+    SPELL_POISON_CLOUD = 30916,
+    SPELL_POISON_BOLT = 30917,
+    SPELL_POISON_BOLT_H = 38459,
 
-    SPELL_POISON                    = 30914,
-    SPELL_POISON_H                  = 38462,
+    SPELL_POISON = 30914,
+    SPELL_POISON_H = 38462,
 
-    SPELL_STUN_SELF                 = 25900,
-    SPELL_PACIFY_SELF               = 19951,
+    SPELL_STUN_SELF = 25900,
+    SPELL_PACIFY_SELF = 19951,
 
-    POINT_EVENT_YELL                = 4,
-    POINT_EVENT_COMBAT              = 7,
+    POINT_EVENT_YELL = 4,
+    POINT_EVENT_COMBAT = 7,
 };
 
 enum BroggokActions
@@ -56,24 +56,26 @@ enum BroggokActions
 
 struct boss_broggokAI : public CombatAI
 {
-    boss_broggokAI(Creature* creature) : CombatAI(creature, BROGGOK_ACTION_MAX), m_instance(static_cast<ScriptedInstance*>(creature->GetInstanceData())),
-        m_isRegularMode(creature->GetMap()->IsRegularDifficulty())
+    boss_broggokAI(Creature *creature)
+        : CombatAI(creature, BROGGOK_ACTION_MAX),
+          m_instance(static_cast<ScriptedInstance *>(creature->GetInstanceData())),
+          m_isRegularMode(creature->GetMap()->IsRegularDifficulty())
     {
         AddCombatAction(BROGGOK_SLIME_SPRAY, 10000u);
         AddCombatAction(BROGGOK_POISON_BOLT, 12000u);
         AddCombatAction(BROGGOK_POISON_CLOUD, 10000u);
     }
 
-    ScriptedInstance* m_instance;
+    ScriptedInstance *m_instance;
     bool m_isRegularMode;
 
-    void Aggro(Unit* /*who*/) override
+    void Aggro(Unit * /*who*/) override
     {
         if (m_instance)
             m_instance->SetData(TYPE_BROGGOK_EVENT, IN_PROGRESS);
     }
 
-    void JustSummoned(Creature* summoned) override
+    void JustSummoned(Creature *summoned) override
     {
         if (summoned->GetEntry() == NPC_IN_COMBAT_TRIGGER)
         {
@@ -87,11 +89,12 @@ struct boss_broggokAI : public CombatAI
         {
             summoned->AI()->DoCastSpellIfCan(nullptr, SPELL_STUN_SELF, CAST_TRIGGERED | CAST_AURA_NOT_PRESENT);
             summoned->AI()->DoCastSpellIfCan(nullptr, SPELL_PACIFY_SELF, CAST_TRIGGERED | CAST_AURA_NOT_PRESENT);
-            summoned->AI()->DoCastSpellIfCan(nullptr, m_isRegularMode ? SPELL_POISON : SPELL_POISON_H, CAST_TRIGGERED | CAST_AURA_NOT_PRESENT);
+            summoned->AI()->DoCastSpellIfCan(nullptr, m_isRegularMode ? SPELL_POISON : SPELL_POISON_H,
+                                             CAST_TRIGGERED | CAST_AURA_NOT_PRESENT);
         }
     }
 
-    void JustDied(Unit* /*who*/) override
+    void JustDied(Unit * /*who*/) override
     {
         if (m_instance)
             m_instance->SetData(TYPE_BROGGOK_EVENT, DONE);
@@ -118,25 +121,25 @@ struct boss_broggokAI : public CombatAI
     {
         switch (action)
         {
-            case BROGGOK_SLIME_SPRAY:
-                if (DoCastSpellIfCan(m_creature, m_isRegularMode ? SPELL_SLIME_SPRAY : SPELL_SLIME_SPRAY_H) == CAST_OK)
-                    ResetCombatAction(action, urand(4000, 12000));
-                break;
-            case BROGGOK_POISON_BOLT:
-                if (DoCastSpellIfCan(m_creature, m_isRegularMode ? SPELL_POISON_BOLT : SPELL_POISON_BOLT_H) == CAST_OK)
-                    ResetCombatAction(action, urand(4000, 12000));
-                break;
-            case BROGGOK_POISON_CLOUD:
-                if (DoCastSpellIfCan(m_creature, SPELL_POISON_CLOUD) == CAST_OK)
-                    ResetCombatAction(action, 20000);
-                break;
+        case BROGGOK_SLIME_SPRAY:
+            if (DoCastSpellIfCan(m_creature, m_isRegularMode ? SPELL_SLIME_SPRAY : SPELL_SLIME_SPRAY_H) == CAST_OK)
+                ResetCombatAction(action, urand(4000, 12000));
+            break;
+        case BROGGOK_POISON_BOLT:
+            if (DoCastSpellIfCan(m_creature, m_isRegularMode ? SPELL_POISON_BOLT : SPELL_POISON_BOLT_H) == CAST_OK)
+                ResetCombatAction(action, urand(4000, 12000));
+            break;
+        case BROGGOK_POISON_CLOUD:
+            if (DoCastSpellIfCan(m_creature, SPELL_POISON_CLOUD) == CAST_OK)
+                ResetCombatAction(action, 20000);
+            break;
         }
     }
 };
 
 void AddSC_boss_broggok()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_broggok";
     pNewScript->GetAI = &GetNewAIInstance<boss_broggokAI>;
     pNewScript->RegisterSelf();

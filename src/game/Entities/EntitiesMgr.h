@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,11 +20,11 @@
 #ifndef ENTITIES_MGR_H
 #define ENTITIES_MGR_H
 
-#include "Common.h"
 #include <memory>
+
+#include "Common.h"
 #include "ObjectGuid.h"
 #include "Timer.h"
-
 
 #define TIMER_UPDATE_PLAYER_TIMELAPS 1000
 
@@ -39,19 +40,19 @@ class Corpse;
 struct CreatureData;
 struct GameObjectData;
 
-typedef std::list<WorldObject*> WorldObjectList;
-typedef std::set<WorldObject*> WorldObjectSet;
-typedef std::unordered_set<WorldObject*> WorldObjectUnSet;
-typedef std::list<Unit*> UnitList;
-typedef std::list<Creature*> CreatureList;
-typedef std::list<GameObject*> GameObjectList;
-typedef std::list<Corpse*> CorpseList;
-typedef std::list<Player*> PlayerList;
-typedef std::unordered_set<Player*> PlayerSet;
-typedef std::map<uint64, Player*> PlayersMap;
-typedef std::map<uint32, Creature*> CreaturesMap;
-typedef std::map<uint32, GameObject*> GameObjectsMap;
-typedef std::map<uint32, DynamicObject*> DynamicObjectsMap;
-typedef std::map<uint32, Corpse*> PlayerCorpsesMap;
+typedef std::list<WorldObject *> WorldObjectList;
+typedef std::set<WorldObject *> WorldObjectSet;
+typedef std::unordered_set<WorldObject *> WorldObjectUnSet;
+typedef std::list<Unit *> UnitList;
+typedef std::list<Creature *> CreatureList;
+typedef std::list<GameObject *> GameObjectList;
+typedef std::list<Corpse *> CorpseList;
+typedef std::list<Player *> PlayerList;
+typedef std::unordered_set<Player *> PlayerSet;
+typedef std::map<uint64, Player *> PlayersMap;
+typedef std::map<uint32, Creature *> CreaturesMap;
+typedef std::map<uint32, GameObject *> GameObjectsMap;
+typedef std::map<uint32, DynamicObject *> DynamicObjectsMap;
+typedef std::map<uint32, Corpse *> PlayerCorpsesMap;
 
 #endif

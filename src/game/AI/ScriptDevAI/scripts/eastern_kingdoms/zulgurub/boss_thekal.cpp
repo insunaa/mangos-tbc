@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -21,51 +21,51 @@ SDComment: Needs a good shake-up.
 SDCategory: Zul'Gurub
 EndScriptData */
 
+#include "AI//ScriptDevAI/base/CombatAI.h"
 #include "AI/ScriptDevAI/include/sc_common.h"
 #include "zulgurub.h"
-#include "AI//ScriptDevAI/base/CombatAI.h"
 
 enum
 {
-    SAY_AGGRO               = -1309009,
-    SAY_DEATH               = -1309010,
+    SAY_AGGRO = -1309009,
+    SAY_DEATH = -1309010,
 
-    SAY_DIES_EMOTE          = 10453,
+    SAY_DIES_EMOTE = 10453,
 
-    SPELL_PACIFY_SELF       = 19951,
+    SPELL_PACIFY_SELF = 19951,
 
-    SPELL_MORTAL_CLEAVE     = 22859,
-    SPELL_SILENCE           = 22666,
-    SPELL_FRENZY            = 23128,
-    SPELL_FORCE_PUNCH       = 24189,
-    SPELL_CHARGE            = 24408,
-    SPELL_ENRAGE            = 8269,
-    SPELL_SUMMON_TIGERS     = 24183,
-    SPELL_TIGER_FORM        = 24169,
-    SPELL_RESURRECT         = 24173,
-    SPELL_THEKAL_TRIGGER    = 24172,        // TODO: Need to find use for this
-    SPELL_BLOODLUST         = 24185,
+    SPELL_MORTAL_CLEAVE = 22859,
+    SPELL_SILENCE = 22666,
+    SPELL_FRENZY = 23128,
+    SPELL_FORCE_PUNCH = 24189,
+    SPELL_CHARGE = 24408,
+    SPELL_ENRAGE = 8269,
+    SPELL_SUMMON_TIGERS = 24183,
+    SPELL_TIGER_FORM = 24169,
+    SPELL_RESURRECT = 24173,
+    SPELL_THEKAL_TRIGGER = 24172, // TODO: Need to find use for this
+    SPELL_BLOODLUST = 24185,
     SPELL_RESSURECTION_IMPACT_VISUAL = 24171,
 
     // Zealot Lor'Khan Spells
-    SPELL_LIGHTNING_SHIELD  = 20545,
-    SPELL_DISPEL_MAGIC      = 17201,
-    SPELL_GREAT_HEAL        = 24208,
-    SPELL_DISARM            = 6713,
+    SPELL_LIGHTNING_SHIELD = 20545,
+    SPELL_DISPEL_MAGIC = 17201,
+    SPELL_GREAT_HEAL = 24208,
+    SPELL_DISARM = 6713,
 
     // Zealot Zath Spells
-    SPELL_SWEEPING_STRIKES  = 18765,
-    SPELL_SINISTER_STRIKE   = 15581,
-    SPELL_GOUGE             = 12540,
-    SPELL_KICK              = 15614,
-    SPELL_BLIND             = 21060,
+    SPELL_SWEEPING_STRIKES = 18765,
+    SPELL_SINISTER_STRIKE = 15581,
+    SPELL_GOUGE = 12540,
+    SPELL_KICK = 15614,
+    SPELL_BLIND = 21060,
 
-    PHASE_NORMAL            = 1,
-    PHASE_FAKE_DEATH        = 2,
-    PHASE_WAITING           = 3,
-    PHASE_TIGER             = 4,
+    PHASE_NORMAL = 1,
+    PHASE_FAKE_DEATH = 2,
+    PHASE_WAITING = 3,
+    PHASE_TIGER = 4,
 
-    ACTION_RESSURECTION     = 10,
+    ACTION_RESSURECTION = 10,
 
     SPELL_LIST_PHASE_1 = 1450901,
     SPELL_LIST_PHASE_2 = 1450902,
@@ -74,8 +74,8 @@ enum
 // abstract base class for faking death
 struct boss_thekalBaseAI : public CombatAI
 {
-    boss_thekalBaseAI(Creature* creature, uint32 actions) : CombatAI(creature, actions),
-        m_instance(static_cast<ScriptedInstance*>(creature->GetInstanceData()))
+    boss_thekalBaseAI(Creature *creature, uint32 actions)
+        : CombatAI(creature, actions), m_instance(static_cast<ScriptedInstance *>(creature->GetInstanceData()))
     {
         m_uiPhase = PHASE_NORMAL;
         SetDeathPrevention(true);
@@ -90,14 +90,19 @@ struct boss_thekalBaseAI : public CombatAI
         SetCombatScriptStatus(false);
     }
 
-    ScriptedInstance* m_instance;
+    ScriptedInstance *m_instance;
 
     uint8 m_uiPhase;
 
-    virtual void OnFakeingDeath() {}
-    virtual bool OnRevive() { return false; }
+    virtual void OnFakeingDeath()
+    {
+    }
+    virtual bool OnRevive()
+    {
+        return false;
+    }
 
-    void JustPreventedDeath(Unit* /*attacker*/)
+    void JustPreventedDeath(Unit * /*attacker*/)
     {
         m_creature->InterruptNonMeleeSpells(true);
         m_creature->StopMoving();
@@ -164,11 +169,10 @@ enum ThekalActions
 
 struct boss_thekalAI : public boss_thekalBaseAI
 {
-    boss_thekalAI(Creature* creature) : boss_thekalBaseAI(creature, THEKAL_ACTION_MAX)
+    boss_thekalAI(Creature *creature) : boss_thekalBaseAI(creature, THEKAL_ACTION_MAX)
     {
         AddTimerlessCombatAction(THEKAL_TIGER_ENRAGE, false);
-        AddCustomAction(ACTION_RESSURECTION, true, [&]()
-        {
+        AddCustomAction(ACTION_RESSURECTION, true, [&]() {
             // resurrect him in any case
             DoCastSpellIfCan(nullptr, SPELL_RESURRECT);
 
@@ -179,8 +183,7 @@ struct boss_thekalAI : public boss_thekalBaseAI
                 m_instance->SetData(TYPE_THEKAL, IN_PROGRESS);
             }
         });
-        AddCustomAction(THEKAL_RESS_PHASE_2_DELAY, true, [&]()
-        {
+        AddCustomAction(THEKAL_RESS_PHASE_2_DELAY, true, [&]() {
             DoCastSpellIfCan(nullptr, SPELL_TIGER_FORM);
             m_uiPhase = PHASE_TIGER;
             SetDeathPrevention(false);
@@ -197,7 +200,7 @@ struct boss_thekalAI : public boss_thekalBaseAI
     {
         boss_thekalBaseAI::Reset();
 
-        m_uiPhase               = PHASE_NORMAL;
+        m_uiPhase = PHASE_NORMAL;
 
         // remove fake death
         Revive(true);
@@ -207,12 +210,12 @@ struct boss_thekalAI : public boss_thekalBaseAI
         m_creature->SetSpellList(SPELL_LIST_PHASE_1);
     }
 
-    void Aggro(Unit* /*who*/) override
+    void Aggro(Unit * /*who*/) override
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit * /*killer*/) override
     {
         DoScriptText(SAY_DEATH, m_creature);
 
@@ -222,12 +225,12 @@ struct boss_thekalAI : public boss_thekalBaseAI
         m_instance->SetData(TYPE_THEKAL, DONE);
 
         // remove the two adds
-        if (Creature* zath = m_instance->GetSingleCreatureFromStorage(NPC_ZATH))
+        if (Creature *zath = m_instance->GetSingleCreatureFromStorage(NPC_ZATH))
         {
             DoBroadcastText(SAY_DIES_EMOTE, zath);
             zath->ForcedDespawn(1000);
         }
-        if (Creature* lorkhan = m_instance->GetSingleCreatureFromStorage(NPC_LORKHAN))
+        if (Creature *lorkhan = m_instance->GetSingleCreatureFromStorage(NPC_LORKHAN))
         {
             DoBroadcastText(SAY_DIES_EMOTE, lorkhan);
             lorkhan->ForcedDespawn(1000);
@@ -248,14 +251,14 @@ struct boss_thekalAI : public boss_thekalBaseAI
             return false;
 
         // Else Prevent them Resurrecting
-        if (Creature* lorkhan = m_instance->GetSingleCreatureFromStorage(NPC_LORKHAN))
+        if (Creature *lorkhan = m_instance->GetSingleCreatureFromStorage(NPC_LORKHAN))
         {
-            if (boss_thekalBaseAI* pFakerAI = dynamic_cast<boss_thekalBaseAI*>(lorkhan->AI()))
+            if (boss_thekalBaseAI *pFakerAI = dynamic_cast<boss_thekalBaseAI *>(lorkhan->AI()))
                 pFakerAI->PreventRevive();
         }
-        if (Creature* zath = m_instance->GetSingleCreatureFromStorage(NPC_ZATH))
+        if (Creature *zath = m_instance->GetSingleCreatureFromStorage(NPC_ZATH))
         {
-            if (boss_thekalBaseAI* pFakerAI = dynamic_cast<boss_thekalBaseAI*>(zath->AI()))
+            if (boss_thekalBaseAI *pFakerAI = dynamic_cast<boss_thekalBaseAI *>(zath->AI()))
                 pFakerAI->PreventRevive();
         }
 
@@ -297,9 +300,9 @@ struct boss_thekalAI : public boss_thekalBaseAI
     void EnterEvadeMode() override
     {
         CombatAI::EnterEvadeMode();
-        if (Creature* lorkhan = m_instance->GetSingleCreatureFromStorage(NPC_LORKHAN))
+        if (Creature *lorkhan = m_instance->GetSingleCreatureFromStorage(NPC_LORKHAN))
             lorkhan->AI()->EnterEvadeMode();
-        if (Creature* zath = m_instance->GetSingleCreatureFromStorage(NPC_ZATH))
+        if (Creature *zath = m_instance->GetSingleCreatureFromStorage(NPC_ZATH))
             zath->AI()->EnterEvadeMode();
     }
 
@@ -322,10 +325,9 @@ struct boss_thekalAI : public boss_thekalBaseAI
 
 struct mob_zealot_lorkhanAI : public boss_thekalBaseAI
 {
-    mob_zealot_lorkhanAI(Creature* creature) : boss_thekalBaseAI(creature, 0)
+    mob_zealot_lorkhanAI(Creature *creature) : boss_thekalBaseAI(creature, 0)
     {
-        AddCustomAction(ACTION_RESSURECTION, true, [&]()
-        {
+        AddCustomAction(ACTION_RESSURECTION, true, [&]() {
             if (m_instance->GetData(TYPE_THEKAL) != SPECIAL || m_instance->GetData(TYPE_ZATH) != SPECIAL)
             {
                 DoCastSpellIfCan(nullptr, SPELL_RESURRECT);
@@ -346,7 +348,7 @@ struct mob_zealot_lorkhanAI : public boss_thekalBaseAI
         Revive(true);
     }
 
-    void Aggro(Unit* /*who*/) override
+    void Aggro(Unit * /*who*/) override
     {
         if (m_instance)
             m_instance->SetData(TYPE_LORKHAN, IN_PROGRESS);
@@ -373,10 +375,9 @@ struct mob_zealot_lorkhanAI : public boss_thekalBaseAI
 
 struct mob_zealot_zathAI : public boss_thekalBaseAI
 {
-    mob_zealot_zathAI(Creature* creature) : boss_thekalBaseAI(creature, 0)
+    mob_zealot_zathAI(Creature *creature) : boss_thekalBaseAI(creature, 0)
     {
-        AddCustomAction(ACTION_RESSURECTION, true, [&]()
-        {
+        AddCustomAction(ACTION_RESSURECTION, true, [&]() {
             if (m_instance->GetData(TYPE_THEKAL) != SPECIAL || m_instance->GetData(TYPE_LORKHAN) != SPECIAL)
             {
                 DoCastSpellIfCan(nullptr, SPELL_RESURRECT);
@@ -395,7 +396,7 @@ struct mob_zealot_zathAI : public boss_thekalBaseAI
         Revive(true);
     }
 
-    void Aggro(Unit* /*who*/) override
+    void Aggro(Unit * /*who*/) override
     {
         if (m_instance)
             m_instance->SetData(TYPE_ZATH, IN_PROGRESS);
@@ -418,17 +419,17 @@ struct mob_zealot_zathAI : public boss_thekalBaseAI
 
 struct ThekalResurrect : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx == EFFECT_INDEX_0)
-            if (boss_thekalBaseAI* fakerAI = dynamic_cast<boss_thekalBaseAI*>(spell->GetCaster()->AI()))
+            if (boss_thekalBaseAI *fakerAI = dynamic_cast<boss_thekalBaseAI *>(spell->GetCaster()->AI()))
                 fakerAI->Revive();
     }
 };
 
 void AddSC_boss_thekal()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_thekal";
     pNewScript->GetAI = &GetNewAIInstance<boss_thekalAI>;
     pNewScript->RegisterSelf();

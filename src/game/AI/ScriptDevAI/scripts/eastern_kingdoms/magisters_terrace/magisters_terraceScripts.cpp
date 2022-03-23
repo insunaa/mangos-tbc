@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -25,9 +25,9 @@ EndScriptData */
 npc_kalecgos
 EndContentData */
 
+#include "AI/ScriptDevAI/base/CombatAI.h"
 #include "AI/ScriptDevAI/include/sc_common.h"
 #include "magisters_terrace.h"
-#include "AI/ScriptDevAI/base/CombatAI.h"
 
 /*######
 ## npc_kalecgos
@@ -35,27 +35,28 @@ EndContentData */
 
 enum
 {
-    SPELL_CAMERA_SHAKE_MED      = 44762,
-    SPELL_TRANSFORM_VISUAL      = 24085,
-    SPELL_ORB_KILL_CREDIT       = 46307,
-    NPC_KALECGOS                = 24848,                    // human form entry
+    SPELL_CAMERA_SHAKE_MED = 44762,
+    SPELL_TRANSFORM_VISUAL = 24085,
+    SPELL_ORB_KILL_CREDIT = 46307,
+    NPC_KALECGOS = 24848, // human form entry
 
-    MAP_ID_MAGISTER             = 585,
+    MAP_ID_MAGISTER = 585,
 
-    SAY_SPAWN                   = -1585032,
+    SAY_SPAWN = -1585032,
 
-    POINT_FINAL                 = 7,
+    POINT_FINAL = 7,
 
-    ACTION_TRANSFORM            = 1,
+    ACTION_TRANSFORM = 1,
 };
 
 static const float afKaelLandPoint[4] = {200.36f, -270.77f, -8.73f, 0.01f};
 
 // This is friendly keal that appear after used Orb.
-// If we assume DB handle summon, summon appear somewhere outside the platform where Orb is
+// If we assume DB handle summon, summon appear somewhere outside the platform
+// where Orb is
 struct npc_kalecgosAI : public CombatAI
 {
-    npc_kalecgosAI(Creature* creature) : CombatAI(creature, 0), m_transformStage(0)
+    npc_kalecgosAI(Creature *creature) : CombatAI(creature, 0), m_transformStage(0)
     {
         AddCustomAction(ACTION_TRANSFORM, true, [&]() { HandleTransform(); });
     }
@@ -64,7 +65,8 @@ struct npc_kalecgosAI : public CombatAI
 
     void Reset() override
     {
-        // Check the map id because the same creature entry is involved in other scripted event in other instance
+        // Check the map id because the same creature entry is involved in other
+        // scripted event in other instance
         if (m_creature->GetMapId() != MAP_ID_MAGISTER)
             return;
 
@@ -79,37 +81,34 @@ struct npc_kalecgosAI : public CombatAI
         uint32 timer = 0;
         switch (m_transformStage)
         {
-            case 0:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_LAND);
-                m_creature->SetLevitate(false);
-                m_creature->SetHover(false);
-                timer = 1500;
-                break;
-            }
-            case 1:
-            {
-                DoCastSpellIfCan(nullptr, SPELL_CAMERA_SHAKE_MED);
-                m_creature->SetFacingTo(afKaelLandPoint[3]);
-                m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, 0.6f); // no spell for this
-                timer = 1000;
-                break;
-            }
-            case 2:
-            {
-                if (ScriptedInstance* instance = static_cast<ScriptedInstance*>(m_creature->GetInstanceData()))
-                    if (Creature* creature = instance->GetSingleCreatureFromStorage(NPC_SCRYERS_BUNNY))
-                        creature->CastSpell(nullptr, SPELL_ORB_KILL_CREDIT, TRIGGERED_OLD_TRIGGERED);
-                DoCastSpellIfCan(nullptr, SPELL_TRANSFORM_VISUAL);
-                m_creature->ForcedDespawn(1500);
-                timer = 500;
-                break;
-            }
-            case 3:
-            {
-                m_creature->SpawnCreature(5850236, m_creature->GetMap());
-                break;
-            }
+        case 0: {
+            m_creature->HandleEmote(EMOTE_ONESHOT_LAND);
+            m_creature->SetLevitate(false);
+            m_creature->SetHover(false);
+            timer = 1500;
+            break;
+        }
+        case 1: {
+            DoCastSpellIfCan(nullptr, SPELL_CAMERA_SHAKE_MED);
+            m_creature->SetFacingTo(afKaelLandPoint[3]);
+            m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X,
+                                      0.6f); // no spell for this
+            timer = 1000;
+            break;
+        }
+        case 2: {
+            if (ScriptedInstance *instance = static_cast<ScriptedInstance *>(m_creature->GetInstanceData()))
+                if (Creature *creature = instance->GetSingleCreatureFromStorage(NPC_SCRYERS_BUNNY))
+                    creature->CastSpell(nullptr, SPELL_ORB_KILL_CREDIT, TRIGGERED_OLD_TRIGGERED);
+            DoCastSpellIfCan(nullptr, SPELL_TRANSFORM_VISUAL);
+            m_creature->ForcedDespawn(1500);
+            timer = 500;
+            break;
+        }
+        case 3: {
+            m_creature->SpawnCreature(5850236, m_creature->GetMap());
+            break;
+        }
         }
         ++m_transformStage;
         if (timer)
@@ -132,13 +131,15 @@ struct npc_kalecgosAI : public CombatAI
     }
 };
 
-bool ProcessEventId_event_go_scrying_orb(uint32 /*eventId*/, Object* source, Object* /*target*/, bool isStart)
+bool ProcessEventId_event_go_scrying_orb(uint32 /*eventId*/, Object *source, Object * /*target*/, bool isStart)
 {
     if (isStart && source->GetTypeId() == TYPEID_PLAYER)
     {
-        if (instance_magisters_terrace* instance = (instance_magisters_terrace*)static_cast<Player*>(source)->GetInstanceData())
+        if (instance_magisters_terrace *instance =
+                (instance_magisters_terrace *)static_cast<Player *>(source)->GetInstanceData())
         {
-            // Check if the Dragon is already spawned and don't allow it to spawn it multiple times
+            // Check if the Dragon is already spawned and don't allow it to spawn
+            // it multiple times
             if (instance->IsKalecgosOrbHandled())
                 return true;
 
@@ -150,7 +151,7 @@ bool ProcessEventId_event_go_scrying_orb(uint32 /*eventId*/, Object* source, Obj
 
 void AddSC_magisters_terrace()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "npc_kalecgos";
     pNewScript->GetAI = &GetNewAIInstance<npc_kalecgosAI>;
     pNewScript->RegisterSelf();

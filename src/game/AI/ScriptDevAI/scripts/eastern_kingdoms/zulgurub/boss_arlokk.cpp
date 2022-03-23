@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -21,9 +21,9 @@ SDComment: Vanish spell is replaced by workaround; Timers
 SDCategory: Zul'Gurub
 EndScriptData */
 
+#include "AI/ScriptDevAI/base/CombatAI.h"
 #include "AI/ScriptDevAI/include/sc_common.h"
 #include "zulgurub.h"
-#include "AI/ScriptDevAI/base/CombatAI.h"
 
 /* ContentData
 boss_arlokk
@@ -33,27 +33,27 @@ EndContentData */
 
 enum
 {
-    SAY_AGGRO                   = -1309011,
-    SAY_FEAST_PANTHER           = -1309012,
-    SAY_DEATH                   = -1309013,
+    SAY_AGGRO = -1309011,
+    SAY_FEAST_PANTHER = -1309012,
+    SAY_DEATH = -1309013,
 
-    SPELL_SHADOW_WORD_PAIN      = 24212,
-    SPELL_GOUGE                 = 12540,
-    SPELL_MARK_ARLOKK           = 24210,
-    SPELL_RAVAGE                = 24213,
-    SPELL_TRASH                 = 3391,
-    SPELL_WHIRLWIND             = 24236,
-    SPELL_PANTHER_TRANSFORM     = 24190,
+    SPELL_SHADOW_WORD_PAIN = 24212,
+    SPELL_GOUGE = 12540,
+    SPELL_MARK_ARLOKK = 24210,
+    SPELL_RAVAGE = 24213,
+    SPELL_TRASH = 3391,
+    SPELL_WHIRLWIND = 24236,
+    SPELL_PANTHER_TRANSFORM = 24190,
     SPELL_SUMMON_ZULIAN_PROWLERS = 24247,
-    SPELL_HATE_TO_ZERO          = 20538,
+    SPELL_HATE_TO_ZERO = 20538,
 
-    SPELL_VANISH_TELEPORT       = 24228,
-    SPELL_VANISH                = 24223,
-    SPELL_SUPER_INVIS           = 24235,
+    SPELL_VANISH_TELEPORT = 24228,
+    SPELL_VANISH = 24223,
+    SPELL_SUPER_INVIS = 24235,
 
-    SPELL_TRANSFORM_VISUAL      = 24085,
+    SPELL_TRANSFORM_VISUAL = 24085,
 
-    SPELL_SNEAK                 = 22766,
+    SPELL_SNEAK = 22766,
 
     SPELL_LIST_PHASE_1 = 1451501,
     SPELL_LIST_PHASE_2 = 1451502,
@@ -69,17 +69,18 @@ enum ArlokkActions
 
 struct boss_arlokkAI : public CombatAI
 {
-    boss_arlokkAI(Creature* creature) : CombatAI(creature, ARLOKK_ACTION_MAX), m_instance(static_cast<instance_zulgurub*>(creature->GetInstanceData()))
+    boss_arlokkAI(Creature *creature)
+        : CombatAI(creature, ARLOKK_ACTION_MAX),
+          m_instance(static_cast<instance_zulgurub *>(creature->GetInstanceData()))
     {
         AddCombatAction(ARLOKK_PHASE_TRANSITION, 30000u);
-        AddCustomAction(ARLOKK_INVIS_SELECT, true, [&]()
-        {
-            if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, nullptr, SELECT_FLAG_PLAYER))
+        AddCustomAction(ARLOKK_INVIS_SELECT, true, [&]() {
+            if (Unit *target =
+                    m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, nullptr, SELECT_FLAG_PLAYER))
                 AttackStart(target);
             SetCombatMovement(false, true);
         });
-        AddCustomAction(ARLOKK_INVIS_TIMER, true, [&]()
-        {
+        AddCustomAction(ARLOKK_INVIS_TIMER, true, [&]() {
             m_creature->RemoveAurasDueToSpell(SPELL_SUPER_INVIS);
             SetCombatScriptStatus(false);
             SetCombatMovement(true, true);
@@ -87,10 +88,10 @@ struct boss_arlokkAI : public CombatAI
         });
     }
 
-    instance_zulgurub* m_instance;
+    instance_zulgurub *m_instance;
 
-    Creature* m_pTrigger1;
-    Creature* m_pTrigger2;
+    Creature *m_pTrigger1;
+    Creature *m_pTrigger2;
 
     GuidList m_lProwlerGUIDList;
 
@@ -107,7 +108,7 @@ struct boss_arlokkAI : public CombatAI
         SetMeleeEnabled(true);
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
@@ -133,7 +134,7 @@ struct boss_arlokkAI : public CombatAI
         m_creature->SetSpellList(SPELL_LIST_PHASE_1);
     }
 
-    void JustDied(Unit* /*pKiller*/) override
+    void JustDied(Unit * /*pKiller*/) override
     {
         DoScriptText(SAY_DEATH, m_creature);
         // Restore visibility in case of killed by dots
@@ -159,7 +160,7 @@ struct boss_arlokkAI : public CombatAI
         }
     }
 
-    void ReceiveAIEvent(AIEventType eventType, Unit* /*sender*/, Unit* /*invoker*/, uint32 /*miscValue*/) override
+    void ReceiveAIEvent(AIEventType eventType, Unit * /*sender*/, Unit * /*invoker*/, uint32 /*miscValue*/) override
     {
         if (eventType == AI_EVENT_CUSTOM_A)
         {
@@ -175,32 +176,32 @@ struct boss_arlokkAI : public CombatAI
     {
         switch (action)
         {
-            case ARLOKK_PHASE_TRANSITION:
-                if (m_bIsPhaseTwo)
+        case ARLOKK_PHASE_TRANSITION:
+            if (m_bIsPhaseTwo)
+            {
+                if (DoCastSpellIfCan(nullptr, SPELL_TRANSFORM_VISUAL) == CAST_OK)
                 {
-                    if (DoCastSpellIfCan(nullptr, SPELL_TRANSFORM_VISUAL) == CAST_OK)
-                    {
-                        m_creature->RemoveAurasDueToSpell(SPELL_PANTHER_TRANSFORM);
-                        ResetCombatAction(action, 30000);
-                        m_bIsPhaseTwo = false;
-                        m_creature->SetSpellList(SPELL_LIST_PHASE_1);
-                    }
+                    m_creature->RemoveAurasDueToSpell(SPELL_PANTHER_TRANSFORM);
+                    ResetCombatAction(action, 30000);
+                    m_bIsPhaseTwo = false;
+                    m_creature->SetSpellList(SPELL_LIST_PHASE_1);
                 }
-                else
+            }
+            else
+            {
+                if (DoCastSpellIfCan(nullptr, SPELL_PANTHER_TRANSFORM) == CAST_OK)
                 {
-                    if (DoCastSpellIfCan(nullptr, SPELL_PANTHER_TRANSFORM) == CAST_OK)
-                    {
-                        m_creature->CastSpell(nullptr, SPELL_HATE_TO_ZERO, TRIGGERED_NONE);
-                        ResetCombatAction(action, 120000);
-                        m_bIsPhaseTwo = true;
-                        m_creature->SetSpellList(SPELL_LIST_PHASE_2);
-                    }
+                    m_creature->CastSpell(nullptr, SPELL_HATE_TO_ZERO, TRIGGERED_NONE);
+                    ResetCombatAction(action, 120000);
+                    m_bIsPhaseTwo = true;
+                    m_creature->SetSpellList(SPELL_LIST_PHASE_2);
                 }
-                break;
+            }
+            break;
         }
     }
 
-    void OnSpellCast(SpellEntry const* spellInfo, Unit* target) override
+    void OnSpellCast(SpellEntry const *spellInfo, Unit *target) override
     {
         if (spellInfo->Id == SPELL_MARK_ARLOKK)
             DoScriptText(SAY_FEAST_PANTHER, m_creature, target);
@@ -209,7 +210,7 @@ struct boss_arlokkAI : public CombatAI
 
 struct npc_zulian_prowlerAI : public ScriptedAI
 {
-    npc_zulian_prowlerAI(Creature* creature) : ScriptedAI(creature), m_bMoveToAid(creature->IsTemporarySummon())
+    npc_zulian_prowlerAI(Creature *creature) : ScriptedAI(creature), m_bMoveToAid(creature->IsTemporarySummon())
     {
         Reset();
     }
@@ -218,7 +219,9 @@ struct npc_zulian_prowlerAI : public ScriptedAI
 
     bool m_bMoveToAid;
 
-    void Reset() override {}
+    void Reset() override
+    {
+    }
 
     void JustRespawned() override
     {
@@ -235,7 +238,7 @@ struct npc_zulian_prowlerAI : public ScriptedAI
             uint32 count = 0;
             for (GuidList::const_iterator itr = m_lProwlerGUIDList.begin(); itr != m_lProwlerGUIDList.end(); ++itr)
             {
-                if (Unit* pProwler = m_creature->GetMap()->GetUnit(*itr))
+                if (Unit *pProwler = m_creature->GetMap()->GetUnit(*itr))
                     if (pProwler->IsAlive())
                         count++;
             }
@@ -248,16 +251,17 @@ struct npc_zulian_prowlerAI : public ScriptedAI
             }
 
             m_creature->GetMotionMaster()->Clear();
-            m_creature->GetMotionMaster()->MovePoint(1, aArlokkWallShieldPos[0], aArlokkWallShieldPos[1], aArlokkWallShieldPos[2]);
+            m_creature->GetMotionMaster()->MovePoint(1, aArlokkWallShieldPos[0], aArlokkWallShieldPos[1],
+                                                     aArlokkWallShieldPos[2]);
 
             m_bMoveToAid = false;
         }
     }
 };
 
-bool GOUse_go_gong_of_bethekk(Player* /*pPlayer*/, GameObject* pGo)
+bool GOUse_go_gong_of_bethekk(Player * /*pPlayer*/, GameObject *pGo)
 {
-    if (ScriptedInstance* pInstance = (ScriptedInstance*)pGo->GetInstanceData())
+    if (ScriptedInstance *pInstance = (ScriptedInstance *)pGo->GetInstanceData())
     {
         if (pInstance->GetData(TYPE_ARLOKK) == DONE || pInstance->GetData(TYPE_ARLOKK) == IN_PROGRESS)
             return true;
@@ -270,12 +274,12 @@ bool GOUse_go_gong_of_bethekk(Player* /*pPlayer*/, GameObject* pGo)
 
 struct ArlokkVanish : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx != EFFECT_INDEX_1)
             return;
 
-        Unit* caster = spell->GetCaster();
+        Unit *caster = spell->GetCaster();
         caster->CastSpell(nullptr, SPELL_VANISH_TELEPORT, TRIGGERED_OLD_TRIGGERED);
         caster->CastSpell(nullptr, SPELL_SUPER_INVIS, TRIGGERED_OLD_TRIGGERED);
 
@@ -286,7 +290,7 @@ struct ArlokkVanish : public SpellScript
 
 void AddSC_boss_arlokk()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_arlokk";
     pNewScript->GetAI = &GetNewAIInstance<boss_arlokkAI>;
     pNewScript->RegisterSelf();

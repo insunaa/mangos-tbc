@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -32,27 +32,30 @@ EndContentData */
 ######*/
 enum
 {
-    SPELL_METEOR                 = 24340,
-    SPELL_PLAGUE                 = 22997,
-    SPELL_SHADOW_STORM           = 26546,
-    SPELL_THUNDER_CLAP           = 26554,
-    SPELL_REFLECT_ARFR           = 13022,
-    SPELL_REFLECT_FSSH           = 19595,
-    SPELL_ENRAGE                 = 8599,
-    SPELL_EXPLODE                = 25698,
+    SPELL_METEOR = 24340,
+    SPELL_PLAGUE = 22997,
+    SPELL_SHADOW_STORM = 26546,
+    SPELL_THUNDER_CLAP = 26554,
+    SPELL_REFLECT_ARFR = 13022,
+    SPELL_REFLECT_FSSH = 19595,
+    SPELL_ENRAGE = 8599,
+    SPELL_EXPLODE = 25698,
 
     SPELL_SUMMON_ANUB_SWARMGUARD = 17430,
-    SPELL_SUMMON_ANUB_WARRIOR    = 17431,
+    SPELL_SUMMON_ANUB_WARRIOR = 17431,
 
-    EMOTE_FRENZY                 = -1000002,
+    EMOTE_FRENZY = -1000002,
 
-    NPC_ANUB_WARRIOR             = 15537,
-    NPC_ANUB_SWARM               = 15538
+    NPC_ANUB_WARRIOR = 15537,
+    NPC_ANUB_SWARM = 15538
 };
 
 struct mob_anubisath_guardianAI : public ScriptedAI
 {
-    mob_anubisath_guardianAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+    mob_anubisath_guardianAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiSpell1;
     uint32 m_uiSpell2;
@@ -80,27 +83,28 @@ struct mob_anubisath_guardianAI : public ScriptedAI
         m_uiSpell2Timer = 20000;
         m_uiSpell5Timer = 10000;
         m_uiSummonCount = 0;
-        m_bIsEnraged    = false;
+        m_bIsEnraged = false;
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         // spell reflection
         DoCastSpellIfCan(m_creature, m_uiSpell3);
     }
 
-    void JustSummoned(Creature* pSummoned) override
+    void JustSummoned(Creature *pSummoned) override
     {
         pSummoned->AI()->AttackStart(m_creature->GetVictim());
         ++m_uiSummonCount;
     }
 
-    void SummonedCreatureDespawn(Creature* /*pDespawned*/) override
+    void SummonedCreatureDespawn(Creature * /*pDespawned*/) override
     {
         --m_uiSummonCount;
     }
 
-    void DamageTaken(Unit* /*dealer*/, uint32& /*damage*/, DamageEffectType /*damagetype*/, SpellEntry const* /*spellInfo*/) override
+    void DamageTaken(Unit * /*dealer*/, uint32 & /*damage*/, DamageEffectType /*damagetype*/,
+                     SpellEntry const * /*spellInfo*/) override
     {
         // when we reach 10% of HP explode or enrage
         if (!m_bIsEnraged && m_creature->GetHealthPercent() < 10.0f)
@@ -155,14 +159,14 @@ struct mob_anubisath_guardianAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_mob_anubisath_guardian(Creature* pCreature)
+UnitAI *GetAI_mob_anubisath_guardian(Creature *pCreature)
 {
     return new mob_anubisath_guardianAI(pCreature);
 }
 
 void AddSC_ruins_of_ahnqiraj()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "mob_anubisath_guardian";
     pNewScript->GetAI = &GetAI_mob_anubisath_guardian;
     pNewScript->RegisterSelf();

@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +18,7 @@
  */
 
 #include "MapUpdater.h"
+
 #include "MapWorkers.h"
 
 MapUpdater::MapUpdater(size_t num_threads) : _cancelationToken(false), pending_requests(0)
@@ -40,7 +42,7 @@ void MapUpdater::deactivate()
 
     _queue.Cancel();
 
-    for (auto& thread : _workerThreads)
+    for (auto &thread : _workerThreads)
         thread.join();
 }
 
@@ -71,7 +73,7 @@ void MapUpdater::update_finished()
     _condition.notify_all();
 }
 
-void MapUpdater::schedule_update(Worker* worker)
+void MapUpdater::schedule_update(Worker *worker)
 {
     std::lock_guard<std::mutex> lock(_lock);
 
@@ -83,7 +85,7 @@ void MapUpdater::WorkerThread()
 {
     while (true)
     {
-        Worker* request = nullptr;
+        Worker *request = nullptr;
 
         _queue.WaitAndPop(request);
 

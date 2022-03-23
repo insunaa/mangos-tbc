@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,16 +18,19 @@
  */
 
 #include "Database/SqlDelayThread.h"
+
 #include "Database/SqlOperations.h"
 #include "DatabaseEnv.h"
 
-SqlDelayThread::SqlDelayThread(Database* db, SqlConnection* conn) : m_dbEngine(db), m_dbConnection(conn), m_running(true)
+SqlDelayThread::SqlDelayThread(Database *db, SqlConnection *conn)
+    : m_dbEngine(db), m_dbConnection(conn), m_running(true)
 {
 }
 
 SqlDelayThread::~SqlDelayThread()
 {
-    // process all requests which might have been queued while thread was stopping
+    // process all requests which might have been queued while thread was
+    // stopping
     ProcessRequests();
 }
 
@@ -70,8 +74,9 @@ void SqlDelayThread::ProcessRequests()
 {
     std::queue<std::unique_ptr<SqlOperation>> sqlQueue;
 
-    // we need to move the contents of the queue to a local copy because executing these statements with the
-    // lock in place can result in a deadlock with the world thread which calls Database::ProcessResultQueue()
+    // we need to move the contents of the queue to a local copy because
+    // executing these statements with the lock in place can result in a deadlock
+    // with the world thread which calls Database::ProcessResultQueue()
     {
         std::lock_guard<std::mutex> guard(m_queueMutex);
         sqlQueue = std::move(m_sqlQueue);

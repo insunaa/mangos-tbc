@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -26,27 +26,27 @@ EndScriptData */
 
 enum
 {
-    SAY_NEFARIUS_BUFF_GYTH  = -1229017,
-    EMOTE_KNOCKED_OFF       = -1229019,
+    SAY_NEFARIUS_BUFF_GYTH = -1229017,
+    EMOTE_KNOCKED_OFF = -1229019,
 
-    SPELL_CHROMATIC_CHAOS   = 16337,                // casted by Nefarius at 50%
-    SPELL_REND_MOUNTS       = 16167,
-    SPELL_SUMMON_REND       = 16328,
-    SPELL_CORROSIVE_ACID    = 16359,
-    SPELL_FREEZE            = 16350,
-    SPELL_FLAME_BREATH      = 16390,
-    SPELL_KNOCK_AWAY        = 10101,
+    SPELL_CHROMATIC_CHAOS = 16337, // casted by Nefarius at 50%
+    SPELL_REND_MOUNTS = 16167,
+    SPELL_SUMMON_REND = 16328,
+    SPELL_CORROSIVE_ACID = 16359,
+    SPELL_FREEZE = 16350,
+    SPELL_FLAME_BREATH = 16390,
+    SPELL_KNOCK_AWAY = 10101,
 };
 
 struct boss_gythAI : public ScriptedAI
 {
-    boss_gythAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_gythAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (instance_blackrock_spire*) pCreature->GetInstanceData();
+        m_pInstance = (instance_blackrock_spire *)pCreature->GetInstanceData();
         Reset();
     }
 
-    instance_blackrock_spire* m_pInstance;
+    instance_blackrock_spire *m_pInstance;
 
     uint32 uiCorrosiveAcidTimer;
     uint32 uiFreezeTimer;
@@ -59,16 +59,16 @@ struct boss_gythAI : public ScriptedAI
     void Reset() override
     {
         uiCorrosiveAcidTimer = 8000;
-        uiFreezeTimer        = 11000;
-        uiFlamebreathTimer   = 4000;
-        uiKnockAwayTimer     = 23000;
-        m_bSummonedRend      = false;
+        uiFreezeTimer = 11000;
+        uiFlamebreathTimer = 4000;
+        uiKnockAwayTimer = 23000;
+        m_bSummonedRend = false;
         m_bHasChromaticChaos = false;
         SetDeathPrevention(true);
         DoCastSpellIfCan(m_creature, SPELL_REND_MOUNTS);
     }
 
-    void JustSummoned(Creature* pSummoned) override
+    void JustSummoned(Creature *pSummoned) override
     {
         DoScriptText(EMOTE_KNOCKED_OFF, pSummoned);
     }
@@ -84,7 +84,7 @@ struct boss_gythAI : public ScriptedAI
         {
             if (m_pInstance)
             {
-                if (Creature* pNefarius = m_pInstance->GetSingleCreatureFromStorage(NPC_LORD_VICTOR_NEFARIUS))
+                if (Creature *pNefarius = m_pInstance->GetSingleCreatureFromStorage(NPC_LORD_VICTOR_NEFARIUS))
                 {
                     pNefarius->CastSpell(m_creature, SPELL_CHROMATIC_CHAOS, TRIGGERED_OLD_TRIGGERED);
                     DoScriptText(SAY_NEFARIUS_BUFF_GYTH, pNefarius);
@@ -143,14 +143,14 @@ struct boss_gythAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_gyth(Creature* pCreature)
+UnitAI *GetAI_boss_gyth(Creature *pCreature)
 {
     return new boss_gythAI(pCreature);
 }
 
 void AddSC_boss_gyth()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_gyth";
     pNewScript->GetAI = &GetAI_boss_gyth;
     pNewScript->RegisterSelf();

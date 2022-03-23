@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,30 +21,29 @@
 #define DATABASEENV_H
 
 #include "Common.h"
-#include "Log.h"
-#include "Errors.h"
-
 #include "Database/Field.h"
 #include "Database/QueryResult.h"
+#include "Errors.h"
+#include "Log.h"
 
 #ifdef DO_POSTGRESQL
-#include "Database/QueryResultPostgre.h"
 #include "Database/Database.h"
 #include "Database/DatabasePostgre.h"
+#include "Database/QueryResultPostgre.h"
 typedef DatabasePostgre DatabaseType;
-#define _LIKE_           "ILIKE"
-#define _TABLE_SIM_      "\""
-#define _CONCAT3_(A,B,C) "( " A " || " B " || " C " )"
-#define _OFFSET_         "LIMIT 1 OFFSET %d"
+#define _LIKE_ "ILIKE"
+#define _TABLE_SIM_ "\""
+#define _CONCAT3_(A, B, C) "( " A " || " B " || " C " )"
+#define _OFFSET_ "LIMIT 1 OFFSET %d"
 #else
-#include "Database/QueryResultMysql.h"
 #include "Database/Database.h"
 #include "Database/DatabaseMysql.h"
+#include "Database/QueryResultMysql.h"
 typedef DatabaseMysql DatabaseType;
-#define _LIKE_           "LIKE"
-#define _TABLE_SIM_      '`'
-#define _CONCAT3_(A,B,C) "CONCAT( " A " , " B " , " C " )"
-#define _OFFSET_         "LIMIT %d,1"
+#define _LIKE_ "LIKE"
+#define _TABLE_SIM_ '`'
+#define _CONCAT3_(A, B, C) "CONCAT( " A " , " B " , " C " )"
+#define _OFFSET_ "LIMIT %d,1"
 #endif
 
 extern DatabaseType WorldDatabase;

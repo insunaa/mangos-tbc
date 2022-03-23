@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,28 +22,27 @@
 */
 
 #include "Weather/Weather.h"
+
 #include "Entities/Player.h"
+#include "Log.h"
 #include "Maps/Map.h"
+#include "ProgressBar.h"
+#include "Util.h"
 #include "World/World.h"
 #include "WorldPacket.h"
-#include "Log.h"
-#include "Util.h"
-#include "ProgressBar.h"
 
 /// Create the Weather object
-Weather::Weather(uint32 zone, WeatherZoneChances const* weatherChances) :
-    m_zone(zone),
-    m_type(WEATHER_TYPE_FINE),
-    m_grade(0.0f),
-    m_weatherChances(weatherChances),
-    m_isPermanentWeather(false)
+Weather::Weather(uint32 zone, WeatherZoneChances const *weatherChances)
+    : m_zone(zone), m_type(WEATHER_TYPE_FINE), m_grade(0.0f), m_weatherChances(weatherChances),
+      m_isPermanentWeather(false)
 {
     m_timer.SetInterval(sWorld.getConfig(CONFIG_UINT32_INTERVAL_CHANGEWEATHER));
-    DETAIL_FILTER_LOG(LOG_FILTER_WEATHER, "WORLD: Starting weather system for zone %u (change every %u minutes).", m_zone, (m_timer.GetInterval() / (MINUTE * IN_MILLISECONDS)));
+    DETAIL_FILTER_LOG(LOG_FILTER_WEATHER, "WORLD: Starting weather system for zone %u (change every %u minutes).",
+                      m_zone, (m_timer.GetInterval() / (MINUTE * IN_MILLISECONDS)));
 }
 
 /// Launch a weather update
-bool Weather::Update(uint32 diff, Map const* _map)
+bool Weather::Update(uint32 diff, Map const *_map)
 {
     m_timer.Update(diff);
 
@@ -53,7 +53,8 @@ bool Weather::Update(uint32 diff, Map const* _map)
         // update only if Regenerate has changed the weather
         if (ReGenerate())
         {
-            ///- Weather will be removed if not updated (no players in zone anymore)
+            ///- Weather will be removed if not updated (no players in zone
+            /// anymore)
             if (!SendWeatherForPlayersInZone(_map))
                 return false;
         }
@@ -92,26 +93,26 @@ bool Weather::ReGenerate()
     // 78 days between January 1st and March 20nd; 365/4=91 days by season
     // season source http://aa.usno.navy.mil/data/docs/EarthSeasons.html
     time_t gtime = sWorld.GetGameTime();
-    struct tm* ltime = localtime(&gtime);
+    struct tm *ltime = localtime(&gtime);
     uint32 season = ((ltime->tm_yday - 78 + 365) / 91) % 4;
 
-    static char const* seasonName[WEATHER_SEASONS] = { "spring", "summer", "fall", "winter" };
+    static char const *seasonName[WEATHER_SEASONS] = {"spring", "summer", "fall", "winter"};
 
     DEBUG_FILTER_LOG(LOG_FILTER_WEATHER, "Generating a change in %s weather for zone %u.", seasonName[season], m_zone);
 
-    if ((u < 60) && (m_grade < 0.33333334f))                // Get fair
+    if ((u < 60) && (m_grade < 0.33333334f)) // Get fair
     {
         m_type = WEATHER_TYPE_FINE;
         m_grade = 0.0f;
     }
 
-    if ((u < 60) && (m_type != WEATHER_TYPE_FINE))          // Get better
+    if ((u < 60) && (m_type != WEATHER_TYPE_FINE)) // Get better
     {
         m_grade -= 0.33333334f;
         return true;
     }
 
-    if ((u < 90) && (m_type != WEATHER_TYPE_FINE))          // Get worse
+    if ((u < 90) && (m_type != WEATHER_TYPE_FINE)) // Get worse
     {
         m_grade += 0.33333334f;
         return true;
@@ -126,7 +127,7 @@ bool Weather::ReGenerate()
 
         if (m_grade < 0.33333334f)
         {
-            m_grade = 0.9999f;                              // go nuts
+            m_grade = 0.9999f; // go nuts
             return true;
         }
         if (m_grade > 0.6666667f)
@@ -139,12 +140,13 @@ bool Weather::ReGenerate()
                 return true;
             }
         }
-        m_type = WEATHER_TYPE_FINE;                     // clear up
+        m_type = WEATHER_TYPE_FINE; // clear up
         m_grade = 0;
     }
 
-    // At this point, only weather that isn't doing anything remains but that have weather data
-    uint32 chance1 =          m_weatherChances->data[season].rainChance;
+    // At this point, only weather that isn't doing anything remains but that
+    // have weather data
+    uint32 chance1 = m_weatherChances->data[season].rainChance;
     uint32 chance2 = chance1 + m_weatherChances->data[season].snowChance;
     uint32 chance3 = chance2 + m_weatherChances->data[season].stormChance;
 
@@ -188,20 +190,20 @@ bool Weather::ReGenerate()
     return m_type != old_type || m_grade != old_grade;
 }
 
-void Weather::SendWeatherUpdateToPlayer(Player* player)
+void Weather::SendWeatherUpdateToPlayer(Player *player)
 {
     NormalizeGrade();
 
     WorldPacket data(SMSG_WEATHER, 4 + 4 + 1);
     data << uint32(GetWeatherState());
     data << float(m_grade);
-    data << uint8(0);       // 1 = instant change, 0 = smooth change
+    data << uint8(0); // 1 = instant change, 0 = smooth change
 
     player->GetSession()->SendPacket(data);
 }
 
 // Send the new weather to all players in the zone
-bool Weather::SendWeatherForPlayersInZone(Map const* _map)
+bool Weather::SendWeatherForPlayersInZone(Map const *_map)
 {
     NormalizeGrade();
 
@@ -210,7 +212,7 @@ bool Weather::SendWeatherForPlayersInZone(Map const* _map)
     WorldPacket data(SMSG_WEATHER, 4 + 4 + 1);
     data << uint32(state);
     data << float(m_grade);
-    data << uint8(0);       // 1 = instant change, 0 = smooth change
+    data << uint8(0); // 1 = instant change, 0 = smooth change
 
     ///- Send the weather packet to all players in this zone
     if (!_map->SendToPlayersInZone(data, m_zone))
@@ -222,7 +224,7 @@ bool Weather::SendWeatherForPlayersInZone(Map const* _map)
 }
 
 // Set the weather
-void Weather::SetWeather(WeatherType type, float grade, Map const* _map, bool isPermanent)
+void Weather::SetWeather(WeatherType type, float grade, Map const *_map, bool isPermanent)
 {
     m_isPermanentWeather = isPermanent;
 
@@ -242,37 +244,34 @@ WeatherState Weather::GetWeatherState() const
 
     switch (m_type)
     {
-        case WEATHER_TYPE_RAIN:
-        {
-            if (m_grade < 0.40f)
-                return WEATHER_STATE_LIGHT_RAIN;
-            if (m_grade < 0.70f)
-                return WEATHER_STATE_MEDIUM_RAIN;
-            return WEATHER_STATE_HEAVY_RAIN;
-        }
-        case WEATHER_TYPE_SNOW:
-        {
-            if (m_grade < 0.40f)
-                return WEATHER_STATE_LIGHT_SNOW;
-            if (m_grade < 0.70f)
-                return WEATHER_STATE_MEDIUM_SNOW;
-            return WEATHER_STATE_HEAVY_SNOW;
-        }
-        case WEATHER_TYPE_STORM:
-        {
-            if (m_grade < 0.40f)
-                return WEATHER_STATE_LIGHT_SANDSTORM;
-            if (m_grade < 0.70f)
-                return WEATHER_STATE_MEDIUM_SANDSTORM;
-            return WEATHER_STATE_HEAVY_SANDSTORM;
-        }
-        case WEATHER_TYPE_BLACKRAIN:
-            return WEATHER_STATE_BLACKRAIN;
-        case WEATHER_TYPE_THUNDERS:
-            return WEATHER_STATE_THUNDERS;
-        case WEATHER_TYPE_FINE:
-        default:
-            return WEATHER_STATE_FINE;
+    case WEATHER_TYPE_RAIN: {
+        if (m_grade < 0.40f)
+            return WEATHER_STATE_LIGHT_RAIN;
+        if (m_grade < 0.70f)
+            return WEATHER_STATE_MEDIUM_RAIN;
+        return WEATHER_STATE_HEAVY_RAIN;
+    }
+    case WEATHER_TYPE_SNOW: {
+        if (m_grade < 0.40f)
+            return WEATHER_STATE_LIGHT_SNOW;
+        if (m_grade < 0.70f)
+            return WEATHER_STATE_MEDIUM_SNOW;
+        return WEATHER_STATE_HEAVY_SNOW;
+    }
+    case WEATHER_TYPE_STORM: {
+        if (m_grade < 0.40f)
+            return WEATHER_STATE_LIGHT_SANDSTORM;
+        if (m_grade < 0.70f)
+            return WEATHER_STATE_MEDIUM_SANDSTORM;
+        return WEATHER_STATE_HEAVY_SANDSTORM;
+    }
+    case WEATHER_TYPE_BLACKRAIN:
+        return WEATHER_STATE_BLACKRAIN;
+    case WEATHER_TYPE_THUNDERS:
+        return WEATHER_STATE_THUNDERS;
+    case WEATHER_TYPE_FINE:
+    default:
+        return WEATHER_STATE_FINE;
     }
 }
 
@@ -287,57 +286,59 @@ void Weather::NormalizeGrade()
 // Helper to log recent state
 void Weather::LogWeatherState(WeatherState state) const
 {
-    char const* wthstr;
+    char const *wthstr;
     switch (state)
     {
-        case WEATHER_STATE_LIGHT_RAIN:
-            wthstr = "light rain";
-            break;
-        case WEATHER_STATE_MEDIUM_RAIN:
-            wthstr = "medium rain";
-            break;
-        case WEATHER_STATE_HEAVY_RAIN:
-            wthstr = "heavy rain";
-            break;
-        case WEATHER_STATE_LIGHT_SNOW:
-            wthstr = "light snow";
-            break;
-        case WEATHER_STATE_MEDIUM_SNOW:
-            wthstr = "medium snow";
-            break;
-        case WEATHER_STATE_HEAVY_SNOW:
-            wthstr = "heavy snow";
-            break;
-        case WEATHER_STATE_LIGHT_SANDSTORM:
-            wthstr = "light sandstorm";
-            break;
-        case WEATHER_STATE_MEDIUM_SANDSTORM:
-            wthstr = "medium sandstorm";
-            break;
-        case WEATHER_STATE_HEAVY_SANDSTORM:
-            wthstr = "heavy sandstorm";
-            break;
-        case WEATHER_STATE_THUNDERS:
-            wthstr = "thunders";
-            break;
-        case WEATHER_STATE_BLACKRAIN:
-            wthstr = "black rain";
-            break;
-        case WEATHER_STATE_FINE:
-        default:
-            wthstr = "fine";
-            break;
+    case WEATHER_STATE_LIGHT_RAIN:
+        wthstr = "light rain";
+        break;
+    case WEATHER_STATE_MEDIUM_RAIN:
+        wthstr = "medium rain";
+        break;
+    case WEATHER_STATE_HEAVY_RAIN:
+        wthstr = "heavy rain";
+        break;
+    case WEATHER_STATE_LIGHT_SNOW:
+        wthstr = "light snow";
+        break;
+    case WEATHER_STATE_MEDIUM_SNOW:
+        wthstr = "medium snow";
+        break;
+    case WEATHER_STATE_HEAVY_SNOW:
+        wthstr = "heavy snow";
+        break;
+    case WEATHER_STATE_LIGHT_SANDSTORM:
+        wthstr = "light sandstorm";
+        break;
+    case WEATHER_STATE_MEDIUM_SANDSTORM:
+        wthstr = "medium sandstorm";
+        break;
+    case WEATHER_STATE_HEAVY_SANDSTORM:
+        wthstr = "heavy sandstorm";
+        break;
+    case WEATHER_STATE_THUNDERS:
+        wthstr = "thunders";
+        break;
+    case WEATHER_STATE_BLACKRAIN:
+        wthstr = "black rain";
+        break;
+    case WEATHER_STATE_FINE:
+    default:
+        wthstr = "fine";
+        break;
     }
 
-    DETAIL_FILTER_LOG(LOG_FILTER_WEATHER, "Change the weather of zone %u (type %u, grade %f) to state %s.", m_zone, m_type, m_grade, wthstr);
+    DETAIL_FILTER_LOG(LOG_FILTER_WEATHER, "Change the weather of zone %u (type %u, grade %f) to state %s.", m_zone,
+                      m_type, m_grade, wthstr);
 }
 
 // ---------------------------------------------------------
 //                  Weather System
 // ---------------------------------------------------------
 
-WeatherSystem::WeatherSystem(Map const* _map) : m_map(_map)
-{}
+WeatherSystem::WeatherSystem(Map const *_map) : m_map(_map)
+{
+}
 
 WeatherSystem::~WeatherSystem()
 {
@@ -349,14 +350,14 @@ WeatherSystem::~WeatherSystem()
 }
 
 /// Find or Create a Weather object by the given zoneid
-Weather* WeatherSystem::FindOrCreateWeather(uint32 zoneId)
+Weather *WeatherSystem::FindOrCreateWeather(uint32 zoneId)
 {
     WeatherMap::const_iterator itr = m_weathers.find(zoneId);
     // Return if found
     if (itr != m_weathers.end())
         return itr->second;
     // Create
-    Weather* w = new Weather(zoneId, sWeatherMgr.GetWeatherChances(zoneId));
+    Weather *w = new Weather(zoneId, sWeatherMgr.GetWeatherChances(zoneId));
     m_weathers[zoneId] = w;
     return w;
 }
@@ -384,14 +385,22 @@ void WeatherMgr::LoadWeatherZoneChances()
 {
     uint32 count = 0;
 
-    //                                                0     1                   2                   3                    4                   5                   6                    7                 8                 9                  10                  11                  12
-    QueryResult* result = WorldDatabase.Query("SELECT zone, spring_rain_chance, spring_snow_chance, spring_storm_chance, summer_rain_chance, summer_snow_chance, summer_storm_chance, fall_rain_chance, fall_snow_chance, fall_storm_chance, winter_rain_chance, winter_snow_chance, winter_storm_chance FROM game_weather");
+    //                                                0     1                   2
+    //                                                3                    4 5 6
+    //                                                7                 8 9 10 11
+    //                                                12
+    QueryResult *result = WorldDatabase.Query("SELECT zone, spring_rain_chance, spring_snow_chance, "
+                                              "spring_storm_chance, summer_rain_chance, summer_snow_chance, "
+                                              "summer_storm_chance, fall_rain_chance, fall_snow_chance, "
+                                              "fall_storm_chance, winter_rain_chance, winter_snow_chance, "
+                                              "winter_storm_chance FROM game_weather");
 
     if (!result)
     {
         BarGoLink bar(1);
         bar.step();
-        sLog.outErrorDb(">> Loaded 0 weather definitions. DB table `game_weather` is empty.");
+        sLog.outErrorDb(">> Loaded 0 weather definitions. DB table "
+                        "`game_weather` is empty.");
         sLog.outString();
         return;
     }
@@ -400,41 +409,46 @@ void WeatherMgr::LoadWeatherZoneChances()
 
     do
     {
-        Field* fields = result->Fetch();
+        Field *fields = result->Fetch();
         bar.step();
 
         uint32 zone_id = fields[0].GetUInt32();
 
-        WeatherZoneChances& wzc = mWeatherZoneMap[zone_id];
+        WeatherZoneChances &wzc = mWeatherZoneMap[zone_id];
 
         for (int season = 0; season < WEATHER_SEASONS; ++season)
         {
-            wzc.data[season].rainChance  = fields[season * (MAX_WEATHER_TYPE - 1) + 1].GetUInt32();
-            wzc.data[season].snowChance  = fields[season * (MAX_WEATHER_TYPE - 1) + 2].GetUInt32();
+            wzc.data[season].rainChance = fields[season * (MAX_WEATHER_TYPE - 1) + 1].GetUInt32();
+            wzc.data[season].snowChance = fields[season * (MAX_WEATHER_TYPE - 1) + 2].GetUInt32();
             wzc.data[season].stormChance = fields[season * (MAX_WEATHER_TYPE - 1) + 3].GetUInt32();
 
             if (wzc.data[season].rainChance > 100)
             {
                 wzc.data[season].rainChance = 25;
-                sLog.outErrorDb("Weather for zone %u season %u has wrong rain chance > 100%%", zone_id, season);
+                sLog.outErrorDb("Weather for zone %u season %u has wrong rain "
+                                "chance > 100%%",
+                                zone_id, season);
             }
 
             if (wzc.data[season].snowChance > 100)
             {
                 wzc.data[season].snowChance = 25;
-                sLog.outErrorDb("Weather for zone %u season %u has wrong snow chance > 100%%", zone_id, season);
+                sLog.outErrorDb("Weather for zone %u season %u has wrong snow "
+                                "chance > 100%%",
+                                zone_id, season);
             }
 
             if (wzc.data[season].stormChance > 100)
             {
                 wzc.data[season].stormChance = 25;
-                sLog.outErrorDb("Weather for zone %u season %u has wrong storm chance > 100%%", zone_id, season);
+                sLog.outErrorDb("Weather for zone %u season %u has wrong storm "
+                                "chance > 100%%",
+                                zone_id, season);
             }
         }
 
         ++count;
-    }
-    while (result->NextRow());
+    } while (result->NextRow());
 
     delete result;
 

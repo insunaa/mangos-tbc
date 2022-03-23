@@ -5,17 +5,16 @@
  * absent permission of namreeb.
  */
 
-#include "libanticheat.hpp"
-#include "config.hpp"
-#include "WorldPacket.h"
-#include "Log.h"
-
-#include "Util.h"
-#include "Database/DatabaseEnv.h"
-
 #include <zlib.h>
 
 #include <memory>
+
+#include "Database/DatabaseEnv.h"
+#include "Log.h"
+#include "Util.h"
+#include "WorldPacket.h"
+#include "config.hpp"
+#include "libanticheat.hpp"
 
 namespace
 {
@@ -36,7 +35,8 @@ bool FingerprintExists(uint32 fingerprint)
     if (!FingerprintValid(fingerprint))
         return false;
 
-    std::unique_ptr<QueryResult> result(LoginDatabase.PQuery("SELECT COUNT(*) FROM system_fingerprint_usage WHERE fingerprint = %u", fingerprint));
+    std::unique_ptr<QueryResult> result(
+        LoginDatabase.PQuery("SELECT COUNT(*) FROM system_fingerprint_usage WHERE fingerprint = %u", fingerprint));
 
     return !!result->Fetch()[0].GetUInt32();
 }
@@ -49,7 +49,7 @@ uint32 GenerateFingerprint()
 
         // generate four random bytes between 0x03 and 0xFF
         for (auto i = 0u; i < sizeof(uint32); ++i)
-            fingerprint |= static_cast<uint8>(urand(0x03, 0xFF)) << 8*i;
+            fingerprint |= static_cast<uint8>(urand(0x03, 0xFF)) << 8 * i;
 
         // if the fingerprint already exists, repeat
         if (FingerprintExists(fingerprint))
@@ -69,16 +69,16 @@ struct AddonInfo
     uint32 urlcrc;
 };
 
-// each addon will give us one byte of the fingerprint.  this byte can not be 0x00, 0x01, or 0x02, as
-// the client considers these as valid flags with behaviors we want to avoid (i.e. 0x02 = banned)
-static const char *sFingerprintAddons[] =
-{
+// each addon will give us one byte of the fingerprint.  this byte can not be
+// 0x00, 0x01, or 0x02, as the client considers these as valid flags with
+// behaviors we want to avoid (i.e. 0x02 = banned)
+static const char *sFingerprintAddons[] = {
     "Blizzard_BindingUI",
     "Blizzard_InspectUI",
     "Blizzard_MacroUI",
     "Blizzard_RaidUI",
 };
-}
+} // namespace
 
 namespace NamreebAnticheat
 {
@@ -88,12 +88,15 @@ bool SessionAnticheat::ReadAddonInfo(WorldPacket *authSession, WorldPacket &out)
     if (authSession->rpos() + 4 > authSession->size())
         return false;
 
-    // have we already received this information?  if so, it must be some kind of hacker
+    // have we already received this information?  if so, it must be some kind of
+    // hacker
     if (!!_fingerprint)
     {
-        sLog.outBasic(
-            "ADDON: Received addon information when fingerprint is already known (0x%x) account %u ip %s.  This may be an attempt to crash the server",
-            _fingerprint, _session->GetAccountId(), _session->GetRemoteAddress().c_str());
+        sLog.outBasic("ADDON: Received addon information when fingerprint is "
+                      "already known "
+                      "(0x%x) account %u ip %s.  This may be an attempt to "
+                      "crash the server",
+                      _fingerprint, _session->GetAccountId(), _session->GetRemoteAddress().c_str());
         authSession->rpos(authSession->wpos());
         return false;
     }
@@ -106,8 +109,9 @@ bool SessionAnticheat::ReadAddonInfo(WorldPacket *authSession, WorldPacket &out)
 
     if (addonSize > 0xFFFFF)
     {
-        sLog.outBasic("ADDON: Addon info too big, size %lu.  Account %s (id %u) IP %s",
-            addonSize, _session->GetAccountName().c_str(), _session->GetAccountId(), _session->GetRemoteAddress().c_str());
+        sLog.outBasic("ADDON: Addon info too big, size %lu.  Account %s (id %u) IP %s", addonSize,
+                      _session->GetAccountName().c_str(), _session->GetAccountId(),
+                      _session->GetRemoteAddress().c_str());
 
         return false;
     }
@@ -115,37 +119,36 @@ bool SessionAnticheat::ReadAddonInfo(WorldPacket *authSession, WorldPacket &out)
     ByteBuffer clientAddonData;
     clientAddonData.resize(addonSize);
 
-    if (uncompress(const_cast<Bytef*>(clientAddonData.contents()), &addonSize,
-        reinterpret_cast<const Bytef *>(authSession->contents() + authSession->rpos()),
-        static_cast<uLongf>(authSession->size() - authSession->rpos())) != Z_OK)
+    if (uncompress(const_cast<Bytef *>(clientAddonData.contents()), &addonSize,
+                   reinterpret_cast<const Bytef *>(authSession->contents() + authSession->rpos()),
+                   static_cast<uLongf>(authSession->size() - authSession->rpos())) != Z_OK)
     {
-        sLog.outBasic("ADDON: Addon information failed to compress.  Account %s (id %u) IP %s",
-            _session->GetAccountName().c_str(), _session->GetAccountId(), _session->GetRemoteAddress().c_str());
+        sLog.outBasic("ADDON: Addon information failed to compress.  Account %s "
+                      "(id %u) IP %s",
+                      _session->GetAccountName().c_str(), _session->GetAccountId(),
+                      _session->GetRemoteAddress().c_str());
 
         return false;
     }
 
     static constexpr uint32 correctModulusCRC = 0x4C1C776D;
 
-    static constexpr uint8 modulus[] =
-    {
-        0xC3, 0x5B, 0x50, 0x84, 0xB9, 0x3E, 0x32, 0x42, 0x8C, 0xD0, 0xC7, 0x48, 0xFA, 0x0E, 0x5D, 0x54,
-        0x5A, 0xA3, 0x0E, 0x14, 0xBA, 0x9E, 0x0D, 0xB9, 0x5D, 0x8B, 0xEE, 0xB6, 0x84, 0x93, 0x45, 0x75,
-        0xFF, 0x31, 0xFE, 0x2F, 0x64, 0x3F, 0x3D, 0x6D, 0x07, 0xD9, 0x44, 0x9B, 0x40, 0x85, 0x59, 0x34,
-        0x4E, 0x10, 0xE1, 0xE7, 0x43, 0x69, 0xEF, 0x7C, 0x16, 0xFC, 0xB4, 0xED, 0x1B, 0x95, 0x28, 0xA8,
-        0x23, 0x76, 0x51, 0x31, 0x57, 0x30, 0x2B, 0x79, 0x08, 0x50, 0x10, 0x1C, 0x4A, 0x1A, 0x2C, 0xC8,
-        0x8B, 0x8F, 0x05, 0x2D, 0x22, 0x3D, 0xDB, 0x5A, 0x24, 0x7A, 0x0F, 0x13, 0x50, 0x37, 0x8F, 0x5A,
-        0xCC, 0x9E, 0x04, 0x44, 0x0E, 0x87, 0x01, 0xD4, 0xA3, 0x15, 0x94, 0x16, 0x34, 0xC6, 0xC2, 0xC3,
-        0xFB, 0x49, 0xFE, 0xE1, 0xF9, 0xDA, 0x8C, 0x50, 0x3C, 0xBE, 0x2C, 0xBB, 0x57, 0xED, 0x46, 0xB9,
-        0xAD, 0x8B, 0xC6, 0xDF, 0x0E, 0xD6, 0x0F, 0xBE, 0x80, 0xB3, 0x8B, 0x1E, 0x77, 0xCF, 0xAD, 0x22,
-        0xCF, 0xB7, 0x4B, 0xCF, 0xFB, 0xF0, 0x6B, 0x11, 0x45, 0x2D, 0x7A, 0x81, 0x18, 0xF2, 0x92, 0x7E,
-        0x98, 0x56, 0x5D, 0x5E, 0x69, 0x72, 0x0A, 0x0D, 0x03, 0x0A, 0x85, 0xA2, 0x85, 0x9C, 0xCB, 0xFB,
-        0x56, 0x6E, 0x8F, 0x44, 0xBB, 0x8F, 0x02, 0x22, 0x68, 0x63, 0x97, 0xBC, 0x85, 0xBA, 0xA8, 0xF7,
-        0xB5, 0x40, 0x68, 0x3C, 0x77, 0x86, 0x6F, 0x4B, 0xD7, 0x88, 0xCA, 0x8A, 0xD7, 0xCE, 0x36, 0xF0,
-        0x45, 0x6E, 0xD5, 0x64, 0x79, 0x0F, 0x17, 0xFC, 0x64, 0xDD, 0x10, 0x6F, 0xF3, 0xF5, 0xE0, 0xA6,
-        0xC3, 0xFB, 0x1B, 0x8C, 0x29, 0xEF, 0x8E, 0xE5, 0x34, 0xCB, 0xD1, 0x2A, 0xCE, 0x79, 0xC3, 0x9A,
-        0x0D, 0x36, 0xEA, 0x01, 0xE0, 0xAA, 0x91, 0x20, 0x54, 0xF0, 0x72, 0xD8, 0x1E, 0xC7, 0x89, 0xD2
-    };
+    static constexpr uint8 modulus[] = {
+        0xC3, 0x5B, 0x50, 0x84, 0xB9, 0x3E, 0x32, 0x42, 0x8C, 0xD0, 0xC7, 0x48, 0xFA, 0x0E, 0x5D, 0x54, 0x5A, 0xA3,
+        0x0E, 0x14, 0xBA, 0x9E, 0x0D, 0xB9, 0x5D, 0x8B, 0xEE, 0xB6, 0x84, 0x93, 0x45, 0x75, 0xFF, 0x31, 0xFE, 0x2F,
+        0x64, 0x3F, 0x3D, 0x6D, 0x07, 0xD9, 0x44, 0x9B, 0x40, 0x85, 0x59, 0x34, 0x4E, 0x10, 0xE1, 0xE7, 0x43, 0x69,
+        0xEF, 0x7C, 0x16, 0xFC, 0xB4, 0xED, 0x1B, 0x95, 0x28, 0xA8, 0x23, 0x76, 0x51, 0x31, 0x57, 0x30, 0x2B, 0x79,
+        0x08, 0x50, 0x10, 0x1C, 0x4A, 0x1A, 0x2C, 0xC8, 0x8B, 0x8F, 0x05, 0x2D, 0x22, 0x3D, 0xDB, 0x5A, 0x24, 0x7A,
+        0x0F, 0x13, 0x50, 0x37, 0x8F, 0x5A, 0xCC, 0x9E, 0x04, 0x44, 0x0E, 0x87, 0x01, 0xD4, 0xA3, 0x15, 0x94, 0x16,
+        0x34, 0xC6, 0xC2, 0xC3, 0xFB, 0x49, 0xFE, 0xE1, 0xF9, 0xDA, 0x8C, 0x50, 0x3C, 0xBE, 0x2C, 0xBB, 0x57, 0xED,
+        0x46, 0xB9, 0xAD, 0x8B, 0xC6, 0xDF, 0x0E, 0xD6, 0x0F, 0xBE, 0x80, 0xB3, 0x8B, 0x1E, 0x77, 0xCF, 0xAD, 0x22,
+        0xCF, 0xB7, 0x4B, 0xCF, 0xFB, 0xF0, 0x6B, 0x11, 0x45, 0x2D, 0x7A, 0x81, 0x18, 0xF2, 0x92, 0x7E, 0x98, 0x56,
+        0x5D, 0x5E, 0x69, 0x72, 0x0A, 0x0D, 0x03, 0x0A, 0x85, 0xA2, 0x85, 0x9C, 0xCB, 0xFB, 0x56, 0x6E, 0x8F, 0x44,
+        0xBB, 0x8F, 0x02, 0x22, 0x68, 0x63, 0x97, 0xBC, 0x85, 0xBA, 0xA8, 0xF7, 0xB5, 0x40, 0x68, 0x3C, 0x77, 0x86,
+        0x6F, 0x4B, 0xD7, 0x88, 0xCA, 0x8A, 0xD7, 0xCE, 0x36, 0xF0, 0x45, 0x6E, 0xD5, 0x64, 0x79, 0x0F, 0x17, 0xFC,
+        0x64, 0xDD, 0x10, 0x6F, 0xF3, 0xF5, 0xE0, 0xA6, 0xC3, 0xFB, 0x1B, 0x8C, 0x29, 0xEF, 0x8E, 0xE5, 0x34, 0xCB,
+        0xD1, 0x2A, 0xCE, 0x79, 0xC3, 0x9A, 0x0D, 0x36, 0xEA, 0x01, 0xE0, 0xAA, 0x91, 0x20, 0x54, 0xF0, 0x72, 0xD8,
+        0x1E, 0xC7, 0x89, 0xD2};
 
     static constexpr size_t fingerprintAddonCount = sizeof(sFingerprintAddons) / sizeof(sFingerprintAddons[0]);
     static_assert(fingerprintAddonCount == sizeof(uint32), "Bad size for fingerprint calculations");
@@ -157,15 +160,16 @@ bool SessionAnticheat::ReadAddonInfo(WorldPacket *authSession, WorldPacket &out)
 
     std::vector<AddonInfo> addonInfo;
 
-    // first, read client addon info, determining if the packet is valid, and if so, whether a fingerprint is already present
+    // first, read client addon info, determining if the packet is valid, and if
+    // so, whether a fingerprint is already present
     while (clientAddonData.rpos() < clientAddonData.size())
     {
         AddonInfo info;
 
         clientAddonData >> info.name >> info.flags >> info.moduluscrc >> info.urlcrc;
 
-        sLog.outBasic("ADDON: %s flags 0x%02x modulus crc 0x%08x url crc 0x%08x",
-            info.name.c_str(), info.flags, info.moduluscrc, info.urlcrc);
+        sLog.outBasic("ADDON: %s flags 0x%02x modulus crc 0x%08x url crc 0x%08x", info.name.c_str(), info.flags,
+                      info.moduluscrc, info.urlcrc);
 
         for (auto i = 0u; i < fingerprintAddonCount; ++i)
         {
@@ -188,7 +192,8 @@ bool SessionAnticheat::ReadAddonInfo(WorldPacket *authSession, WorldPacket &out)
             break;
         }
 
-        // there has to be at least one byte which is neither zero nor 0x01 for it to be a fingerprint
+        // there has to be at least one byte which is neither zero nor 0x01 for
+        // it to be a fingerprint
         if (fingerprintBytes[i] != 0x01)
             fingerprintFound = true;
     }
@@ -197,23 +202,27 @@ bool SessionAnticheat::ReadAddonInfo(WorldPacket *authSession, WorldPacket &out)
 
     // if a fingerprint was found and is valid, use it
     if (fingerprintFound && FingerprintValid(fingerprint))
-        sLog.outBasic("ADDON: Found fingerprint: 0x%08x.  Account %s (id %u) IP %s",
-            fingerprint, _session->GetAccountName().c_str(), _session->GetAccountId(), _session->GetRemoteAddress().c_str());
+        sLog.outBasic("ADDON: Found fingerprint: 0x%08x.  Account %s (id %u) IP %s", fingerprint,
+                      _session->GetAccountName().c_str(), _session->GetAccountId(),
+                      _session->GetRemoteAddress().c_str());
     else
     {
         // if it was found, but we reach here, it must not have been valid?
         if (fingerprintFound)
         {
-            sLog.outBasic("ADDON: Found invalid fingerprint 0x%08x.  Account %s (id %u) IP %s.  Generating new...",
-                fingerprint, _session->GetAccountName().c_str(), _session->GetAccountId(), _session->GetRemoteAddress().c_str());
+            sLog.outBasic("ADDON: Found invalid fingerprint 0x%08x.  Account %s (id "
+                          "%u) IP %s.  Generating new...",
+                          fingerprint, _session->GetAccountName().c_str(), _session->GetAccountId(),
+                          _session->GetRemoteAddress().c_str());
 
             fingerprintFound = false;
         }
 
         fingerprint = GenerateFingerprint();
-        sLog.outBasic("ADDON: Generated new fingerprint: 0x%08x.  Account %s (id %u) IP %s local IP %s",
-            fingerprint, _session->GetAccountName().c_str(), _session->GetAccountId(), _session->GetRemoteAddress().c_str(),
-            _session->GetLocalAddress().c_str());
+        sLog.outBasic("ADDON: Generated new fingerprint: 0x%08x.  Account %s (id "
+                      "%u) IP %s local IP %s",
+                      fingerprint, _session->GetAccountName().c_str(), _session->GetAccountId(),
+                      _session->GetRemoteAddress().c_str(), _session->GetLocalAddress().c_str());
     }
 
     _fingerprint = fingerprint;
@@ -223,17 +232,18 @@ bool SessionAnticheat::ReadAddonInfo(WorldPacket *authSession, WorldPacket &out)
     for (auto const &addon : addonInfo)
     {
         out << static_cast<uint8>(2);
-        
+
         bool flagsWritten = false;
 
         // do we need to set a new fingerprint?
         if (!fingerprintFound)
             for (auto i = 0u; i < fingerprintAddonCount; ++i)
-                // is this addon part of the fingerprint?  if so, write the appropriate portion of the fingerprint
+                // is this addon part of the fingerprint?  if so, write the
+                // appropriate portion of the fingerprint
                 if (addon.name == sFingerprintAddons[i])
                 {
                     // if the fingerprint needs to be written here, we must also send
-                    // the modulus data so the fingerprint is saved to the disk 
+                    // the modulus data so the fingerprint is saved to the disk
                     out << *(reinterpret_cast<uint8 *>(&fingerprint) + i);
 
                     // true when modulus data follows
@@ -256,7 +266,7 @@ bool SessionAnticheat::ReadAddonInfo(WorldPacket *authSession, WorldPacket &out)
             // if there is data, verify it, and update if necessary
             if (!!addon.flags)
             {
-                const uint8 sendData = addon.moduluscrc == correctModulusCRC ? 0 : 1;   // standard addon CRC
+                const uint8 sendData = addon.moduluscrc == correctModulusCRC ? 0 : 1; // standard addon CRC
 
                 out << sendData;
 
@@ -274,4 +284,4 @@ bool SessionAnticheat::ReadAddonInfo(WorldPacket *authSession, WorldPacket &out)
 
     return true;
 }
-}
+} // namespace NamreebAnticheat

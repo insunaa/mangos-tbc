@@ -7,22 +7,22 @@
  */
 
 #include "movement.hpp"
-#include "../config.hpp"
-#include "../libanticheat.hpp"
-#include "../cyclic.hpp"
 
+#include "../config.hpp"
+#include "../cyclic.hpp"
+#include "../libanticheat.hpp"
+#include "Chat/Chat.h"
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
-#include "Chat/Chat.h"
-#include "Entities/Unit.h"
-#include "Entities/Player.h"
 #include "Entities/GameObject.h"
-#include "Server/WorldSession.h"
-#include "Server/DBCStructure.h"
-#include "World/World.h"
-#include "Tools/Language.h"
-#include "Movement/MoveSpline.h"
+#include "Entities/Player.h"
+#include "Entities/Unit.h"
 #include "Log.h"
+#include "Movement/MoveSpline.h"
+#include "Server/DBCStructure.h"
+#include "Server/WorldSession.h"
+#include "Tools/Language.h"
+#include "World/World.h"
 
 namespace
 {
@@ -30,36 +30,36 @@ uint16 GetOrderResponse(uint16 opcode)
 {
     switch (opcode)
     {
-        case SMSG_FORCE_WALK_SPEED_CHANGE:
-            return CMSG_FORCE_WALK_SPEED_CHANGE_ACK;
-        case SMSG_FORCE_RUN_SPEED_CHANGE:
-            return CMSG_FORCE_RUN_SPEED_CHANGE_ACK;
-        case SMSG_FORCE_RUN_BACK_SPEED_CHANGE:
-            return CMSG_FORCE_RUN_BACK_SPEED_CHANGE_ACK;
-        case SMSG_FORCE_SWIM_SPEED_CHANGE:
-            return CMSG_FORCE_SWIM_SPEED_CHANGE_ACK;
-        case SMSG_FORCE_SWIM_BACK_SPEED_CHANGE:
-            return CMSG_FORCE_SWIM_BACK_SPEED_CHANGE_ACK;
-        case SMSG_FORCE_TURN_RATE_CHANGE:
-            return CMSG_FORCE_TURN_RATE_CHANGE_ACK;
-        case SMSG_FORCE_MOVE_ROOT:
-            return CMSG_FORCE_MOVE_ROOT_ACK;
-        case SMSG_FORCE_MOVE_UNROOT:
-            return CMSG_FORCE_MOVE_UNROOT_ACK;
-        case SMSG_MOVE_FEATHER_FALL:
-        case SMSG_MOVE_NORMAL_FALL:
-            return CMSG_MOVE_FEATHER_FALL_ACK;
-        case SMSG_MOVE_SET_HOVER:
-        case SMSG_MOVE_UNSET_HOVER:
-            return CMSG_MOVE_HOVER_ACK;
-        case SMSG_MOVE_SET_FLIGHT:
-        case SMSG_MOVE_UNSET_FLIGHT:
-            return CMSG_MOVE_FLIGHT_ACK;
-        case SMSG_MOVE_WATER_WALK:
-        case SMSG_MOVE_LAND_WALK:
-            return CMSG_MOVE_WATER_WALK_ACK;
-        default:
-            return 0;
+    case SMSG_FORCE_WALK_SPEED_CHANGE:
+        return CMSG_FORCE_WALK_SPEED_CHANGE_ACK;
+    case SMSG_FORCE_RUN_SPEED_CHANGE:
+        return CMSG_FORCE_RUN_SPEED_CHANGE_ACK;
+    case SMSG_FORCE_RUN_BACK_SPEED_CHANGE:
+        return CMSG_FORCE_RUN_BACK_SPEED_CHANGE_ACK;
+    case SMSG_FORCE_SWIM_SPEED_CHANGE:
+        return CMSG_FORCE_SWIM_SPEED_CHANGE_ACK;
+    case SMSG_FORCE_SWIM_BACK_SPEED_CHANGE:
+        return CMSG_FORCE_SWIM_BACK_SPEED_CHANGE_ACK;
+    case SMSG_FORCE_TURN_RATE_CHANGE:
+        return CMSG_FORCE_TURN_RATE_CHANGE_ACK;
+    case SMSG_FORCE_MOVE_ROOT:
+        return CMSG_FORCE_MOVE_ROOT_ACK;
+    case SMSG_FORCE_MOVE_UNROOT:
+        return CMSG_FORCE_MOVE_UNROOT_ACK;
+    case SMSG_MOVE_FEATHER_FALL:
+    case SMSG_MOVE_NORMAL_FALL:
+        return CMSG_MOVE_FEATHER_FALL_ACK;
+    case SMSG_MOVE_SET_HOVER:
+    case SMSG_MOVE_UNSET_HOVER:
+        return CMSG_MOVE_HOVER_ACK;
+    case SMSG_MOVE_SET_FLIGHT:
+    case SMSG_MOVE_UNSET_FLIGHT:
+        return CMSG_MOVE_FLIGHT_ACK;
+    case SMSG_MOVE_WATER_WALK:
+    case SMSG_MOVE_LAND_WALK:
+        return CMSG_MOVE_WATER_WALK_ACK;
+    default:
+        return 0;
     }
 }
 
@@ -87,7 +87,7 @@ uint32 GetMoveType(uint32 moveFlags)
 }
 
 constexpr float extrapolationEpsilon = 0.0002f;
-}
+} // namespace
 
 namespace Movement
 {
@@ -96,11 +96,11 @@ extern float computeFallElevation(float time, bool slowFall, float initialSpeed)
 
 namespace NamreebAnticheat
 {
-Movement::Movement(Player* me) :
-    _me(me), _jumpInitialSpeed(0.f), _inKnockBack(false),
-    _anticheat(reinterpret_cast<SessionAnticheat *>(me->GetSession()->GetAnticheat())),
-    _serverInitTime(0), _clientInitTime(0), _justTeleported(false), _totalDistanceTraveled(0.f),
-    overSpeedDistanceTick(0.f), overSpeedDistanceTotal(0.f), _wasMovingOther(false)
+Movement::Movement(Player *me)
+    : _me(me), _jumpInitialSpeed(0.f), _inKnockBack(false),
+      _anticheat(reinterpret_cast<SessionAnticheat *>(me->GetSession()->GetAnticheat())), _serverInitTime(0),
+      _clientInitTime(0), _justTeleported(false), _totalDistanceTraveled(0.f), overSpeedDistanceTick(0.f),
+      overSpeedDistanceTotal(0.f), _wasMovingOther(false)
 {
     memset(clientSpeeds, 0, sizeof(clientSpeeds));
 
@@ -109,7 +109,8 @@ Movement::Movement(Player* me) :
 
 void Movement::KnockBack(float speedxy, float speedz, float cos, float sin)
 {
-    GetLastMovementInfo().jump.startClientTime = WorldTimer::getMSTime() - GetLastMovementInfo().stime + GetLastMovementInfo().ctime;
+    GetLastMovementInfo().jump.startClientTime =
+        WorldTimer::getMSTime() - GetLastMovementInfo().stime + GetLastMovementInfo().ctime;
     GetLastMovementInfo().jump.start.x = _me->GetPositionX();
     GetLastMovementInfo().jump.start.y = _me->GetPositionY();
     GetLastMovementInfo().jump.start.z = _me->GetPositionZ();
@@ -117,7 +118,8 @@ void Movement::KnockBack(float speedxy, float speedz, float cos, float sin)
     GetLastMovementInfo().jump.sinAngle = sin;
     GetLastMovementInfo().jump.xyspeed = speedxy;
     GetLastMovementInfo().jump.zspeed = speedz;
-    GetLastMovementInfo().moveFlags = MOVEFLAG_JUMPING | (GetLastMovementInfo().moveFlags & ~MOVEFLAG_MASK_MOVING_OR_TURN);
+    GetLastMovementInfo().moveFlags =
+        MOVEFLAG_JUMPING | (GetLastMovementInfo().moveFlags & ~MOVEFLAG_MASK_MOVING_OR_TURN);
     _jumpInitialSpeed = speedz;
     _inKnockBack = true;
 }
@@ -136,49 +138,61 @@ void Movement::VerifyMovementFlags(uint32 flags, uint32 &removeFlags, bool stric
 
     if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_FLY_HACK))
     {
-        static constexpr uint32 flyHackFlags1 = (MOVEFLAG_WALK_MODE | MOVEFLAG_SWIMMING | MOVEFLAG_HOVER | MOVEFLAG_FALLINGFAR | MOVEFLAG_FLYING | MOVEFLAG_ONTRANSPORT);
+        static constexpr uint32 flyHackFlags1 = (MOVEFLAG_WALK_MODE | MOVEFLAG_SWIMMING | MOVEFLAG_HOVER |
+                                                 MOVEFLAG_FALLINGFAR | MOVEFLAG_FLYING | MOVEFLAG_ONTRANSPORT);
         static constexpr uint32 flyHackFlags2 = (MOVEFLAG_SWIMMING | MOVEFLAG_FLYING);
 
         if ((flags & flyHackFlags1) == flyHackFlags1)
         {
-            _anticheat->RecordCheatInternal(CHEAT_TYPE_FLY_HACK, "MovementFlags hack: Player %s had old flyhack moveFlags mask (flags: 0x%lx)",
-                _me->GetName(), flags);
+            _anticheat->RecordCheatInternal(CHEAT_TYPE_FLY_HACK,
+                                            "MovementFlags hack: Player %s had old "
+                                            "flyhack moveFlags mask (flags: 0x%lx)",
+                                            _me->GetName(), flags);
             removeFlags |= flags;
         }
 
         // detect flyhack (these two flags should never happen at the same time)
         if ((flags & flyHackFlags2) == flyHackFlags2)
         {
-            _anticheat->RecordCheatInternal(CHEAT_TYPE_FLY_HACK, "MovementFlags hack: Player %s had MOVE_SWIMMING and MOVE_FLYING (flags: 0x%lx)",
-                _me->GetName(), flags);
+            _anticheat->RecordCheatInternal(CHEAT_TYPE_FLY_HACK,
+                                            "MovementFlags hack: Player %s had "
+                                            "MOVE_SWIMMING and MOVE_FLYING "
+                                            "(flags: 0x%lx)",
+                                            _me->GetName(), flags);
             removeFlags |= flyHackFlags2;
         }
 
         // no need to check pending orders.  players should never have this.
         if (flags & MOVEFLAG_LEVITATING)
         {
-            _anticheat->RecordCheatInternal(CHEAT_TYPE_FLY_HACK, "MovementFlags hack: Player %s had MOVE_LEVITATING (only for creatures!) (flags: 0x%lx)",
-                _me->GetName(), flags);
+            _anticheat->RecordCheatInternal(CHEAT_TYPE_FLY_HACK,
+                                            "MovementFlags hack: Player %s had MOVE_LEVITATING (only for "
+                                            "creatures!) (flags: 0x%lx)",
+                                            _me->GetName(), flags);
             removeFlags |= MOVEFLAG_LEVITATING;
         }
 
         // no need to check pending orders.  players should never have this.
         if (flags & MOVEFLAG_CAN_FLY)
         {
-            _anticheat->RecordCheatInternal(CHEAT_TYPE_FLY_HACK, "MovementFlags hack: Player %s had MOVE_CAN_FLY (flags: 0x%lx)",
-                _me->GetName(), flags);
+            _anticheat->RecordCheatInternal(CHEAT_TYPE_FLY_HACK,
+                                            "MovementFlags hack: Player %s had MOVE_CAN_FLY (flags: 0x%lx)",
+                                            _me->GetName(), flags);
             removeFlags |= MOVEFLAG_CAN_FLY;
         }
     }
 
     // if swimming, but not in water...
     // XXX TODO FIXME -- finish this after gathering some empirical data
-    //if (!!(flags & MOVE_SWIMMING))
+    // if (!!(flags & MOVE_SWIMMING))
     //{
     //    float ground = -1234.5678f;
-    //    auto const waterLevel = _me->GetTerrain()->GetWaterLevel(_me->GetPositionX(), _me->GetPositionY(), _me->GetPositionZ(), &ground);
+    //    auto const waterLevel =
+    //    _me->GetTerrain()->GetWaterLevel(_me->GetPositionX(),
+    //    _me->GetPositionY(), _me->GetPositionZ(), &ground);
 
-    //    sLog.out(LOG_ANTICHEAT_DEBUG, "z: %f ground: %f water level: %f", _me->GetPositionZ(), ground, waterLevel);
+    //    sLog.out(LOG_ANTICHEAT_DEBUG, "z: %f ground: %f water level: %f",
+    //    _me->GetPositionZ(), ground, waterLevel);
     //}
 
     // if we are not performing a strict check, go no further
@@ -198,35 +212,39 @@ void Movement::VerifyMovementFlags(uint32 flags, uint32 &removeFlags, bool stric
             pendingSlowFallRemoval = true;
     }
 
-    // if the client is claiming to not be rooted, but the player actually is rooted, and there is
-    // no pending root order (in case the order had not arrived yet), assume the order was ignored
-    if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_ROOT_MOVE) &&
-        !(flags & MOVEFLAG_ROOT) &&
-        _me->hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT) &&
-        !pendingRoot)
-        _anticheat->RecordCheatInternal(CHEAT_TYPE_ROOT_MOVE, "MovementFlags hack: Player %s lacks MOVEFLAG_ROOT but is stunned and/or rooted with no pending removal", _me->GetName());
+    // if the client is claiming to not be rooted, but the player actually is
+    // rooted, and there is no pending root order (in case the order had not
+    // arrived yet), assume the order was ignored
+    if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_ROOT_MOVE) && !(flags & MOVEFLAG_ROOT) &&
+        _me->hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT) && !pendingRoot)
+        _anticheat->RecordCheatInternal(CHEAT_TYPE_ROOT_MOVE,
+                                        "MovementFlags hack: Player %s lacks MOVEFLAG_ROOT but is stunned "
+                                        "and/or rooted with no pending removal",
+                                        _me->GetName());
 
-    // if the client is claiming to be water walking, but the player has no aura for it, and no
-    // pending cancellation order, assume it is illegitimate
-    if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_WATER_WALK) &&
-        !!(flags & MOVEFLAG_WATERWALKING) &&
-        !_me->HasAuraType(SPELL_AURA_WATER_WALK) &&
-        !_me->HasAuraType(SPELL_AURA_GHOST) &&
-        !pendingWaterWalkRemoval)
+    // if the client is claiming to be water walking, but the player has no aura
+    // for it, and no pending cancellation order, assume it is illegitimate
+    if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_WATER_WALK) && !!(flags & MOVEFLAG_WATERWALKING) &&
+        !_me->HasAuraType(SPELL_AURA_WATER_WALK) && !_me->HasAuraType(SPELL_AURA_GHOST) && !pendingWaterWalkRemoval)
     {
-        _anticheat->RecordCheatInternal(CHEAT_TYPE_WATER_WALK, "MovementFlags hack: Player %s had MOVEFLAG_WATERWALKING but no water walk aura with no pending removal", _me->GetName());
+        _anticheat->RecordCheatInternal(CHEAT_TYPE_WATER_WALK,
+                                        "MovementFlags hack: Player %s had "
+                                        "MOVEFLAG_WATERWALKING but no water "
+                                        "walk aura with no pending removal",
+                                        _me->GetName());
         removeFlags |= MOVEFLAG_WATERWALKING;
     }
 
     // XXX check correct movement flag on slow fall
 
     // if safe falling with no aura and no pending removal order, cheater
-    if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_SLOW_FALL) &&
-        !!(flags & MOVEFLAG_SAFE_FALL) &&
-        !_me->HasAuraType(SPELL_AURA_FEATHER_FALL) &&
-        !pendingSlowFallRemoval)
+    if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_SLOW_FALL) && !!(flags & MOVEFLAG_SAFE_FALL) &&
+        !_me->HasAuraType(SPELL_AURA_FEATHER_FALL) && !pendingSlowFallRemoval)
     {
-        _anticheat->RecordCheatInternal(CHEAT_TYPE_SLOW_FALL, "MovementFlags hack: Player %s had MOVEFLAG_SAFE_FALL with no slow fall aura and no pending orders", _me->GetName());
+        _anticheat->RecordCheatInternal(CHEAT_TYPE_SLOW_FALL,
+                                        "MovementFlags hack: Player %s had MOVEFLAG_SAFE_FALL with no slow "
+                                        "fall aura and no pending orders",
+                                        _me->GetName());
         removeFlags |= MOVEFLAG_SAFE_FALL;
     }
 
@@ -235,16 +253,17 @@ void Movement::VerifyMovementFlags(uint32 flags, uint32 &removeFlags, bool stric
 
 void Movement::OrderSent(uint16 opcode, uint32 counter)
 {
-    _orderHistory.push_back({ opcode, WorldTimer::getMSTime() });
+    _orderHistory.push_back({opcode, WorldTimer::getMSTime()});
 
-    _orders.emplace_back<PendingOrder>({ opcode, counter, WorldTimer::getMSTime() });
+    _orders.emplace_back<PendingOrder>({opcode, counter, WorldTimer::getMSTime()});
 
-    sLog.outDebug("ORDER: %s (%u) sent to %s (counter = %u)", LookupOpcodeName(opcode), opcode, _me->GetName(), counter);
+    sLog.outDebug("ORDER: %s (%u) sent to %s (counter = %u)", LookupOpcodeName(opcode), opcode, _me->GetName(),
+                  counter);
 }
 
 void Movement::OrderAck(uint16 opcode, uint32 counter)
 {
-    _ackHistory.push_back({ opcode, WorldTimer::getMSTime() });
+    _ackHistory.push_back({opcode, WorldTimer::getMSTime()});
 
     sLog.outDebug("ORDER: %s (%u) ACK %s (counter = %u)", LookupOpcodeName(opcode), opcode, _me->GetName(), counter);
 
@@ -252,7 +271,7 @@ void Movement::OrderAck(uint16 opcode, uint32 counter)
     {
         if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_BAD_ORDER_ACK))
             _anticheat->RecordCheatInternal(CHEAT_TYPE_BAD_ORDER_ACK, "Received ACK %s (%u) but no orders are pending",
-                LookupOpcodeName(opcode), opcode);
+                                            LookupOpcodeName(opcode), opcode);
 
         return;
     }
@@ -264,11 +283,13 @@ void Movement::OrderAck(uint16 opcode, uint32 counter)
         return;
     }
 
-    // FIXME: there is currently a bug in the core whereby SMSG_FORCE_* opcodes are sent to a world session for
-    // units other than the one they are controlling (i.e. a pet), prompting multiple consecutive ACKs, which
-    // are not guaranteed to arrive in the same order they were sent.  once that bug is fixed, the below code
-    // can be replaced with one which is both faster and more strict, where only the front of the queue is
-    // checked against the data received from the client.
+    // FIXME: there is currently a bug in the core whereby SMSG_FORCE_* opcodes
+    // are sent to a world session for units other than the one they are
+    // controlling (i.e. a pet), prompting multiple consecutive ACKs, which are
+    // not guaranteed to arrive in the same order they were sent.  once that bug
+    // is fixed, the below code can be replaced with one which is both faster and
+    // more strict, where only the front of the queue is checked against the data
+    // received from the client.
     for (auto i = _orders.begin(); i != _orders.end(); ++i)
     {
         auto const response = GetOrderResponse(i->opcode);
@@ -281,11 +302,12 @@ void Movement::OrderAck(uint16 opcode, uint32 counter)
         }
     }
 
-    // if execution reaches here, it means that the acknowledgement we received was not in the queue to be received.
-    // this should never happen for legitimate players.
+    // if execution reaches here, it means that the acknowledgement we received
+    // was not in the queue to be received. this should never happen for
+    // legitimate players.
 
     _anticheat->RecordCheatInternal(CHEAT_TYPE_BAD_ORDER_ACK, "Received ACK %s (%u) counter = %u which was not pending",
-        LookupOpcodeName(opcode), opcode, counter);
+                                    LookupOpcodeName(opcode), opcode, counter);
 }
 
 void Movement::CheckExpiredOrders(uint32 latency)
@@ -299,8 +321,11 @@ void Movement::CheckExpiredOrders(uint32 latency)
 
         if (expected < now)
         {
-            //m_anticheat->RecordCheatInternal(CHEAT_TYPE_BAD_ORDER_ACK, "Expired order received no ACK for %s (%u) counter %u sent %u expected %u latency %u now %u",
-            //    LookupOpcodeName(i->opcode), i->opcode, i->counter, i->time, expected, latency, now);
+            // m_anticheat->RecordCheatInternal(CHEAT_TYPE_BAD_ORDER_ACK,
+            // "Expired order received no ACK for %s (%u) counter %u sent %u
+            // expected %u latency %u now %u",
+            //     LookupOpcodeName(i->opcode), i->opcode, i->counter, i->time,
+            //     expected, latency, now);
             i = _orders.erase(i);
 
             if (i == _orders.end())
@@ -310,7 +335,7 @@ void Movement::CheckExpiredOrders(uint32 latency)
 }
 
 // Movement processing anticheat main routine
-bool Movement::HandleAnticheatTests(MovementInfo& movementInfo, WorldSession* session, const WorldPacket& packet)
+bool Movement::HandleAnticheatTests(MovementInfo &movementInfo, WorldSession *session, const WorldPacket &packet)
 {
     MANGOS_ASSERT(!!_me);
     MANGOS_ASSERT(session);
@@ -333,7 +358,8 @@ bool Movement::HandleAnticheatTests(MovementInfo& movementInfo, WorldSession* se
 
     auto const opcode = packet.GetOpcode();
 
-    // Dont accept movement packets while movement is controlled by server (fear, charge, etc..)
+    // Dont accept movement packets while movement is controlled by server (fear,
+    // charge, etc..)
     if (!_me->movespline->Finalized())
         return false;
 
@@ -350,15 +376,15 @@ bool Movement::HandleAnticheatTests(MovementInfo& movementInfo, WorldSession* se
     if (opcode == CMSG_MOVE_FEATHER_FALL_ACK)
     {
         GetLastMovementInfo().jump.startClientTime = movementInfo.jump.startClientTime = movementInfo.ctime;
-        //GetLastMovementInfo().jump.start = movementInfo.jump.start = movementInfo.pos;
+        // GetLastMovementInfo().jump.start = movementInfo.jump.start =
+        // movementInfo.pos;
         _jumpInitialSpeed = std::max(_jumpInitialSpeed, 7.f);
     }
 
-    /*if ((movementInfo.moveFlags & MOVE_ROOT) && (movementInfo.moveFlags & MOVE_MASK_MOVING_OR_TURN))
-        APPEND_CHEAT(CHEAT_TYPE_ROOT_MOVE);*/
+    /*if ((movementInfo.moveFlags & MOVE_ROOT) && (movementInfo.moveFlags &
+       MOVE_MASK_MOVING_OR_TURN)) APPEND_CHEAT(CHEAT_TYPE_ROOT_MOVE);*/
 
-    if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_MULTIJUMP) &&
-        opcode == MSG_MOVE_JUMP &&
+    if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_MULTIJUMP) && opcode == MSG_MOVE_JUMP &&
         GetLastMovementInfo().moveFlags & MOVEFLAG_JUMPING)
     {
         _anticheat->RecordCheatInternal(CHEAT_TYPE_MULTIJUMP, "Jump start %u", movementInfo.jump.startClientTime);
@@ -378,13 +404,14 @@ bool Movement::HandleAnticheatTests(MovementInfo& movementInfo, WorldSession* se
     // This can happen if the player is knocked back while jumping
     if (opcode == MSG_MOVE_JUMP && sAnticheatConfig.IsEnabled(CHEAT_TYPE_OVERSPEED_JUMP) && !IsInKnockBack())
     {
-        // if the player is jumping, use the movement speed based on flags from the last movement.
-        // otherwise, use this one.  note that if the player was swimming, we should also use the
-        // old movement flags.  this is because the client will use the swimming speed for this
-        // case, rather than the ground speed.
-        auto const expected = !!(GetLastMovementInfo().moveFlags & (MOVEFLAG_JUMPING | MOVEFLAG_SWIMMING)) ?
-            GetXYFlagBasedClientSpeed(GetLastMovementInfo().moveFlags) :
-            GetXYFlagBasedClientSpeed(movementInfo.moveFlags);
+        // if the player is jumping, use the movement speed based on flags from
+        // the last movement. otherwise, use this one.  note that if the player
+        // was swimming, we should also use the old movement flags.  this is
+        // because the client will use the swimming speed for this case, rather
+        // than the ground speed.
+        auto const expected = !!(GetLastMovementInfo().moveFlags & (MOVEFLAG_JUMPING | MOVEFLAG_SWIMMING))
+                                  ? GetXYFlagBasedClientSpeed(GetLastMovementInfo().moveFlags)
+                                  : GetXYFlagBasedClientSpeed(movementInfo.moveFlags);
 
         // XXX: these should all be temporary until the above logic is perfected
         auto const oldServerSpeed = _me->GetXYFlagBasedSpeed(GetLastMovementInfo().moveFlags);
@@ -395,9 +422,13 @@ bool Movement::HandleAnticheatTests(MovementInfo& movementInfo, WorldSession* se
         if (movementInfo.jump.xyspeed > expected)
         {
             _anticheat->RecordCheatInternal(CHEAT_TYPE_OVERSPEED_JUMP,
-                "Lateral jump speed is too high (%f > %f) flags 0x%lx -> 0x%lx old server: %f old client: %f new server: %f new client: %f opcode: %s",
-                movementInfo.jump.xyspeed, expected, GetLastMovementInfo().moveFlags, movementInfo.moveFlags,
-                oldServerSpeed, oldClientSpeed, serverSpeed, clientSpeed, LookupOpcodeName(opcode));
+                                            "Lateral jump speed is too high (%f > %f) flags 0x%lx -> 0x%lx "
+                                            "old "
+                                            "server: %f old client: %f new server: %f new client: %f "
+                                            "opcode: %s",
+                                            movementInfo.jump.xyspeed, expected, GetLastMovementInfo().moveFlags,
+                                            movementInfo.moveFlags, oldServerSpeed, oldClientSpeed, serverSpeed,
+                                            clientSpeed, LookupOpcodeName(opcode));
 
             std::string str;
 
@@ -408,21 +439,23 @@ bool Movement::HandleAnticheatTests(MovementInfo& movementInfo, WorldSession* se
     }
 
     // Not allowed to change horizontal speed while jumping (unless it was zero)
-    if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_JUMP_SPEED_CHANGE) &&
-        !IsInKnockBack() &&
+    if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_JUMP_SPEED_CHANGE) && !IsInKnockBack() &&
         opcode != CMSG_MOVE_KNOCK_BACK_ACK && opcode != MSG_MOVE_STOP &&
         (movementInfo.moveFlags & (MOVEFLAG_JUMPING | MOVEFLAG_FALLINGFAR)) &&
         (GetLastMovementInfo().moveFlags & (MOVEFLAG_JUMPING | MOVEFLAG_FALLINGFAR)) &&
-        movementInfo.jump.xyspeed > GetLastMovementInfo().jump.xyspeed + 0.0001f        &&
+        movementInfo.jump.xyspeed > GetLastMovementInfo().jump.xyspeed + 0.0001f &&
         GetLastMovementInfo().jump.xyspeed > 0.0001f &&
-        !(!!((movementInfo.moveFlags | GetLastMovementInfo().moveFlags) & MOVEFLAG_WATERWALKING)
-            && GetLastMovementInfo().jump.xyspeed < 0.001f))   // true when entering water with waterwalking
+        !(!!((movementInfo.moveFlags | GetLastMovementInfo().moveFlags) & MOVEFLAG_WATERWALKING) &&
+          GetLastMovementInfo().jump.xyspeed < 0.001f)) // true when entering water with waterwalking
     {
         _anticheat->RecordCheatInternal(CHEAT_TYPE_JUMP_SPEED_CHANGE,
-            "Lateral jump speed changed from %f to %f flags 0x%lx -> 0x%lx opcode %s jump zspeed: %f cos: %f sin: %f fall time: %d",
-            GetLastMovementInfo().jump.xyspeed, movementInfo.jump.xyspeed, GetLastMovementInfo().moveFlags,
-            movementInfo.moveFlags, LookupOpcodeName(opcode), movementInfo.jump.zspeed,
-            movementInfo.jump.cosAngle, movementInfo.jump.sinAngle, movementInfo.fallTime);
+                                        "Lateral jump speed changed from %f to %f flags 0x%lx -> 0x%lx "
+                                        "opcode "
+                                        "%s jump zspeed: %f cos: %f sin: %f fall time: %d",
+                                        GetLastMovementInfo().jump.xyspeed, movementInfo.jump.xyspeed,
+                                        GetLastMovementInfo().moveFlags, movementInfo.moveFlags,
+                                        LookupOpcodeName(opcode), movementInfo.jump.zspeed, movementInfo.jump.cosAngle,
+                                        movementInfo.jump.sinAngle, movementInfo.fallTime);
 
         std::string str;
         DumpMovement(str);
@@ -437,28 +470,34 @@ bool Movement::HandleAnticheatTests(MovementInfo& movementInfo, WorldSession* se
     }
     else
     {
-        if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_NUM_DESYNC) && !_anticheat->IsKickTimerActive() && !_anticheat->IsBanTimerActive())
+        if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_NUM_DESYNC) && !_anticheat->IsKickTimerActive() &&
+            !_anticheat->IsBanTimerActive())
         {
             constexpr float msPerMinuteTolerance = 500.f;
             auto constexpr toleranceMultiplier = msPerMinuteTolerance / (MINUTE * IN_MILLISECONDS);
 
-            // some computers clocks move at slightly different speeds.  experimentally, the maximum
-            // tolerance observed is about 140ms per minute.  however there is little gain for a speedhack
-            // which accelerates the clock by merely 500ms per minute as this would resemble an increase
-            // of only 0.8% movement speed.  therefore we will apply a tolerance of 500ms per minute since
-            // the clock has synced.
+            // some computers clocks move at slightly different speeds.
+            // experimentally, the maximum tolerance observed is about 140ms per
+            // minute.  however there is little gain for a speedhack which
+            // accelerates the clock by merely 500ms per minute as this would
+            // resemble an increase of only 0.8% movement speed.  therefore we
+            // will apply a tolerance of 500ms per minute since the clock has
+            // synced.
 
             auto const serverDiff = WorldTimer::getMSTimeDiff(movementInfo.stime, _serverInitTime);
             auto const clientDiff = WorldTimer::getMSTimeDiff(movementInfo.ctime, _clientInitTime);
             auto const tolerance = std::max(5000.f, serverDiff * toleranceMultiplier);
 
-            // if more time passed for us than it did for them, this is not useful as a cheat, but can happen due to
-            // fluctuations in network latency
+            // if more time passed for us than it did for them, this is not
+            // useful as a cheat, but can happen due to fluctuations in network
+            // latency
             if (clientDiff > (serverDiff + tolerance))
             {
                 _anticheat->RecordCheatInternal(CHEAT_TYPE_NUM_DESYNC,
-                    "Client desync exceeded tolerance.  Desync: %d server diff: %d client diff: %d tolerance: %f",
-                    clientDiff - serverDiff, serverDiff, clientDiff, tolerance);
+                                                "Client desync exceeded tolerance.  Desync: %d server diff: "
+                                                "%d "
+                                                "client diff: %d tolerance: %f",
+                                                clientDiff - serverDiff, serverDiff, clientDiff, tolerance);
             }
         }
 
@@ -469,7 +508,7 @@ bool Movement::HandleAnticheatTests(MovementInfo& movementInfo, WorldSession* se
             if (GetLastMovementInfo().ctime - movementInfo.ctime < 1000)
             {
                 _anticheat->RecordCheatInternal(CHEAT_TYPE_TIME_BACK, "Clock moved in reverse from %u to %u",
-                    GetLastMovementInfo().ctime, movementInfo.ctime);
+                                                GetLastMovementInfo().ctime, movementInfo.ctime);
             }
             else
             {
@@ -484,30 +523,31 @@ bool Movement::HandleAnticheatTests(MovementInfo& movementInfo, WorldSession* se
     // Warsong Battleground - specific checks
     if (_me->GetMapId() == 489 && sAnticheatConfig.IsEnabled(CHEAT_TYPE_FORBIDDEN))
     {
-        // Too high - not allowed (but possible with some engineering items malfunction)
+        // Too high - not allowed (but possible with some engineering items
+        // malfunction)
         if (!(movementInfo.moveFlags & (MOVEFLAG_FALLINGFAR | MOVEFLAG_JUMPING)) && movementInfo.pos.z > 380.0f)
-            _anticheat->RecordCheatInternal(CHEAT_TYPE_FORBIDDEN, "Too high in Warsong Gulch (z = %f)", movementInfo.pos.z);
+            _anticheat->RecordCheatInternal(CHEAT_TYPE_FORBIDDEN, "Too high in Warsong Gulch (z = %f)",
+                                            movementInfo.pos.z);
 
-        if (BattleGround* bg = _me->GetBattleGround())
+        if (BattleGround *bg = _me->GetBattleGround())
         {
             if (bg->GetStatus() == STATUS_WAIT_JOIN)
             {
-                // Battleground not started. Players should be in their starting areas.
+                // Battleground not started. Players should be in their starting
+                // areas.
                 if (_me->GetTeam() == ALLIANCE && movementInfo.pos.x < 1490.0f)
                     _anticheat->RecordCheatInternal(CHEAT_TYPE_FORBIDDEN, "Outside alliance starting area (%f, %f, %f)",
-                        movementInfo.pos.x, movementInfo.pos.y, movementInfo.pos.z);
+                                                    movementInfo.pos.x, movementInfo.pos.y, movementInfo.pos.z);
                 if (_me->GetTeam() == HORDE && movementInfo.pos.x > 957.0f)
                     _anticheat->RecordCheatInternal(CHEAT_TYPE_FORBIDDEN, "Outside horde starting area (%f, %f, %f)",
-                        movementInfo.pos.x, movementInfo.pos.y, movementInfo.pos.z);
+                                                    movementInfo.pos.x, movementInfo.pos.y, movementInfo.pos.z);
             }
         }
     }
 
     // Minimal checks on transports
-    if (movementInfo.moveFlags & MOVEFLAG_ONTRANSPORT &&
-        sAnticheatConfig.IsEnabled(CHEAT_TYPE_TELE_TO_TRANSPORT) &&
-        GetLastMovementInfo().ctime &&
-        !(GetLastMovementInfo().moveFlags & MOVEFLAG_ONTRANSPORT))
+    if (movementInfo.moveFlags & MOVEFLAG_ONTRANSPORT && sAnticheatConfig.IsEnabled(CHEAT_TYPE_TELE_TO_TRANSPORT) &&
+        GetLastMovementInfo().ctime && !(GetLastMovementInfo().moveFlags & MOVEFLAG_ONTRANSPORT))
     {
         auto constexpr maxDist2d = 100.f * 100.f;
 
@@ -516,10 +556,8 @@ bool Movement::HandleAnticheatTests(MovementInfo& movementInfo, WorldSession* se
     }
 
     // Distance computation related
-    if (!_me->IsTaxiFlying() &&
-        !(movementInfo.moveFlags & MOVEFLAG_ONTRANSPORT) &&
-        sAnticheatConfig.EnableAntiSpeedHack() &&
-        !_justTeleported)
+    if (!_me->IsTaxiFlying() && !(movementInfo.moveFlags & MOVEFLAG_ONTRANSPORT) &&
+        sAnticheatConfig.EnableAntiSpeedHack() && !_justTeleported)
     {
         float allowedDXY = 0.0f;
         float allowedDZ = 0.0f;
@@ -532,7 +570,8 @@ bool Movement::HandleAnticheatTests(MovementInfo& movementInfo, WorldSession* se
         {
             Position extrap;
 
-            // predict destination given the last movement position, direction, and flags, and compare to value reported by the client
+            // predict destination given the last movement position, direction,
+            // and flags, and compare to value reported by the client
             if (ExtrapolateMovement(GetLastMovementInfo(), dt, extrap))
             {
                 auto const includeZ = !!((movementInfo.moveFlags | GetLastMovementInfo().moveFlags) & MOVEFLAG_JUMPING);
@@ -562,10 +601,8 @@ bool Movement::HandleAnticheatTests(MovementInfo& movementInfo, WorldSession* se
                     if (delta >= minErr)
                         if (auto const anticheat = dynamic_cast<AnticheatLib *>(GetAnticheatLib()))
                             anticheat->OfferExtrapolationData(
-                                GetLastMovementInfo(),
-                                clientSpeeds[GetMoveType(GetLastMovementInfo().moveFlags)],
-                                clientSpeeds[GetMoveType(movementInfo.moveFlags)],
-                                movementInfo, extrap, delta);
+                                GetLastMovementInfo(), clientSpeeds[GetMoveType(GetLastMovementInfo().moveFlags)],
+                                clientSpeeds[GetMoveType(movementInfo.moveFlags)], movementInfo, extrap, delta);
                 }
             }
         }
@@ -588,23 +625,25 @@ bool Movement::HandleAnticheatTests(MovementInfo& movementInfo, WorldSession* se
                 }
             }
 
-            if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_OVERSPEED_Z) && fabs(movementInfo.pos.z - GetLastMovementInfo().pos.z) > allowedDZ)
-                _anticheat->RecordCheatInternal(CHEAT_TYPE_OVERSPEED_Z, "z changed from %f to %f, difference of %f, max allowed: %f",
-                    GetLastMovementInfo().pos.z, movementInfo.pos.z, fabs(movementInfo.pos.z - GetLastMovementInfo().pos.z), allowedDZ);
+            if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_OVERSPEED_Z) &&
+                fabs(movementInfo.pos.z - GetLastMovementInfo().pos.z) > allowedDZ)
+                _anticheat->RecordCheatInternal(CHEAT_TYPE_OVERSPEED_Z,
+                                                "z changed from %f to %f, difference of %f, max allowed: %f",
+                                                GetLastMovementInfo().pos.z, movementInfo.pos.z,
+                                                fabs(movementInfo.pos.z - GetLastMovementInfo().pos.z), allowedDZ);
         }
 
-        // Client should send heartbeats every 500ms at the most (it can send them sooner
-        // if movement flags change, i.e. entering or exiting a transport)
-        if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_SKIPPED_HEARTBEATS) &&
-            dt > 1000 &&
-            GetLastMovementInfo().ctime &&
+        // Client should send heartbeats every 500ms at the most (it can send
+        // them sooner if movement flags change, i.e. entering or exiting a
+        // transport)
+        if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_SKIPPED_HEARTBEATS) && dt > 1000 && GetLastMovementInfo().ctime &&
             GetLastMovementInfo().moveFlags & MOVEFLAG_MASK_MOVING)
             _anticheat->RecordCheatInternal(CHEAT_TYPE_SKIPPED_HEARTBEATS, "Time since last movement: %d", dt);
     }
 
-    //GetLastMovementInfo() = movementInfo;
-    //GetLastMovementInfo().UpdateTime(WorldTimer::getMSTime());
-    // This is required for proper movement interpolation
+    // GetLastMovementInfo() = movementInfo;
+    // GetLastMovementInfo().UpdateTime(WorldTimer::getMSTime());
+    //  This is required for proper movement interpolation
     if (opcode == MSG_MOVE_JUMP)
         _jumpInitialSpeed = 7.95797334f;
     else if (opcode == MSG_MOVE_FALL_LAND)
@@ -619,50 +658,51 @@ bool Movement::HandleAnticheatTests(MovementInfo& movementInfo, WorldSession* se
         _justTeleported = false;
     }
 
-    _moveHistory.push_back({ static_cast<uint16>(packet.GetOpcode()), movementInfo });
+    _moveHistory.push_back({static_cast<uint16>(packet.GetOpcode()), movementInfo});
 
     return true;
 }
 
-bool Movement::HandleSpeedChangeAck(MovementInfo& movementInfo, WorldSession* session, const WorldPacket& packet, float newSpeed)
+bool Movement::HandleSpeedChangeAck(MovementInfo &movementInfo, WorldSession *session, const WorldPacket &packet,
+                                    float newSpeed)
 {
-    static char const* move_type_name[MAX_MOVE_TYPE] = {"Walk", "Run", "RunBack", "Swim", "SwimBack", "TurnRate"};
+    static char const *move_type_name[MAX_MOVE_TYPE] = {"Walk", "Run", "RunBack", "Swim", "SwimBack", "TurnRate"};
     UnitMoveType moveType;
     switch (packet.GetOpcode())
     {
-        case CMSG_FORCE_WALK_SPEED_CHANGE_ACK:
-            moveType = MOVE_WALK;
-            break;
-        case CMSG_FORCE_RUN_SPEED_CHANGE_ACK:
-            moveType = MOVE_RUN;
-            break;
-        case CMSG_FORCE_RUN_BACK_SPEED_CHANGE_ACK:
-            moveType = MOVE_RUN_BACK;
-            break;
-        case CMSG_FORCE_SWIM_SPEED_CHANGE_ACK:
-            moveType = MOVE_SWIM;
-            break;
-        case CMSG_FORCE_SWIM_BACK_SPEED_CHANGE_ACK:
-            moveType = MOVE_SWIM_BACK;
-            break;
-        case CMSG_FORCE_TURN_RATE_CHANGE_ACK:
-            moveType = MOVE_TURN_RATE;
-            break;
-        case CMSG_FORCE_FLIGHT_SPEED_CHANGE_ACK:
-            moveType = MOVE_FLIGHT;
-            break;
-        case CMSG_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK:
-            moveType = MOVE_FLIGHT_BACK;
-            break;
-        default:
-            return false;
+    case CMSG_FORCE_WALK_SPEED_CHANGE_ACK:
+        moveType = MOVE_WALK;
+        break;
+    case CMSG_FORCE_RUN_SPEED_CHANGE_ACK:
+        moveType = MOVE_RUN;
+        break;
+    case CMSG_FORCE_RUN_BACK_SPEED_CHANGE_ACK:
+        moveType = MOVE_RUN_BACK;
+        break;
+    case CMSG_FORCE_SWIM_SPEED_CHANGE_ACK:
+        moveType = MOVE_SWIM;
+        break;
+    case CMSG_FORCE_SWIM_BACK_SPEED_CHANGE_ACK:
+        moveType = MOVE_SWIM_BACK;
+        break;
+    case CMSG_FORCE_TURN_RATE_CHANGE_ACK:
+        moveType = MOVE_TURN_RATE;
+        break;
+    case CMSG_FORCE_FLIGHT_SPEED_CHANGE_ACK:
+        moveType = MOVE_FLIGHT;
+        break;
+    case CMSG_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK:
+        moveType = MOVE_FLIGHT_BACK;
+        break;
+    default:
+        return false;
     }
 
     // Compare to server side speed.
     if (!_me->GetTransport() && fabs(_me->GetSpeed(moveType) - newSpeed) > 0.01f)
     {
-        DETAIL_LOG("%sSpeedChange player %s incorrect. %f -> %f (instead of %f)",
-                       move_type_name[moveType], _me->GetName(), clientSpeeds[moveType], newSpeed, _me->GetSpeed(moveType));
+        DETAIL_LOG("%sSpeedChange player %s incorrect. %f -> %f (instead of %f)", move_type_name[moveType],
+                   _me->GetName(), clientSpeeds[moveType], newSpeed, _me->GetSpeed(moveType));
         _me->SetSpeedRate(moveType, _me->GetSpeedRate(moveType), true);
     }
 
@@ -674,7 +714,7 @@ bool Movement::HandleSpeedChangeAck(MovementInfo& movementInfo, WorldSession* se
 
 void Movement::HandleEnterWorld()
 {
-    _worldChangeHistory.push_back({ true, WorldTimer::getMSTime() });
+    _worldChangeHistory.push_back({true, WorldTimer::getMSTime()});
 
     for (int i = 0; i < MAX_MOVE_TYPE; ++i)
         clientSpeeds[i] = _me->GetSpeed(static_cast<UnitMoveType>(i));
@@ -682,22 +722,22 @@ void Movement::HandleEnterWorld()
 
 void Movement::HandleLeaveWorld()
 {
-    _worldChangeHistory.push_back({ false, WorldTimer::getMSTime() });
+    _worldChangeHistory.push_back({false, WorldTimer::getMSTime()});
 
     _serverInitTime = _clientInitTime = 0;
 }
 
 void Movement::TimeSkipped(const ObjectGuid &mover, uint32 ms)
 {
-    _timeSkipHistory.push_back({ mover, ms, WorldTimer::getMSTime() });
+    _timeSkipHistory.push_back({mover, ms, WorldTimer::getMSTime()});
 
     _clientInitTime += ms;
 
-    sLog.outDebug("Time skipped: Player %s (GUID 0x%x) mover 0x%lx ms %u",
-        _me ? _me->GetName() : "<none>", _me ? _me->GetGUIDLow() : 0, mover.GetRawValue(), ms);
+    sLog.outDebug("Time skipped: Player %s (GUID 0x%x) mover 0x%lx ms %u", _me ? _me->GetName() : "<none>",
+                  _me ? _me->GetGUIDLow() : 0, mover.GetRawValue(), ms);
 }
 
-MovementInfo& Movement::GetLastMovementInfo() const
+MovementInfo &Movement::GetLastMovementInfo() const
 {
     return _me->m_movementInfo;
 }
@@ -731,7 +771,7 @@ float Movement::GetXYFlagBasedClientSpeed(uint32 moveFlags) const
     return clientSpeeds[MOVE_RUN];
 }
 
-bool Movement::ExtrapolateMovement(MovementInfo const& mi, uint32 diffMs, Position &pos) const
+bool Movement::ExtrapolateMovement(MovementInfo const &mi, uint32 diffMs, Position &pos) const
 {
     // TODO: These cases are not handled in movement extrapolation
     // - Transports
@@ -850,7 +890,7 @@ bool Movement::ExtrapolateMovement(MovementInfo const& mi, uint32 diffMs, Positi
     return _me->GetMap()->IsInLineOfSight(mi.pos.x, mi.pos.y, mi.pos.z + 0.5f, pos.x, pos.y, pos.z + 0.5f, false);
 }
 
-bool Movement::GetMaxAllowedDist(MovementInfo const& mi, uint32 diffMs, float &dxy, float &dz) const
+bool Movement::GetMaxAllowedDist(MovementInfo const &mi, uint32 diffMs, float &dxy, float &dz) const
 {
     dxy = dz = 0.001f; // Epsilon
 
@@ -893,12 +933,13 @@ bool Movement::GetMaxAllowedDist(MovementInfo const& mi, uint32 diffMs, float &d
     return true;
 }
 
-void Movement::OnExplore(AreaTableEntry const* p)
+void Movement::OnExplore(AreaTableEntry const *p)
 {
     if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_EXPLORE))
         _anticheat->RecordCheatInternal(CHEAT_TYPE_EXPLORE);
 
-    if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_EXPLORE_HIGH_LEVEL) && static_cast<int32>(_me->GetLevel() + 10) < p->area_level)
+    if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_EXPLORE_HIGH_LEVEL) &&
+        static_cast<int32>(_me->GetLevel() + 10) < p->area_level)
         _anticheat->RecordCheatInternal(CHEAT_TYPE_EXPLORE_HIGH_LEVEL);
 }
 
@@ -907,19 +948,21 @@ void Movement::HandleTeleport(const Position &)
     _justTeleported = true;
 }
 
-void Movement::OnTransport(Player* plMover, ObjectGuid transportGuid)
+void Movement::OnTransport(Player *plMover, ObjectGuid transportGuid)
 {
-    // The anticheat is disabled on transports, so we need to be sure that the player is indeed on a transport.
-    GameObject* transportGobj = plMover->GetMap()->GetGameObject(transportGuid);
+    // The anticheat is disabled on transports, so we need to be sure that the
+    // player is indeed on a transport.
+    GameObject *transportGobj = plMover->GetMap()->GetGameObject(transportGuid);
 
-    auto const maxDist2d = plMover->GetMapId() == 369 ? 3000.f : 70.f; // Transports usually dont go far away (exception is deeprun tram)
+    auto const maxDist2d = plMover->GetMapId() == 369 ? 3000.f : 70.f; // Transports usually dont go far away
+                                                                       // (exception is deeprun tram)
 
     if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_FAKE_TRANSPORT) &&
         (!transportGobj || !transportGobj->IsTransport() || !transportGobj->IsWithinDist(plMover, maxDist2d, false)))
         _anticheat->RecordCheatInternal(CHEAT_TYPE_FAKE_TRANSPORT);
 }
 
-bool Movement::IsTeleportAllowed(MovementInfo const& movementInfo, float& distance)
+bool Movement::IsTeleportAllowed(MovementInfo const &movementInfo, float &distance)
 {
     // check valid source coordinates
     if (_me->GetPositionX() == 0.0f || _me->GetPositionY() == 0.0f || _me->GetPositionZ() == 0.0f)
@@ -941,7 +984,8 @@ bool Movement::IsTeleportAllowed(MovementInfo const& movementInfo, float& distan
     uint32 destZoneId = 0;
     uint32 destAreaId = 0;
 
-    _me->GetTerrain()->GetZoneAndAreaId(destZoneId, destAreaId, movementInfo.pos.x, movementInfo.pos.y, movementInfo.pos.z);
+    _me->GetTerrain()->GetZoneAndAreaId(destZoneId, destAreaId, movementInfo.pos.x, movementInfo.pos.y,
+                                        movementInfo.pos.z);
 
     // checks far teleports
     if (destZoneId == _me->GetZoneId() && destAreaId == _me->GetAreaId())
@@ -966,7 +1010,7 @@ bool Movement::IsTeleportAllowed(MovementInfo const& movementInfo, float& distan
     return false;
 }
 
-bool Movement::CheckTeleport(uint16 opcode, MovementInfo& movementInfo)
+bool Movement::CheckTeleport(uint16 opcode, MovementInfo &movementInfo)
 {
     if (_me->GetMover()->GetTypeId() != TYPEID_PLAYER)
         return true;
@@ -983,24 +1027,26 @@ bool Movement::CheckTeleport(uint16 opcode, MovementInfo& movementInfo)
             uint32 destZoneId = 0;
             uint32 destAreaId = 0;
 
-            mover->GetTerrain()->GetZoneAndAreaId(destZoneId, destAreaId,
-                movementInfo.pos.x,
-                movementInfo.pos.y,
-                movementInfo.pos.z);
+            mover->GetTerrain()->GetZoneAndAreaId(destZoneId, destAreaId, movementInfo.pos.x, movementInfo.pos.y,
+                                                  movementInfo.pos.z);
 
             // get zone and area info
-            MapEntry const* mapEntry = sMapStore.LookupEntry(mover->GetMapId());
+            MapEntry const *mapEntry = sMapStore.LookupEntry(mover->GetMapId());
             auto const srcZoneEntry = GetAreaEntryByAreaID(mover->GetZoneId());
             auto const srcAreaEntry = GetAreaEntryByAreaID(mover->GetAreaId());
             auto const destZoneEntry = GetAreaEntryByAreaID(destZoneId);
             auto const destAreaEntry = GetAreaEntryByAreaID(destAreaId);
 
             const char *mapName = mapEntry ? reinterpret_cast<const char *>(mapEntry->name) : "<unknown>";
-            const char *srcZoneName = srcZoneEntry ? reinterpret_cast<const char *>(srcZoneEntry->area_name) : "<unknown>";
-            const char *srcAreaName = srcAreaEntry ? reinterpret_cast<const char *>(srcAreaEntry->area_name) : "<unknown>";
-            const char *destZoneName = destZoneEntry ? reinterpret_cast<const char *>(destZoneEntry->area_name) : "<unknown>";
-            const char *destAreaName = destAreaEntry ? reinterpret_cast<const char *>(destAreaEntry->area_name) : "<unknown>";
-            
+            const char *srcZoneName =
+                srcZoneEntry ? reinterpret_cast<const char *>(srcZoneEntry->area_name) : "<unknown>";
+            const char *srcAreaName =
+                srcAreaEntry ? reinterpret_cast<const char *>(srcAreaEntry->area_name) : "<unknown>";
+            const char *destZoneName =
+                destZoneEntry ? reinterpret_cast<const char *>(destZoneEntry->area_name) : "<unknown>";
+            const char *destAreaName =
+                destAreaEntry ? reinterpret_cast<const char *>(destAreaEntry->area_name) : "<unknown>";
+
             auto const cheatType = distance > 150.f ? CHEAT_TYPE_TELEPORT_FAR : CHEAT_TYPE_TELEPORT;
 
             if (sAnticheatConfig.IsEnabled(cheatType))
@@ -1010,23 +1056,20 @@ bool Movement::CheckTeleport(uint16 opcode, MovementInfo& movementInfo)
                     "    map %u \"%s\"\n"
                     "    source: zone %u \"%s\" area %u \"%s\" %.2f, %.2f, %.2f\n"
                     "    dest:   zone %u \"%s\" area %u \"%s\" %.2f, %.2f, %.2f",
-                    mover->GetName(), LookupOpcodeName(opcode), distance,
-                    mover->GetMapId(), mapName,
-                    mover->GetZoneId(), srcZoneName, mover->GetAreaId(), srcAreaName,
-                    mover->GetPositionX(), mover->GetPositionY(), mover->GetPositionZ(),
-                    destZoneId, destZoneName, destAreaId, destAreaName,
+                    mover->GetName(), LookupOpcodeName(opcode), distance, mover->GetMapId(), mapName,
+                    mover->GetZoneId(), srcZoneName, mover->GetAreaId(), srcAreaName, mover->GetPositionX(),
+                    mover->GetPositionY(), mover->GetPositionZ(), destZoneId, destZoneName, destAreaId, destAreaName,
                     movementInfo.pos.x, movementInfo.pos.y, movementInfo.pos.z);
 
             // on gm island?
-            if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_FORBIDDEN) && _me->GetSession()->GetSecurity() == SEC_PLAYER && destZoneId == 876 && destAreaId == 876)
+            if (sAnticheatConfig.IsEnabled(CHEAT_TYPE_FORBIDDEN) && _me->GetSession()->GetSecurity() == SEC_PLAYER &&
+                destZoneId == 876 && destAreaId == 876)
                 _anticheat->RecordCheatInternal(CHEAT_TYPE_FORBIDDEN, "Player is on GM Island");
 
             // save prevoius point
-            Player::SavePositionInDB(mover->GetObjectGuid(), mover->GetMapId(),
-                mover->m_movementInfo.pos.x,
-                mover->m_movementInfo.pos.y,
-                mover->m_movementInfo.pos.z,
-                mover->m_movementInfo.pos.o, mover->GetZoneId());
+            Player::SavePositionInDB(mover->GetObjectGuid(), mover->GetMapId(), mover->m_movementInfo.pos.x,
+                                     mover->m_movementInfo.pos.y, mover->m_movementInfo.pos.z,
+                                     mover->m_movementInfo.pos.o, mover->GetZoneId());
 
             return false;
         }
@@ -1043,8 +1086,9 @@ bool Movement::CheckTeleport(uint16 opcode, MovementInfo& movementInfo)
         if (!!removeFlags)
         {
             // XXX temporary debug logging
-            sLog.outBasic("ANTICHEAT: Player %s sent bad movement flags (0x%x) with opcode %s (%u)",
-                mover->GetName(), moveFlags, LookupOpcodeName(opcode), opcode);
+            sLog.outBasic("ANTICHEAT: Player %s sent bad movement flags (0x%x) with "
+                          "opcode %s (%u)",
+                          mover->GetName(), moveFlags, LookupOpcodeName(opcode), opcode);
             movementInfo.RemoveMovementFlag(MovementFlags(removeFlags));
         }
     }
@@ -1054,7 +1098,8 @@ bool Movement::CheckTeleport(uint16 opcode, MovementInfo& movementInfo)
 
 void Movement::SendOrderInfo(ChatHandler *handler) const
 {
-    handler->PSendSysMessage("Order ACKs pending: %lu Current time: %u", uint64(_orders.size()), WorldTimer::getMSTime());
+    handler->PSendSysMessage("Order ACKs pending: %lu Current time: %u", uint64(_orders.size()),
+                             WorldTimer::getMSTime());
 
     if (!_orders.empty())
     {
@@ -1063,13 +1108,14 @@ void Movement::SendOrderInfo(ChatHandler *handler) const
         size_t count = 0;
         for (auto const &order : _orders)
         {
-            handler->PSendSysMessage("Next: %s Age: %ums", LookupOpcodeName(order.opcode), WorldTimer::getMSTime() - order.time);
+            handler->PSendSysMessage("Next: %s Age: %ums", LookupOpcodeName(order.opcode),
+                                     WorldTimer::getMSTime() - order.time);
 
             if (++count >= maxCount)
                 break;
         }
     }
-    
+
     std::string str;
 
     _anticheat->GetMovementDebugString(str);
@@ -1087,8 +1133,8 @@ size_t Movement::DumpOrders(std::string &out) const
 
     for (auto const &order : _orderHistory)
     {
-        str << LookupOpcodeName(order.opcode) << " at " << order.time
-            << " ("<< WorldTimer::getMSTimeDiff(order.time, now) << "ms ago)\n";
+        str << LookupOpcodeName(order.opcode) << " at " << order.time << " ("
+            << WorldTimer::getMSTimeDiff(order.time, now) << "ms ago)\n";
         ++result;
     }
 
@@ -1107,8 +1153,8 @@ size_t Movement::DumpAcks(std::string &out) const
 
     for (auto const &ack : _ackHistory)
     {
-        str << LookupOpcodeName(ack.opcode) << " at " << ack.time << " ("
-            << WorldTimer::getMSTimeDiff(ack.time, now) << "ms ago)\n";
+        str << LookupOpcodeName(ack.opcode) << " at " << ack.time << " (" << WorldTimer::getMSTimeDiff(ack.time, now)
+            << "ms ago)\n";
         ++result;
     }
 
@@ -1127,8 +1173,8 @@ size_t Movement::DumpTimeSkips(std::string &out) const
 
     for (auto const &skip : _timeSkipHistory)
     {
-        str << skip.mover.GetCounter() << ": Skipped " << skip.ms << " ms at time "
-            << skip.time << " (" << WorldTimer::getMSTimeDiff(skip.time, now) << "ms ago)\n";
+        str << skip.mover.GetCounter() << ": Skipped " << skip.ms << " ms at time " << skip.time << " ("
+            << WorldTimer::getMSTimeDiff(skip.time, now) << "ms ago)\n";
         ++result;
     }
 
@@ -1164,9 +1210,9 @@ size_t Movement::DumpMovement(std::string &out) const
 
     for (auto const &move : _moveHistory)
     {
-        str << move.movementInfo.ctime << ": age " << (now - move.movementInfo.stime) << " flags 0x" << std::hex << move.movementInfo.moveFlags << std::dec
-            << " at (" << move.movementInfo.pos.x << ", " << move.movementInfo.pos.y << ", " << move.movementInfo.pos.z
-            << ")";
+        str << move.movementInfo.ctime << ": age " << (now - move.movementInfo.stime) << " flags 0x" << std::hex
+            << move.movementInfo.moveFlags << std::dec << " at (" << move.movementInfo.pos.x << ", "
+            << move.movementInfo.pos.y << ", " << move.movementInfo.pos.z << ")";
 
         if (move.movementInfo.HasMovementFlag(MOVEFLAG_JUMPING))
             str << " jump xy speed " << move.movementInfo.jump.xyspeed << " start ctime "
@@ -1181,4 +1227,4 @@ size_t Movement::DumpMovement(std::string &out) const
 
     return result;
 }
-}
+} // namespace NamreebAnticheat

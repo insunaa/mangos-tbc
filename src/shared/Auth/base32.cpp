@@ -15,11 +15,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string.h>
-
 #include "base32.h"
 
-int base32_decode(char const* encoded, char* result, int bufSize)
+#include <string.h>
+
+int base32_decode(char const *encoded, char *result, int bufSize)
 {
     // Base32 implementation
     // Copyright 2010 Google Inc.
@@ -28,7 +28,7 @@ int base32_decode(char const* encoded, char* result, int bufSize)
     int buffer = 0;
     int bitsLeft = 0;
     int count = 0;
-    for (const char* ptr = encoded; count < bufSize && *ptr; ++ptr)
+    for (const char *ptr = encoded; count < bufSize && *ptr; ++ptr)
     {
         char ch = *ptr;
         if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n' || ch == '-')

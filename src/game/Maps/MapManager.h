@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,15 +20,15 @@
 #ifndef MANGOS_MAPMANAGER_H
 #define MANGOS_MAPMANAGER_H
 
+#include <functional>
+
 #include "Common.h"
-#include "Platform/Define.h"
-#include "Policies/Singleton.h"
+#include "Grids/GridStates.h"
 #include "Map.h"
 #include "Maps/Map.h"
-#include "Grids/GridStates.h"
 #include "Maps/MapUpdater.h"
-
-#include <functional>
+#include "Platform/Define.h"
+#include "Policies/Singleton.h"
 
 class Transport;
 class BattleGround;
@@ -35,10 +36,14 @@ struct TransportTemplate;
 
 struct MapID
 {
-    explicit MapID(uint32 id) : nMapId(id), nInstanceId(0) {}
-    MapID(uint32 id, uint32 instid) : nMapId(id), nInstanceId(instid) {}
+    explicit MapID(uint32 id) : nMapId(id), nInstanceId(0)
+    {
+    }
+    MapID(uint32 id, uint32 instid) : nMapId(id), nInstanceId(instid)
+    {
+    }
 
-    bool operator<(const MapID& val) const
+    bool operator<(const MapID &val) const
     {
         if (nMapId == val.nMapId)
             return nInstanceId < val.nInstanceId;
@@ -46,167 +51,174 @@ struct MapID
         return nMapId < val.nMapId;
     }
 
-    bool operator==(const MapID& val) const { return nMapId == val.nMapId && nInstanceId == val.nInstanceId; }
+    bool operator==(const MapID &val) const
+    {
+        return nMapId == val.nMapId && nInstanceId == val.nInstanceId;
+    }
 
     uint32 nMapId;
     uint32 nInstanceId;
 };
 
-class MapManager : public MaNGOS::Singleton<MapManager, MaNGOS::ClassLevelLockable<MapManager, std::recursive_mutex> >
+class MapManager : public MaNGOS::Singleton<MapManager, MaNGOS::ClassLevelLockable<MapManager, std::recursive_mutex>>
 {
-        friend class MaNGOS::OperatorNew<MapManager>;
+    friend class MaNGOS::OperatorNew<MapManager>;
 
-        typedef std::recursive_mutex LOCK_TYPE;
-        typedef std::lock_guard<LOCK_TYPE> LOCK_TYPE_GUARD;
-        typedef MaNGOS::ClassLevelLockable<MapManager, std::recursive_mutex>::Lock Guard;
+    typedef std::recursive_mutex LOCK_TYPE;
+    typedef std::lock_guard<LOCK_TYPE> LOCK_TYPE_GUARD;
+    typedef MaNGOS::ClassLevelLockable<MapManager, std::recursive_mutex>::Lock Guard;
 
-    public:
-        typedef std::map<MapID, Map* > MapMapType;
+  public:
+    typedef std::map<MapID, Map *> MapMapType;
 
-        void CreateContinents();
-        Map* CreateMap(uint32, const WorldObject* obj);
-        Map* CreateBgMap(uint32 mapid, BattleGround* bg);
-        Map* FindMap(uint32 mapid, uint32 instanceId = 0) const;
+    void CreateContinents();
+    Map *CreateMap(uint32, const WorldObject *obj);
+    Map *CreateBgMap(uint32 mapid, BattleGround *bg);
+    Map *FindMap(uint32 mapid, uint32 instanceId = 0) const;
 
-        void UpdateGridState(grid_state_t state, Map& map, NGridType& ngrid, GridInfo& ginfo, const uint32& x, const uint32& y, const uint32& t_diff);
+    void UpdateGridState(grid_state_t state, Map &map, NGridType &ngrid, GridInfo &ginfo, const uint32 &x,
+                         const uint32 &y, const uint32 &t_diff);
 
-        // only const version for outer users
-        void DeleteInstance(uint32 mapid, uint32 instanceId);
+    // only const version for outer users
+    void DeleteInstance(uint32 mapid, uint32 instanceId);
 
-        void Initialize();
-        void Update(uint32);
+    void Initialize();
+    void Update(uint32);
 
-        void SetGridCleanUpDelay(uint32 t)
+    void SetGridCleanUpDelay(uint32 t)
+    {
+        if (t < MIN_GRID_DELAY)
+            i_gridCleanUpDelay = MIN_GRID_DELAY;
+        else
+            i_gridCleanUpDelay = t;
+    }
+
+    void SetMapUpdateInterval(uint32 t)
+    {
+        if (t < MIN_MAP_UPDATE_DELAY)
+            t = MIN_MAP_UPDATE_DELAY;
+
+        i_timer.SetInterval(t);
+        i_timer.Reset();
+    }
+
+    void UnloadAll();
+
+    static bool ExistMapAndVMap(uint32 mapid, float x, float y);
+    static bool IsValidMAP(uint32 mapid);
+
+    static bool IsValidMapCoord(uint32 mapid, float x, float y)
+    {
+        return IsValidMAP(mapid) && MaNGOS::IsValidMapCoord(x, y);
+    }
+
+    static bool IsValidMapCoord(uint32 mapid, float x, float y, float z)
+    {
+        return IsValidMAP(mapid) && MaNGOS::IsValidMapCoord(x, y, z);
+    }
+
+    static bool IsValidMapCoord(uint32 mapid, float x, float y, float z, float o)
+    {
+        return IsValidMAP(mapid) && MaNGOS::IsValidMapCoord(x, y, z, o);
+    }
+
+    static bool IsValidMapCoord(WorldLocation const &loc)
+    {
+        return IsValidMapCoord(loc.mapid, loc.coord_x, loc.coord_y, loc.coord_z, loc.orientation);
+    }
+
+    // modulos a radian orientation to the range of 0..2PI
+    static float NormalizeOrientation(float o)
+    {
+        // fmod only supports positive numbers. Thus we have
+        // to emulate negative numbers
+        if (o < 0)
         {
-            if (t < MIN_GRID_DELAY)
-                i_gridCleanUpDelay = MIN_GRID_DELAY;
-            else
-                i_gridCleanUpDelay = t;
+            float mod = o * -1;
+            mod = std::fmod(mod, 2.0f * M_PI_F);
+            mod = -mod + 2.0f * M_PI_F;
+            return mod;
         }
+        return std::fmod(o, 2.0f * M_PI_F);
+    }
 
-        void SetMapUpdateInterval(uint32 t)
+    void RemoveAllObjectsInRemoveList();
+
+    void LoadTransports();
+
+    typedef std::map<uint32, std::vector<const TransportTemplate *>> TransportMap;
+    TransportMap m_transportsByMap;
+
+    uint32 GenerateInstanceId()
+    {
+        return ++i_MaxInstanceId;
+    }
+    void InitMaxInstanceId();
+    void InitializeVisibilityDistanceInfo();
+    /* statistics */
+    uint32 GetNumInstances();
+    uint32 GetNumPlayersInInstances();
+
+    // get list of all maps
+    const MapMapType &Maps() const
+    {
+        return i_maps;
+    }
+
+    template <typename Do> void DoForAllMaps(Do &_do)
+    {
+        for (auto &mapData : i_maps)
         {
-            if (t < MIN_MAP_UPDATE_DELAY)
-                t = MIN_MAP_UPDATE_DELAY;
-
-            i_timer.SetInterval(t);
-            i_timer.Reset();
+            _do(mapData.second);
         }
+    }
+    template <typename Do> void DoForAllMapsWithMapId(uint32 mapId, Do &_do);
+    template <typename Check> inline WorldObject *SearchOnAllLoadedMap(Check &check);
+    void DoForAllMaps(const std::function<void(Map *)> &worker);
+    void DoForAllMapsWithMapId(uint32 mapId, std::function<void(Map *)> worker);
 
-        void UnloadAll();
+  private:
+    // debugging code, should be deleted some day
+    GridState *si_GridStates[MAX_GRID_STATE];
+    int i_GridStateErrorCount;
 
-        static bool ExistMapAndVMap(uint32 mapid, float x, float y);
-        static bool IsValidMAP(uint32 mapid);
+  private:
+    MapManager();
+    ~MapManager();
 
-        static bool IsValidMapCoord(uint32 mapid, float x, float y)
-        {
-            return IsValidMAP(mapid) && MaNGOS::IsValidMapCoord(x, y);
-        }
+    MapManager(const MapManager &);
+    MapManager &operator=(const MapManager &);
 
-        static bool IsValidMapCoord(uint32 mapid, float x, float y, float z)
-        {
-            return IsValidMAP(mapid) && MaNGOS::IsValidMapCoord(x, y, z);
-        }
+    void InitStateMachine();
+    void DeleteStateMachine();
 
-        static bool IsValidMapCoord(uint32 mapid, float x, float y, float z, float o)
-        {
-            return IsValidMAP(mapid) && MaNGOS::IsValidMapCoord(x, y, z, o);
-        }
+    Map *CreateInstance(uint32 id, Player *player);
+    DungeonMap *CreateDungeonMap(uint32 id, uint32 InstanceId, Difficulty difficulty,
+                                 DungeonPersistentState *save = nullptr);
+    BattleGroundMap *CreateBattleGroundMap(uint32 id, uint32 InstanceId, BattleGround *bg);
 
-        static bool IsValidMapCoord(WorldLocation const& loc)
-        {
-            return IsValidMapCoord(loc.mapid, loc.coord_x, loc.coord_y, loc.coord_z, loc.orientation);
-        }
+    std::mutex m_lock;
+    uint32 i_gridCleanUpDelay;
+    MapMapType i_maps;
+    IntervalTimer i_timer;
 
-        // modulos a radian orientation to the range of 0..2PI
-        static float NormalizeOrientation(float o)
-        {
-            // fmod only supports positive numbers. Thus we have
-            // to emulate negative numbers
-            if (o < 0)
-            {
-                float mod = o * -1;
-                mod = std::fmod(mod, 2.0f * M_PI_F);
-                mod = -mod + 2.0f * M_PI_F;
-                return mod;
-            }
-            return std::fmod(o, 2.0f * M_PI_F);
-        }
-
-        void RemoveAllObjectsInRemoveList();
-
-        void LoadTransports();
-
-        typedef std::map<uint32, std::vector<const TransportTemplate*>> TransportMap;
-        TransportMap m_transportsByMap;
-
-        uint32 GenerateInstanceId() { return ++i_MaxInstanceId; }
-        void InitMaxInstanceId();
-        void InitializeVisibilityDistanceInfo();
-        /* statistics */
-        uint32 GetNumInstances();
-        uint32 GetNumPlayersInInstances();
-
-        // get list of all maps
-        const MapMapType& Maps() const { return i_maps; }
-
-        template<typename Do> void DoForAllMaps(Do& _do)
-        {
-            for (auto& mapData : i_maps)
-            {
-                _do(mapData.second);
-            }
-        }
-        template<typename Do> void DoForAllMapsWithMapId(uint32 mapId, Do& _do);
-        template<typename Check> inline WorldObject* SearchOnAllLoadedMap(Check& check);
-        void DoForAllMaps(const std::function<void(Map*)>& worker);
-        void DoForAllMapsWithMapId(uint32 mapId, std::function<void(Map*)> worker);
-
-    private:
-
-        // debugging code, should be deleted some day
-        GridState* si_GridStates[MAX_GRID_STATE];
-        int i_GridStateErrorCount;
-
-    private:
-
-        MapManager();
-        ~MapManager();
-
-        MapManager(const MapManager&);
-        MapManager& operator=(const MapManager&);
-
-        void InitStateMachine();
-        void DeleteStateMachine();
-
-        Map* CreateInstance(uint32 id, Player* player);
-        DungeonMap* CreateDungeonMap(uint32 id, uint32 InstanceId, Difficulty difficulty, DungeonPersistentState* save = nullptr);
-        BattleGroundMap* CreateBattleGroundMap(uint32 id, uint32 InstanceId, BattleGround* bg);
-
-        std::mutex m_lock;
-        uint32 i_gridCleanUpDelay;
-        MapMapType i_maps;
-        IntervalTimer i_timer;
-
-        uint32 i_MaxInstanceId;
-        MapUpdater m_updater;
+    uint32 i_MaxInstanceId;
+    MapUpdater m_updater;
 };
 
-template<typename Do>
-inline void MapManager::DoForAllMapsWithMapId(uint32 mapId, Do& _do)
+template <typename Do> inline void MapManager::DoForAllMapsWithMapId(uint32 mapId, Do &_do)
 {
     MapMapType::const_iterator start = i_maps.lower_bound(MapID(mapId, 0));
-    MapMapType::const_iterator end   = i_maps.lower_bound(MapID(mapId + 1, 0));
+    MapMapType::const_iterator end = i_maps.lower_bound(MapID(mapId + 1, 0));
     for (MapMapType::const_iterator itr = start; itr != end; ++itr)
         _do(itr->second);
 }
 
-template<typename Check>
-inline WorldObject* MapManager::SearchOnAllLoadedMap(Check& check)
+template <typename Check> inline WorldObject *MapManager::SearchOnAllLoadedMap(Check &check)
 {
-    for (auto& mapItr : i_maps)
+    for (auto &mapItr : i_maps)
     {
-        WorldObject* result = check(mapItr.second);
+        WorldObject *result = check(mapItr.second);
         if (result)
             return result;
     }

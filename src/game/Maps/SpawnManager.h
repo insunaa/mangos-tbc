@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,60 +20,85 @@
 #ifndef MANGOS_SPAWN_MANAGER_H
 #define MANGOS_SPAWN_MANAGER_H
 
+#include <string>
+
 #include "Common.h"
 #include "Entities/ObjectGuid.h"
 #include "Maps/SpawnGroup.h"
-
-#include <string>
 
 class Map;
 
 class SpawnInfo
 {
-    public:
-        SpawnInfo(TimePoint when, uint32 dbguid, HighGuid high) : m_respawnTime(when), m_dbguid(dbguid), m_high(high), m_used(false), m_inUse(false){}
-        TimePoint const& GetRespawnTime() const { return m_respawnTime; }
-        void SetRespawnTime(TimePoint const& time) { m_respawnTime = time; }
-        bool ConstructForMap(Map& map); // can fail due to linking, pooling not supported
-        uint32 GetDbGuid() const { return m_dbguid; }
-        HighGuid GetHighGuid() const { return m_high; }
-        void SetUsed() { m_used = true; }
-        bool IsUsed() const { return m_inUse || m_used; }
-    private:
-        TimePoint m_respawnTime;
-        uint32 m_dbguid;
-        HighGuid m_high;
-        bool m_used;
-        bool m_inUse;
+  public:
+    SpawnInfo(TimePoint when, uint32 dbguid, HighGuid high)
+        : m_respawnTime(when), m_dbguid(dbguid), m_high(high), m_used(false), m_inUse(false)
+    {
+    }
+    TimePoint const &GetRespawnTime() const
+    {
+        return m_respawnTime;
+    }
+    void SetRespawnTime(TimePoint const &time)
+    {
+        m_respawnTime = time;
+    }
+    bool ConstructForMap(Map &map); // can fail due to linking, pooling not supported
+    uint32 GetDbGuid() const
+    {
+        return m_dbguid;
+    }
+    HighGuid GetHighGuid() const
+    {
+        return m_high;
+    }
+    void SetUsed()
+    {
+        m_used = true;
+    }
+    bool IsUsed() const
+    {
+        return m_inUse || m_used;
+    }
+
+  private:
+    TimePoint m_respawnTime;
+    uint32 m_dbguid;
+    HighGuid m_high;
+    bool m_used;
+    bool m_inUse;
 };
 
-bool operator<(SpawnInfo const& lhs, SpawnInfo const& rhs);
+bool operator<(SpawnInfo const &lhs, SpawnInfo const &rhs);
 
 class SpawnManager
 {
-    public:
-        SpawnManager(Map& map) : m_map(map) {}
-        ~SpawnManager();
-        void Initialize();
+  public:
+    SpawnManager(Map &map) : m_map(map)
+    {
+    }
+    ~SpawnManager();
+    void Initialize();
 
-        void AddCreature(uint32 respawnDelay, uint32 dbguid);
-        void AddGameObject(uint32 respawnDelay, uint32 dbguid);
+    void AddCreature(uint32 respawnDelay, uint32 dbguid);
+    void AddGameObject(uint32 respawnDelay, uint32 dbguid);
 
-        void RespawnCreature(uint32 dbguid, uint32 respawnDelay = 0); // seconds
-        void RespawnGameObject(uint32 dbguid, uint32 respawnDelay = 0); // seconds
+    void RespawnCreature(uint32 dbguid, uint32 respawnDelay = 0);   // seconds
+    void RespawnGameObject(uint32 dbguid, uint32 respawnDelay = 0); // seconds
 
-        void RespawnAll();
+    void RespawnAll();
 
-        void Update();
+    void Update();
 
-        std::string GetRespawnList();
+    std::string GetRespawnList();
 
-        SpawnGroup* GetSpawnGroup(uint32 Id);
-    private:
-        Map& m_map;
+    SpawnGroup *GetSpawnGroup(uint32 Id);
 
-        std::vector<SpawnInfo> m_spawns; // must only be erased from in Update
-        std::map<uint32, SpawnGroup*> m_spawnGroups;
+  private:
+    Map &m_map;
+
+    std::vector<SpawnInfo> m_spawns; // must only be erased from in Update
+    std::map<uint32, SpawnGroup *> m_spawnGroups;
 };
 
 #endif

@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,13 +21,13 @@
     \ingroup mangosd
 */
 
-#include "Common.h"
-#include "World/World.h"
 #include "WorldRunnable.h"
-#include "Timer.h"
-#include "Maps/MapManager.h"
 
+#include "Common.h"
 #include "Database/DatabaseEnv.h"
+#include "Maps/MapManager.h"
+#include "Timer.h"
+#include "World/World.h"
 
 #define WORLD_SLEEP_CONST 50
 
@@ -39,12 +40,13 @@ extern int m_ServiceStatus;
 void WorldRunnable::run()
 {
     ///- Init new SQL thread for the world database
-    WorldDatabase.ThreadStart();                            // let thread do safe mySQL requests (one connection call enough)
+    WorldDatabase.ThreadStart(); // let thread do safe mySQL requests (one
+                                 // connection call enough)
     sWorld.InitResultQueue();
 
     uint32 diffTick = WorldTimer::tick(); // initialize world timer vars
-    uint32 diffTime = 0; // used to compute real time elapsed in World::Update()
-    uint32 overCounter = 0; // count overtime loops
+    uint32 diffTime = 0;                  // used to compute real time elapsed in World::Update()
+    uint32 overCounter = 0;               // count overtime loops
 
     ///- While we have not World::m_stopEvent, update the world
     while (!World::IsStopped())
@@ -65,7 +67,10 @@ void WorldRunnable::run()
         else
         {
             ++overCounter;
-            sLog.outString("WorldRunnable:run Long loop #%d : %dms (total : %d loop(s), %.3f%%)", World::m_worldLoopCounter, diffTime, overCounter, (float)(100*overCounter) / (float)World::m_worldLoopCounter);
+            sLog.outString("WorldRunnable:run Long loop #%d : %dms (total : %d "
+                           "loop(s), %.3f%%)",
+                           World::m_worldLoopCounter, diffTime, overCounter,
+                           (float)(100 * overCounter) / (float)World::m_worldLoopCounter);
         }
 #endif
 
@@ -81,5 +86,5 @@ void WorldRunnable::run()
     sWorld.CleanupsBeforeStop();
 
     ///- End the database thread
-    WorldDatabase.ThreadEnd();                              // free mySQL thread resources
+    WorldDatabase.ThreadEnd(); // free mySQL thread resources
 }

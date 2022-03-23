@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,25 +25,25 @@
 #include "Common.h"
 
 #ifdef _WIN32
-  #include <WinSock2.h>
+#include <WinSock2.h>
 #endif
 
 #include <mysql.h>
 
 class QueryResultMysql : public QueryResult
 {
-    public:
-        QueryResultMysql(MYSQL_RES* result, MYSQL_FIELD* fields, uint64 rowCount, uint32 fieldCount);
+  public:
+    QueryResultMysql(MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount);
 
-        ~QueryResultMysql();
+    ~QueryResultMysql();
 
-        bool NextRow() override;
+    bool NextRow() override;
 
-    private:
-        enum Field::DataTypes ConvertNativeType(enum_field_types mysqlType) const;
-        void EndQuery();
+  private:
+    enum Field::DataTypes ConvertNativeType(enum_field_types mysqlType) const;
+    void EndQuery();
 
-        MYSQL_RES* mResult;
+    MYSQL_RES *mResult;
 };
 #endif
 #endif

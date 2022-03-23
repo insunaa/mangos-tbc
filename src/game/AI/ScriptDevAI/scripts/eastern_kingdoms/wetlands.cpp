@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -26,8 +26,8 @@ npc_mikhail
 npc_tapoke_slim_jahn
 EndContentData */
 
-#include "AI/ScriptDevAI/include/sc_common.h"
 #include "AI/ScriptDevAI/base/escort_ai.h"
+#include "AI/ScriptDevAI/include/sc_common.h"
 
 /*######
 ## npc_tapoke_slim_jahn
@@ -35,33 +35,31 @@ EndContentData */
 
 enum
 {
-    SAY_SLIM_AGGRO              = -1000977,
-    SAY_SLIM_DEFEAT             = -1000978,
-    SAY_FRIEND_DEFEAT           = -1000979,
-    SAY_SLIM_NOTES              = -1000980,
+    SAY_SLIM_AGGRO = -1000977,
+    SAY_SLIM_DEFEAT = -1000978,
+    SAY_FRIEND_DEFEAT = -1000979,
+    SAY_SLIM_NOTES = -1000980,
 
-    QUEST_MISSING_DIPLOMAT11    = 1249,
-    FACTION_ENEMY               = 168,                      // ToDo: faction needs to be confirmed!
+    QUEST_MISSING_DIPLOMAT11 = 1249,
+    FACTION_ENEMY = 168, // ToDo: faction needs to be confirmed!
 
-    SPELL_STEALTH               = 1785,
-    SPELL_CALL_FRIENDS          = 16457,                    // summon npc 4971
+    SPELL_STEALTH = 1785,
+    SPELL_CALL_FRIENDS = 16457, // summon npc 4971
 
-    NPC_SLIMS_FRIEND            = 4971,
-    NPC_TAPOKE_SLIM_JAHN        = 4962
+    NPC_SLIMS_FRIEND = 4971,
+    NPC_TAPOKE_SLIM_JAHN = 4962
 };
 
-static const DialogueEntry aDiplomatDialogue[] =
-{
-    {SAY_SLIM_DEFEAT,           NPC_TAPOKE_SLIM_JAHN,   4000},
-    {SAY_SLIM_NOTES,            NPC_TAPOKE_SLIM_JAHN,   7000},
-    {QUEST_MISSING_DIPLOMAT11,  0,                      0},
+static const DialogueEntry aDiplomatDialogue[] = {
+    {SAY_SLIM_DEFEAT, NPC_TAPOKE_SLIM_JAHN, 4000},
+    {SAY_SLIM_NOTES, NPC_TAPOKE_SLIM_JAHN, 7000},
+    {QUEST_MISSING_DIPLOMAT11, 0, 0},
     {0, 0, 0},
 };
 
 struct npc_tapoke_slim_jahnAI : public npc_escortAI, private DialogueHelper
 {
-    npc_tapoke_slim_jahnAI(Creature* pCreature) : npc_escortAI(pCreature),
-        DialogueHelper(aDiplomatDialogue)
+    npc_tapoke_slim_jahnAI(Creature *pCreature) : npc_escortAI(pCreature), DialogueHelper(aDiplomatDialogue)
     {
         Reset();
     }
@@ -83,10 +81,11 @@ struct npc_tapoke_slim_jahnAI : public npc_escortAI, private DialogueHelper
 
     void JustReachedHome() override
     {
-        // after the npc is defeated, start the dialog right after it reaches the evade point
+        // after the npc is defeated, start the dialog right after it reaches the
+        // evade point
         if (m_bEventComplete)
         {
-            if (Player* pPlayer = GetPlayerForEscort())
+            if (Player *pPlayer = GetPlayerForEscort())
                 m_creature->SetFacingToObject(pPlayer);
 
             StartNextDialogueText(SAY_SLIM_DEFEAT);
@@ -97,22 +96,23 @@ struct npc_tapoke_slim_jahnAI : public npc_escortAI, private DialogueHelper
     {
         switch (uiPointId)
         {
-            case 3:
-                SetRun();
-                m_creature->RemoveAurasDueToSpell(SPELL_STEALTH);
-                m_creature->SetFactionTemporary(FACTION_ENEMY, TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_COMBAT_STOP);
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PLAYER);
-                SetReactState(REACT_AGGRESSIVE);
-                break;
-            case 7:
-                // fail the quest if he escapes
-                if (Player* pPlayer = GetPlayerForEscort())
-                    JustDied(pPlayer);
-                break;
+        case 3:
+            SetRun();
+            m_creature->RemoveAurasDueToSpell(SPELL_STEALTH);
+            m_creature->SetFactionTemporary(FACTION_ENEMY,
+                                            TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_COMBAT_STOP);
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PLAYER);
+            SetReactState(REACT_AGGRESSIVE);
+            break;
+        case 7:
+            // fail the quest if he escapes
+            if (Player *pPlayer = GetPlayerForEscort())
+                JustDied(pPlayer);
+            break;
         }
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         if (HasEscortState(STATE_ESCORT_ESCORTING) && !m_bFriendSummoned)
         {
@@ -124,21 +124,22 @@ struct npc_tapoke_slim_jahnAI : public npc_escortAI, private DialogueHelper
         }
     }
 
-    void JustSummoned(Creature* pSummoned) override
+    void JustSummoned(Creature *pSummoned) override
     {
         // Note: may not work on guardian pets
-        if (Player* pPlayer = GetPlayerForEscort())
+        if (Player *pPlayer = GetPlayerForEscort())
             pSummoned->AI()->AttackStart(pPlayer);
     }
 
-    void DamageTaken(Unit* /*dealer*/, uint32& damage, DamageEffectType /*damagetype*/, SpellEntry const* /*spellInfo*/) override
+    void DamageTaken(Unit * /*dealer*/, uint32 &damage, DamageEffectType /*damagetype*/,
+                     SpellEntry const * /*spellInfo*/) override
     {
         if (!HasEscortState(STATE_ESCORT_ESCORTING))
             return;
 
         if (m_creature->GetHealthPercent() < 20.0f || damage > m_creature->GetHealth())
         {
-            if (Pet* pFriend = m_creature->FindGuardianWithEntry(NPC_SLIMS_FRIEND))
+            if (Pet *pFriend = m_creature->FindGuardianWithEntry(NPC_SLIMS_FRIEND))
             {
                 DoScriptText(SAY_FRIEND_DEFEAT, pFriend);
                 pFriend->ForcedDespawn(1000);
@@ -153,11 +154,11 @@ struct npc_tapoke_slim_jahnAI : public npc_escortAI, private DialogueHelper
         }
     }
 
-    void ReceiveAIEvent(AIEventType eventType, Unit* /*pSender*/, Unit* pInvoker, uint32 uiMiscValue) override
+    void ReceiveAIEvent(AIEventType eventType, Unit * /*pSender*/, Unit *pInvoker, uint32 uiMiscValue) override
     {
         // start escort
         if (eventType == AI_EVENT_START_ESCORT && pInvoker->GetTypeId() == TYPEID_PLAYER)
-            Start(false, (Player*)pInvoker, GetQuestTemplateStore(uiMiscValue), true);
+            Start(false, (Player *)pInvoker, GetQuestTemplateStore(uiMiscValue), true);
     }
 
     void JustDidDialogueStep(int32 iEntry) override
@@ -165,7 +166,7 @@ struct npc_tapoke_slim_jahnAI : public npc_escortAI, private DialogueHelper
         if (iEntry == QUEST_MISSING_DIPLOMAT11)
         {
             // complete quest
-            if (Player* pPlayer = GetPlayerForEscort())
+            if (Player *pPlayer = GetPlayerForEscort())
                 pPlayer->RewardPlayerAndGroupAtEventExplored(QUEST_MISSING_DIPLOMAT11, m_creature);
 
             // despawn and respawn at inn
@@ -174,7 +175,7 @@ struct npc_tapoke_slim_jahnAI : public npc_escortAI, private DialogueHelper
         }
     }
 
-    Creature* GetSpeakerByEntry(uint32 uiEntry) override
+    Creature *GetSpeakerByEntry(uint32 uiEntry) override
     {
         if (uiEntry == NPC_TAPOKE_SLIM_JAHN)
             return m_creature;
@@ -193,7 +194,7 @@ struct npc_tapoke_slim_jahnAI : public npc_escortAI, private DialogueHelper
     }
 };
 
-UnitAI* GetAI_npc_tapoke_slim_jahn(Creature* pCreature)
+UnitAI *GetAI_npc_tapoke_slim_jahn(Creature *pCreature)
 {
     return new npc_tapoke_slim_jahnAI(pCreature);
 }
@@ -202,11 +203,11 @@ UnitAI* GetAI_npc_tapoke_slim_jahn(Creature* pCreature)
 ## npc_mikhail
 ######*/
 
-bool QuestAccept_npc_mikhail(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+bool QuestAccept_npc_mikhail(Player *pPlayer, Creature *pCreature, const Quest *pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_MISSING_DIPLOMAT11)
     {
-        Creature* pSlim = GetClosestCreatureWithEntry(pCreature, NPC_TAPOKE_SLIM_JAHN, 25.0f);
+        Creature *pSlim = GetClosestCreatureWithEntry(pCreature, NPC_TAPOKE_SLIM_JAHN, 25.0f);
         if (!pSlim)
             return false;
 
@@ -226,7 +227,7 @@ bool QuestAccept_npc_mikhail(Player* pPlayer, Creature* pCreature, const Quest* 
 
 void AddSC_wetlands()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "npc_tapoke_slim_jahn";
     pNewScript->GetAI = &GetAI_npc_tapoke_slim_jahn;
     pNewScript->RegisterSelf();

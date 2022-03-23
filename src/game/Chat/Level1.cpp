@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,41 +17,41 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "Common.h"
-#include "Database/DatabaseEnv.h"
-#include "Server/DBCStores.h"
-#include "WorldPacket.h"
-#include "Server/WorldSession.h"
-#include "World/World.h"
-#include "Globals/ObjectMgr.h"
-#include "Entities/Player.h"
-#include "Server/Opcodes.h"
-#include "Chat/Chat.h"
-#include "Chat/ChannelMgr.h"
-#include "Log.h"
-#include "Globals/ObjectAccessor.h"
-#include "Tools/Language.h"
-#include "Grids/CellImpl.h"
-#include "Maps/MapManager.h"
-#include "Maps/GridDefines.h"
-#include "Maps/MapPersistentStateMgr.h"
-#include "Mails/Mail.h"
-#include "Util.h"
 #include "AI/ScriptDevAI/ScriptDevAIMgr.h"
 #include "Anticheat/Anticheat.hpp"
-#include "Spells/SpellMgr.h"
+#include "Chat/ChannelMgr.h"
+#include "Chat/Chat.h"
+#include "Common.h"
+#include "Database/DatabaseEnv.h"
+#include "Entities/Player.h"
 #include "Entities/Transports.h"
+#include "Globals/ObjectAccessor.h"
+#include "Globals/ObjectMgr.h"
+#include "Grids/CellImpl.h"
+#include "Log.h"
+#include "Mails/Mail.h"
+#include "Maps/GridDefines.h"
+#include "Maps/MapManager.h"
+#include "Maps/MapPersistentStateMgr.h"
+#include "Server/DBCStores.h"
+#include "Server/Opcodes.h"
+#include "Server/WorldSession.h"
+#include "Spells/SpellMgr.h"
+#include "Tools/Language.h"
+#include "Util.h"
+#include "World/World.h"
+#include "WorldPacket.h"
 #ifdef _DEBUG_VMAPS
 #include "VMapFactory.h"
 #endif
 
 //-----------------------Npc Commands-----------------------
-bool ChatHandler::HandleNpcSayCommand(char* args)
+bool ChatHandler::HandleNpcSayCommand(char *args)
 {
     if (!*args)
         return false;
 
-    Creature* pCreature = getSelectedCreature();
+    Creature *pCreature = getSelectedCreature();
     if (!pCreature)
     {
         SendSysMessage(LANG_SELECT_CREATURE);
@@ -63,12 +64,12 @@ bool ChatHandler::HandleNpcSayCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleNpcYellCommand(char* args)
+bool ChatHandler::HandleNpcYellCommand(char *args)
 {
     if (!*args)
         return false;
 
-    Creature* pCreature = getSelectedCreature();
+    Creature *pCreature = getSelectedCreature();
     if (!pCreature)
     {
         SendSysMessage(LANG_SELECT_CREATURE);
@@ -82,12 +83,12 @@ bool ChatHandler::HandleNpcYellCommand(char* args)
 }
 
 // show text emote by creature in chat
-bool ChatHandler::HandleNpcTextEmoteCommand(char* args)
+bool ChatHandler::HandleNpcTextEmoteCommand(char *args)
 {
     if (!*args)
         return false;
 
-    Creature* pCreature = getSelectedCreature();
+    Creature *pCreature = getSelectedCreature();
 
     if (!pCreature)
     {
@@ -102,9 +103,9 @@ bool ChatHandler::HandleNpcTextEmoteCommand(char* args)
 }
 
 // make npc whisper to player
-bool ChatHandler::HandleNpcWhisperCommand(char* args)
+bool ChatHandler::HandleNpcWhisperCommand(char *args)
 {
-    Player* target;
+    Player *target;
     if (!ExtractPlayerTarget(&args, &target))
         return false;
 
@@ -112,7 +113,7 @@ bool ChatHandler::HandleNpcWhisperCommand(char* args)
     if (!guid)
         return false;
 
-    Creature* pCreature = m_session->GetPlayer()->GetMap()->GetCreature(guid);
+    Creature *pCreature = m_session->GetPlayer()->GetMap()->GetCreature(guid);
 
     if (!pCreature || !target || !*args)
         return false;
@@ -128,7 +129,7 @@ bool ChatHandler::HandleNpcWhisperCommand(char* args)
 //----------------------------------------------------------
 
 // global announce
-bool ChatHandler::HandleAnnounceCommand(char* args)
+bool ChatHandler::HandleAnnounceCommand(char *args)
 {
     if (!*args)
         return false;
@@ -138,7 +139,7 @@ bool ChatHandler::HandleAnnounceCommand(char* args)
 }
 
 // notification player at the screen
-bool ChatHandler::HandleNotifyCommand(char* args)
+bool ChatHandler::HandleNotifyCommand(char *args)
 {
     if (!*args)
         return false;
@@ -154,7 +155,7 @@ bool ChatHandler::HandleNotifyCommand(char* args)
 }
 
 // Enable\Dissable GM Mode
-bool ChatHandler::HandleGMCommand(char* args)
+bool ChatHandler::HandleGMCommand(char *args)
 {
     if (!*args)
     {
@@ -187,14 +188,15 @@ bool ChatHandler::HandleGMCommand(char* args)
     return true;
 }
 
-// Acquire random unusual land mount or visually mount displayid or selected creature
-bool ChatHandler::HandleGMMountUpCommand(char* args)
+// Acquire random unusual land mount or visually mount displayid or selected
+// creature
+bool ChatHandler::HandleGMMountUpCommand(char *args)
 {
     if (*args)
     {
         if (ExtractLiteralArg(&args, "target"))
         {
-            if (Unit* unit = getSelectedUnit())
+            if (Unit *unit = getSelectedUnit())
             {
                 if (unit->GetTypeId() == TYPEID_UNIT)
                 {
@@ -230,11 +232,12 @@ bool ChatHandler::HandleGMMountUpCommand(char* args)
 }
 
 // Enable\Dissable Invisible mode
-bool ChatHandler::HandleGMVisibleCommand(char* args)
+bool ChatHandler::HandleGMVisibleCommand(char *args)
 {
     if (!*args)
     {
-        PSendSysMessage(LANG_YOU_ARE, m_session->GetPlayer()->isGMVisible() ?  GetMangosString(LANG_VISIBLE) : GetMangosString(LANG_INVISIBLE));
+        PSendSysMessage(LANG_YOU_ARE, m_session->GetPlayer()->isGMVisible() ? GetMangosString(LANG_VISIBLE)
+                                                                            : GetMangosString(LANG_INVISIBLE));
         return true;
     }
 
@@ -246,8 +249,9 @@ bool ChatHandler::HandleGMVisibleCommand(char* args)
         return false;
     }
 
-    Player* player = m_session->GetPlayer();
-    SpellEntry const* invisibleAuraInfo = sSpellTemplate.LookupEntry<SpellEntry>(sWorld.getConfig(CONFIG_UINT32_GM_INVISIBLE_AURA));
+    Player *player = m_session->GetPlayer();
+    SpellEntry const *invisibleAuraInfo =
+        sSpellTemplate.LookupEntry<SpellEntry>(sWorld.getConfig(CONFIG_UINT32_GM_INVISIBLE_AURA));
     if (!invisibleAuraInfo || !IsSpellAppliesAura(invisibleAuraInfo))
         invisibleAuraInfo = nullptr;
 
@@ -269,13 +273,13 @@ bool ChatHandler::HandleGMVisibleCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleGPSCommand(char* args)
+bool ChatHandler::HandleGPSCommand(char *args)
 {
-    WorldObject* obj = nullptr;
+    WorldObject *obj = nullptr;
     if (*args)
     {
         if (ObjectGuid guid = ExtractGuidFromLink(&args))
-            obj = (WorldObject*)m_session->GetPlayer()->GetObjectByTypeMask(guid, TYPEMASK_CREATURE_OR_GAMEOBJECT);
+            obj = (WorldObject *)m_session->GetPlayer()->GetObjectByTypeMask(guid, TYPEMASK_CREATURE_OR_GAMEOBJECT);
 
         if (!obj)
         {
@@ -301,9 +305,9 @@ bool ChatHandler::HandleGPSCommand(char* args)
     uint32 zone_id, area_id;
     obj->GetZoneAndAreaId(zone_id, area_id);
 
-    MapEntry const* mapEntry = sMapStore.LookupEntry(obj->GetMapId());
-    AreaTableEntry const* zoneEntry = GetAreaEntryByAreaID(zone_id);
-    AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(area_id);
+    MapEntry const *mapEntry = sMapStore.LookupEntry(obj->GetMapId());
+    AreaTableEntry const *zoneEntry = GetAreaEntryByAreaID(zone_id);
+    AreaTableEntry const *areaEntry = GetAreaEntryByAreaID(area_id);
 
     float zone_x = obj->GetPositionX();
     float zone_y = obj->GetPositionY();
@@ -314,7 +318,7 @@ bool ChatHandler::HandleGPSCommand(char* args)
         zone_y = 0;
     }
 
-    Map const* map = obj->GetMap();
+    Map const *map = obj->GetMap();
     float ground_z = map->GetHeight(obj->GetPositionX(), obj->GetPositionY(), MAX_HEIGHT);
     float floor_z = map->GetHeight(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ());
 
@@ -326,7 +330,7 @@ bool ChatHandler::HandleGPSCommand(char* args)
     uint32 have_map = GridMap::ExistMap(obj->GetMapId(), gx, gy) ? 1 : 0;
     uint32 have_vmap = GridMap::ExistVMap(obj->GetMapId(), gx, gy) ? 1 : 0;
 
-    TerrainInfo const* terrain = obj->GetTerrain();
+    TerrainInfo const *terrain = obj->GetTerrain();
 
     if (have_vmap)
     {
@@ -335,17 +339,17 @@ bool ChatHandler::HandleGPSCommand(char* args)
         else
             PSendSysMessage("You are INdoor");
     }
-    else PSendSysMessage("no VMAP available for area info");
+    else
+        PSendSysMessage("no VMAP available for area info");
 
-    PSendSysMessage(LANG_MAP_POSITION,
-                    obj->GetMapId(), (mapEntry ? mapEntry->name[GetSessionDbcLocale()] : "<unknown>"),
-                    zone_id, (zoneEntry ? zoneEntry->area_name[GetSessionDbcLocale()] : "<unknown>"),
-                    area_id, (areaEntry ? areaEntry->area_name[GetSessionDbcLocale()] : "<unknown>"),
-                    obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), obj->GetOrientation(),
-                    cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), obj->GetInstanceId(),
-                    zone_x, zone_y, ground_z, floor_z, have_map, have_vmap);
+    PSendSysMessage(
+        LANG_MAP_POSITION, obj->GetMapId(), (mapEntry ? mapEntry->name[GetSessionDbcLocale()] : "<unknown>"), zone_id,
+        (zoneEntry ? zoneEntry->area_name[GetSessionDbcLocale()] : "<unknown>"), area_id,
+        (areaEntry ? areaEntry->area_name[GetSessionDbcLocale()] : "<unknown>"), obj->GetPositionX(),
+        obj->GetPositionY(), obj->GetPositionZ(), obj->GetOrientation(), cell.GridX(), cell.GridY(), cell.CellX(),
+        cell.CellY(), obj->GetInstanceId(), zone_x, zone_y, ground_z, floor_z, have_map, have_vmap);
 
-    if (GenericTransport* transport = obj->GetTransport())
+    if (GenericTransport *transport = obj->GetTransport())
     {
         Position pos = obj->GetPosition(transport);
         PSendSysMessage("Transport coords: %f %f %f %f", pos.x, pos.y, pos.z, pos.o);
@@ -354,46 +358,53 @@ bool ChatHandler::HandleGPSCommand(char* args)
     DEBUG_LOG("Player %s GPS call for %s '%s' (%s: %u):",
               m_session ? GetNameLink().c_str() : GetMangosString(LANG_CONSOLE_COMMAND),
               (obj->GetTypeId() == TYPEID_PLAYER ? "player" : "creature"), obj->GetName(),
-              (obj->GetTypeId() == TYPEID_PLAYER ? "GUID" : "Entry"), (obj->GetTypeId() == TYPEID_PLAYER ? obj->GetGUIDLow() : obj->GetEntry()));
+              (obj->GetTypeId() == TYPEID_PLAYER ? "GUID" : "Entry"),
+              (obj->GetTypeId() == TYPEID_PLAYER ? obj->GetGUIDLow() : obj->GetEntry()));
 
-    DEBUG_LOG(GetMangosString(LANG_MAP_POSITION),
-              obj->GetMapId(), (mapEntry ? mapEntry->name[sWorld.GetDefaultDbcLocale()] : "<unknown>"),
-              zone_id, (zoneEntry ? zoneEntry->area_name[sWorld.GetDefaultDbcLocale()] : "<unknown>"),
-              area_id, (areaEntry ? areaEntry->area_name[sWorld.GetDefaultDbcLocale()] : "<unknown>"),
-              obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), obj->GetOrientation(),
-              cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), obj->GetInstanceId(),
-              zone_x, zone_y, ground_z, floor_z, have_map, have_vmap);
+    DEBUG_LOG(GetMangosString(LANG_MAP_POSITION), obj->GetMapId(),
+              (mapEntry ? mapEntry->name[sWorld.GetDefaultDbcLocale()] : "<unknown>"), zone_id,
+              (zoneEntry ? zoneEntry->area_name[sWorld.GetDefaultDbcLocale()] : "<unknown>"), area_id,
+              (areaEntry ? areaEntry->area_name[sWorld.GetDefaultDbcLocale()] : "<unknown>"), obj->GetPositionX(),
+              obj->GetPositionY(), obj->GetPositionZ(), obj->GetOrientation(), cell.GridX(), cell.GridY(), cell.CellX(),
+              cell.CellY(), obj->GetInstanceId(), zone_x, zone_y, ground_z, floor_z, have_map, have_vmap);
 
     GridMapLiquidData liquid_status;
-    GridMapLiquidStatus res = terrain->getLiquidStatus(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), MAP_ALL_LIQUIDS, &liquid_status);
+    GridMapLiquidStatus res = terrain->getLiquidStatus(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(),
+                                                       MAP_ALL_LIQUIDS, &liquid_status);
     if (res)
     {
-        PSendSysMessage(LANG_LIQUID_STATUS, liquid_status.level, liquid_status.depth_level, liquid_status.type_flags, uint32(res));
+        PSendSysMessage(LANG_LIQUID_STATUS, liquid_status.level, liquid_status.depth_level, liquid_status.type_flags,
+                        uint32(res));
     }
 
     // Additional vmap debugging help
 #ifdef _DEBUG_VMAPS
-    PSendSysMessage("Static terrain height (maps only): %f", obj->GetTerrain()->GetHeightStatic(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), false));
+    PSendSysMessage(
+        "Static terrain height (maps only): %f",
+        obj->GetTerrain()->GetHeightStatic(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), false));
 
-    if (VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager())
-        PSendSysMessage("Vmap Terrain Height %f", vmgr->getHeight(obj->GetMapId(), obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ() + 2.0f, 10000.0f));
+    if (VMAP::IVMapManager *vmgr = VMAP::VMapFactory::createOrGetVMapManager())
+        PSendSysMessage("Vmap Terrain Height %f",
+                        vmgr->getHeight(obj->GetMapId(), obj->GetPositionX(), obj->GetPositionY(),
+                                        obj->GetPositionZ() + 2.0f, 10000.0f));
 
-    PSendSysMessage("Static map height (maps and vmaps): %f", obj->GetTerrain()->GetHeightStatic(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ()));
+    PSendSysMessage("Static map height (maps and vmaps): %f",
+                    obj->GetTerrain()->GetHeightStatic(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ()));
 #endif
 
     return true;
 }
 
 // Summon Player
-bool ChatHandler::HandleNamegoCommand(char* args)
+bool ChatHandler::HandleNamegoCommand(char *args)
 {
-    Player* target;
+    Player *target;
     ObjectGuid target_guid;
     std::string target_name;
     if (!ExtractPlayerTarget(&args, &target, &target_guid, &target_name))
         return false;
 
-    Player* player = m_session->GetPlayer();
+    Player *player = m_session->GetPlayer();
     if (target == player || target_guid == player->GetObjectGuid())
     {
         PSendSysMessage(LANG_CANT_TELEPORT_SELF);
@@ -416,7 +427,7 @@ bool ChatHandler::HandleNamegoCommand(char* args)
             return false;
         }
 
-        Map* pMap = player->GetMap();
+        Map *pMap = player->GetMap();
 
         if (!pMap)
             return false;
@@ -440,13 +451,14 @@ bool ChatHandler::HandleNamegoCommand(char* args)
             // all's well, set bg id
             // when porting out from the bg, it will be reset to 0
             target->SetBattleGroundId(player->GetBattleGroundId(), player->GetBattleGroundTypeId());
-            // remember current position as entry point for return at bg end teleportation
+            // remember current position as entry point for return at bg end
+            // teleportation
             if (!target->GetMap()->IsBattleGroundOrArena())
                 target->SetBattleGroundEntryPoint();
         }
         else if (pMap->IsDungeon())
         {
-            Map* cMap = target->GetMap();
+            Map *cMap = target->GetMap();
             if (cMap->Instanceable() && cMap->GetInstanceId() != pMap->GetInstanceId())
             {
                 // cannot summon from instance to instance
@@ -455,11 +467,12 @@ bool ChatHandler::HandleNamegoCommand(char* args)
                 return false;
             }
 
-            // we are in instance, and can summon only player in our group with us as lead
+            // we are in instance, and can summon only player in our group with
+            // us as lead
             if (!player->GetGroup() || !target->GetGroup() ||
-                    (target->GetGroup()->GetLeaderGuid() != player->GetObjectGuid()) ||
-                    (player->GetGroup()->GetLeaderGuid() != player->GetObjectGuid()))
-                // the last check is a bit excessive, but let it be, just in case
+                (target->GetGroup()->GetLeaderGuid() != player->GetObjectGuid()) ||
+                (player->GetGroup()->GetLeaderGuid() != player->GetObjectGuid()))
+            // the last check is a bit excessive, but let it be, just in case
             {
                 PSendSysMessage(LANG_CANNOT_SUMMON_TO_INST, nameLink.c_str());
                 SetSentErrorMessage(true);
@@ -490,34 +503,29 @@ bool ChatHandler::HandleNamegoCommand(char* args)
         PSendSysMessage(LANG_SUMMONING, nameLink.c_str(), GetMangosString(LANG_OFFLINE));
 
         // in point where GM stay
-        Player::SavePositionInDB(target_guid, player->GetMapId(),
-                                 player->GetPositionX(),
-                                 player->GetPositionY(),
-                                 player->GetPositionZ(),
-                                 player->GetOrientation(),
-                                 player->GetZoneId());
+        Player::SavePositionInDB(target_guid, player->GetMapId(), player->GetPositionX(), player->GetPositionY(),
+                                 player->GetPositionZ(), player->GetOrientation(), player->GetZoneId());
     }
 
     return true;
 }
 
 // Teleport to Player
-bool ChatHandler::HandleGonameCommand(char* args)
+bool ChatHandler::HandleGonameCommand(char *args)
 {
-    Player* target;
+    Player *target;
     ObjectGuid target_guid;
     std::string target_name;
     if (!ExtractPlayerTarget(&args, &target, &target_guid, &target_name))
         return false;
 
-    Player* _player = m_session->GetPlayer();
+    Player *_player = m_session->GetPlayer();
     if (target == _player || target_guid == _player->GetObjectGuid())
     {
         SendSysMessage(LANG_CANT_TELEPORT_SELF);
         SetSentErrorMessage(true);
         return false;
     }
-
 
     if (target)
     {
@@ -527,7 +535,7 @@ bool ChatHandler::HandleGonameCommand(char* args)
 
         std::string chrNameLink = playerLink(target_name);
 
-        Map* cMap = target->GetMap();
+        Map *cMap = target->GetMap();
         if (cMap->IsBattleGroundOrArena())
         {
             // only allow if gm mode is on
@@ -547,7 +555,8 @@ bool ChatHandler::HandleGonameCommand(char* args)
             // all's well, set bg id
             // when porting out from the bg, it will be reset to 0
             _player->SetBattleGroundId(target->GetBattleGroundId(), target->GetBattleGroundTypeId());
-            // remember current position as entry point for return at bg end teleportation
+            // remember current position as entry point for return at bg end
+            // teleportation
             if (!_player->GetMap()->IsBattleGroundOrArena())
                 _player->SetBattleGroundEntryPoint();
         }
@@ -579,16 +588,16 @@ bool ChatHandler::HandleGonameCommand(char* args)
 
             // if the player or the player's group is bound to another instance
             // the player will not be bound to another one
-            InstancePlayerBind* pBind = _player->GetBoundInstance(target->GetMapId(), target->GetDifficulty());
+            InstancePlayerBind *pBind = _player->GetBoundInstance(target->GetMapId(), target->GetDifficulty());
             if (!pBind)
             {
-                Group* group = _player->GetGroup();
+                Group *group = _player->GetGroup();
                 // if no bind exists, create a solo bind
-                InstanceGroupBind* gBind = group ? group->GetBoundInstance(target->GetMapId()) : nullptr;
+                InstanceGroupBind *gBind = group ? group->GetBoundInstance(target->GetMapId()) : nullptr;
                 // if no bind exists, create a solo bind
                 if (!gBind)
                 {
-                    DungeonPersistentState* save = ((DungeonMap*)target->GetMap())->GetPersistanceState();
+                    DungeonPersistentState *save = ((DungeonMap *)target->GetMap())->GetPersistanceState();
 
                     // if player is group leader then we need add group bind
                     if (group && group->IsLeader(_player->GetObjectGuid()))
@@ -612,10 +621,11 @@ bool ChatHandler::HandleGonameCommand(char* args)
         // to point to see at target with same orientation
         float x, y, z;
         target->GetContactPoint(target, x, y, z);
-        
-        if (GenericTransport* transport = target->GetTransport())
+
+        if (GenericTransport *transport = target->GetTransport())
             transport->CalculatePassengerOffset(x, y, z);
-        _player->TeleportTo(target->GetMapId(), x, y, z, _player->GetAngle(target), TELE_TO_GM_MODE, nullptr, target->GetTransport());
+        _player->TeleportTo(target->GetMapId(), x, y, z, _player->GetAngle(target), TELE_TO_GM_MODE, nullptr,
+                            target->GetTransport());
     }
     else
     {
@@ -641,9 +651,9 @@ bool ChatHandler::HandleGonameCommand(char* args)
 }
 
 // Teleport player to last position
-bool ChatHandler::HandleRecallCommand(char* args)
+bool ChatHandler::HandleRecallCommand(char *args)
 {
-    Player* target;
+    Player *target;
     if (!ExtractPlayerTarget(&args, &target))
         return false;
 
@@ -658,11 +668,12 @@ bool ChatHandler::HandleRecallCommand(char* args)
         return false;
     }
 
-    return HandleGoHelper(target, target->m_recallMap, target->m_recallX, target->m_recallY, &target->m_recallZ, &target->m_recallO);
+    return HandleGoHelper(target, target->m_recallMap, target->m_recallX, target->m_recallY, &target->m_recallZ,
+                          &target->m_recallO);
 }
 
 // Edit Player HP
-bool ChatHandler::HandleModifyHPCommand(char* args)
+bool ChatHandler::HandleModifyHPCommand(char *args)
 {
     if (!*args)
         return false;
@@ -677,7 +688,7 @@ bool ChatHandler::HandleModifyHPCommand(char* args)
         return false;
     }
 
-    Player* chr = getSelectedPlayer();
+    Player *chr = getSelectedPlayer();
     if (chr == nullptr)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -700,7 +711,7 @@ bool ChatHandler::HandleModifyHPCommand(char* args)
 }
 
 // Edit Player Mana
-bool ChatHandler::HandleModifyManaCommand(char* args)
+bool ChatHandler::HandleModifyManaCommand(char *args)
 {
     if (!*args)
         return false;
@@ -715,7 +726,7 @@ bool ChatHandler::HandleModifyManaCommand(char* args)
         return false;
     }
 
-    Player* chr = getSelectedPlayer();
+    Player *chr = getSelectedPlayer();
     if (chr == nullptr)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -738,7 +749,7 @@ bool ChatHandler::HandleModifyManaCommand(char* args)
 }
 
 // Edit Player Energy
-bool ChatHandler::HandleModifyEnergyCommand(char* args)
+bool ChatHandler::HandleModifyEnergyCommand(char *args)
 {
     if (!*args)
         return false;
@@ -753,7 +764,7 @@ bool ChatHandler::HandleModifyEnergyCommand(char* args)
         return false;
     }
 
-    Player* chr = getSelectedPlayer();
+    Player *chr = getSelectedPlayer();
     if (!chr)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -778,7 +789,7 @@ bool ChatHandler::HandleModifyEnergyCommand(char* args)
 }
 
 // Edit Player Rage
-bool ChatHandler::HandleModifyRageCommand(char* args)
+bool ChatHandler::HandleModifyRageCommand(char *args)
 {
     if (!*args)
         return false;
@@ -793,7 +804,7 @@ bool ChatHandler::HandleModifyRageCommand(char* args)
         return false;
     }
 
-    Player* chr = getSelectedPlayer();
+    Player *chr = getSelectedPlayer();
     if (chr == nullptr)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -816,9 +827,9 @@ bool ChatHandler::HandleModifyRageCommand(char* args)
 }
 
 // Edit Player Faction
-bool ChatHandler::HandleModifyFactionCommand(char* args)
+bool ChatHandler::HandleModifyFactionCommand(char *args)
 {
-    Creature* chr = getSelectedCreature();
+    Creature *chr = getSelectedCreature();
     if (!chr)
     {
         SendSysMessage(LANG_SELECT_CREATURE);
@@ -831,9 +842,9 @@ bool ChatHandler::HandleModifyFactionCommand(char* args)
         if (chr)
         {
             uint32 factionid = chr->GetFaction();
-            uint32 flag      = chr->GetUInt32Value(UNIT_FIELD_FLAGS);
-            uint32 npcflag   = chr->GetUInt32Value(UNIT_NPC_FLAGS);
-            uint32 dyflag    = chr->GetUInt32Value(UNIT_DYNAMIC_FLAGS);
+            uint32 flag = chr->GetUInt32Value(UNIT_FIELD_FLAGS);
+            uint32 npcflag = chr->GetUInt32Value(UNIT_NPC_FLAGS);
+            uint32 dyflag = chr->GetUInt32Value(UNIT_DYNAMIC_FLAGS);
             PSendSysMessage(LANG_CURRENT_FACTION, chr->GetGUIDLow(), factionid, flag, npcflag, dyflag);
         }
         return true;
@@ -865,7 +876,7 @@ bool ChatHandler::HandleModifyFactionCommand(char* args)
     if (!ExtractOptUInt32(&args, npcflag, chr->GetUInt32Value(UNIT_NPC_FLAGS)))
         return false;
 
-    uint32  dyflag;
+    uint32 dyflag;
     if (!ExtractOptUInt32(&args, dyflag, chr->GetUInt32Value(UNIT_DYNAMIC_FLAGS)))
         return false;
 
@@ -880,7 +891,7 @@ bool ChatHandler::HandleModifyFactionCommand(char* args)
 }
 
 // Edit Player TP
-bool ChatHandler::HandleModifyTalentCommand(char* args)
+bool ChatHandler::HandleModifyTalentCommand(char *args)
 {
     if (!*args)
         return false;
@@ -889,7 +900,7 @@ bool ChatHandler::HandleModifyTalentCommand(char* args)
     if (tp < 0)
         return false;
 
-    Player* target = getSelectedPlayer();
+    Player *target = getSelectedPlayer();
     if (!target)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -906,7 +917,7 @@ bool ChatHandler::HandleModifyTalentCommand(char* args)
 }
 
 // Enable On\OFF all taxi paths
-bool ChatHandler::HandleTaxiCheatCommand(char* args)
+bool ChatHandler::HandleTaxiCheatCommand(char *args)
 {
     bool value;
     if (!ExtractOnOff(&args, value))
@@ -916,7 +927,7 @@ bool ChatHandler::HandleTaxiCheatCommand(char* args)
         return false;
     }
 
-    Player* chr = getSelectedPlayer();
+    Player *chr = getSelectedPlayer();
     if (!chr)
         chr = m_session->GetPlayer();
     // check online security
@@ -942,7 +953,7 @@ bool ChatHandler::HandleTaxiCheatCommand(char* args)
 }
 
 // Edit Player Aspeed
-bool ChatHandler::HandleModifyASpeedCommand(char* args)
+bool ChatHandler::HandleModifyASpeedCommand(char *args)
 {
     if (!*args)
         return false;
@@ -956,7 +967,7 @@ bool ChatHandler::HandleModifyASpeedCommand(char* args)
         return false;
     }
 
-    Player* chr = getSelectedPlayer();
+    Player *chr = getSelectedPlayer();
     if (chr == nullptr)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -981,16 +992,16 @@ bool ChatHandler::HandleModifyASpeedCommand(char* args)
     if (needReportToTarget(chr))
         ChatHandler(chr).PSendSysMessage(LANG_YOURS_ASPEED_CHANGED, GetNameLink().c_str(), modSpeed);
 
-    chr->UpdateSpeed(MOVE_WALK,   true, modSpeed);
-    chr->UpdateSpeed(MOVE_RUN,    true, modSpeed);
-    chr->UpdateSpeed(MOVE_SWIM,   true, modSpeed);
+    chr->UpdateSpeed(MOVE_WALK, true, modSpeed);
+    chr->UpdateSpeed(MOVE_RUN, true, modSpeed);
+    chr->UpdateSpeed(MOVE_SWIM, true, modSpeed);
     // chr->UpdateSpeed(MOVE_TURN,   true, modSpeed);
     chr->UpdateSpeed(MOVE_FLIGHT, true, modSpeed);
     return true;
 }
 
 // Edit Player Speed
-bool ChatHandler::HandleModifySpeedCommand(char* args)
+bool ChatHandler::HandleModifySpeedCommand(char *args)
 {
     if (!*args)
         return false;
@@ -1004,7 +1015,7 @@ bool ChatHandler::HandleModifySpeedCommand(char* args)
         return false;
     }
 
-    Player* chr = getSelectedPlayer();
+    Player *chr = getSelectedPlayer();
     if (chr == nullptr)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -1035,7 +1046,7 @@ bool ChatHandler::HandleModifySpeedCommand(char* args)
 }
 
 // Edit Player Swim Speed
-bool ChatHandler::HandleModifySwimCommand(char* args)
+bool ChatHandler::HandleModifySwimCommand(char *args)
 {
     if (!*args)
         return false;
@@ -1049,7 +1060,7 @@ bool ChatHandler::HandleModifySwimCommand(char* args)
         return false;
     }
 
-    Player* chr = getSelectedPlayer();
+    Player *chr = getSelectedPlayer();
     if (chr == nullptr)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -1080,7 +1091,7 @@ bool ChatHandler::HandleModifySwimCommand(char* args)
 }
 
 // Edit Player Walk Speed
-bool ChatHandler::HandleModifyBWalkCommand(char* args)
+bool ChatHandler::HandleModifyBWalkCommand(char *args)
 {
     if (!*args)
         return false;
@@ -1094,7 +1105,7 @@ bool ChatHandler::HandleModifyBWalkCommand(char* args)
         return false;
     }
 
-    Player* chr = getSelectedPlayer();
+    Player *chr = getSelectedPlayer();
     if (chr == nullptr)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -1125,7 +1136,7 @@ bool ChatHandler::HandleModifyBWalkCommand(char* args)
 }
 
 // Edit Player Fly
-bool ChatHandler::HandleModifyFlyCommand(char* args)
+bool ChatHandler::HandleModifyFlyCommand(char *args)
 {
     if (!*args)
         return false;
@@ -1139,7 +1150,7 @@ bool ChatHandler::HandleModifyFlyCommand(char* args)
         return false;
     }
 
-    Player* chr = getSelectedPlayer();
+    Player *chr = getSelectedPlayer();
     if (chr == nullptr)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -1161,7 +1172,7 @@ bool ChatHandler::HandleModifyFlyCommand(char* args)
 }
 
 // Edit Player Scale
-bool ChatHandler::HandleModifyScaleCommand(char* args)
+bool ChatHandler::HandleModifyScaleCommand(char *args)
 {
     if (!*args)
         return false;
@@ -1174,7 +1185,7 @@ bool ChatHandler::HandleModifyScaleCommand(char* args)
         return false;
     }
 
-    Unit* target = getSelectedUnit();
+    Unit *target = getSelectedUnit();
     if (target == nullptr)
     {
         SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
@@ -1185,12 +1196,12 @@ bool ChatHandler::HandleModifyScaleCommand(char* args)
     if (target->GetTypeId() == TYPEID_PLAYER)
     {
         // check online security
-        if (HasLowerSecurity((Player*)target))
+        if (HasLowerSecurity((Player *)target))
             return false;
 
-        PSendSysMessage(LANG_YOU_CHANGE_SIZE, Scale, GetNameLink((Player*)target).c_str());
-        if (needReportToTarget((Player*)target))
-            ChatHandler((Player*)target).PSendSysMessage(LANG_YOURS_SIZE_CHANGED, GetNameLink().c_str(), Scale);
+        PSendSysMessage(LANG_YOU_CHANGE_SIZE, Scale, GetNameLink((Player *)target).c_str());
+        if (needReportToTarget((Player *)target))
+            ChatHandler((Player *)target).PSendSysMessage(LANG_YOURS_SIZE_CHANGED, GetNameLink().c_str(), Scale);
     }
 
     target->SetObjectScale(Scale);
@@ -1200,18 +1211,18 @@ bool ChatHandler::HandleModifyScaleCommand(char* args)
 }
 
 // Provide Player a random unusual mount
-bool ChatHandler::HandleModifyMountCommand(char* args)
+bool ChatHandler::HandleModifyMountCommand(char *args)
 {
     return ModifyMountCommandHelper(getSelectedPlayer(), args);
 }
 
 // Edit Player money
-bool ChatHandler::HandleModifyMoneyCommand(char* args)
+bool ChatHandler::HandleModifyMoneyCommand(char *args)
 {
     if (!*args)
         return false;
 
-    Player* chr = getSelectedPlayer();
+    Player *chr = getSelectedPlayer();
     if (chr == nullptr)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -1268,12 +1279,12 @@ bool ChatHandler::HandleModifyMoneyCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleModifyHonorCommand(char* args)
+bool ChatHandler::HandleModifyHonorCommand(char *args)
 {
     if (!*args)
         return false;
 
-    Player* target = getSelectedPlayer();
+    Player *target = getSelectedPlayer();
     if (!target)
     {
         SendSysMessage(LANG_PLAYER_NOT_FOUND);
@@ -1294,15 +1305,15 @@ bool ChatHandler::HandleModifyHonorCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleTeleCommand(char* args)
+bool ChatHandler::HandleTeleCommand(char *args)
 {
     if (!*args)
         return false;
 
-    Player* _player = m_session->GetPlayer();
+    Player *_player = m_session->GetPlayer();
 
     // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
-    GameTele const* tele = ExtractGameTeleFromLink(&args);
+    GameTele const *tele = ExtractGameTeleFromLink(&args);
 
     if (!tele)
     {
@@ -1311,10 +1322,11 @@ bool ChatHandler::HandleTeleCommand(char* args)
         return false;
     }
 
-    return HandleGoHelper(_player, tele->mapId, tele->position_x, tele->position_y, &tele->position_z, &tele->orientation);
+    return HandleGoHelper(_player, tele->mapId, tele->position_x, tele->position_y, &tele->position_z,
+                          &tele->orientation);
 }
 
-bool ChatHandler::HandleLookupAreaCommand(char* args)
+bool ChatHandler::HandleLookupAreaCommand(char *args)
 {
     if (!*args)
         return false;
@@ -1325,7 +1337,7 @@ bool ChatHandler::HandleLookupAreaCommand(char* args)
     if (!Utf8toWStr(namepart, wnamepart))
         return false;
 
-    uint32 counter = 0;                                     // Counter for figure out that we found smth.
+    uint32 counter = 0; // Counter for figure out that we found smth.
 
     // converting string that we try to find to lower case
     wstrToLower(wnamepart);
@@ -1333,7 +1345,7 @@ bool ChatHandler::HandleLookupAreaCommand(char* args)
     // Search in AreaTable.dbc
     for (uint32 areaflag = 0; areaflag < sAreaStore.GetNumRows(); ++areaflag)
     {
-        AreaTableEntry const* areaEntry = sAreaStore.LookupEntry(areaflag);
+        AreaTableEntry const *areaEntry = sAreaStore.LookupEntry(areaflag);
         if (areaEntry)
         {
             int loc = GetSessionDbcLocale();
@@ -1363,7 +1375,8 @@ bool ChatHandler::HandleLookupAreaCommand(char* args)
                 // send area in "id - [name]" format
                 std::ostringstream ss;
                 if (m_session)
-                    ss << areaEntry->ID << " - |cffffffff|Harea:" << areaEntry->ID << "|h[" << name << " " << localeNames[loc] << "]|h|r";
+                    ss << areaEntry->ID << " - |cffffffff|Harea:" << areaEntry->ID << "|h[" << name << " "
+                       << localeNames[loc] << "]|h|r";
                 else
                     ss << areaEntry->ID << " - " << name << " " << localeNames[loc];
 
@@ -1374,14 +1387,14 @@ bool ChatHandler::HandleLookupAreaCommand(char* args)
         }
     }
 
-    if (counter == 0)                                      // if counter == 0 then we found nth
+    if (counter == 0) // if counter == 0 then we found nth
         SendSysMessage(LANG_COMMAND_NOAREAFOUND);
 
     return true;
 }
 
 // Find tele in game_tele order by name
-bool ChatHandler::HandleLookupTeleCommand(char* args)
+bool ChatHandler::HandleLookupTeleCommand(char *args)
 {
     if (!*args)
     {
@@ -1401,10 +1414,10 @@ bool ChatHandler::HandleLookupTeleCommand(char* args)
 
     std::ostringstream reply;
 
-    GameTeleMap const& teleMap = sObjectMgr.GetGameTeleMap();
-    for (const auto& itr : teleMap)
+    GameTeleMap const &teleMap = sObjectMgr.GetGameTeleMap();
+    for (const auto &itr : teleMap)
     {
-        GameTele const* tele = &itr.second;
+        GameTele const *tele = &itr.second;
 
         if (tele->wnameLow.find(wnamepart) == std::wstring::npos)
             continue;
@@ -1424,7 +1437,7 @@ bool ChatHandler::HandleLookupTeleCommand(char* args)
 }
 
 // Enable\Dissable accept whispers (for GM)
-bool ChatHandler::HandleWhispersCommand(char* args)
+bool ChatHandler::HandleWhispersCommand(char *args)
 {
     if (!*args)
     {
@@ -1457,7 +1470,7 @@ bool ChatHandler::HandleWhispersCommand(char* args)
 }
 
 // Save all players in the world
-bool ChatHandler::HandleSaveAllCommand(char* /*args*/)
+bool ChatHandler::HandleSaveAllCommand(char * /*args*/)
 {
     sObjectAccessor.SaveAllPlayers();
     SendSysMessage(LANG_PLAYERS_SAVED);
@@ -1465,10 +1478,10 @@ bool ChatHandler::HandleSaveAllCommand(char* /*args*/)
 }
 
 // Send mail by command
-bool ChatHandler::HandleSendMailCommand(char* args)
+bool ChatHandler::HandleSendMailCommand(char *args)
 {
     // format: name "subject text" "mail text"
-    Player* target;
+    Player *target;
     ObjectGuid target_guid;
     std::string target_name;
     if (!ExtractPlayerTarget(&args, &target, &target_guid, &target_name))
@@ -1481,7 +1494,8 @@ bool ChatHandler::HandleSendMailCommand(char* args)
         return false;
 
     // from console show nonexistent sender
-    MailSender sender(MAIL_NORMAL, m_session ? m_session->GetPlayer()->GetObjectGuid().GetCounter() : 0, MAIL_STATIONERY_GM);
+    MailSender sender(MAIL_NORMAL, m_session ? m_session->GetPlayer()->GetObjectGuid().GetCounter() : 0,
+                      MAIL_STATIONERY_GM);
 
     draft.SendMailTo(MailReceiver(target, target_guid), sender);
 
@@ -1491,18 +1505,18 @@ bool ChatHandler::HandleSendMailCommand(char* args)
 }
 
 // teleport player to given game_tele.entry
-bool ChatHandler::HandleTeleNameCommand(char* args)
+bool ChatHandler::HandleTeleNameCommand(char *args)
 {
-    char* nameStr = ExtractOptNotLastArg(&args);
+    char *nameStr = ExtractOptNotLastArg(&args);
 
-    Player* target;
+    Player *target;
     ObjectGuid target_guid;
     std::string target_name;
     if (!ExtractPlayerTarget(&nameStr, &target, &target_guid, &target_name))
         return false;
 
     // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
-    GameTele const* tele = ExtractGameTeleFromLink(&args);
+    GameTele const *tele = ExtractGameTeleFromLink(&args);
     if (!tele)
     {
         SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
@@ -1529,7 +1543,8 @@ bool ChatHandler::HandleTeleNameCommand(char* args)
         if (needReportToTarget(target))
             ChatHandler(target).PSendSysMessage(LANG_TELEPORTED_TO_BY, GetNameLink().c_str());
 
-        return HandleGoHelper(target, tele->mapId, tele->position_x, tele->position_y, &tele->position_z, &tele->orientation);
+        return HandleGoHelper(target, tele->mapId, tele->position_x, tele->position_y, &tele->position_z,
+                              &tele->orientation);
     }
     // check offline security
     if (HasLowerSecurity(nullptr, target_guid))
@@ -1538,20 +1553,20 @@ bool ChatHandler::HandleTeleNameCommand(char* args)
     std::string nameLink = playerLink(target_name);
 
     PSendSysMessage(LANG_TELEPORTING_TO, nameLink.c_str(), GetMangosString(LANG_OFFLINE), tele->name.c_str());
-    Player::SavePositionInDB(target_guid, tele->mapId,
-        tele->position_x, tele->position_y, tele->position_z, tele->orientation,
-        sTerrainMgr.GetZoneId(tele->mapId, tele->position_x, tele->position_y, tele->position_z));
+    Player::SavePositionInDB(target_guid, tele->mapId, tele->position_x, tele->position_y, tele->position_z,
+                             tele->orientation,
+                             sTerrainMgr.GetZoneId(tele->mapId, tele->position_x, tele->position_y, tele->position_z));
 
     return true;
 }
 
 // Teleport group to given game_tele.entry
-bool ChatHandler::HandleTeleGroupCommand(char* args)
+bool ChatHandler::HandleTeleGroupCommand(char *args)
 {
     if (!*args)
         return false;
 
-    Player* player = getSelectedPlayer();
+    Player *player = getSelectedPlayer();
     if (!player)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -1564,7 +1579,7 @@ bool ChatHandler::HandleTeleGroupCommand(char* args)
         return false;
 
     // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
-    GameTele const* tele = ExtractGameTeleFromLink(&args);
+    GameTele const *tele = ExtractGameTeleFromLink(&args);
     if (!tele)
     {
         SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
@@ -1574,7 +1589,7 @@ bool ChatHandler::HandleTeleGroupCommand(char* args)
 
     std::string nameLink = GetNameLink(player);
 
-    Group* grp = player->GetGroup();
+    Group *grp = player->GetGroup();
     if (!grp)
     {
         PSendSysMessage(LANG_NOT_IN_GROUP, nameLink.c_str());
@@ -1582,9 +1597,9 @@ bool ChatHandler::HandleTeleGroupCommand(char* args)
         return false;
     }
 
-    for (GroupReference* itr = grp->GetFirstMember(); itr != nullptr; itr = itr->next())
+    for (GroupReference *itr = grp->GetFirstMember(); itr != nullptr; itr = itr->next())
     {
-        Player* pl = itr->getSource();
+        Player *pl = itr->getSource();
 
         if (!pl || !pl->GetSession())
             continue;
@@ -1616,9 +1631,9 @@ bool ChatHandler::HandleTeleGroupCommand(char* args)
 }
 
 // Summon group of player
-bool ChatHandler::HandleGroupgoCommand(char* args)
+bool ChatHandler::HandleGroupgoCommand(char *args)
 {
-    Player* target;
+    Player *target;
     if (!ExtractPlayerTarget(&args, &target))
         return false;
 
@@ -1626,7 +1641,7 @@ bool ChatHandler::HandleGroupgoCommand(char* args)
     if (HasLowerSecurity(target))
         return false;
 
-    Group* grp = target->GetGroup();
+    Group *grp = target->GetGroup();
 
     std::string nameLink = GetNameLink(target);
 
@@ -1637,24 +1652,24 @@ bool ChatHandler::HandleGroupgoCommand(char* args)
         return false;
     }
 
-    Player* player = m_session->GetPlayer();
-    Map* gmMap = player->GetMap();
-    bool to_instance =  gmMap->Instanceable();
+    Player *player = m_session->GetPlayer();
+    Map *gmMap = player->GetMap();
+    bool to_instance = gmMap->Instanceable();
 
-    // we are in instance, and can summon only player in our group with us as lead
-    if (to_instance && (
-                !player->GetGroup() || (grp->GetLeaderGuid() != player->GetObjectGuid()) ||
-                (player->GetGroup()->GetLeaderGuid() != player->GetObjectGuid())))
-        // the last check is a bit excessive, but let it be, just in case
+    // we are in instance, and can summon only player in our group with us as
+    // lead
+    if (to_instance && (!player->GetGroup() || (grp->GetLeaderGuid() != player->GetObjectGuid()) ||
+                        (player->GetGroup()->GetLeaderGuid() != player->GetObjectGuid())))
+    // the last check is a bit excessive, but let it be, just in case
     {
         SendSysMessage(LANG_CANNOT_SUMMON_TO_INST);
         SetSentErrorMessage(true);
         return false;
     }
 
-    for (GroupReference* itr = grp->GetFirstMember(); itr != nullptr; itr = itr->next())
+    for (GroupReference *itr = grp->GetFirstMember(); itr != nullptr; itr = itr->next())
     {
-        Player* pl = itr->getSource();
+        Player *pl = itr->getSource();
 
         if (!pl || pl == m_session->GetPlayer() || !pl->GetSession())
             continue;
@@ -1674,7 +1689,7 @@ bool ChatHandler::HandleGroupgoCommand(char* args)
 
         if (to_instance)
         {
-            Map* plMap = pl->GetMap();
+            Map *plMap = pl->GetMap();
 
             if (plMap->Instanceable() && plMap->GetInstanceId() != gmMap->GetInstanceId())
             {
@@ -1702,7 +1717,7 @@ bool ChatHandler::HandleGroupgoCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleGoHelper(Player* player, uint32 mapid, float x, float y, float const* zPtr, float const* ortPtr)
+bool ChatHandler::HandleGoHelper(Player *player, uint32 mapid, float x, float y, float const *zPtr, float const *ortPtr)
 {
     float z;
     float ort = player->GetOrientation();
@@ -1726,7 +1741,7 @@ bool ChatHandler::HandleGoHelper(Player* player, uint32 mapid, float x, float y,
             player->UpdateAllowedPositionZ(x, y, z);
         else
         {
-            TerrainInfo const* map = sTerrainMgr.LoadTerrain(mapid);
+            TerrainInfo const *map = sTerrainMgr.LoadTerrain(mapid);
             float groundZ = map->GetHeightStatic(x, y, z);
             z = map->GetWaterOrGroundLevel(x, y, MAX_HEIGHT, groundZ);
         }
@@ -1741,7 +1756,7 @@ bool ChatHandler::HandleGoHelper(Player* player, uint32 mapid, float x, float y,
             return false;
         }
 
-        TerrainInfo const* map = sTerrainMgr.LoadTerrain(mapid);
+        TerrainInfo const *map = sTerrainMgr.LoadTerrain(mapid);
         float groundZ = player->GetMap()->GetHeight(x, y, 0.f);
         z = map->GetWaterOrGroundLevel(x, y, MAX_HEIGHT, groundZ);
     }
@@ -1755,15 +1770,15 @@ bool ChatHandler::HandleGoHelper(Player* player, uint32 mapid, float x, float y,
     return true;
 }
 
-bool ChatHandler::HandleGoTaxinodeCommand(char* args)
+bool ChatHandler::HandleGoTaxinodeCommand(char *args)
 {
-    Player* _player = m_session->GetPlayer();
+    Player *_player = m_session->GetPlayer();
 
     uint32 nodeId;
     if (!ExtractUint32KeyFromLink(&args, "Htaxinode", nodeId))
         return false;
 
-    TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(nodeId);
+    TaxiNodesEntry const *node = sTaxiNodesStore.LookupEntry(nodeId);
     if (!node)
     {
         PSendSysMessage(LANG_COMMAND_GOTAXINODENOTFOUND, nodeId);
@@ -1781,12 +1796,12 @@ bool ChatHandler::HandleGoTaxinodeCommand(char* args)
     return HandleGoHelper(_player, node->map_id, node->x, node->y, &node->z);
 }
 
-bool ChatHandler::HandleGoCommand(char* args)
+bool ChatHandler::HandleGoCommand(char *args)
 {
     if (!*args)
         return false;
 
-    Player* _player = m_session->GetPlayer();
+    Player *_player = m_session->GetPlayer();
 
     uint32 mapid;
     float x, y, z;
@@ -1810,12 +1825,10 @@ bool ChatHandler::HandleGoCommand(char* args)
     return HandleGoHelper(_player, mapid, x, y, &z);
 }
 
-
-
 // teleport at coordinates
-bool ChatHandler::HandleGoXYCommand(char* args)
+bool ChatHandler::HandleGoXYCommand(char *args)
 {
-    Player* _player = m_session->GetPlayer();
+    Player *_player = m_session->GetPlayer();
 
     float x;
     if (!ExtractFloat(&args, x))
@@ -1833,20 +1846,20 @@ bool ChatHandler::HandleGoXYCommand(char* args)
 }
 
 // teleport at coordinates, including Z
-bool ChatHandler::HandleGoXYZCommand(char* args)
+bool ChatHandler::HandleGoXYZCommand(char *args)
 {
     if (!*args)
         return false;
 
-    Player* _player = m_session->GetPlayer();
+    Player *_player = m_session->GetPlayer();
 
     std::string argsStr(args);
     std::replace(argsStr.begin(), argsStr.end(), ',', ' ');
 
-    char* px = strtok((char*)argsStr.c_str(), " ");
-    char* py = strtok(nullptr, " ");
-    char* pz = strtok(nullptr, " ");
-    char* pmapid = strtok(nullptr, " ");
+    char *px = strtok((char *)argsStr.c_str(), " ");
+    char *py = strtok(nullptr, " ");
+    char *pz = strtok(nullptr, " ");
+    char *pmapid = strtok(nullptr, " ");
 
     if (!px || !py || !pz)
         return false;
@@ -1871,9 +1884,9 @@ bool ChatHandler::HandleGoXYZCommand(char* args)
 }
 
 // teleport at coordinates
-bool ChatHandler::HandleGoZoneXYCommand(char* args)
+bool ChatHandler::HandleGoZoneXYCommand(char *args)
 {
-    Player* _player = m_session->GetPlayer();
+    Player *_player = m_session->GetPlayer();
 
     float x;
     if (!ExtractFloat(&args, x))
@@ -1892,7 +1905,7 @@ bool ChatHandler::HandleGoZoneXYCommand(char* args)
     else
         areaid = _player->GetZoneId();
 
-    AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(areaid);
+    AreaTableEntry const *areaEntry = GetAreaEntryByAreaID(areaid);
 
     if (x < 0 || x > 100 || y < 0 || y > 100 || !areaEntry)
     {
@@ -1901,10 +1914,11 @@ bool ChatHandler::HandleGoZoneXYCommand(char* args)
         return false;
     }
 
-    // update to parent zone if exist (client map show only zones without parents)
-    AreaTableEntry const* zoneEntry = areaEntry->zone ? GetAreaEntryByAreaID(areaEntry->zone) : areaEntry;
+    // update to parent zone if exist (client map show only zones without
+    // parents)
+    AreaTableEntry const *zoneEntry = areaEntry->zone ? GetAreaEntryByAreaID(areaEntry->zone) : areaEntry;
 
-    MapEntry const* mapEntry = sMapStore.LookupEntry(zoneEntry->mapid);
+    MapEntry const *mapEntry = sMapStore.LookupEntry(zoneEntry->mapid);
 
     if (mapEntry->Instanceable())
     {
@@ -1926,9 +1940,9 @@ bool ChatHandler::HandleGoZoneXYCommand(char* args)
 }
 
 // teleport to grid
-bool ChatHandler::HandleGoGridCommand(char* args)
+bool ChatHandler::HandleGoGridCommand(char *args)
 {
-    Player* _player = m_session->GetPlayer();
+    Player *_player = m_session->GetPlayer();
 
     float grid_x;
     if (!ExtractFloat(&args, grid_x))
@@ -1949,15 +1963,15 @@ bool ChatHandler::HandleGoGridCommand(char* args)
     return HandleGoHelper(_player, mapid, x, y);
 }
 
-bool ChatHandler::HandleGoWarpCommand(char* args)
+bool ChatHandler::HandleGoWarpCommand(char *args)
 {
     if (!*args)
         return false;
 
-    Player* player = m_session->GetPlayer();
+    Player *player = m_session->GetPlayer();
 
-    char* arg1 = strtok((char*)args, " ");
-    char* arg2 = strtok(NULL, " ");
+    char *arg1 = strtok((char *)args, " ");
+    char *arg2 = strtok(NULL, " ");
 
     if (!arg1 || !arg2)
         return false;
@@ -1971,43 +1985,40 @@ bool ChatHandler::HandleGoWarpCommand(char* args)
 
     switch (dir)
     {
-        case 'x':
-        {
-            x = x + cosf(o) * value;
-            y = y + sinf(o) * value;
-            break;
-        }
-        case 'y':
-        {
-            x = x + cos(o - (M_PI_F / 2)) * value;
-            y = y + sin(o - (M_PI_F / 2)) * value;
-            break;
-        }
-        case 'z':
-        {
-            z = z + value;
-            break;
-        }
-        case 'o':
-        {
-            o = o - (value * M_PI_F / 180.0f);
-            if (o < 0.0f)
-                o += value * M_PI_F;
-            else if (o > 2 * M_PI_F)
-                o -= value * M_PI_F;
-            break;
-        }
-        default:
-            return false;
+    case 'x': {
+        x = x + cosf(o) * value;
+        y = y + sinf(o) * value;
+        break;
+    }
+    case 'y': {
+        x = x + cos(o - (M_PI_F / 2)) * value;
+        y = y + sin(o - (M_PI_F / 2)) * value;
+        break;
+    }
+    case 'z': {
+        z = z + value;
+        break;
+    }
+    case 'o': {
+        o = o - (value * M_PI_F / 180.0f);
+        if (o < 0.0f)
+            o += value * M_PI_F;
+        else if (o > 2 * M_PI_F)
+            o -= value * M_PI_F;
+        break;
+    }
+    default:
+        return false;
     }
 
     player->NearTeleportTo(x, y, z, o);
     return true;
 }
 
-bool ChatHandler::HandleModifyDrunkCommand(char* args)
+bool ChatHandler::HandleModifyDrunkCommand(char *args)
 {
-    if (!*args)    return false;
+    if (!*args)
+        return false;
 
     uint32 drunklevel = (uint32)atoi(args);
     if (drunklevel > 100)
@@ -2021,7 +2032,7 @@ bool ChatHandler::HandleModifyDrunkCommand(char* args)
 }
 
 // Enables or disables hiding of the staff badge
-bool ChatHandler::HandleGMChatCommand(char* args)
+bool ChatHandler::HandleGMChatCommand(char *args)
 {
     if (!*args)
     {
@@ -2054,7 +2065,7 @@ bool ChatHandler::HandleGMChatCommand(char* args)
     return true;
 }
 
-bool ChatHandler::ModifyMountCommandHelper(Player* target, char* args)
+bool ChatHandler::ModifyMountCommandHelper(Player *target, char *args)
 {
     if (!target)
     {
@@ -2091,135 +2102,139 @@ bool ChatHandler::ModifyMountCommandHelper(Player* target, char* args)
     // Land mounts - rarity is proportional to security level of the invoker
     switch (m_session->GetSecurity())
     {
-        case SEC_ADMINISTRATOR:     // Mounts that were never obtainable and have unique properties
+    case SEC_ADMINISTRATOR: // Mounts that were never obtainable and have
+                            // unique properties
+    {
+        if (fast)
+            pool.push_back(24576); // Chromatic Mount
+        else if (slow)
+            pool.push_back(32420); // Old Crappy McWeakSauce
+        else
+            pool.push_back(34068); // Summon Dodostrider
+    }
+    case SEC_GAMEMASTER: // Mounts that were never obtainable by players, cut
+                         // during development
+    {
+        if (fast)
         {
-            if (fast)
-                pool.push_back(24576);      // Chromatic Mount
-            else if (slow)
-                pool.push_back(32420);      // Old Crappy McWeakSauce
-            else
-                pool.push_back(34068);      // Summon Dodostrider
-        }
-        case SEC_GAMEMASTER:        // Mounts that were never obtainable by players, cut during development
-        {
-            if (fast)
+            if (target->GetTeam() == ALLIANCE)
             {
-                if (target->GetTeam() == ALLIANCE)
-                {
-                    pool.push_back(23220);  // Swift Dawnsaber
-                    pool.push_back(47037);  // Swift War Elekk
-                }
-
-                pool.push_back(39450);      // Tallstrider
+                pool.push_back(23220); // Swift Dawnsaber
+                pool.push_back(47037); // Swift War Elekk
             }
-            else if (slow)
-            {
-                if (target->GetTeam() == ALLIANCE)
-                {
-                    pool.push_back(468);    // White Stallion
-                    pool.push_back(471);    // Palomino Stallion
-                    pool.push_back(6896);   // Black Ram
-                    pool.push_back(6897);   // Blue Ram
-                    pool.push_back(10787);  // Panther
-                    pool.push_back(10788);  // Leopard
-                    pool.push_back(10790);  // Tiger
-                    pool.push_back(10792);  // Spotted Panther
-                    pool.push_back(15781);  // Steel Mechanostrider
-                    pool.push_back(16058);  // Primal Leopard
-                    pool.push_back(16059);  // Tawny Sabercat
-                    pool.push_back(16060);  // Golden Sabercat
-                    pool.push_back(17455);  // Purple Mechanostrider
-                    pool.push_back(17456);  // Red & Blue Mechanostrider
-                    pool.push_back(17458);  // Fluorescent Green Mechanostrider
-                }
-                else
-                {
-                    pool.push_back(459);    // Gray Wolf
-                    pool.push_back(578);    // Black Wolf
-                    pool.push_back(581);    // Winter Wolf
-                    pool.push_back(8980);   // Skeletal Horse
-                    pool.push_back(10795);  // Ivory Raptor
-                    pool.push_back(10798);  // Obsidian Raptor
-                    pool.push_back(18363);  // Riding Kodo
-                }
 
-                pool.push_back(25675);      // Reindeer
-                pool.push_back(42929);      // [DNT] Test Mount
+            pool.push_back(39450); // Tallstrider
+        }
+        else if (slow)
+        {
+            if (target->GetTeam() == ALLIANCE)
+            {
+                pool.push_back(468);   // White Stallion
+                pool.push_back(471);   // Palomino Stallion
+                pool.push_back(6896);  // Black Ram
+                pool.push_back(6897);  // Blue Ram
+                pool.push_back(10787); // Panther
+                pool.push_back(10788); // Leopard
+                pool.push_back(10790); // Tiger
+                pool.push_back(10792); // Spotted Panther
+                pool.push_back(15781); // Steel Mechanostrider
+                pool.push_back(16058); // Primal Leopard
+                pool.push_back(16059); // Tawny Sabercat
+                pool.push_back(16060); // Golden Sabercat
+                pool.push_back(17455); // Purple Mechanostrider
+                pool.push_back(17456); // Red & Blue Mechanostrider
+                pool.push_back(17458); // Fluorescent Green Mechanostrider
             }
             else
             {
-                pool.push_back(10800);      // Summon Brown Tallstrider
-                pool.push_back(10801);      // Summon Gray Tallstrider
-                pool.push_back(10802);      // Summon Pink Tallstrider
-                pool.push_back(10803);      // Summon Purple Tallstrider
-                pool.push_back(10804);      // Summon Turquoise Tallstrider
+                pool.push_back(459);   // Gray Wolf
+                pool.push_back(578);   // Black Wolf
+                pool.push_back(581);   // Winter Wolf
+                pool.push_back(8980);  // Skeletal Horse
+                pool.push_back(10795); // Ivory Raptor
+                pool.push_back(10798); // Obsidian Raptor
+                pool.push_back(18363); // Riding Kodo
             }
-        }
-        case SEC_MODERATOR:         // Mounts that were obtainable by players at some pont in the past and now extremely rare
-        {
-            if (fast)
-            {
-                if (target->GetTeam() == ALLIANCE)
-                {
-                    pool.push_back(15779);  // White Mechanostrider
-                    pool.push_back(16055);  // Nightsaber
-                    pool.push_back(16056);  // Frostsaber
-                    pool.push_back(16082);  // Palomino Stallion
-                    pool.push_back(16083);  // White Stallion
-                    pool.push_back(17459);  // Icy Blue Mechanostrider
-                    pool.push_back(17460);  // Frost Ram
-                    pool.push_back(17461);  // Black Ram
-                }
-                else
-                {
-                    pool.push_back(16080);  // Red Wolf
-                    pool.push_back(16081);  // Arctic Wolf
-                    pool.push_back(16084);  // Mottled Red Raptor
-                    pool.push_back(17450);  // Ivory Raptor
-                    pool.push_back(18991);  // Green Kodo
-                    pool.push_back(18992);  // Teal Kodo
-                };
 
-                pool.push_back(26656);      // Summon Black Qiraji Battle Tank
-            }
+            pool.push_back(25675); // Reindeer
+            pool.push_back(42929); // [DNT] Test Mount
         }
-        default:                        // Mounts that are obtainable by players but rare or somewhat restricted
+        else
         {
-            if (fast)
+            pool.push_back(10800); // Summon Brown Tallstrider
+            pool.push_back(10801); // Summon Gray Tallstrider
+            pool.push_back(10802); // Summon Pink Tallstrider
+            pool.push_back(10803); // Summon Purple Tallstrider
+            pool.push_back(10804); // Summon Turquoise Tallstrider
+        }
+    }
+    case SEC_MODERATOR: // Mounts that were obtainable by players at some pont
+                        // in the past and now extremely rare
+    {
+        if (fast)
+        {
+            if (target->GetTeam() == ALLIANCE)
             {
-                pool.push_back(17229);      // Winterspring Frostsaber
-                pool.push_back(17481);      // Deathcharger
-                pool.push_back(24242);      // Swift Razzashi Raptor
-                pool.push_back(24252);      // Swift Zulian Tiger
-                pool.push_back(25859);      // Reindeer
-                pool.push_back(36702);      // Fiery Warhorse
-                pool.push_back(41252);      // Raven Lord
-                pool.push_back(42683);      // Swift Magic Broom
-                pool.push_back(42777);      // Swift Spectral Tiger
-                pool.push_back(43688);      // Amani War Bear
-                pool.push_back(43900);      // Swift Brewfest Ram
-                pool.push_back(46628);      // Swift White Hawkstrider
-                pool.push_back(48024);      // Headless Horseman's Mount
-                pool.push_back(48954);      // Swift Zhevra
-                pool.push_back(49379);      // Great Brewfest Kodo
-                pool.push_back(51412);      // Big Battle Bear
-            }
-            else if (slow)
-            {
-                pool.push_back(25858);      // Reindeer
-                pool.push_back(42680);      // Magic Broom
-                pool.push_back(42776);      // Spectral Tiger
-                pool.push_back(43899);      // Brewfest Ram
-                pool.push_back(49378);      // Brewfest Kodo
-                pool.push_back(51621);      // Headless Horseman's Unruly Mount
+                pool.push_back(15779); // White Mechanostrider
+                pool.push_back(16055); // Nightsaber
+                pool.push_back(16056); // Frostsaber
+                pool.push_back(16082); // Palomino Stallion
+                pool.push_back(16083); // White Stallion
+                pool.push_back(17459); // Icy Blue Mechanostrider
+                pool.push_back(17460); // Frost Ram
+                pool.push_back(17461); // Black Ram
             }
             else
             {
-                pool.push_back(30174);      // Riding Turtle
-                pool.push_back(42692);      // Rickety Magic Broom
-                pool.push_back(49908);      // Pink Elekk
-            }
+                pool.push_back(16080); // Red Wolf
+                pool.push_back(16081); // Arctic Wolf
+                pool.push_back(16084); // Mottled Red Raptor
+                pool.push_back(17450); // Ivory Raptor
+                pool.push_back(18991); // Green Kodo
+                pool.push_back(18992); // Teal Kodo
+            };
+
+            pool.push_back(26656); // Summon Black Qiraji Battle Tank
         }
+    }
+    default: // Mounts that are obtainable by players but rare or somewhat
+             // restricted
+    {
+        if (fast)
+        {
+            pool.push_back(17229); // Winterspring Frostsaber
+            pool.push_back(17481); // Deathcharger
+            pool.push_back(24242); // Swift Razzashi Raptor
+            pool.push_back(24252); // Swift Zulian Tiger
+            pool.push_back(25859); // Reindeer
+            pool.push_back(36702); // Fiery Warhorse
+            pool.push_back(41252); // Raven Lord
+            pool.push_back(42683); // Swift Magic Broom
+            pool.push_back(42777); // Swift Spectral Tiger
+            pool.push_back(43688); // Amani War Bear
+            pool.push_back(43900); // Swift Brewfest Ram
+            pool.push_back(46628); // Swift White Hawkstrider
+            pool.push_back(48024); // Headless Horseman's Mount
+            pool.push_back(48954); // Swift Zhevra
+            pool.push_back(49379); // Great Brewfest Kodo
+            pool.push_back(51412); // Big Battle Bear
+        }
+        else if (slow)
+        {
+            pool.push_back(25858); // Reindeer
+            pool.push_back(42680); // Magic Broom
+            pool.push_back(42776); // Spectral Tiger
+            pool.push_back(43899); // Brewfest Ram
+            pool.push_back(49378); // Brewfest Kodo
+            pool.push_back(51621); // Headless Horseman's Unruly Mount
+        }
+        else
+        {
+            pool.push_back(30174); // Riding Turtle
+            pool.push_back(42692); // Rickety Magic Broom
+            pool.push_back(49908); // Pink Elekk
+        }
+    }
     }
 
     const uint32 flags = (TRIGGERED_OLD_TRIGGERED | TRIGGERED_INSTANT_CAST | TRIGGERED_DO_NOT_PROC);
@@ -2251,9 +2266,9 @@ bool ChatHandler::ModifyMountCommandHelper(Player* target, char* args)
     return false;
 }
 
-bool ChatHandler::HandleSetViewCommand(char* /*args*/)
+bool ChatHandler::HandleSetViewCommand(char * /*args*/)
 {
-    if (Unit* unit = getSelectedUnit())
+    if (Unit *unit = getSelectedUnit())
         m_session->GetPlayer()->GetCamera().SetView(unit);
     else
     {
@@ -2265,18 +2280,18 @@ bool ChatHandler::HandleSetViewCommand(char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleChannelListCommand(char* args)
+bool ChatHandler::HandleChannelListCommand(char *args)
 {
     uint32 max = 10;
 
     ExtractUInt32(&args, max);
     const bool statics = ExtractLiteralArg(&args, "static");
 
-    auto const& map = channelMgr(GetSession()->GetPlayer()->GetTeam())->GetChannels();
+    auto const &map = channelMgr(GetSession()->GetPlayer()->GetTeam())->GetChannels();
 
-    std::list<Channel const*> list;
+    std::list<Channel const *> list;
 
-    for (auto const& pair : map)
+    for (auto const &pair : map)
     {
         if (pair.second->IsConstant() || pair.second->IsStatic() != statics)
             continue;
@@ -2290,7 +2305,7 @@ bool ChatHandler::HandleChannelListCommand(char* args)
     {
         PSendSysMessage(LANG_COMMAND_CHANNELS_LIST_HEADER, max);
 
-        list.sort([] (Channel const* a, Channel const* b) { return (a->GetNumPlayers() > b->GetNumPlayers()); });
+        list.sort([](Channel const *a, Channel const *b) { return (a->GetNumPlayers() > b->GetNumPlayers()); });
 
         const size_t count = std::min(list.size(), size_t(max));
 
@@ -2300,7 +2315,7 @@ bool ChatHandler::HandleChannelListCommand(char* args)
         {
             std::ostringstream output;
 
-            output << "* " << '"' << (*itr)->GetName() << '"' << " - "  << (*itr)->GetNumPlayers();
+            output << "* " << '"' << (*itr)->GetName() << '"' << " - " << (*itr)->GetNumPlayers();
 
             if ((*itr)->IsStatic())
                 output << " " << GetMangosString(LANG_CHANNEL_CUSTOM_DETAILS_STATIC);
@@ -2315,9 +2330,9 @@ bool ChatHandler::HandleChannelListCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleChannelStaticCommand(char* args)
+bool ChatHandler::HandleChannelStaticCommand(char *args)
 {
-    char* name = ExtractLiteralArg(&args);
+    char *name = ExtractLiteralArg(&args);
 
     if (!name)
         return false;
@@ -2327,9 +2342,9 @@ bool ChatHandler::HandleChannelStaticCommand(char* args)
     if (!ExtractOnOff(&args, state))
         return false;
 
-    Player* player = GetSession()->GetPlayer();
-    ChannelMgr* manager = (player ? channelMgr(player->GetTeam()) : nullptr);
-    Channel* channel = (name && manager ? manager->GetChannel(name, player) : nullptr);
+    Player *player = GetSession()->GetPlayer();
+    ChannelMgr *manager = (player ? channelMgr(player->GetTeam()) : nullptr);
+    Channel *channel = (name && manager ? manager->GetChannel(name, player) : nullptr);
 
     if (!channel)
     {
@@ -2348,13 +2363,14 @@ bool ChatHandler::HandleChannelStaticCommand(char* args)
             SetSentErrorMessage(true);
             return false;
         }
-        PSendSysMessage(LANG_COMMAND_CHANNEL_STATIC_SUCCESS, channel->GetName().c_str(), GetMangosString((state ? LANG_ON : LANG_OFF)));
+        PSendSysMessage(LANG_COMMAND_CHANNEL_STATIC_SUCCESS, channel->GetName().c_str(),
+                        GetMangosString((state ? LANG_ON : LANG_OFF)));
     }
 
     return true;
 }
 
-bool ChatHandler::HandleReloadAnticheatCommand(char*)
+bool ChatHandler::HandleReloadAnticheatCommand(char *)
 {
     sAnticheatLib->Reload();
     SendSysMessage(">> Anticheat data reloaded");

@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,26 +18,29 @@
  */
 
 #include "GameEvents/GameEventMgr.h"
-#include "World/World.h"
-#include "Globals/ObjectMgr.h"
+
+#include "BattleGround/BattleGroundMgr.h"
 #include "Entities/ObjectGuid.h"
+#include "GameEvents/moon.h"
+#include "Globals/ObjectMgr.h"
+#include "Log.h"
+#include "Mails/MassMailMgr.h"
+#include "Maps/MapManager.h"
+#include "Policies/Singleton.h"
 #include "Pools/PoolManager.h"
 #include "ProgressBar.h"
-#include "Tools/Language.h"
-#include "Log.h"
-#include "Maps/MapManager.h"
-#include "BattleGround/BattleGroundMgr.h"
-#include "Mails/MassMailMgr.h"
 #include "Server/SQLStorages.h"
-#include "Policies/Singleton.h"
-#include "GameEvents/moon.h"
+#include "Tools/Language.h"
+#include "World/World.h"
 
 INSTANTIATE_SINGLETON_1(GameEventMgr);
 
 bool GameEventMgr::CheckOneGameEvent(uint16 entry, time_t currenttime) const
 {
     // Get the event information
-    return m_gameEvents[entry].start < currenttime && currenttime < m_gameEvents[entry].end && ((currenttime - m_gameEvents[entry].start) % (m_gameEvents[entry].occurence * MINUTE)) < (m_gameEvents[entry].length * MINUTE);
+    return m_gameEvents[entry].start < currenttime && currenttime < m_gameEvents[entry].end &&
+           ((currenttime - m_gameEvents[entry].start) % (m_gameEvents[entry].occurence * MINUTE)) <
+               (m_gameEvents[entry].length * MINUTE);
 }
 
 uint32 GameEventMgr::NextCheck(uint16 entry) const
@@ -53,13 +57,16 @@ uint32 GameEventMgr::NextCheck(uint16 entry) const
 
     uint32 delay;
     // in event, we return the end of it
-    if ((((currenttime - m_gameEvents[entry].start) % (m_gameEvents[entry].occurence * 60)) < (m_gameEvents[entry].length * 60)))
+    if ((((currenttime - m_gameEvents[entry].start) % (m_gameEvents[entry].occurence * 60)) <
+         (m_gameEvents[entry].length * 60)))
         // we return the delay before it ends
-        delay = (m_gameEvents[entry].length * MINUTE) - ((currenttime - m_gameEvents[entry].start) % (m_gameEvents[entry].occurence * MINUTE));
-    else                                                    // not in window, we return the delay before next start
-        delay = (m_gameEvents[entry].occurence * MINUTE) - ((currenttime - m_gameEvents[entry].start) % (m_gameEvents[entry].occurence * MINUTE));
+        delay = (m_gameEvents[entry].length * MINUTE) -
+                ((currenttime - m_gameEvents[entry].start) % (m_gameEvents[entry].occurence * MINUTE));
+    else // not in window, we return the delay before next start
+        delay = (m_gameEvents[entry].occurence * MINUTE) -
+                ((currenttime - m_gameEvents[entry].start) % (m_gameEvents[entry].occurence * MINUTE));
     // In case the end is before next check
-    if (m_gameEvents[entry].end  < time_t(currenttime + delay))
+    if (m_gameEvents[entry].end < time_t(currenttime + delay))
         return uint32(m_gameEvents[entry].end - currenttime);
     return delay;
 }
@@ -97,14 +104,16 @@ void GameEventMgr::LoadFromDB()
             return;
         }
 
-        Field* fields = result->Fetch();
+        Field *fields = result->Fetch();
 
         uint32 max_event_id = fields[0].GetUInt16();
 
         m_gameEvents.resize(max_event_id + 1);
     }
 
-    std::unique_ptr<QueryResult> result(WorldDatabase.Query("SELECT entry,schedule_type,occurence,length,holiday,linkedTo,EventGroup,description FROM game_event"));
+    std::unique_ptr<QueryResult> result(WorldDatabase.Query("SELECT "
+                                                            "entry,schedule_type,occurence,length,holiday,"
+                                                            "linkedTo,EventGroup,description FROM game_event"));
     if (!result)
     {
         m_gameEvents.clear();
@@ -119,47 +128,50 @@ void GameEventMgr::LoadFromDB()
         BarGoLink bar(result->GetRowCount());
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
 
             bar.step();
 
             uint16 event_id = fields[0].GetUInt16();
             if (event_id == 0)
             {
-                sLog.outErrorDb("`game_event` game event id (%i) is reserved and can't be used.", event_id);
+                sLog.outErrorDb("`game_event` game event id (%i) is reserved and "
+                                "can't be used.",
+                                event_id);
                 continue;
             }
 
-            GameEventData& gameEvent = m_gameEvents[event_id];
+            GameEventData &gameEvent = m_gameEvents[event_id];
             gameEvent.scheduleType = GameEventScheduleType(fields[1].GetUInt32());
-            gameEvent.occurence    = fields[2].GetUInt32();
-            gameEvent.length       = fields[3].GetUInt32();
-            gameEvent.holiday_id   = HolidayIds(fields[4].GetUInt32());
-            gameEvent.linkedTo     = fields[5].GetUInt32();
-            gameEvent.eventGroup   = fields[6].GetUInt32();
-            gameEvent.description  = fields[7].GetCppString();
+            gameEvent.occurence = fields[2].GetUInt32();
+            gameEvent.length = fields[3].GetUInt32();
+            gameEvent.holiday_id = HolidayIds(fields[4].GetUInt32());
+            gameEvent.linkedTo = fields[5].GetUInt32();
+            gameEvent.eventGroup = fields[6].GetUInt32();
+            gameEvent.description = fields[7].GetCppString();
 
             switch (gameEvent.scheduleType)
             {
-                case GAME_EVENT_SCHEDULE_SERVERSIDE:
-                    gameEvent.start = time_t(FAR_FUTURE);
-                    gameEvent.end = time_t(FAR_FUTURE);
-                    break;
-                case GAME_EVENT_SCHEDULE_YEARLY:
-                case GAME_EVENT_SCHEDULE_DATE: break; // loaded from table
-                case GAME_EVENT_SCHEDULE_DMF_1:
-                case GAME_EVENT_SCHEDULE_DMF_2:
-                case GAME_EVENT_SCHEDULE_DMF_3:
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_1:
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_2:
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_3:
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_1:
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_2:
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_3:
-                case GAME_EVENT_SCHEDULE_LUNAR_NEW_YEAR:
-                case GAME_EVENT_SCHEDULE_EASTER:
-                    ComputeEventStartAndEndTime(gameEvent, time(nullptr));
-                    break;
+            case GAME_EVENT_SCHEDULE_SERVERSIDE:
+                gameEvent.start = time_t(FAR_FUTURE);
+                gameEvent.end = time_t(FAR_FUTURE);
+                break;
+            case GAME_EVENT_SCHEDULE_YEARLY:
+            case GAME_EVENT_SCHEDULE_DATE:
+                break; // loaded from table
+            case GAME_EVENT_SCHEDULE_DMF_1:
+            case GAME_EVENT_SCHEDULE_DMF_2:
+            case GAME_EVENT_SCHEDULE_DMF_3:
+            case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_1:
+            case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_2:
+            case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_3:
+            case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_1:
+            case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_2:
+            case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_3:
+            case GAME_EVENT_SCHEDULE_LUNAR_NEW_YEAR:
+            case GAME_EVENT_SCHEDULE_EASTER:
+                ComputeEventStartAndEndTime(gameEvent, time(nullptr));
+                break;
             }
 
             if (gameEvent.occurence == 0)
@@ -168,34 +180,43 @@ void GameEventMgr::LoadFromDB()
                 gameEvent.start = time_t(FAR_FUTURE);
                 gameEvent.occurence = gameEvent.length;
             }
-			
-            if (gameEvent.length == 0 && gameEvent.scheduleType != GAME_EVENT_SCHEDULE_SERVERSIDE) // length>0 is validity check
+
+            if (gameEvent.length == 0 && gameEvent.scheduleType != GAME_EVENT_SCHEDULE_SERVERSIDE) // length>0 is
+                                                                                                   // validity check
             {
-                sLog.outErrorDb("`game_event` game event id (%i) have length 0 and can't be used.", event_id);
+                sLog.outErrorDb("`game_event` game event id (%i) have length 0 "
+                                "and can't be used.",
+                                event_id);
                 gameEvent.start = time_t(FAR_FUTURE);
             }
 
-            if (gameEvent.occurence < gameEvent.length)   // occurence < length is useless. This also asserts that occurence > 0!
+            if (gameEvent.occurence < gameEvent.length) // occurence < length is useless. This also
+                                                        // asserts that occurence > 0!
             {
-                sLog.outErrorDb("`game_event` game event id (%i) has occurence %u  < length %u and can't be used.", event_id, gameEvent.occurence, gameEvent.length);
+                sLog.outErrorDb("`game_event` game event id (%i) has occurence %u  < "
+                                "length %u and can't be used.",
+                                event_id, gameEvent.occurence, gameEvent.length);
                 gameEvent.start = time_t(FAR_FUTURE);
             }
 
             if (gameEvent.eventGroup)
             {
-                auto& group = m_gameEventGroups[gameEvent.eventGroup];
+                auto &group = m_gameEventGroups[gameEvent.eventGroup];
                 group.push_back(event_id);
             }
 
             ++count;
-        }
-        while (result->NextRow());
+        } while (result->NextRow());
 
         for (uint16 itr = 1; itr < m_gameEvents.size(); ++itr)
         {
-            if (m_gameEvents[itr].isValid() && m_gameEvents[itr].linkedTo != 0 && (m_gameEvents[itr].linkedTo >= m_gameEvents.size() || !m_gameEvents[m_gameEvents[itr].linkedTo].isValid()))
+            if (m_gameEvents[itr].isValid() && m_gameEvents[itr].linkedTo != 0 &&
+                (m_gameEvents[itr].linkedTo >= m_gameEvents.size() ||
+                 !m_gameEvents[m_gameEvents[itr].linkedTo].isValid()))
             {
-                sLog.outErrorDb("`game_event` game event id (%i) is Linked to invalid event %u", itr, m_gameEvents[itr].linkedTo);
+                sLog.outErrorDb("`game_event` game event id (%i) is Linked to "
+                                "invalid event %u",
+                                itr, m_gameEvents[itr].linkedTo);
                 m_gameEvents[itr].linkedTo = 0;
             }
         }
@@ -213,13 +234,16 @@ void GameEventMgr::LoadFromDB()
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
             uint16 event_id = fields[0].GetUInt16();
-            GameEventData& gameEvent = m_gameEvents[event_id];
+            GameEventData &gameEvent = m_gameEvents[event_id];
 
-            if (gameEvent.scheduleType != GAME_EVENT_SCHEDULE_DATE && gameEvent.scheduleType != GAME_EVENT_SCHEDULE_YEARLY)
+            if (gameEvent.scheduleType != GAME_EVENT_SCHEDULE_DATE &&
+                gameEvent.scheduleType != GAME_EVENT_SCHEDULE_YEARLY)
             {
-                sLog.outErrorDb("`game_event` game event id (%i) has game_event_time but is not date scheduled - ignoring", event_id);
+                sLog.outErrorDb("`game_event` game event id (%i) has game_event_time "
+                                "but is not date scheduled - ignoring",
+                                event_id);
                 continue;
             }
 
@@ -231,13 +255,12 @@ void GameEventMgr::LoadFromDB()
 
             if (gameEvent.scheduleType == GAME_EVENT_SCHEDULE_YEARLY)
                 ComputeEventStartAndEndTime(gameEvent, time(nullptr));
-        }
-        while (result->NextRow());
+        } while (result->NextRow());
     }
 
-    std::map<uint16, int16> pool2event;                     // for check unique spawn event associated with pool
-    std::map<uint32, int16> creature2event;                 // for check unique spawn event associated with creature
-    std::map<uint32, int16> go2event;                       // for check unique spawn event associated with gameobject
+    std::map<uint16, int16> pool2event;     // for check unique spawn event associated with pool
+    std::map<uint32, int16> creature2event; // for check unique spawn event associated with creature
+    std::map<uint32, int16> go2event;       // for check unique spawn event associated with gameobject
 
     // list only positive event top pools, filled at creature/gameobject loading
     m_gameEventSpawnPoolIds.resize(m_gameEvents.size());
@@ -245,7 +268,8 @@ void GameEventMgr::LoadFromDB()
     m_gameEventCreatureGuids.resize(m_gameEvents.size() * 2 - 1);
     //                                   1              2
     result.reset(WorldDatabase.Query("SELECT creature.guid, game_event_creature.event "
-                                 "FROM creature JOIN game_event_creature ON creature.guid = game_event_creature.guid"));
+                                     "FROM creature JOIN game_event_creature ON "
+                                     "creature.guid = game_event_creature.guid"));
 
     count = 0;
     if (!result)
@@ -261,11 +285,11 @@ void GameEventMgr::LoadFromDB()
         BarGoLink bar(result->GetRowCount());
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
 
             bar.step();
 
-            uint32 guid    = fields[0].GetUInt32();
+            uint32 guid = fields[0].GetUInt32();
             int16 event_id = fields[1].GetInt16();
 
             if (event_id == 0)
@@ -276,7 +300,9 @@ void GameEventMgr::LoadFromDB()
 
             if (!IsValidEvent(std::abs(event_id)))
             {
-                sLog.outErrorDb("`game_event_creature` game event id (%i) not exist in `game_event`", event_id);
+                sLog.outErrorDb("`game_event_creature` game event id (%i) not exist in "
+                                "`game_event`",
+                                event_id);
                 continue;
             }
 
@@ -284,19 +310,28 @@ void GameEventMgr::LoadFromDB()
 
             ++count;
 
-            // spawn objects at event can be grouped in pools and then affected pools have stricter requirements for this case
+            // spawn objects at event can be grouped in pools and then affected
+            // pools have stricter requirements for this case
             if (event_id > 0)
             {
                 creature2event[guid] = event_id;
 
-                // not list explicitly creatures from pools in event creature list
-                if (uint16 topPoolId =  sPoolMgr.IsPartOfTopPool<Creature>(guid))
+                // not list explicitly creatures from pools in event creature
+                // list
+                if (uint16 topPoolId = sPoolMgr.IsPartOfTopPool<Creature>(guid))
                 {
-                    int16& eventRef = pool2event[topPoolId];
+                    int16 &eventRef = pool2event[topPoolId];
                     if (eventRef != 0)
                     {
                         if (eventRef != event_id)
-                            sLog.outErrorDb("`game_event_creature` have creature (GUID: %u) for event %i from pool or subpool of pool (ID: %u) but pool have already content from event %i. Pool don't must have content for different events!", guid, event_id, topPoolId, eventRef);
+                            sLog.outErrorDb("`game_event_creature` have creature "
+                                            "(GUID: %u) for event %i "
+                                            "from pool or subpool of pool (ID: "
+                                            "%u) but pool have already "
+                                            "content from event %i. Pool don't "
+                                            "must have content for "
+                                            "different events!",
+                                            guid, event_id, topPoolId, eventRef);
                     }
                     else
                     {
@@ -309,10 +344,9 @@ void GameEventMgr::LoadFromDB()
                 }
             }
 
-            GuidList& crelist = m_gameEventCreatureGuids[internal_event_id];
+            GuidList &crelist = m_gameEventCreatureGuids[internal_event_id];
             crelist.push_back(guid);
-        }
-        while (result->NextRow());
+        } while (result->NextRow());
 
         sLog.outString();
         sLog.outString(">> Loaded %u creatures in game events", count);
@@ -321,7 +355,8 @@ void GameEventMgr::LoadFromDB()
     m_gameEventGameobjectGuids.resize(m_gameEvents.size() * 2 - 1);
     //                                   1                2
     result.reset(WorldDatabase.Query("SELECT gameobject.guid, game_event_gameobject.event "
-                                 "FROM gameobject JOIN game_event_gameobject ON gameobject.guid=game_event_gameobject.guid"));
+                                     "FROM gameobject JOIN game_event_gameobject ON "
+                                     "gameobject.guid=game_event_gameobject.guid"));
 
     count = 0;
     if (!result)
@@ -337,11 +372,11 @@ void GameEventMgr::LoadFromDB()
         BarGoLink bar(result->GetRowCount());
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
 
             bar.step();
 
-            uint32 guid    = fields[0].GetUInt32();
+            uint32 guid = fields[0].GetUInt32();
             int16 event_id = fields[1].GetInt16();
 
             if (event_id == 0)
@@ -352,7 +387,9 @@ void GameEventMgr::LoadFromDB()
 
             if (!IsValidEvent(std::abs(event_id)))
             {
-                sLog.outErrorDb("`game_event_gameobject` game event id (%i) not exist in `game_event`", event_id);
+                sLog.outErrorDb("`game_event_gameobject` game event id (%i) not exist "
+                                "in `game_event`",
+                                event_id);
                 continue;
             }
 
@@ -360,19 +397,28 @@ void GameEventMgr::LoadFromDB()
 
             ++count;
 
-            // spawn objects at event can be grouped in pools and then affected pools have stricter requirements for this case
+            // spawn objects at event can be grouped in pools and then affected
+            // pools have stricter requirements for this case
             if (event_id > 0)
             {
                 go2event[guid] = event_id;
 
-                // not list explicitly gameobjects from pools in event gameobject list
-                if (uint16 topPoolId =  sPoolMgr.IsPartOfTopPool<GameObject>(guid))
+                // not list explicitly gameobjects from pools in event gameobject
+                // list
+                if (uint16 topPoolId = sPoolMgr.IsPartOfTopPool<GameObject>(guid))
                 {
-                    int16& eventRef = pool2event[topPoolId];
+                    int16 &eventRef = pool2event[topPoolId];
                     if (eventRef != 0)
                     {
                         if (eventRef != event_id)
-                            sLog.outErrorDb("`game_event_gameobject` have gameobject (GUID: %u) for event %i from pool or subpool of pool (ID: %u) but pool have already content from event %i. Pool don't must have content for different events!", guid, event_id, topPoolId, eventRef);
+                            sLog.outErrorDb("`game_event_gameobject` have "
+                                            "gameobject (GUID: %u) for "
+                                            "event %i from pool or subpool of "
+                                            "pool (ID: %u) but pool "
+                                            "have already content from event %i. "
+                                            "Pool don't must have "
+                                            "content for different events!",
+                                            guid, event_id, topPoolId, eventRef);
                     }
                     else
                     {
@@ -385,17 +431,17 @@ void GameEventMgr::LoadFromDB()
                 }
             }
 
-            GuidList& golist = m_gameEventGameobjectGuids[internal_event_id];
+            GuidList &golist = m_gameEventGameobjectGuids[internal_event_id];
             golist.push_back(guid);
-        }
-        while (result->NextRow());
+        } while (result->NextRow());
 
         sLog.outString();
         sLog.outString(">> Loaded %u gameobjects in game events", count);
     }
 
-    // now recheck that all eventPools linked with events after our skip pools with parents
-    for (std::map<uint16, int16>::const_iterator itr = pool2event.begin(); itr != pool2event.end();  ++itr)
+    // now recheck that all eventPools linked with events after our skip pools
+    // with parents
+    for (std::map<uint16, int16>::const_iterator itr = pool2event.begin(); itr != pool2event.end(); ++itr)
     {
         uint16 pool_id = itr->first;
         int16 event_id = itr->second;
@@ -404,15 +450,19 @@ void GameEventMgr::LoadFromDB()
     }
 
     m_gameEventCreatureData.resize(m_gameEvents.size());
-    //                                   0              1                             2
-    result.reset(WorldDatabase.Query("SELECT creature.guid, game_event_creature_data.event, game_event_creature_data.modelid,"
-                                 //   3                                      4
-                                 "game_event_creature_data.equipment_id, game_event_creature_data.vendor_id, "
-                                 //   5                                     6
-                                 "game_event_creature_data.entry_id, game_event_creature_data.spell_start, "
-                                 //   7
-                                 "game_event_creature_data.spell_end "
-                                 "FROM creature JOIN game_event_creature_data ON creature.guid=game_event_creature_data.guid"));
+    //                                   0              1 2
+    result.reset(WorldDatabase.Query("SELECT creature.guid, game_event_creature_data.event, "
+                                     "game_event_creature_data.modelid,"
+                                     //   3                                      4
+                                     "game_event_creature_data.equipment_id, "
+                                     "game_event_creature_data.vendor_id, "
+                                     //   5                                     6
+                                     "game_event_creature_data.entry_id, "
+                                     "game_event_creature_data.spell_start, "
+                                     //   7
+                                     "game_event_creature_data.spell_end "
+                                     "FROM creature JOIN game_event_creature_data ON "
+                                     "creature.guid=game_event_creature_data.guid"));
 
     count = 0;
     if (!result)
@@ -428,26 +478,30 @@ void GameEventMgr::LoadFromDB()
         BarGoLink bar(result->GetRowCount());
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
 
             bar.step();
-            uint32 guid     = fields[0].GetUInt32();
+            uint32 guid = fields[0].GetUInt32();
             uint16 event_id = fields[1].GetUInt16();
 
             if (event_id == 0)
             {
-                sLog.outErrorDb("`game_event_creature_data` game event id (%i) is reserved and can't be used.", event_id);
+                sLog.outErrorDb("`game_event_creature_data` game event id (%i) is "
+                                "reserved and can't be used.",
+                                event_id);
                 continue;
             }
 
             if (!IsValidEvent(event_id))
             {
-                sLog.outErrorDb("`game_event_creature_data` game event id (%u) not exist in `game_event`", event_id);
+                sLog.outErrorDb("`game_event_creature_data` game event id (%u) not "
+                                "exist in `game_event`",
+                                event_id);
                 continue;
             }
 
             ++count;
-            GameEventCreatureDataList& equiplist = m_gameEventCreatureData[event_id];
+            GameEventCreatureDataList &equiplist = m_gameEventCreatureData[event_id];
             GameEventCreatureData newData;
             newData.modelid = fields[2].GetUInt32();
             newData.equipment_id = fields[3].GetUInt32();
@@ -456,45 +510,64 @@ void GameEventMgr::LoadFromDB()
             newData.spell_id_start = fields[6].GetUInt32();
             newData.spell_id_end = fields[7].GetUInt32();
 
-            if (newData.equipment_id && !sObjectMgr.GetEquipmentInfo(newData.equipment_id) && !sObjectMgr.GetEquipmentInfoRaw(newData.equipment_id))
+            if (newData.equipment_id && !sObjectMgr.GetEquipmentInfo(newData.equipment_id) &&
+                !sObjectMgr.GetEquipmentInfoRaw(newData.equipment_id))
             {
-                sLog.outErrorDb("Table `game_event_creature_data` have creature (Guid: %u) with equipment_id %u not found in table `creature_equip_template` or `creature_equip_template_raw`, set to no equipment.", guid, newData.equipment_id);
+                sLog.outErrorDb("Table `game_event_creature_data` have creature (Guid: %u) "
+                                "with "
+                                "equipment_id %u not found in table "
+                                "`creature_equip_template` or "
+                                "`creature_equip_template_raw`, set to no equipment.",
+                                guid, newData.equipment_id);
                 newData.equipment_id = 0;
             }
 
             if (newData.vendor_id)
             {
-                if (QueryResult* testResult = WorldDatabase.PQuery("SELECT 1 FROM npc_vendor_template where entry = '%u'", newData.vendor_id))
+                if (QueryResult *testResult =
+                        WorldDatabase.PQuery("SELECT 1 FROM npc_vendor_template where entry = '%u'", newData.vendor_id))
                     delete testResult;
                 else
                 {
-                    sLog.outErrorDb("Table `game_event_creature_data` has a creature with (Guid: %u) and vendor_id %u which was not found in table `npc_vendor_template`, set to no vendor.", guid, newData.vendor_id);
+                    sLog.outErrorDb("Table `game_event_creature_data` has a creature with "
+                                    "(Guid: %u) "
+                                    "and vendor_id %u which was not found in table "
+                                    "`npc_vendor_template`, set to no vendor.",
+                                    guid, newData.vendor_id);
                     newData.vendor_id = 0;
                 }
             }
 
             if (newData.entry_id && !ObjectMgr::GetCreatureTemplate(newData.entry_id))
             {
-                sLog.outErrorDb("Table `game_event_creature_data` have creature (Guid: %u) with event time entry %u not found in table `creature_template`, set to no 0.", guid, newData.entry_id);
+                sLog.outErrorDb("Table `game_event_creature_data` have creature (Guid: "
+                                "%u) with event time entry %u not found in table "
+                                "`creature_template`, set to no 0.",
+                                guid, newData.entry_id);
                 newData.entry_id = 0;
             }
 
             if (newData.spell_id_start && !sSpellTemplate.LookupEntry<SpellEntry>(newData.spell_id_start))
             {
-                sLog.outErrorDb("Table `game_event_creature_data` have creature (Guid: %u) with nonexistent spell_start %u, set to no start spell.", guid, newData.spell_id_start);
+                sLog.outErrorDb("Table `game_event_creature_data` have creature (Guid: %u) "
+                                "with "
+                                "nonexistent spell_start %u, set to no start spell.",
+                                guid, newData.spell_id_start);
                 newData.spell_id_start = 0;
             }
 
             if (newData.spell_id_end && !sSpellTemplate.LookupEntry<SpellEntry>(newData.spell_id_end))
             {
-                sLog.outErrorDb("Table `game_event_creature_data` have creature (Guid: %u) with nonexistent spell_end %u, set to no end spell.", guid, newData.spell_id_end);
+                sLog.outErrorDb("Table `game_event_creature_data` have creature (Guid: %u) "
+                                "with "
+                                "nonexistent spell_end %u, set to no end spell.",
+                                guid, newData.spell_id_end);
                 newData.spell_id_end = 0;
             }
 
             equiplist.push_back(GameEventCreatureDataPair(guid, newData));
             m_gameEventCreatureDataPerGuid.insert(GameEventCreatureDataPerGuidMap::value_type(guid, event_id));
-        }
-        while (result->NextRow());
+        } while (result->NextRow());
 
         sLog.outString();
         sLog.outString(">> Loaded %u creature reactions at game events", count);
@@ -518,41 +591,47 @@ void GameEventMgr::LoadFromDB()
         BarGoLink bar(result->GetRowCount());
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
 
             bar.step();
-            uint32 quest    = fields[0].GetUInt32();
+            uint32 quest = fields[0].GetUInt32();
             uint16 event_id = fields[1].GetUInt16();
 
             if (event_id == 0)
             {
-                sLog.outErrorDb("`game_event_quest` game event id (%i) is reserved and can't be used.", event_id);
+                sLog.outErrorDb("`game_event_quest` game event id (%i) is reserved and "
+                                "can't be used.",
+                                event_id);
                 continue;
             }
 
             if (!IsValidEvent(event_id))
             {
-                sLog.outErrorDb("`game_event_quest` game event id (%u) not exist in `game_event`", event_id);
+                sLog.outErrorDb("`game_event_quest` game event id (%u) not "
+                                "exist in `game_event`",
+                                event_id);
                 continue;
             }
 
-            const Quest* pQuest = sObjectMgr.GetQuestTemplate(quest);
+            const Quest *pQuest = sObjectMgr.GetQuestTemplate(quest);
 
             if (!pQuest)
             {
-                sLog.outErrorDb("Table `game_event_quest` contain entry for quest %u (event %u) but this quest does not exist. Skipping.", quest, event_id);
+                sLog.outErrorDb("Table `game_event_quest` contain entry for quest %u "
+                                "(event %u) but this quest does not exist. Skipping.",
+                                quest, event_id);
                 continue;
             }
 
-            // disable any event specific quest (for cases where creature is spawned, but event not active).
-            const_cast<Quest*>(pQuest)->SetQuestActiveState(false);
+            // disable any event specific quest (for cases where creature is
+            // spawned, but event not active).
+            const_cast<Quest *>(pQuest)->SetQuestActiveState(false);
 
             ++count;
 
-            QuestList& questlist = m_gameEventQuests[event_id];
+            QuestList &questlist = m_gameEventQuests[event_id];
             questlist.push_back(quest);
-        }
-        while (result->NextRow());
+        } while (result->NextRow());
 
         sLog.outString();
         sLog.outString(">> Loaded %u quest additions in game events", count);
@@ -560,7 +639,8 @@ void GameEventMgr::LoadFromDB()
 
     m_gameEventMails.resize(m_gameEvents.size() * 2 - 1);
 
-    result.reset(WorldDatabase.Query("SELECT event, raceMask, quest, mailTemplateId, senderEntry FROM game_event_mail"));
+    result.reset(WorldDatabase.Query("SELECT event, raceMask, quest, mailTemplateId, "
+                                     "senderEntry FROM game_event_mail"));
 
     count = 0;
     if (!result)
@@ -576,16 +656,16 @@ void GameEventMgr::LoadFromDB()
         BarGoLink bar(result->GetRowCount());
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
 
             bar.step();
             uint16 event_id = fields[0].GetUInt16();
 
             GameEventMail mail;
-            mail.raceMask       = fields[1].GetUInt32();
-            mail.questId        = fields[2].GetUInt32();
+            mail.raceMask = fields[1].GetUInt32();
+            mail.questId = fields[2].GetUInt32();
             mail.mailTemplateId = fields[3].GetUInt32();
-            mail.senderEntry    = fields[4].GetUInt32();
+            mail.senderEntry = fields[4].GetUInt32();
 
             if (event_id == 0)
             {
@@ -595,7 +675,9 @@ void GameEventMgr::LoadFromDB()
 
             if (!IsValidEvent(event_id))
             {
-                sLog.outErrorDb("`game_event_mail` game event id (%u) not exist in `game_event`", event_id);
+                sLog.outErrorDb("`game_event_mail` game event id (%u) not "
+                                "exist in `game_event`",
+                                event_id);
                 continue;
             }
 
@@ -603,55 +685,65 @@ void GameEventMgr::LoadFromDB()
 
             if (!(mail.raceMask & RACEMASK_ALL_PLAYABLE))
             {
-                sLog.outErrorDb("Table `game_event_mail` have raceMask (%u) requirement for game event %i that not include any player races, ignoring.", mail.raceMask, event_id);
+                sLog.outErrorDb("Table `game_event_mail` have raceMask (%u) requirement for "
+                                "game "
+                                "event %i that not include any player races, ignoring.",
+                                mail.raceMask, event_id);
                 continue;
             }
 
             if (mail.questId && !sObjectMgr.GetQuestTemplate(mail.questId))
             {
-                sLog.outErrorDb("Table `game_event_mail` have nonexistent quest (%u) requirement for game event %i, ignoring.", mail.questId, event_id);
+                sLog.outErrorDb("Table `game_event_mail` have nonexistent quest (%u) "
+                                "requirement for game event %i, ignoring.",
+                                mail.questId, event_id);
                 continue;
             }
 
             if (!sMailTemplateStore.LookupEntry(mail.mailTemplateId))
             {
-                sLog.outErrorDb("Table `game_event_mail` have invalid mailTemplateId (%u) for game event %i that invalid not include any player races, ignoring.", mail.mailTemplateId, event_id);
+                sLog.outErrorDb("Table `game_event_mail` have invalid "
+                                "mailTemplateId (%u) for game "
+                                "event %i that invalid not include any player "
+                                "races, ignoring.",
+                                mail.mailTemplateId, event_id);
                 continue;
             }
 
             if (!ObjectMgr::GetCreatureTemplate(mail.senderEntry))
             {
-                sLog.outErrorDb("Table `game_event_mail` have nonexistent sender creature entry (%u) for game event %i that invalid not include any player races, ignoring.", mail.senderEntry, event_id);
+                sLog.outErrorDb("Table `game_event_mail` have nonexistent sender "
+                                "creature entry (%u) for game event %i that invalid "
+                                "not include any player races, ignoring.",
+                                mail.senderEntry, event_id);
                 continue;
             }
 
             ++count;
 
-            MailList& maillist = m_gameEventMails[internal_event_id];
+            MailList &maillist = m_gameEventMails[internal_event_id];
             maillist.push_back(mail);
-        }
-        while (result->NextRow());
+        } while (result->NextRow());
 
         sLog.outString();
         sLog.outString(">> Loaded %u start/end game event mails", count);
     }
 }
 
-uint32 GameEventMgr::Initialize()                           // return the next event delay in ms
+uint32 GameEventMgr::Initialize() // return the next event delay in ms
 {
     m_activeEvents.clear();
 
     ActiveEvents activeAtShutdown;
 
-    if (QueryResult* result = CharacterDatabase.Query("SELECT event FROM game_event_status"))
+    if (QueryResult *result = CharacterDatabase.Query("SELECT event FROM game_event_status"))
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
             uint16 event_id = fields[0].GetUInt16();
             activeAtShutdown.insert(event_id);
-        }
-        while (result->NextRow());
+        } while (result->NextRow());
         delete result;
 
         CharacterDatabase.Execute("TRUNCATE game_event_status");
@@ -663,24 +755,26 @@ uint32 GameEventMgr::Initialize()                           // return the next e
     return delay;
 }
 
-void GameEventMgr::Initialize(MapPersistentState* state)
+void GameEventMgr::Initialize(MapPersistentState *state)
 {
     // At map persistent state creating need only apply pool spawn modifications
     // other data is global and will be auto-apply
     for (uint16 m_ActiveEvent : m_activeEvents)
-        for (IdList::iterator pool_itr = m_gameEventSpawnPoolIds[m_ActiveEvent].begin(); pool_itr != m_gameEventSpawnPoolIds[m_ActiveEvent].end(); ++pool_itr)
+        for (IdList::iterator pool_itr = m_gameEventSpawnPoolIds[m_ActiveEvent].begin();
+             pool_itr != m_gameEventSpawnPoolIds[m_ActiveEvent].end(); ++pool_itr)
             sPoolMgr.InitSpawnPool(*state, *pool_itr);
 }
 
 // return the next event delay in ms
-uint32 GameEventMgr::Update(ActiveEvents const* activeAtShutdown /*= nullptr*/)
+uint32 GameEventMgr::Update(ActiveEvents const *activeAtShutdown /*= nullptr*/)
 {
     time_t currenttime = time(nullptr);
 
-    uint32 nextEventDelay = max_ge_check_delay;             // 1 day
+    uint32 nextEventDelay = max_ge_check_delay; // 1 day
     for (uint16 itr = 1; itr < m_gameEvents.size(); ++itr)
     {
-        if ((m_gameEvents[itr].occurence == 0 && m_gameEvents[itr].scheduleType != GAME_EVENT_SCHEDULE_SERVERSIDE) || (m_gameEvents[itr].scheduleType == GAME_EVENT_SCHEDULE_SERVERSIDE && m_isGameEventsInit))
+        if ((m_gameEvents[itr].occurence == 0 && m_gameEvents[itr].scheduleType != GAME_EVENT_SCHEDULE_SERVERSIDE) ||
+            (m_gameEvents[itr].scheduleType == GAME_EVENT_SCHEDULE_SERVERSIDE && m_isGameEventsInit))
             continue;
         // sLog.outErrorDb("Checking event %u",itr);
         if (CheckOneGameEvent(itr, currenttime))
@@ -715,7 +809,8 @@ uint32 GameEventMgr::Update(ActiveEvents const* activeAtShutdown /*= nullptr*/)
             nextEventDelay = calcDelay;
     }
     BASIC_LOG("Next game event check in %u seconds.", nextEventDelay + 1);
-    return (nextEventDelay + 1) * IN_MILLISECONDS;          // Add 1 second to be sure event has started/stopped at next call
+    return (nextEventDelay + 1) * IN_MILLISECONDS; // Add 1 second to be sure event has
+                                                   // started/stopped at next call
 }
 
 void GameEventMgr::UnApplyEvent(uint16 event_id)
@@ -742,7 +837,7 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id, bool resume)
 {
     m_activeEvents.insert(event_id);
 
-    if (event_id == 987) //weekly server restart event
+    if (event_id == 987) // weekly server restart event
     {
         sWorld.ShutdownServ(m_gameEvents[event_id].length * 60, SHUTDOWN_MASK_RESTART, RESTART_EXIT_CODE);
         return;
@@ -764,7 +859,8 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id, bool resume)
     // Add quests that are events only to non event npc
     UpdateEventQuests(event_id, true);
 
-    // Not send mails at game event startup, if game event just resume after server shutdown (has been active at server before shutdown)
+    // Not send mails at game event startup, if game event just resume after
+    // server shutdown (has been active at server before shutdown)
     if (!resume)
         SendEventMails(event_id);
 
@@ -777,17 +873,20 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
 
     if (internal_event_id < 0 || (size_t)internal_event_id >= m_gameEventCreatureGuids.size())
     {
-        sLog.outError("GameEventMgr::GameEventSpawn attempt access to out of range mGameEventCreatureGuids element %i (size: " SIZEFMTD ")", internal_event_id, m_gameEventCreatureGuids.size());
+        sLog.outError("GameEventMgr::GameEventSpawn attempt access to out of range "
+                      "mGameEventCreatureGuids element %i (size: " SIZEFMTD ")",
+                      internal_event_id, m_gameEventCreatureGuids.size());
         return;
     }
 
-    for (uint32& itr : m_gameEventCreatureGuids[internal_event_id])
+    for (uint32 &itr : m_gameEventCreatureGuids[internal_event_id])
     {
         // Add to correct cell
-        CreatureData const* data = sObjectMgr.GetCreatureData(itr);
+        CreatureData const *data = sObjectMgr.GetCreatureData(itr);
         if (data)
         {
-            // negative event id for pool element meaning allow be used in next pool spawn
+            // negative event id for pool element meaning allow be used in next
+            // pool spawn
             if (event_id < 0)
             {
                 if (uint16 pool_id = sPoolMgr.IsPartOfAPool<Creature>(itr))
@@ -807,17 +906,20 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
 
     if (internal_event_id < 0 || (size_t)internal_event_id >= m_gameEventGameobjectGuids.size())
     {
-        sLog.outError("GameEventMgr::GameEventSpawn attempt access to out of range mGameEventGameobjectGuids element %i (size: " SIZEFMTD ")", internal_event_id, m_gameEventGameobjectGuids.size());
+        sLog.outError("GameEventMgr::GameEventSpawn attempt access to out of range "
+                      "mGameEventGameobjectGuids element %i (size: " SIZEFMTD ")",
+                      internal_event_id, m_gameEventGameobjectGuids.size());
         return;
     }
 
-    for (uint32& itr : m_gameEventGameobjectGuids[internal_event_id])
+    for (uint32 &itr : m_gameEventGameobjectGuids[internal_event_id])
     {
         // Add to correct cell
-        GameObjectData const* data = sObjectMgr.GetGOData(itr);
+        GameObjectData const *data = sObjectMgr.GetGOData(itr);
         if (data)
         {
-            // negative event id for pool element meaning allow be used in next pool spawn
+            // negative event id for pool element meaning allow be used in next
+            // pool spawn
             if (event_id < 0)
             {
                 if (uint16 pool_id = sPoolMgr.IsPartOfAPool<GameObject>(itr))
@@ -839,12 +941,14 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
     {
         if ((size_t)event_id >= m_gameEventSpawnPoolIds.size())
         {
-            sLog.outError("GameEventMgr::GameEventSpawn attempt access to out of range mGameEventSpawnPoolIds element %i (size: " SIZEFMTD ")", event_id, m_gameEventSpawnPoolIds.size());
+            sLog.outError("GameEventMgr::GameEventSpawn attempt access to out of "
+                          "range mGameEventSpawnPoolIds element %i (size: " SIZEFMTD ")",
+                          event_id, m_gameEventSpawnPoolIds.size());
             return;
         }
 
-        for (uint16& itr : m_gameEventSpawnPoolIds[event_id])
-        sPoolMgr.SpawnPoolInMaps(itr, true);
+        for (uint16 &itr : m_gameEventSpawnPoolIds[event_id])
+            sPoolMgr.SpawnPoolInMaps(itr, true);
     }
 }
 
@@ -854,16 +958,19 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
 
     if (internal_event_id < 0 || (size_t)internal_event_id >= m_gameEventCreatureGuids.size())
     {
-        sLog.outError("GameEventMgr::GameEventUnspawn attempt access to out of range mGameEventCreatureGuids element %i (size: " SIZEFMTD ")", internal_event_id, m_gameEventCreatureGuids.size());
+        sLog.outError("GameEventMgr::GameEventUnspawn attempt access to out of "
+                      "range mGameEventCreatureGuids element %i (size: " SIZEFMTD ")",
+                      internal_event_id, m_gameEventCreatureGuids.size());
         return;
     }
 
-    for (uint32& itr : m_gameEventCreatureGuids[internal_event_id])
+    for (uint32 &itr : m_gameEventCreatureGuids[internal_event_id])
     {
         // Remove the creature from grid
-        if (CreatureData const* data = sObjectMgr.GetCreatureData(itr))
+        if (CreatureData const *data = sObjectMgr.GetCreatureData(itr))
         {
-            // negative event id for pool element meaning unspawn in pool and exclude for next spawns
+            // negative event id for pool element meaning unspawn in pool and
+            // exclude for next spawns
             if (event_id < 0)
             {
                 if (uint16 poolid = sPoolMgr.IsPartOfAPool<Creature>(itr))
@@ -884,16 +991,19 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
 
     if (internal_event_id < 0 || (size_t)internal_event_id >= m_gameEventGameobjectGuids.size())
     {
-        sLog.outError("GameEventMgr::GameEventUnspawn attempt access to out of range mGameEventGameobjectGuids element %i (size: " SIZEFMTD ")", internal_event_id, m_gameEventGameobjectGuids.size());
+        sLog.outError("GameEventMgr::GameEventUnspawn attempt access to out of "
+                      "range mGameEventGameobjectGuids element %i (size: " SIZEFMTD ")",
+                      internal_event_id, m_gameEventGameobjectGuids.size());
         return;
     }
 
-    for (uint32& itr : m_gameEventGameobjectGuids[internal_event_id])
+    for (uint32 &itr : m_gameEventGameobjectGuids[internal_event_id])
     {
         // Remove the gameobject from grid
-        if (GameObjectData const* data = sObjectMgr.GetGOData(itr))
+        if (GameObjectData const *data = sObjectMgr.GetGOData(itr))
         {
-            // negative event id for pool element meaning unspawn in pool and exclude for next spawns
+            // negative event id for pool element meaning unspawn in pool and
+            // exclude for next spawns
             if (event_id < 0)
             {
                 if (uint16 poolid = sPoolMgr.IsPartOfAPool<GameObject>(itr))
@@ -916,18 +1026,20 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
     {
         if ((size_t)event_id >= m_gameEventSpawnPoolIds.size())
         {
-            sLog.outError("GameEventMgr::GameEventUnspawn attempt access to out of range mGameEventSpawnPoolIds element %i (size: " SIZEFMTD ")", event_id, m_gameEventSpawnPoolIds.size());
+            sLog.outError("GameEventMgr::GameEventUnspawn attempt access to out of "
+                          "range mGameEventSpawnPoolIds element %i (size: " SIZEFMTD ")",
+                          event_id, m_gameEventSpawnPoolIds.size());
             return;
         }
 
-        for (uint16& itr : m_gameEventSpawnPoolIds[event_id])
+        for (uint16 &itr : m_gameEventSpawnPoolIds[event_id])
         {
             sPoolMgr.DespawnPoolInMaps(itr);
         }
     }
 }
 
-GameEventCreatureData const* GameEventMgr::GetCreatureUpdateDataForActiveEvent(uint32 lowguid) const
+GameEventCreatureData const *GameEventMgr::GetCreatureUpdateDataForActiveEvent(uint32 lowguid) const
 {
     // only for active event, creature can be listed for many so search all
     uint32 event_id = 0;
@@ -944,7 +1056,7 @@ GameEventCreatureData const* GameEventMgr::GetCreatureUpdateDataForActiveEvent(u
     if (!event_id)
         return nullptr;
 
-    for (const auto& itr : m_gameEventCreatureData[event_id])
+    for (const auto &itr : m_gameEventCreatureData[event_id])
         if (itr.first == lowguid)
             return &itr.second;
 
@@ -953,33 +1065,37 @@ GameEventCreatureData const* GameEventMgr::GetCreatureUpdateDataForActiveEvent(u
 
 struct GameEventUpdateCreatureDataInMapsWorker
 {
-    GameEventUpdateCreatureDataInMapsWorker(ObjectGuid guid, CreatureData const* data, GameEventCreatureData* event_data, bool activate)
-        : i_guid(guid), i_data(data), i_event_data(event_data), i_activate(activate) {}
-
-    void operator()(Map* map)
+    GameEventUpdateCreatureDataInMapsWorker(ObjectGuid guid, CreatureData const *data,
+                                            GameEventCreatureData *event_data, bool activate)
+        : i_guid(guid), i_data(data), i_event_data(event_data), i_activate(activate)
     {
-        if (Creature* pCreature = map->GetCreature(i_guid))
+    }
+
+    void operator()(Map *map)
+    {
+        if (Creature *pCreature = map->GetCreature(i_guid))
         {
             pCreature->UpdateEntry(i_data->id, i_data, i_activate ? i_event_data : nullptr);
 
-            // spells not casted for event remove case (sent nullptr into update), do it
+            // spells not casted for event remove case (sent nullptr into update),
+            // do it
             if (!i_activate)
                 pCreature->ApplyGameEventSpells(i_event_data, false);
         }
     }
 
     ObjectGuid i_guid;
-    CreatureData const* i_data;
-    GameEventCreatureData* i_event_data;
+    CreatureData const *i_data;
+    GameEventCreatureData *i_event_data;
     bool i_activate;
 };
 
 void GameEventMgr::UpdateCreatureData(int16 event_id, bool activate)
 {
-    for (auto& itr : m_gameEventCreatureData[event_id])
+    for (auto &itr : m_gameEventCreatureData[event_id])
     {
         // Remove the creature from grid
-        CreatureData const* data = sObjectMgr.GetCreatureData(itr.first);
+        CreatureData const *data = sObjectMgr.GetCreatureData(itr.first);
         if (!data)
             continue;
 
@@ -991,16 +1107,16 @@ void GameEventMgr::UpdateCreatureData(int16 event_id, bool activate)
 
 void GameEventMgr::UpdateEventQuests(uint16 event_id, bool Activate)
 {
-    for (uint32& itr : m_gameEventQuests[event_id])
+    for (uint32 &itr : m_gameEventQuests[event_id])
     {
-        const Quest* pQuest = sObjectMgr.GetQuestTemplate(itr);
+        const Quest *pQuest = sObjectMgr.GetQuestTemplate(itr);
 
         // if (Activate)
         //{
         // TODO: implement way to reset quests when event begin.
         //}
 
-        const_cast<Quest*>(pQuest)->SetQuestActiveState(Activate);
+        const_cast<Quest *>(pQuest)->SetQuestActiveState(Activate);
     }
 }
 
@@ -1008,7 +1124,7 @@ void GameEventMgr::SendEventMails(int16 event_id)
 {
     int32 internal_event_id = m_gameEvents.size() + event_id - 1;
 
-    MailList const& mails = m_gameEventMails[internal_event_id];
+    MailList const &mails = m_gameEventMails[internal_event_id];
 
     for (auto mail : mails)
     {
@@ -1016,47 +1132,51 @@ void GameEventMgr::SendEventMails(int16 event_id)
         {
             // need special query
             std::ostringstream ss;
-            ss << "SELECT characters.guid FROM characters, character_queststatus "
-               "WHERE (1 << (characters.race - 1)) & "
+            ss << "SELECT characters.guid FROM characters, "
+                  "character_queststatus "
+                  "WHERE (1 << (characters.race - 1)) & "
                << mail.raceMask
-               << " AND characters.deleteDate IS NULL AND character_queststatus.guid = characters.guid AND character_queststatus.quest = "
-               << mail.questId
-               << " AND character_queststatus.rewarded <> 0";
-            sMassMailMgr.AddMassMailTask(new MailDraft(mail.mailTemplateId), MailSender(MAIL_CREATURE, mail.senderEntry), ss.str().c_str());
+               << " AND characters.deleteDate IS NULL AND "
+                  "character_queststatus.guid "
+                  "= characters.guid AND character_queststatus.quest = "
+               << mail.questId << " AND character_queststatus.rewarded <> 0";
+            sMassMailMgr.AddMassMailTask(new MailDraft(mail.mailTemplateId),
+                                         MailSender(MAIL_CREATURE, mail.senderEntry), ss.str().c_str());
         }
         else
-            sMassMailMgr.AddMassMailTask(new MailDraft(mail.mailTemplateId), MailSender(MAIL_CREATURE, mail.senderEntry), mail.raceMask);
+            sMassMailMgr.AddMassMailTask(new MailDraft(mail.mailTemplateId),
+                                         MailSender(MAIL_CREATURE, mail.senderEntry), mail.raceMask);
     }
 }
 
 // Get the Game Event ID for Creature by guid
-template <>
-int16 GameEventMgr::GetGameEventId<Creature>(uint32 guid_or_poolid)
+template <> int16 GameEventMgr::GetGameEventId<Creature>(uint32 guid_or_poolid)
 {
     for (uint16 i = 0; i < m_gameEventCreatureGuids.size(); ++i) // 0 <= i <= 2*(S := m_gameEvents.size()) - 2
-        for (GuidList::const_iterator itr = m_gameEventCreatureGuids[i].begin(); itr != m_gameEventCreatureGuids[i].end(); ++itr)
+        for (GuidList::const_iterator itr = m_gameEventCreatureGuids[i].begin();
+             itr != m_gameEventCreatureGuids[i].end(); ++itr)
             if (*itr == guid_or_poolid)
-                return i + 1 - m_gameEvents.size();       // -S *1 + 1 <= . <= 1*S - 1
+                return i + 1 - m_gameEvents.size(); // -S *1 + 1 <= . <= 1*S - 1
     return 0;
 }
 
 // Get the Game Event ID for GameObject by guid
-template <>
-int16 GameEventMgr::GetGameEventId<GameObject>(uint32 guid_or_poolid)
+template <> int16 GameEventMgr::GetGameEventId<GameObject>(uint32 guid_or_poolid)
 {
     for (uint16 i = 0; i < m_gameEventGameobjectGuids.size(); ++i)
-        for (GuidList::const_iterator itr = m_gameEventGameobjectGuids[i].begin(); itr != m_gameEventGameobjectGuids[i].end(); ++itr)
+        for (GuidList::const_iterator itr = m_gameEventGameobjectGuids[i].begin();
+             itr != m_gameEventGameobjectGuids[i].end(); ++itr)
             if (*itr == guid_or_poolid)
-                return i + 1 - m_gameEvents.size();       // -S *1 + 1 <= . <= 1*S - 1
+                return i + 1 - m_gameEvents.size(); // -S *1 + 1 <= . <= 1*S - 1
     return 0;
 }
 
 // Get the Game Event ID for Pool by pool ID
-template <>
-int16 GameEventMgr::GetGameEventId<Pool>(uint32 guid_or_poolid)
+template <> int16 GameEventMgr::GetGameEventId<Pool>(uint32 guid_or_poolid)
 {
     for (uint16 i = 0; i < m_gameEventSpawnPoolIds.size(); ++i)
-        for (IdList::const_iterator itr = m_gameEventSpawnPoolIds[i].begin(); itr != m_gameEventSpawnPoolIds[i].end(); ++itr)
+        for (IdList::const_iterator itr = m_gameEventSpawnPoolIds[i].begin(); itr != m_gameEventSpawnPoolIds[i].end();
+             ++itr)
             if (*itr == guid_or_poolid)
                 return i;
     return 0;
@@ -1086,8 +1206,7 @@ bool IsHolidayActive(HolidayIds id)
 
 void GameEventMgr::OnEventHappened(uint16 event_id, bool activate, bool resume)
 {
-    sMapMgr.DoForAllMaps([event_id, activate, resume](Map * map) -> void
-    {
+    sMapMgr.DoForAllMaps([event_id, activate, resume](Map *map) -> void {
         if (map->GetInstanceData())
             map->OnEventHappened(event_id, activate, resume);
     });
@@ -1095,8 +1214,7 @@ void GameEventMgr::OnEventHappened(uint16 event_id, bool activate, bool resume)
 
 std::tuple<int, int, int> gaussEaster(int Y)
 {
-    float A, B, C, P, Q,
-        M, N, D, E;
+    float A, B, C, P, Q, M, N, D, E;
 
     // All calculations done
     // on the basis of
@@ -1116,13 +1234,13 @@ std::tuple<int, int, int> gaussEaster(int Y)
     // when D is 29
     if ((D == 29) && (E == 6))
     {
-        return { Y, 4, 19 };
+        return {Y, 4, 19};
     }
     // Another corner case,
     // when D is 28
     else if ((D == 28) && (E == 6))
     {
-        return { Y, 4, 18 };
+        return {Y, 4, 18};
     }
     else
     {
@@ -1130,23 +1248,162 @@ std::tuple<int, int, int> gaussEaster(int Y)
         // April = 4th Month
         if (days > 31)
         {
-            return { Y, 4, days - 31 };
+            return {Y, 4, days - 31};
         }
         else
         {
             // Otherwise, stay on March
             // March = 3rd Month
-            return { Y, 3, days };
+            return {Y, 3, days};
         }
     }
 }
 
-void GameEventMgr::ComputeEventStartAndEndTime(GameEventData& data, time_t today)
+void GameEventMgr::ComputeEventStartAndEndTime(GameEventData &data, time_t today)
 {
     time_t curTime = today;
-    const tm* t = localtime(&curTime);
+    const tm *t = localtime(&curTime);
     switch (data.scheduleType)
     {
+    case GAME_EVENT_SCHEDULE_DMF_1:
+    case GAME_EVENT_SCHEDULE_DMF_2:
+    case GAME_EVENT_SCHEDULE_DMF_3:
+    case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_1:
+    case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_2:
+    case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_3:
+    case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_1:
+    case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_2:
+    case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_3: {
+        tm firstMonday = *t;
+        firstMonday.tm_sec = 0;
+        firstMonday.tm_min = 0;
+        firstMonday.tm_hour = 0;
+        int monthRemainder = firstMonday.tm_mon % 3;
+        switch (data.scheduleType)
+        {
+        case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_1:
+        case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_1:
+        case GAME_EVENT_SCHEDULE_DMF_1:
+            firstMonday.tm_mon += (3 - monthRemainder) % 3;
+            break; // 0 2 1 - x + 3 - 3
+        case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_2:
+        case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_2:
+        case GAME_EVENT_SCHEDULE_DMF_2:
+            firstMonday.tm_mon += (3 - monthRemainder + 1) % 3;
+            break; // 1 0 2 - x + 3 - 2
+        case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_3:
+        case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_3:
+        case GAME_EVENT_SCHEDULE_DMF_3:
+            firstMonday.tm_mon += (3 - monthRemainder + 2) % 3;
+            break; // 2 1 0 - x + 3 - 1
+        default:
+            break;
+        }
+        mktime(&firstMonday);
+        firstMonday.tm_mday =
+            (firstMonday.tm_mday - 1 - (firstMonday.tm_wday - 1) + 7) % 7 + 1; // get this weeks monday
+        switch (data.scheduleType)
+        {
+        case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_1:
+        case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_2:
+        case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_3:
+            firstMonday.tm_mday -= 2;
+            break;
+        case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_1:
+        case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_2:
+        case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_3:
+            firstMonday.tm_mday -= 1;
+            break;
+        default:
+            break;
+        }
+        data.start = mktime(&firstMonday);
+        switch (data.scheduleType)
+        {
+        case GAME_EVENT_SCHEDULE_DMF_1:
+        case GAME_EVENT_SCHEDULE_DMF_2:
+        case GAME_EVENT_SCHEDULE_DMF_3:
+            firstMonday.tm_mday += 7;
+            break;
+        case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_1:
+        case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_2:
+        case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_3:
+        case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_1:
+        case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_2:
+        case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_3:
+            firstMonday.tm_mday += 1;
+            break;
+        default:
+            break;
+        }
+        data.end = mktime(&firstMonday);
+        break;
+    }
+    case GAME_EVENT_SCHEDULE_YEARLY: {
+        tm startT = *localtime(&data.start); // get date it starts
+        tm endT = *localtime(&data.end);     // get date it starts
+        // transform it to same date this year
+        tm todayT = *localtime(&today); // take year from today
+        startT.tm_year = todayT.tm_year;
+        endT.tm_year = todayT.tm_year;
+        data.start = mktime(&startT);
+        data.end = mktime(&endT);
+        break;
+    }
+    case GAME_EVENT_SCHEDULE_LUNAR_NEW_YEAR: {
+        Moon moon;
+        tm todayT = *localtime(&today); // take year from today
+        --todayT.tm_year;               // need to start at winter solstice - 21st Dec of
+                                        // previous year
+        todayT.tm_year += 1900;
+        todayT.tm_mday = 21;
+        todayT.tm_mon = 12; // I know
+        todayT.tm_hour = 0;
+        todayT.tm_min = 0;
+        moon.nextphase(todayT.tm_mon, todayT.tm_mday, todayT.tm_year, todayT.tm_hour, todayT.tm_min, 0);
+        ++todayT.tm_mday;
+        todayT.tm_year -= 1900;
+        time_t temp = mktime(&todayT);
+        todayT = *localtime(&temp);
+        todayT.tm_year += 1900;
+        moon.nextphase(todayT.tm_mon, todayT.tm_mday, todayT.tm_year, todayT.tm_hour, todayT.tm_min, 0);
+        --todayT.tm_mon;
+        todayT.tm_year -= 1900;
+        // china is gmt + 8
+        todayT.tm_hour += 8;
+        todayT.tm_min = 0;
+        time_t lunarNewYearInChina = mktime(&todayT);
+        todayT = *localtime(&lunarNewYearInChina);
+        todayT.tm_hour = 0;
+        time_t lunarNewYear = mktime(&todayT);
+        data.start = lunarNewYear;
+        todayT.tm_mday += 21;
+        data.end = mktime(&todayT);
+        break;
+    }
+    case GAME_EVENT_SCHEDULE_EASTER: {
+        tm todayT = *gmtime(&today); // take year from today
+        int year, month, day;
+        std::tie(year, month, day) = gaussEaster(todayT.tm_year + 1900);
+        todayT.tm_sec = 0;
+        todayT.tm_min = 0;
+        todayT.tm_hour = 0;
+        todayT.tm_mday = day;
+        todayT.tm_mon = month - 1;
+        data.start = mktime(&todayT);
+        todayT.tm_mday += 7;
+        data.end = mktime(&todayT);
+        break;
+    }
+    }
+}
+
+void GameEventMgr::WeeklyEventTimerRecalculation()
+{
+    for (GameEventData &gameEvent : m_gameEvents)
+    {
+        switch (gameEvent.scheduleType)
+        {
         case GAME_EVENT_SCHEDULE_DMF_1:
         case GAME_EVENT_SCHEDULE_DMF_2:
         case GAME_EVENT_SCHEDULE_DMF_3:
@@ -1156,136 +1413,13 @@ void GameEventMgr::ComputeEventStartAndEndTime(GameEventData& data, time_t today
         case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_1:
         case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_2:
         case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_3:
-        {
-            tm firstMonday = *t;
-            firstMonday.tm_sec = 0;
-            firstMonday.tm_min = 0;
-            firstMonday.tm_hour = 0;
-            int monthRemainder = firstMonday.tm_mon % 3;
-            switch (data.scheduleType)
-            {
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_1:
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_1:
-                case GAME_EVENT_SCHEDULE_DMF_1: firstMonday.tm_mon += (3 - monthRemainder) % 3; break; // 0 2 1 - x + 3 - 3
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_2:
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_2:
-                case GAME_EVENT_SCHEDULE_DMF_2: firstMonday.tm_mon += (3 - monthRemainder + 1) % 3; break; // 1 0 2 - x + 3 - 2
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_3:
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_3:
-                case GAME_EVENT_SCHEDULE_DMF_3: firstMonday.tm_mon += (3 - monthRemainder + 2) % 3; break; // 2 1 0 - x + 3 - 1
-                default: break;
-            }
-            mktime(&firstMonday);
-            firstMonday.tm_mday = (firstMonday.tm_mday - 1 - (firstMonday.tm_wday - 1) + 7) % 7 + 1; // get this weeks monday
-            switch (data.scheduleType)
-            {
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_1:
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_2:
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_3: firstMonday.tm_mday -= 2; break;
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_1:
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_2:
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_3: firstMonday.tm_mday -= 1; break;
-                default: break;
-            }
-            data.start = mktime(&firstMonday);
-            switch (data.scheduleType)
-            {
-                case GAME_EVENT_SCHEDULE_DMF_1:
-                case GAME_EVENT_SCHEDULE_DMF_2:
-                case GAME_EVENT_SCHEDULE_DMF_3: firstMonday.tm_mday += 7; break;
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_1:
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_2:
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_3:
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_1:
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_2:
-                case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_3: firstMonday.tm_mday += 1; break;
-                default: break;
-            }
-            data.end = mktime(&firstMonday);
-            break;
-        }
         case GAME_EVENT_SCHEDULE_YEARLY:
-        {
-            tm startT = *localtime(&data.start); // get date it starts
-            tm endT = *localtime(&data.end); // get date it starts
-            // transform it to same date this year
-            tm todayT = *localtime(&today); // take year from today
-            startT.tm_year = todayT.tm_year;
-            endT.tm_year = todayT.tm_year;
-            data.start = mktime(&startT);
-            data.end = mktime(&endT);
-            break;
-        }
         case GAME_EVENT_SCHEDULE_LUNAR_NEW_YEAR:
-        {
-            Moon moon;
-            tm todayT = *localtime(&today); // take year from today
-            --todayT.tm_year; // need to start at winter solstice - 21st Dec of previous year
-            todayT.tm_year += 1900;
-            todayT.tm_mday = 21;
-            todayT.tm_mon = 12; // I know
-            todayT.tm_hour = 0;
-            todayT.tm_min = 0;
-            moon.nextphase(todayT.tm_mon, todayT.tm_mday, todayT.tm_year, todayT.tm_hour, todayT.tm_min, 0);
-            ++todayT.tm_mday;
-            todayT.tm_year -= 1900;
-            time_t temp = mktime(&todayT);
-            todayT = *localtime(&temp);
-            todayT.tm_year += 1900;
-            moon.nextphase(todayT.tm_mon, todayT.tm_mday, todayT.tm_year, todayT.tm_hour, todayT.tm_min, 0);
-            --todayT.tm_mon;
-            todayT.tm_year -= 1900;
-            // china is gmt + 8
-            todayT.tm_hour += 8;
-            todayT.tm_min = 0;
-            time_t lunarNewYearInChina = mktime(&todayT);
-            todayT = *localtime(&lunarNewYearInChina);
-            todayT.tm_hour = 0;
-            time_t lunarNewYear = mktime(&todayT);
-            data.start = lunarNewYear;
-            todayT.tm_mday += 21;
-            data.end = mktime(&todayT);
-            break;
-        }
         case GAME_EVENT_SCHEDULE_EASTER:
-        {
-            tm todayT = *gmtime(&today); // take year from today
-            int year, month, day;
-            std::tie(year, month, day) = gaussEaster(todayT.tm_year + 1900);
-            todayT.tm_sec = 0;
-            todayT.tm_min = 0;
-            todayT.tm_hour = 0;
-            todayT.tm_mday = day;
-            todayT.tm_mon = month - 1;
-            data.start = mktime(&todayT);
-            todayT.tm_mday += 7;
-            data.end = mktime(&todayT);
+            ComputeEventStartAndEndTime(gameEvent, time(nullptr));
             break;
-        }
-    }
-}
-
-void GameEventMgr::WeeklyEventTimerRecalculation()
-{
-    for (GameEventData& gameEvent : m_gameEvents)
-    {
-        switch (gameEvent.scheduleType)
-        {
-            case GAME_EVENT_SCHEDULE_DMF_1:
-            case GAME_EVENT_SCHEDULE_DMF_2:
-            case GAME_EVENT_SCHEDULE_DMF_3:
-            case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_1:
-            case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_2:
-            case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_1_3:
-            case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_1:
-            case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_2:
-            case GAME_EVENT_SCHEDULE_DMF_BUILDING_STAGE_2_3:
-            case GAME_EVENT_SCHEDULE_YEARLY:
-            case GAME_EVENT_SCHEDULE_LUNAR_NEW_YEAR:
-            case GAME_EVENT_SCHEDULE_EASTER:
-                ComputeEventStartAndEndTime(gameEvent, time(nullptr));
-                break;
-            default: break;
+        default:
+            break;
         }
     }
 }

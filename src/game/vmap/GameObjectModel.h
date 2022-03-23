@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,52 +20,65 @@
 #ifndef MANGOSSERVER_GAMEOBJECTMODEL_H
 #define MANGOSSERVER_GAMEOBJECTMODEL_H
 
-#include <G3D/Matrix3.h>
-#include <G3D/Vector3.h>
 #include <G3D/AABox.h>
+#include <G3D/Matrix3.h>
 #include <G3D/Ray.h>
-#include "Server/DBCStructure.h"
-#include "Entities/GameObject.h"
+#include <G3D/Vector3.h>
 
+#include "Entities/GameObject.h"
 #include "Platform/Define.h"
+#include "Server/DBCStructure.h"
 
 namespace VMAP
 {
-    class WorldModel;
+class WorldModel;
 }
-
 
 class GameObjectModel
 {
-        bool collision_enabled;
-        G3D::AABox iBound;
-        G3D::Matrix3 iInvRot;
-        G3D::Vector3 iPos;
-        //G3D::Vector3 iRot;
-        float iInvScale;
-        float iScale;
-        VMAP::WorldModel* iModel;
+    bool collision_enabled;
+    G3D::AABox iBound;
+    G3D::Matrix3 iInvRot;
+    G3D::Vector3 iPos;
+    // G3D::Vector3 iRot;
+    float iInvScale;
+    float iScale;
+    VMAP::WorldModel *iModel;
 
-        GameObjectModel() : collision_enabled(false), iInvScale(0), iScale(0), iModel(nullptr) {}
-        bool initialize(const GameObject* const pGo, const GameObjectDisplayInfoEntry* pDisplayInfo);
+    GameObjectModel() : collision_enabled(false), iInvScale(0), iScale(0), iModel(nullptr)
+    {
+    }
+    bool initialize(const GameObject *const pGo, const GameObjectDisplayInfoEntry *pDisplayInfo);
 
-    public:
-        std::string name;
+  public:
+    std::string name;
 
-        const G3D::AABox& getBounds() const { return iBound; }
+    const G3D::AABox &getBounds() const
+    {
+        return iBound;
+    }
 
-        ~GameObjectModel();
+    ~GameObjectModel();
 
-        const G3D::Vector3& getPosition() const { return iPos;}
+    const G3D::Vector3 &getPosition() const
+    {
+        return iPos;
+    }
 
-        /** Enables\disables collision. */
-        void disable() { collision_enabled = false;}
-        void enable(bool enabled) { collision_enabled = enabled;}
+    /** Enables\disables collision. */
+    void disable()
+    {
+        collision_enabled = false;
+    }
+    void enable(bool enabled)
+    {
+        collision_enabled = enabled;
+    }
 
-        bool intersectRay(const G3D::Ray& ray, float& MaxDist, bool StopAtFirstHit, bool ignoreM2Model) const;
+    bool intersectRay(const G3D::Ray &ray, float &MaxDist, bool StopAtFirstHit, bool ignoreM2Model) const;
 
-        static GameObjectModel* construct(const GameObject* const pGo);
+    static GameObjectModel *construct(const GameObject *const pGo);
 
-        bool Relocate(GameObject const& go);
+    bool Relocate(GameObject const &go);
 };
 #endif

@@ -4,7 +4,7 @@
 
 #include "Anticheat.hpp"
 
-AnticheatLibInterface* GetAnticheatLib()
+AnticheatLibInterface *GetAnticheatLib()
 {
     static NullAnticheatLib l;
     return &l;

@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -26,35 +26,35 @@ EndScriptData */
 
 enum
 {
-    SAY_INTRO                   = -1209000,
-    SAY_AGGRO                   = -1209001,
-    SAY_KILL                    = -1209002,
-    SAY_SUMMON                  = -1209003,
+    SAY_INTRO = -1209000,
+    SAY_AGGRO = -1209001,
+    SAY_KILL = -1209002,
+    SAY_SUMMON = -1209003,
 
-    SPELL_SHADOW_BOLT           = 12739,
-    SPELL_SHADOW_BOLT_VOLLEY    = 15245,
-    SPELL_WARD_OF_ZUMRAH        = 11086,
-    SPELL_HEALING_WAVE          = 12491,
-    SPELL_SUMMON_ZOMBIES        = 10247,            // spell should be triggered by missing trap 128972
+    SPELL_SHADOW_BOLT = 12739,
+    SPELL_SHADOW_BOLT_VOLLEY = 15245,
+    SPELL_WARD_OF_ZUMRAH = 11086,
+    SPELL_HEALING_WAVE = 12491,
+    SPELL_SUMMON_ZOMBIES = 10247, // spell should be triggered by missing trap 128972
 
     // NPC_WARD_OF_ZUMRAH       = 7785,
     // NPC_SKELETON_OF_ZUMRAH   = 7786,
-    NPC_ZULFARRAK_ZOMBIE        = 7286,             // spawned by the graves
-    NPC_ZULFARRAK_DEAD_HERO     = 7276,             // spawned by the graves
+    NPC_ZULFARRAK_ZOMBIE = 7286,    // spawned by the graves
+    NPC_ZULFARRAK_DEAD_HERO = 7276, // spawned by the graves
 
-    FACTION_HOSTILE             = 14,
+    FACTION_HOSTILE = 14,
 };
 
 struct boss_zumrahAI : public ScriptedAI
 {
-    boss_zumrahAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_zumrahAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (instance_zulfarrak*) pCreature->GetInstanceData();
+        m_pInstance = (instance_zulfarrak *)pCreature->GetInstanceData();
         m_bHasTurnedHostile = false;
         Reset();
     }
 
-    instance_zulfarrak* m_pInstance;
+    instance_zulfarrak *m_pInstance;
 
     uint32 m_uiShadowBoltTimer;
     uint32 m_uiShadowBoltVolleyTimer;
@@ -66,28 +66,29 @@ struct boss_zumrahAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiShadowBoltTimer         = 1000;
-        m_uiShadowBoltVolleyTimer   = urand(6000, 30000);
-        m_uiWardOfZumrahTimer       = urand(7000, 20000);
-        m_uHealingWaveTimer         = urand(10000, 15000);
-        m_uiSpawnZombieTimer        = 1000;
+        m_uiShadowBoltTimer = 1000;
+        m_uiShadowBoltVolleyTimer = urand(6000, 30000);
+        m_uiWardOfZumrahTimer = urand(7000, 20000);
+        m_uHealingWaveTimer = urand(10000, 15000);
+        m_uiSpawnZombieTimer = 1000;
 
         m_attackDistance = 10.0f;
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
 
-    void KilledUnit(Unit* /*pVictim*/) override
+    void KilledUnit(Unit * /*pVictim*/) override
     {
         DoScriptText(SAY_KILL, m_creature);
     }
 
-    void MoveInLineOfSight(Unit* pWho) override
+    void MoveInLineOfSight(Unit *pWho) override
     {
-        if (!m_bHasTurnedHostile && pWho->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(pWho, 9.0f) && m_creature->IsWithinLOSInMap(pWho))
+        if (!m_bHasTurnedHostile && pWho->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(pWho, 9.0f) &&
+            m_creature->IsWithinLOSInMap(pWho))
         {
             m_creature->SetFactionTemporary(FACTION_HOSTILE, TEMPFACTION_TOGGLE_IMMUNE_TO_PLAYER);
             DoScriptText(SAY_INTRO, m_creature);
@@ -98,13 +99,13 @@ struct boss_zumrahAI : public ScriptedAI
         ScriptedAI::MoveInLineOfSight(pWho);
     }
 
-    void JustSummoned(Creature* pSummoned) override
+    void JustSummoned(Creature *pSummoned) override
     {
         if (pSummoned->GetEntry() == NPC_ZULFARRAK_ZOMBIE || pSummoned->GetEntry() == NPC_ZULFARRAK_DEAD_HERO)
             pSummoned->AI()->AttackStart(m_creature->GetVictim());
     }
 
-    GameObject* SelectNearbyShallowGrave()
+    GameObject *SelectNearbyShallowGrave()
     {
         if (!m_pInstance)
             return nullptr;
@@ -116,7 +117,7 @@ struct boss_zumrahAI : public ScriptedAI
         m_pInstance->GetShallowGravesGuidList(lTempList);
         for (GuidList::const_iterator itr = lTempList.begin(); itr != lTempList.end(); ++itr)
         {
-            GameObject* pGo = m_creature->GetMap()->GetGameObject(*itr);
+            GameObject *pGo = m_creature->GetMap()->GetGameObject(*itr);
             // Go spawned and no looting in process
             if (pGo && pGo->IsSpawned() && pGo->GetLootState() == GO_READY)
                 lGravesInRange.push_back(pGo);
@@ -141,9 +142,11 @@ struct boss_zumrahAI : public ScriptedAI
             if (m_uiSpawnZombieTimer <= uiDiff)
             {
                 // Use a nearby grave to spawn zombies
-                if (GameObject* pGrave = SelectNearbyShallowGrave())
+                if (GameObject *pGrave = SelectNearbyShallowGrave())
                 {
-                    m_creature->CastSpell(pGrave->GetPositionX(), pGrave->GetPositionY(), pGrave->GetPositionZ(), SPELL_SUMMON_ZOMBIES, TRIGGERED_OLD_TRIGGERED, nullptr, nullptr, pGrave->GetObjectGuid());
+                    m_creature->CastSpell(pGrave->GetPositionX(), pGrave->GetPositionY(), pGrave->GetPositionZ(),
+                                          SPELL_SUMMON_ZOMBIES, TRIGGERED_OLD_TRIGGERED, nullptr, nullptr,
+                                          pGrave->GetObjectGuid());
                     pGrave->SetLootState(GO_JUST_DEACTIVATED);
 
                     if (roll_chance_i(30))
@@ -151,7 +154,7 @@ struct boss_zumrahAI : public ScriptedAI
 
                     m_uiSpawnZombieTimer = 20000;
                 }
-                else                                        // No Grave usable any more
+                else // No Grave usable any more
                     m_uiSpawnZombieTimer = 0;
             }
             else
@@ -160,7 +163,7 @@ struct boss_zumrahAI : public ScriptedAI
 
         if (m_uiShadowBoltTimer < uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+            if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_SHADOW_BOLT) == CAST_OK)
                     m_uiShadowBoltTimer = urand(3500, 5000);
@@ -187,7 +190,7 @@ struct boss_zumrahAI : public ScriptedAI
 
         if (m_uHealingWaveTimer < uiDiff)
         {
-            if (Unit* pTarget = DoSelectLowestHpFriendly(40.0f))
+            if (Unit *pTarget = DoSelectLowestHpFriendly(40.0f))
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_HEALING_WAVE) == CAST_OK)
                     m_uHealingWaveTimer = urand(15000, 23000);
@@ -200,14 +203,14 @@ struct boss_zumrahAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_zumrah(Creature* pCreature)
+UnitAI *GetAI_boss_zumrah(Creature *pCreature)
 {
     return new boss_zumrahAI(pCreature);
 }
 
 void AddSC_boss_zumrah()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_zumrah";
     pNewScript->GetAI = &GetAI_boss_zumrah;
     pNewScript->RegisterSelf();

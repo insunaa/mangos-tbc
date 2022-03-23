@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,28 +23,28 @@ class BattleGround;
 
 class BattleGroundBEScore : public BattleGroundScore
 {
-    public:
-        BattleGroundBEScore() {};
-        virtual ~BattleGroundBEScore() {};
+  public:
+    BattleGroundBEScore(){};
+    virtual ~BattleGroundBEScore(){};
 };
 
 class BattleGroundBE : public BattleGround
 {
-        friend class BattleGroundMgr;
+    friend class BattleGroundMgr;
 
-    public:
-        BattleGroundBE();
+  public:
+    BattleGroundBE();
 
-        /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player* plr) override;
-        virtual void StartingEventOpenDoors() override;
+    /* inherited from BattlegroundClass */
+    virtual void AddPlayer(Player *plr) override;
+    virtual void StartingEventOpenDoors() override;
 
-        void RemovePlayer(Player* plr, ObjectGuid guid) override;
-        virtual void FillInitialWorldStates(WorldPacket& data, uint32& count) override;
-        void HandleKillPlayer(Player* player, Player* killer) override;
-        bool HandlePlayerUnderMap(Player* player) override;
+    void RemovePlayer(Player *plr, ObjectGuid guid) override;
+    virtual void FillInitialWorldStates(WorldPacket &data, uint32 &count) override;
+    void HandleKillPlayer(Player *player, Player *killer) override;
+    bool HandlePlayerUnderMap(Player *player) override;
 
-        /* Scorekeeping */
-        void UpdatePlayerScore(Player* source, uint32 type, uint32 value) override;
+    /* Scorekeeping */
+    void UpdatePlayerScore(Player *source, uint32 type, uint32 value) override;
 };
 #endif

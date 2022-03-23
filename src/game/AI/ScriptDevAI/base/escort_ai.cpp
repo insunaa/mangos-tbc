@@ -1,5 +1,5 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software licensed under GPL version 2
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
 /* ScriptData
@@ -9,24 +9,21 @@ SDComment:
 SDCategory: Npc
 EndScriptData */
 
-#include "AI/ScriptDevAI/include/sc_common.h"
 #include "AI/ScriptDevAI/base/escort_ai.h"
+
+#include "AI/ScriptDevAI/include/sc_common.h"
 #include "AI/ScriptDevAI/system/system.h"
 #include "MotionGenerators/WaypointManager.h"
 
 const float MAX_PLAYER_DISTANCE = 66.0f;
 
-npc_escortAI::npc_escortAI(Creature* creature) : ScriptedAI(creature),
-    m_playerCheckTimer(1000),
-    m_escortState(STATE_ESCORT_NONE),
-    m_questForEscort(nullptr),
-    m_isRunning(false),
-    m_canInstantRespawn(false),
-    m_canReturnToStart(false),
-    m_waypointPathID(0)
-{}
+npc_escortAI::npc_escortAI(Creature *creature)
+    : ScriptedAI(creature), m_playerCheckTimer(1000), m_escortState(STATE_ESCORT_NONE), m_questForEscort(nullptr),
+      m_isRunning(false), m_canInstantRespawn(false), m_canReturnToStart(false), m_waypointPathID(0)
+{
+}
 
-void npc_escortAI::GetAIInformation(ChatHandler& reader)
+void npc_escortAI::GetAIInformation(ChatHandler &reader)
 {
     std::ostringstream oss;
 
@@ -38,7 +35,8 @@ void npc_escortAI::GetAIInformation(ChatHandler& reader)
 
     if (HasEscortState(STATE_ESCORT_ESCORTING))
     {
-        oss << "\nEscortFlags: Escorting" << (HasEscortState(STATE_ESCORT_RETURNING) ? ", Returning" : "") << (HasEscortState(STATE_ESCORT_PAUSED) ? ", Paused" : "") << "\n";
+        oss << "\nEscortFlags: Escorting" << (HasEscortState(STATE_ESCORT_RETURNING) ? ", Returning" : "")
+            << (HasEscortState(STATE_ESCORT_PAUSED) ? ", Paused" : "") << "\n";
         m_creature->GetMotionMaster()->GetWaypointPathInformation(oss);
     }
 
@@ -47,10 +45,12 @@ void npc_escortAI::GetAIInformation(ChatHandler& reader)
     ScriptedAI::GetAIInformation(reader);
 }
 
-void npc_escortAI::Aggro(Unit* /*enemy*/) {}
+void npc_escortAI::Aggro(Unit * /*enemy*/)
+{
+}
 
 // see followerAI
-bool npc_escortAI::AssistPlayerInCombat(Unit* who)
+bool npc_escortAI::AssistPlayerInCombat(Unit *who)
 {
     if (!HasEscortState(STATE_ESCORT_ESCORTING))
         return false;
@@ -62,7 +62,8 @@ bool npc_escortAI::AssistPlayerInCombat(Unit* who)
     if (!(m_creature->GetCreatureInfo()->CreatureTypeFlags & CREATURE_TYPEFLAGS_CAN_ASSIST))
         return false;
 
-    // unit state prevents (similar check is done in CanInitiateAttack which also include checking unit_flags. We skip those here)
+    // unit state prevents (similar check is done in CanInitiateAttack which also
+    // include checking unit_flags. We skip those here)
     if (m_creature->hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_FEIGN_DEATH | UNIT_STAT_CONFUSED | UNIT_STAT_FLEEING))
         return false;
 
@@ -90,7 +91,7 @@ bool npc_escortAI::AssistPlayerInCombat(Unit* who)
     return false;
 }
 
-void npc_escortAI::JustDied(Unit* /*killer*/)
+void npc_escortAI::JustDied(Unit * /*killer*/)
 {
     if (!HasEscortState(STATE_ESCORT_ESCORTING) || !m_playerGuid || !m_questForEscort)
         return;
@@ -103,11 +104,11 @@ void npc_escortAI::FailQuestForPlayerAndGroup()
     if (!m_questForEscort)
         return;
 
-    if (Player* player = GetPlayerForEscort())
+    if (Player *player = GetPlayerForEscort())
         player->FailQuestForGroup(m_questForEscort->GetQuestId());
 }
 
-void npc_escortAI::CorpseRemoved(uint32& /*respawnDelay*/)
+void npc_escortAI::CorpseRemoved(uint32 & /*respawnDelay*/)
 {
     m_escortState = STATE_ESCORT_NONE;
 
@@ -117,8 +118,10 @@ void npc_escortAI::CorpseRemoved(uint32& /*respawnDelay*/)
 
 bool npc_escortAI::IsPlayerOrGroupInRange()
 {
-    if (Player* player = GetPlayerForEscort())
-        if (player->CheckForGroup([&](Player const* player) -> bool { return m_creature->IsWithinDistInMap(player, MAX_PLAYER_DISTANCE); }))
+    if (Player *player = GetPlayerForEscort())
+        if (player->CheckForGroup([&](Player const *player) -> bool {
+                return m_creature->IsWithinDistInMap(player, MAX_PLAYER_DISTANCE);
+            }))
             return true;
 
     return false;
@@ -127,7 +130,8 @@ bool npc_escortAI::IsPlayerOrGroupInRange()
 void npc_escortAI::UpdateAI(const uint32 diff)
 {
     // Check if player or any member of his group is within range
-    if (m_questForEscort && HasEscortState(STATE_ESCORT_ESCORTING) && m_playerGuid && !m_creature->GetVictim() && !HasEscortState(STATE_ESCORT_RETURNING))
+    if (m_questForEscort && HasEscortState(STATE_ESCORT_ESCORTING) && m_playerGuid && !m_creature->GetVictim() &&
+        !HasEscortState(STATE_ESCORT_RETURNING))
     {
         if (m_playerCheckTimer < diff)
         {
@@ -136,8 +140,10 @@ void npc_escortAI::UpdateAI(const uint32 diff)
                 // set the quest status as failed
                 FailQuestForPlayerAndGroup();
 
-                // TODO: i am not sure this is correct, isn't that the creature should continue until it get killed?
-                debug_log("SD2: EscortAI failed because player/group was to far away or not found");
+                // TODO: i am not sure this is correct, isn't that the creature
+                // should continue until it get killed?
+                debug_log("SD2: EscortAI failed because player/group was to far away "
+                          "or not found");
 
                 if (m_canInstantRespawn)
                 {
@@ -147,7 +153,8 @@ void npc_escortAI::UpdateAI(const uint32 diff)
                 else
                 {
                     if (m_creature->IsPet())
-                        static_cast<Pet*>(m_creature)->Unsummon(PET_SAVE_AS_DELETED); // we assume escort AI pet to always be non-saved
+                        static_cast<Pet *>(m_creature)->Unsummon(PET_SAVE_AS_DELETED); // we assume escort AI pet to
+                                                                                       // always be non-saved
                     else
                         m_creature->ForcedDespawn();
                 }
@@ -169,7 +176,8 @@ void npc_escortAI::UpdateEscortAI(const uint32 diff)
     ScriptedAI::UpdateAI(diff);
 }
 
-/// Helper function for transition between old Escort Movment and using WaypointMMGen
+/// Helper function for transition between old Escort Movment and using
+/// WaypointMMGen
 bool npc_escortAI::IsSD2EscortMovement(uint32 moveType) const
 {
     return moveType >= EXTERNAL_WAYPOINT_MOVE;
@@ -180,13 +188,13 @@ void npc_escortAI::MovementInform(uint32 moveType, uint32 pointId)
     if (!IsSD2EscortMovement(moveType) || !HasEscortState(STATE_ESCORT_ESCORTING))
         return;
 
-    //uint32 pathId = uiMoveType & 0xFF;
+    // uint32 pathId = uiMoveType & 0xFF;
 
     if (moveType < EXTERNAL_WAYPOINT_MOVE_START)
         WaypointReached(pointId);
     else if (moveType < EXTERNAL_WAYPOINT_FINISHED_LAST)
         WaypointStart(pointId);
-    else                                                    // Last WP Reached
+    else // Last WP Reached
     {
         if (m_canInstantRespawn)
         {
@@ -200,15 +208,18 @@ void npc_escortAI::MovementInform(uint32 moveType, uint32 pointId)
 
 void npc_escortAI::SetCurrentWaypoint(uint32 pointId)
 {
-    if (!(HasEscortState(STATE_ESCORT_PAUSED)))             // Only when paused
+    if (!(HasEscortState(STATE_ESCORT_PAUSED))) // Only when paused
     {
-        script_error_log("EscortAI for %s tried to set new waypoint %u, but not paused", m_creature->GetGuidStr().c_str(), pointId);
+        script_error_log("EscortAI for %s tried to set new waypoint %u, but not paused",
+                         m_creature->GetGuidStr().c_str(), pointId);
         return;
     }
 
     if (!m_creature->GetMotionMaster()->SetNextWaypoint(pointId))
     {
-        script_error_log("EscortAI for %s current waypoint tried to set to id %u, but doesn't exist in this path", m_creature->GetGuidStr().c_str(), pointId);
+        script_error_log("EscortAI for %s current waypoint tried to set to id %u, "
+                         "but doesn't exist in this path",
+                         m_creature->GetGuidStr().c_str(), pointId);
     }
 }
 
@@ -232,7 +243,7 @@ void npc_escortAI::SetRun(bool run)
 }
 
 // TODO: get rid of this many variables passed in function.
-void npc_escortAI::Start(bool run, const Player* player, const Quest* quest, bool instantRespawn, bool canLoopPath)
+void npc_escortAI::Start(bool run, const Player *player, const Quest *quest, bool instantRespawn, bool canLoopPath)
 {
     if (m_creature->GetVictim())
     {
@@ -242,13 +253,17 @@ void npc_escortAI::Start(bool run, const Player* player, const Quest* quest, boo
 
     if (HasEscortState(STATE_ESCORT_ESCORTING))
     {
-        script_error_log("EscortAI attempt to Start while already escorting for %s.", m_creature->GetScriptName().data());
+        script_error_log("EscortAI attempt to Start while already escorting for %s.",
+                         m_creature->GetScriptName().data());
         return;
     }
 
-    if (!sWaypointMgr.GetPathFromOrigin(m_creature->GetEntry(), m_creature->GetGUIDLow(), m_waypointPathID, PATH_FROM_EXTERNAL))
+    if (!sWaypointMgr.GetPathFromOrigin(m_creature->GetEntry(), m_creature->GetGUIDLow(), m_waypointPathID,
+                                        PATH_FROM_EXTERNAL))
     {
-        script_error_log("EscortAI attempt to start escorting for %s, but has no waypoints loaded.", m_creature->GetScriptName().data());
+        script_error_log("EscortAI attempt to start escorting for %s, but has no "
+                         "waypoints loaded.",
+                         m_creature->GetScriptName().data());
         return;
     }
 
@@ -262,7 +277,8 @@ void npc_escortAI::Start(bool run, const Player* player, const Quest* quest, boo
     m_canReturnToStart = canLoopPath;
 
     if (m_canReturnToStart && m_canInstantRespawn)
-        debug_log("SD2: EscortAI is set to return home after waypoint end and instant respawn at waypoint end. Creature will never despawn.");
+        debug_log("SD2: EscortAI is set to return home after waypoint end and "
+                  "instant respawn at waypoint end. Creature will never despawn.");
 
     // disable npcflags
     m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);

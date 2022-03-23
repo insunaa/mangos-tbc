@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,88 +18,90 @@
  */
 
 #include "VMapFactory.h"
+
 #include "VMapManager2.h"
 
 using namespace G3D;
 
 namespace VMAP
 {
-    void VMapFactory::chompAndTrim(std::string& str)
+void VMapFactory::chompAndTrim(std::string &str)
+{
+    while (str.length() > 0)
     {
-        while (str.length() > 0)
+        char lc = str[str.length() - 1];
+        if (lc == '\r' || lc == '\n' || lc == ' ' || lc == '"' || lc == '\'')
         {
-            char lc = str[str.length() - 1];
-            if (lc == '\r' || lc == '\n' || lc == ' ' || lc == '"' || lc == '\'')
-            {
-                str = str.substr(0, str.length() - 1);
-            }
-            else
-            {
-                break;
-            }
+            str = str.substr(0, str.length() - 1);
         }
-        while (str.length() > 0)
+        else
         {
-            char lc = str[0];
-            if (lc == ' ' || lc == '"' || lc == '\'')
-            {
-                str = str.substr(1, str.length() - 1);
-            }
-            else
-            {
-                break;
-            }
+            break;
         }
     }
-
-    std::mutex m_vmapMutex;
-    IVMapManager* gVMapManager = nullptr;
-
-    //===============================================
-    // result false, if no more id are found
-
-    bool VMapFactory::getNextId(const std::string& pString, unsigned int& pStartPos, unsigned int& pId)
+    while (str.length() > 0)
     {
-        bool result = false;
-        unsigned int i;
-        for (i = pStartPos; i < pString.size(); ++i)
+        char lc = str[0];
+        if (lc == ' ' || lc == '"' || lc == '\'')
         {
-            if (pString[i] == ',')
-            {
-                break;
-            }
+            str = str.substr(1, str.length() - 1);
         }
-        if (i > pStartPos)
+        else
         {
-            std::string idString = pString.substr(pStartPos, i - pStartPos);
-            pStartPos = i + 1;
-            chompAndTrim(idString);
-            pId = atoi(idString.c_str());
-            result = true;
+            break;
         }
-        return result;
-    }
-
-    //===============================================
-    // just return the instance
-    IVMapManager* VMapFactory::createOrGetVMapManager()
-    {
-        if (!gVMapManager)
-        {
-            std::lock_guard<std::mutex> lock(m_vmapMutex);
-            if (!gVMapManager)
-                gVMapManager = new VMapManager2();              // should be taken from config ... Please change if you like :-)
-        }
-        return gVMapManager;
-    }
-
-    //===============================================
-    // delete all internal data structures
-    void VMapFactory::clear()
-    {
-        std::lock_guard<std::mutex> lock(m_vmapMutex);
-
-        delete gVMapManager;
-        gVMapManager = nullptr;
     }
 }
+
+std::mutex m_vmapMutex;
+IVMapManager *gVMapManager = nullptr;
+
+//===============================================
+// result false, if no more id are found
+
+bool VMapFactory::getNextId(const std::string &pString, unsigned int &pStartPos, unsigned int &pId)
+{
+    bool result = false;
+    unsigned int i;
+    for (i = pStartPos; i < pString.size(); ++i)
+    {
+        if (pString[i] == ',')
+        {
+            break;
+        }
+    }
+    if (i > pStartPos)
+    {
+        std::string idString = pString.substr(pStartPos, i - pStartPos);
+        pStartPos = i + 1;
+        chompAndTrim(idString);
+        pId = atoi(idString.c_str());
+        result = true;
+    }
+    return result;
+}
+
+//===============================================
+// just return the instance
+IVMapManager *VMapFactory::createOrGetVMapManager()
+{
+    if (!gVMapManager)
+    {
+        std::lock_guard<std::mutex> lock(m_vmapMutex);
+        if (!gVMapManager)
+            gVMapManager = new VMapManager2(); // should be taken from config ...
+                                               // Please change if you like :-)
+    }
+    return gVMapManager;
+}
+
+//===============================================
+// delete all internal data structures
+void VMapFactory::clear()
+{
+    std::lock_guard<std::mutex> lock(m_vmapMutex);
+
+    delete gVMapManager;
+    gVMapManager = nullptr;
+}
+} // namespace VMAP

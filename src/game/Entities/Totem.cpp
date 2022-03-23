@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,14 +18,15 @@
  */
 
 #include "Entities/Totem.h"
-#include "Log.h"
-#include "Groups/Group.h"
+
+#include "AI/BaseAI/CreatureAI.h"
+#include "AI/ScriptDevAI/ScriptDevAIMgr.h"
 #include "Entities/Player.h"
 #include "Globals/ObjectMgr.h"
-#include "AI/ScriptDevAI/ScriptDevAIMgr.h"
-#include "Server/DBCStores.h"
-#include "AI/BaseAI/CreatureAI.h"
+#include "Groups/Group.h"
+#include "Log.h"
 #include "Maps/InstanceData.h"
+#include "Server/DBCStores.h"
 
 Totem::Totem() : Creature(CREATURE_SUBTYPE_TOTEM)
 {
@@ -32,7 +34,7 @@ Totem::Totem() : Creature(CREATURE_SUBTYPE_TOTEM)
     m_type = TOTEM_PASSIVE;
 }
 
-bool Totem::Create(uint32 guidlow, CreatureCreatePos& cPos, CreatureInfo const* cinfo, Unit* owner)
+bool Totem::Create(uint32 guidlow, CreatureCreatePos &cPos, CreatureInfo const *cinfo, Unit *owner)
 {
     SetMap(cPos.GetMap());
 
@@ -56,7 +58,7 @@ bool Totem::Create(uint32 guidlow, CreatureCreatePos& cPos, CreatureInfo const* 
     // Notify the map's instance data.
     // Only works if you create the object in it, not if it is moves to that map.
     // Normally non-players do not teleport to other maps.
-    if (InstanceData* iData = GetMap()->GetInstanceData())
+    if (InstanceData *iData = GetMap()->GetInstanceData())
         iData->OnCreatureCreate(this);
 
     LoadCreatureAddon(false);
@@ -75,16 +77,16 @@ bool Totem::Create(uint32 guidlow, CreatureCreatePos& cPos, CreatureInfo const* 
 
 void Totem::Update(const uint32 diff)
 {
-    Unit* owner = GetOwner();
+    Unit *owner = GetOwner();
     if (!owner || !owner->IsAlive() || !IsAlive())
     {
-        UnSummon();                                         // remove self
+        UnSummon(); // remove self
         return;
     }
 
     if (m_duration <= diff)
     {
-        UnSummon();                                         // remove self
+        UnSummon(); // remove self
         return;
     }
     else
@@ -93,9 +95,9 @@ void Totem::Update(const uint32 diff)
     Creature::Update(diff);
 }
 
-void Totem::Summon(Unit* owner)
+void Totem::Summon(Unit *owner)
 {
-    owner->GetMap()->Add((Creature*)this);
+    owner->GetMap()->Add((Creature *)this);
     AIM_Initialize();
 
     WorldPacket data(SMSG_GAMEOBJECT_SPAWN_ANIM_OBSOLETE, 8);
@@ -103,23 +105,24 @@ void Totem::Summon(Unit* owner)
     SendMessageToSet(data, true);
 
     if (owner->AI())
-        owner->AI()->JustSummoned((Creature*)this);
+        owner->AI()->JustSummoned((Creature *)this);
 
     // there are some totems, which exist just for their visual appeareance
-    for (auto& data : m_spellList.Spells)
+    for (auto &data : m_spellList.Spells)
     {
         uint32 spellId = data.second.SpellId;
         if (!spellId)
             break;
         switch (m_type)
         {
-            case TOTEM_PASSIVE:
-                CastSpell(nullptr, spellId, TRIGGERED_OLD_TRIGGERED);
-                break;
-            case TOTEM_STATUE:
-                CastSpell(GetOwner(), spellId, TRIGGERED_OLD_TRIGGERED);
-                break;
-            default: break;
+        case TOTEM_PASSIVE:
+            CastSpell(nullptr, spellId, TRIGGERED_OLD_TRIGGERED);
+            break;
+        case TOTEM_STATUE:
+            CastSpell(GetOwner(), spellId, TRIGGERED_OLD_TRIGGERED);
+            break;
+        default:
+            break;
         }
     }
 }
@@ -133,7 +136,7 @@ void Totem::UnSummon()
 
     AI()->OnUnsummon();
 
-    if (Unit* owner = GetOwner())
+    if (Unit *owner = GetOwner())
     {
         owner->_RemoveTotem(this);
         owner->RemoveAurasDueToSpell(GetSpell());
@@ -142,19 +145,19 @@ void Totem::UnSummon()
         if (owner->GetTypeId() == TYPEID_PLAYER)
         {
             // Not only the player can summon the totem (scripted AI)
-            if (Group* pGroup = ((Player*)owner)->GetGroup())
+            if (Group *pGroup = ((Player *)owner)->GetGroup())
             {
-                for (GroupReference* itr = pGroup->GetFirstMember(); itr != nullptr; itr = itr->next())
+                for (GroupReference *itr = pGroup->GetFirstMember(); itr != nullptr; itr = itr->next())
                 {
-                    Player* Target = itr->getSource();
-                    if (Target && pGroup->SameSubGroup((Player*)owner, Target))
+                    Player *Target = itr->getSource();
+                    if (Target && pGroup->SameSubGroup((Player *)owner, Target))
                         Target->RemoveAurasDueToSpell(GetSpell());
                 }
             }
         }
 
         if (owner->AI())
-            owner->AI()->SummonedCreatureDespawn((Creature*)this);
+            owner->AI()->SummonedCreatureDespawn((Creature *)this);
     }
 
     // any totem unsummon look like as totem kill, req. for proper animation
@@ -172,10 +175,10 @@ uint32 Totem::GetSpell() const
     return m_spellList.Spells.begin()->second.SpellId;
 }
 
-void Totem::SetTypeBySummonSpell(SpellEntry const* spellProto)
+void Totem::SetTypeBySummonSpell(SpellEntry const *spellProto)
 {
     // Get spell casted by totem
-    SpellEntry const* totemSpell = sSpellTemplate.LookupEntry<SpellEntry>(GetSpell());
+    SpellEntry const *totemSpell = sSpellTemplate.LookupEntry<SpellEntry>(GetSpell());
     if (totemSpell)
     {
         // If spell have cast time -> so its active totem
@@ -183,21 +186,21 @@ void Totem::SetTypeBySummonSpell(SpellEntry const* spellProto)
             m_type = TOTEM_ACTIVE;
     }
     if (spellProto->SpellIconID == 2056)
-        m_type = TOTEM_STATUE;                              // Jewelery statue
+        m_type = TOTEM_STATUE; // Jewelery statue
 }
 
-Player* Totem::GetSpellModOwner() const
+Player *Totem::GetSpellModOwner() const
 {
-    Unit* owner = GetOwner();
+    Unit *owner = GetOwner();
     if (owner && owner->GetTypeId() == TYPEID_PLAYER)
-        return static_cast<Player*>(owner);
+        return static_cast<Player *>(owner);
     return nullptr;
 }
 
 float Totem::GetCritChance(WeaponAttackType attackType) const
 {
     // Totems use owner's crit chance (when owner is available)
-    if (const Unit* owner = GetOwner())
+    if (const Unit *owner = GetOwner())
         return owner->GetCritChance(attackType);
     return Creature::GetCritChance(attackType);
 }
@@ -205,15 +208,16 @@ float Totem::GetCritChance(WeaponAttackType attackType) const
 float Totem::GetCritChance(SpellSchoolMask schoolMask) const
 {
     // Totems use owner's crit chance (when owner is available)
-    if (const Unit* owner = GetOwner())
+    if (const Unit *owner = GetOwner())
         return owner->GetCritChance(schoolMask);
     return Creature::GetCritChance(schoolMask);
 }
 
-float Totem::GetCritMultiplier(SpellSchoolMask dmgSchoolMask, uint32 creatureTypeMask, const SpellEntry* spell, bool heal) const
+float Totem::GetCritMultiplier(SpellSchoolMask dmgSchoolMask, uint32 creatureTypeMask, const SpellEntry *spell,
+                               bool heal) const
 {
     // Totems use owner's crit multiplier
-    if (const Unit* owner = GetOwner())
+    if (const Unit *owner = GetOwner())
         return owner->GetCritMultiplier(dmgSchoolMask, creatureTypeMask, spell, heal);
     return Creature::GetCritMultiplier(dmgSchoolMask, creatureTypeMask, spell, heal);
 }
@@ -221,7 +225,7 @@ float Totem::GetCritMultiplier(SpellSchoolMask dmgSchoolMask, uint32 creatureTyp
 float Totem::GetHitChance(WeaponAttackType attackType) const
 {
     // Totems use owner's hit chance (when owner is available)
-    if (const Unit* owner = GetOwner())
+    if (const Unit *owner = GetOwner())
         return owner->GetHitChance(attackType);
     return Creature::GetHitChance(attackType);
 }
@@ -229,7 +233,7 @@ float Totem::GetHitChance(WeaponAttackType attackType) const
 float Totem::GetHitChance(SpellSchoolMask schoolMask) const
 {
     // Totems use owner's hit chance (when owner is available)
-    if (const Unit* owner = GetOwner())
+    if (const Unit *owner = GetOwner())
         return owner->GetHitChance(schoolMask);
     return Creature::GetHitChance(schoolMask);
 }
@@ -249,12 +253,12 @@ float Totem::GetMissChance(SpellSchoolMask /*schoolMask*/) const
 int32 Totem::GetResistancePenetration(SpellSchools school) const
 {
     // Totems use owner's penetration (when owner is available)
-    if (const Unit* owner = GetOwner())
+    if (const Unit *owner = GetOwner())
         return owner->GetResistancePenetration(school);
     return Creature::GetResistancePenetration(school);
 }
 
-bool Totem::IsImmuneToSpellEffect(SpellEntry const* spellInfo, SpellEffectIndex index, bool castOnSelf) const
+bool Totem::IsImmuneToSpellEffect(SpellEntry const *spellInfo, SpellEffectIndex index, bool castOnSelf) const
 {
     // Totem may affected by some specific spells
     // Mana Spring, Healing stream, Mana tide
@@ -264,17 +268,17 @@ bool Totem::IsImmuneToSpellEffect(SpellEntry const* spellInfo, SpellEffectIndex 
 
     switch (spellInfo->Effect[index])
     {
-        case SPELL_EFFECT_ATTACK_ME:
-        // immune to any type of regeneration effects hp/mana etc.
-        case SPELL_EFFECT_HEAL:
-        case SPELL_EFFECT_HEAL_MAX_HEALTH:
-        case SPELL_EFFECT_HEAL_MECHANICAL:
-        case SPELL_EFFECT_HEAL_PCT:
-        case SPELL_EFFECT_ENERGIZE:
-        case SPELL_EFFECT_ENERGIZE_PCT:
-            return true;
-        default:
-            break;
+    case SPELL_EFFECT_ATTACK_ME:
+    // immune to any type of regeneration effects hp/mana etc.
+    case SPELL_EFFECT_HEAL:
+    case SPELL_EFFECT_HEAL_MAX_HEALTH:
+    case SPELL_EFFECT_HEAL_MECHANICAL:
+    case SPELL_EFFECT_HEAL_PCT:
+    case SPELL_EFFECT_ENERGIZE:
+    case SPELL_EFFECT_ENERGIZE_PCT:
+        return true;
+    default:
+        break;
     }
 
     if (!IsPositiveSpell(spellInfo))

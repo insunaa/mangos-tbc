@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,16 +18,17 @@
  */
 
 #include "OutdoorPvPMgr.h"
-#include "Policies/Singleton.h"
-#include "OutdoorPvP.h"
-#include "World/World.h"
+
 #include "Log.h"
+#include "OutdoorPvP.h"
 #include "OutdoorPvPEP.h"
 #include "OutdoorPvPHP.h"
 #include "OutdoorPvPNA.h"
 #include "OutdoorPvPSI.h"
 #include "OutdoorPvPTF.h"
 #include "OutdoorPvPZM.h"
+#include "Policies/Singleton.h"
+#include "World/World.h"
 
 INSTANTIATE_SINGLETON_1(OutdoorPvPMgr);
 
@@ -38,15 +40,15 @@ OutdoorPvPMgr::OutdoorPvPMgr()
 
 OutdoorPvPMgr::~OutdoorPvPMgr()
 {
-    for (auto& m_script : m_scripts)
+    for (auto &m_script : m_scripts)
         delete m_script;
 }
 
-#define LOAD_OPVP_ZONE(a)                                           \
-    if (sWorld.getConfig(CONFIG_BOOL_OUTDOORPVP_##a##_ENABLED))     \
-    {                                                               \
-        m_scripts[OPVP_ID_##a] = new OutdoorPvP##a();               \
-        ++counter;                                                  \
+#define LOAD_OPVP_ZONE(a)                                                                                              \
+    if (sWorld.getConfig(CONFIG_BOOL_OUTDOORPVP_##a##_ENABLED))                                                        \
+    {                                                                                                                  \
+        m_scripts[OPVP_ID_##a] = new OutdoorPvP##a();                                                                  \
+        ++counter;                                                                                                     \
     }
 /**
    Function which loads all outdoor pvp scripts
@@ -66,54 +68,54 @@ void OutdoorPvPMgr::InitOutdoorPvP()
     sLog.outString();
 }
 
-OutdoorPvP* OutdoorPvPMgr::GetScript(uint32 zoneId)
+OutdoorPvP *OutdoorPvPMgr::GetScript(uint32 zoneId)
 {
     switch (zoneId)
     {
-        case ZONE_ID_SILITHUS:
-            return m_scripts[OPVP_ID_SI];
-        case ZONE_ID_EASTERN_PLAGUELANDS:
-            return m_scripts[OPVP_ID_EP];
-        case ZONE_ID_HELLFIRE_PENINSULA:
-            return m_scripts[OPVP_ID_HP];
-        case ZONE_ID_ZANGARMARSH:
-            return m_scripts[OPVP_ID_ZM];
-        case ZONE_ID_TEROKKAR_FOREST:
-            return m_scripts[OPVP_ID_TF];
-        case ZONE_ID_NAGRAND:
-            return m_scripts[OPVP_ID_NA];
-        default:
-            return nullptr;
+    case ZONE_ID_SILITHUS:
+        return m_scripts[OPVP_ID_SI];
+    case ZONE_ID_EASTERN_PLAGUELANDS:
+        return m_scripts[OPVP_ID_EP];
+    case ZONE_ID_HELLFIRE_PENINSULA:
+        return m_scripts[OPVP_ID_HP];
+    case ZONE_ID_ZANGARMARSH:
+        return m_scripts[OPVP_ID_ZM];
+    case ZONE_ID_TEROKKAR_FOREST:
+        return m_scripts[OPVP_ID_TF];
+    case ZONE_ID_NAGRAND:
+        return m_scripts[OPVP_ID_NA];
+    default:
+        return nullptr;
     }
 }
 
-OutdoorPvP* OutdoorPvPMgr::GetScriptOfAffectedZone(uint32 zoneId)
+OutdoorPvP *OutdoorPvPMgr::GetScriptOfAffectedZone(uint32 zoneId)
 {
     switch (zoneId)
     {
-        case ZONE_ID_TEMPLE_OF_AQ:
-        case ZONE_ID_RUINS_OF_AQ:
-        case ZONE_ID_GATES_OF_AQ:
-            return m_scripts[OPVP_ID_SI];
-        case ZONE_ID_STRATHOLME:
-        case ZONE_ID_SCHOLOMANCE:
-            return m_scripts[OPVP_ID_EP];
-        case ZONE_ID_HELLFIRE_RAMPARTS:
-        case ZONE_ID_HELLFIRE_CITADEL:
-        case ZONE_ID_BLOOD_FURNACE:
-        case ZONE_ID_SHATTERED_HALLS:
-            return m_scripts[OPVP_ID_HP];
-        case ZONE_ID_STEAMVAULT:
-        case ZONE_ID_UNDERBOG:
-        case ZONE_ID_SLAVE_PENS:
-            return m_scripts[OPVP_ID_ZM];
-        case ZONE_ID_SHADOW_LABYRINTH:
-        case ZONE_ID_AUCHENAI_CRYPTS:
-        case ZONE_ID_SETHEKK_HALLS:
-        case ZONE_ID_MANA_TOMBS:
-            return m_scripts[OPVP_ID_TF];
-        default:
-            return nullptr;
+    case ZONE_ID_TEMPLE_OF_AQ:
+    case ZONE_ID_RUINS_OF_AQ:
+    case ZONE_ID_GATES_OF_AQ:
+        return m_scripts[OPVP_ID_SI];
+    case ZONE_ID_STRATHOLME:
+    case ZONE_ID_SCHOLOMANCE:
+        return m_scripts[OPVP_ID_EP];
+    case ZONE_ID_HELLFIRE_RAMPARTS:
+    case ZONE_ID_HELLFIRE_CITADEL:
+    case ZONE_ID_BLOOD_FURNACE:
+    case ZONE_ID_SHATTERED_HALLS:
+        return m_scripts[OPVP_ID_HP];
+    case ZONE_ID_STEAMVAULT:
+    case ZONE_ID_UNDERBOG:
+    case ZONE_ID_SLAVE_PENS:
+        return m_scripts[OPVP_ID_ZM];
+    case ZONE_ID_SHADOW_LABYRINTH:
+    case ZONE_ID_AUCHENAI_CRYPTS:
+    case ZONE_ID_SETHEKK_HALLS:
+    case ZONE_ID_MANA_TOMBS:
+        return m_scripts[OPVP_ID_TF];
+    default:
+        return nullptr;
     }
 }
 
@@ -123,11 +125,11 @@ OutdoorPvP* OutdoorPvPMgr::GetScriptOfAffectedZone(uint32 zoneId)
    @param   player to be handled in the event
    @param   zone id used for the current outdoor pvp script
  */
-void OutdoorPvPMgr::HandlePlayerEnterZone(Player* player, uint32 zoneId)
+void OutdoorPvPMgr::HandlePlayerEnterZone(Player *player, uint32 zoneId)
 {
-    if (OutdoorPvP* script = GetScript(zoneId))
+    if (OutdoorPvP *script = GetScript(zoneId))
         script->HandlePlayerEnterZone(player, true);
-    else if (OutdoorPvP* affectedScript = GetScriptOfAffectedZone(zoneId))
+    else if (OutdoorPvP *affectedScript = GetScriptOfAffectedZone(zoneId))
         affectedScript->HandlePlayerEnterZone(player, false);
 }
 
@@ -137,12 +139,13 @@ void OutdoorPvPMgr::HandlePlayerEnterZone(Player* player, uint32 zoneId)
    @param   player to be handled in the event
    @param   zone id used for the current outdoor pvp script
  */
-void OutdoorPvPMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneId)
+void OutdoorPvPMgr::HandlePlayerLeaveZone(Player *player, uint32 zoneId)
 {
-    // teleport: called once from Player::CleanupsBeforeDelete, once from Player::UpdateZone
-    if (OutdoorPvP* script = GetScript(zoneId))
+    // teleport: called once from Player::CleanupsBeforeDelete, once from
+    // Player::UpdateZone
+    if (OutdoorPvP *script = GetScript(zoneId))
         script->HandlePlayerLeaveZone(player, true);
-    else if (OutdoorPvP* affectedScript = GetScriptOfAffectedZone(zoneId))
+    else if (OutdoorPvP *affectedScript = GetScriptOfAffectedZone(zoneId))
         affectedScript->HandlePlayerLeaveZone(player, false);
 }
 
@@ -152,7 +155,7 @@ void OutdoorPvPMgr::Update(uint32 diff)
     if (!m_updateTimer.Passed())
         return;
 
-    for (auto& m_script : m_scripts)
+    for (auto &m_script : m_scripts)
         if (m_script)
             m_script->Update(m_updateTimer.GetCurrent());
 

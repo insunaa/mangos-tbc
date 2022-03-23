@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -26,33 +26,33 @@ EndScriptData */
 
 enum
 {
-    SAY_AGGRO               = -1269013,
-    SAY_BANISH              = -1269014,
-    SAY_SLAY1               = -1269015,
-    SAY_SLAY2               = -1269016,
-    SAY_DEATH               = -1269017,
-    EMOTE_GENERIC_FRENZY    = -1000002,
+    SAY_AGGRO = -1269013,
+    SAY_BANISH = -1269014,
+    SAY_SLAY1 = -1269015,
+    SAY_SLAY2 = -1269016,
+    SAY_DEATH = -1269017,
+    EMOTE_GENERIC_FRENZY = -1000002,
 
-    SPELL_THRASH            = 8876,
-    SPELL_DOUBLE_ATTACK     = 19818,
+    SPELL_THRASH = 8876,
+    SPELL_DOUBLE_ATTACK = 19818,
 
-    SPELL_CLEAVE            = 40504,
-    SPELL_TIME_STOP         = 31422,
-    SPELL_ENRAGE            = 37605,
-    SPELL_SAND_BREATH       = 31473,
-    SPELL_SAND_BREATH_H     = 39049
+    SPELL_CLEAVE = 40504,
+    SPELL_TIME_STOP = 31422,
+    SPELL_ENRAGE = 37605,
+    SPELL_SAND_BREATH = 31473,
+    SPELL_SAND_BREATH_H = 39049
 };
 
 struct boss_aeonusAI : public ScriptedAI
 {
-    boss_aeonusAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_aeonusAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (ScriptedInstance *)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    ScriptedInstance *m_pInstance;
     bool m_bIsRegularMode;
 
     uint32 m_uiSandBreathTimer;
@@ -63,19 +63,20 @@ struct boss_aeonusAI : public ScriptedAI
     void Reset() override
     {
         m_uiSandBreathTimer = urand(15000, 30000);
-        m_uiTimeStopTimer   = urand(10000, 15000);
-        m_uiFrenzyTimer     = urand(30000, 45000);
-        m_uiCleaveTimer     = urand(5000, 9000);
+        m_uiTimeStopTimer = urand(10000, 15000);
+        m_uiFrenzyTimer = urand(30000, 45000);
+        m_uiCleaveTimer = urand(5000, 9000);
 
-        DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_THRASH : SPELL_DOUBLE_ATTACK, CAST_TRIGGERED | CAST_AURA_NOT_PRESENT);
+        DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_THRASH : SPELL_DOUBLE_ATTACK,
+                         CAST_TRIGGERED | CAST_AURA_NOT_PRESENT);
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
 
-    void MoveInLineOfSight(Unit* pWho) override
+    void MoveInLineOfSight(Unit *pWho) override
     {
         // Despawn Time Keeper
         if (pWho->GetTypeId() == TYPEID_UNIT && pWho->GetEntry() == NPC_TIME_KEEPER)
@@ -90,12 +91,12 @@ struct boss_aeonusAI : public ScriptedAI
         ScriptedAI::MoveInLineOfSight(pWho);
     }
 
-    void JustDied(Unit* /*pKiller*/) override
+    void JustDied(Unit * /*pKiller*/) override
     {
         DoScriptText(SAY_DEATH, m_creature);
     }
 
-    void KilledUnit(Unit* /*pVictim*/) override
+    void KilledUnit(Unit * /*pVictim*/) override
     {
         DoScriptText(urand(0, 1) ? SAY_SLAY1 : SAY_SLAY2, m_creature);
     }
@@ -149,14 +150,14 @@ struct boss_aeonusAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_aeonus(Creature* pCreature)
+UnitAI *GetAI_boss_aeonus(Creature *pCreature)
 {
     return new boss_aeonusAI(pCreature);
 }
 
 void AddSC_boss_aeonus()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_aeonus";
     pNewScript->GetAI = &GetAI_boss_aeonus;
     pNewScript->RegisterSelf();

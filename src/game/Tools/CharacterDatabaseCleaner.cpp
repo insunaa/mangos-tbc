@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,13 +17,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "Common.h"
 #include "Tools/CharacterDatabaseCleaner.h"
-#include "World/World.h"
+
+#include "Common.h"
 #include "Database/DatabaseEnv.h"
-#include "Server/DBCStores.h"
 #include "ProgressBar.h"
+#include "Server/DBCStores.h"
 #include "Server/SQLStorages.h"
+#include "World/World.h"
 
 void CharacterDatabaseCleaner::CleanDatabase()
 {
@@ -33,7 +35,7 @@ void CharacterDatabaseCleaner::CleanDatabase()
     sLog.outString("Cleaning character database...");
 
     // check flags which clean ups are necessary
-    QueryResult* result = CharacterDatabase.PQuery("SELECT cleaning_flags FROM saved_variables");
+    QueryResult *result = CharacterDatabase.PQuery("SELECT cleaning_flags FROM saved_variables");
     if (!result)
         return;
     uint32 flags = (*result)[0].GetUInt32();
@@ -47,9 +49,9 @@ void CharacterDatabaseCleaner::CleanDatabase()
     CharacterDatabase.Execute("UPDATE saved_variables SET cleaning_flags = 0");
 }
 
-void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table, bool (*check)(uint32))
+void CharacterDatabaseCleaner::CheckUnique(const char *column, const char *table, bool (*check)(uint32))
 {
-    QueryResult* result = CharacterDatabase.PQuery("SELECT DISTINCT %s FROM %s", column, table);
+    QueryResult *result = CharacterDatabase.PQuery("SELECT DISTINCT %s FROM %s", column, table);
     if (!result)
     {
         sLog.outString("Table %s is empty.", table);
@@ -63,7 +65,7 @@ void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table
     {
         bar.step();
 
-        Field* fields = result->Fetch();
+        Field *fields = result->Fetch();
 
         uint32 id = fields[0].GetUInt32();
 
@@ -78,8 +80,7 @@ void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table
                 ss << ",";
             ss << id;
         }
-    }
-    while (result->NextRow());
+    } while (result->NextRow());
     delete result;
 
     if (found)

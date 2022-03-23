@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +26,7 @@ SqlStmtParameters::SqlStmtParameters(uint32 nParams)
         m_params.reserve(nParams);
 }
 
-void SqlStmtParameters::reset(const SqlStatement& stmt)
+void SqlStmtParameters::reset(const SqlStatement &stmt)
 {
     m_params.clear();
     // reserve memory if needed
@@ -34,7 +35,7 @@ void SqlStmtParameters::reset(const SqlStatement& stmt)
 }
 
 //////////////////////////////////////////////////////////////////////////
-SqlStatement& SqlStatement::operator=(const SqlStatement& index)
+SqlStatement &SqlStatement::operator=(const SqlStatement &index)
 {
     if (this != &index)
     {
@@ -53,7 +54,7 @@ SqlStatement& SqlStatement::operator=(const SqlStatement& index)
 
 bool SqlStatement::Execute()
 {
-    SqlStmtParameters* args = detach();
+    SqlStmtParameters *args = detach();
     // verify amount of bound parameters
     if (args->boundParams() != arguments())
     {
@@ -69,7 +70,7 @@ bool SqlStatement::Execute()
 
 bool SqlStatement::DirectExecute()
 {
-    SqlStmtParameters* args = detach();
+    SqlStmtParameters *args = detach();
     // verify amount of bound parameters
     if (args->boundParams() != arguments())
     {
@@ -84,14 +85,15 @@ bool SqlStatement::DirectExecute()
 }
 
 //////////////////////////////////////////////////////////////////////////
-SqlPlainPreparedStatement::SqlPlainPreparedStatement(const std::string& fmt, SqlConnection& conn) : SqlPreparedStatement(fmt, conn)
+SqlPlainPreparedStatement::SqlPlainPreparedStatement(const std::string &fmt, SqlConnection &conn)
+    : SqlPreparedStatement(fmt, conn)
 {
     m_bPrepared = true;
     m_nParams = std::count(m_szFmt.begin(), m_szFmt.end(), '?');
     m_bIsQuery = strnicmp(m_szFmt.c_str(), "select", 6) == 0;
 }
 
-void SqlPlainPreparedStatement::bind(const SqlStmtParameters& holder)
+void SqlPlainPreparedStatement::bind(const SqlStmtParameters &holder)
 {
     // verify if we bound all needed input parameters
     if (m_nParams != holder.boundParams())
@@ -104,13 +106,13 @@ void SqlPlainPreparedStatement::bind(const SqlStmtParameters& holder)
     m_szPlainRequest = m_szFmt;
     size_t nLastPos = 0;
 
-    SqlStmtParameters::ParameterContainer const& _args = holder.params();
+    SqlStmtParameters::ParameterContainer const &_args = holder.params();
 
     SqlStmtParameters::ParameterContainer::const_iterator iter_last = _args.end();
     for (SqlStmtParameters::ParameterContainer::const_iterator iter = _args.begin(); iter != iter_last; ++iter)
     {
         // bind parameter
-        const SqlStmtFieldData& data = (*iter);
+        const SqlStmtFieldData &data = (*iter);
 
         std::ostringstream fmt;
         DataToString(data, fmt);
@@ -133,29 +135,52 @@ bool SqlPlainPreparedStatement::execute()
     return m_pConn.Execute(m_szPlainRequest.c_str());
 }
 
-void SqlPlainPreparedStatement::DataToString(const SqlStmtFieldData& data, std::ostringstream& fmt) const
+void SqlPlainPreparedStatement::DataToString(const SqlStmtFieldData &data, std::ostringstream &fmt) const
 {
     switch (data.type())
     {
-        case FIELD_BOOL:    fmt << "'" << uint32(data.toBool()) << "'";     break;
-        case FIELD_UI8:     fmt << "'" << uint32(data.toUint8()) << "'";    break;
-        case FIELD_UI16:    fmt << "'" << uint32(data.toUint16()) << "'";   break;
-        case FIELD_UI32:    fmt << "'" << data.toUint32() << "'";           break;
-        case FIELD_UI64:    fmt << "'" << data.toUint64() << "'";           break;
-        case FIELD_I8:      fmt << "'" << int32(data.toInt8()) << "'";      break;
-        case FIELD_I16:     fmt << "'" << int32(data.toInt16()) << "'";     break;
-        case FIELD_I32:     fmt << "'" << data.toInt32() << "'";            break;
-        case FIELD_I64:     fmt << "'" << data.toInt64() << "'";            break;
-        case FIELD_FLOAT:   fmt << "'" << data.toFloat() << "'";            break;
-        case FIELD_DOUBLE:  fmt << "'" << data.toDouble() << "'";           break;
-        case FIELD_STRING:
-        {
-            std::string tmp = data.toStr();
-            m_pConn.DB().escape_string(tmp);
-            fmt << "'" << tmp << "'";
-            break;
-        }
-        case FIELD_NONE:                                                    break;
-        default: throw std::domain_error("Unrecognized sql data type");
+    case FIELD_BOOL:
+        fmt << "'" << uint32(data.toBool()) << "'";
+        break;
+    case FIELD_UI8:
+        fmt << "'" << uint32(data.toUint8()) << "'";
+        break;
+    case FIELD_UI16:
+        fmt << "'" << uint32(data.toUint16()) << "'";
+        break;
+    case FIELD_UI32:
+        fmt << "'" << data.toUint32() << "'";
+        break;
+    case FIELD_UI64:
+        fmt << "'" << data.toUint64() << "'";
+        break;
+    case FIELD_I8:
+        fmt << "'" << int32(data.toInt8()) << "'";
+        break;
+    case FIELD_I16:
+        fmt << "'" << int32(data.toInt16()) << "'";
+        break;
+    case FIELD_I32:
+        fmt << "'" << data.toInt32() << "'";
+        break;
+    case FIELD_I64:
+        fmt << "'" << data.toInt64() << "'";
+        break;
+    case FIELD_FLOAT:
+        fmt << "'" << data.toFloat() << "'";
+        break;
+    case FIELD_DOUBLE:
+        fmt << "'" << data.toDouble() << "'";
+        break;
+    case FIELD_STRING: {
+        std::string tmp = data.toStr();
+        m_pConn.DB().escape_string(tmp);
+        fmt << "'" << tmp << "'";
+        break;
+    }
+    case FIELD_NONE:
+        break;
+    default:
+        throw std::domain_error("Unrecognized sql data type");
     }
 }

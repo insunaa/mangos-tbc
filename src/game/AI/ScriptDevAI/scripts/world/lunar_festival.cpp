@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -18,11 +18,11 @@
 
 struct LunarFestivalFirework : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx == EFFECT_INDEX_0)
         {
-            if (GameObject* launcher = spell->GetGOTarget())
+            if (GameObject *launcher = spell->GetGOTarget())
                 launcher->Use(spell->GetCaster());
         }
     }
@@ -30,7 +30,7 @@ struct LunarFestivalFirework : public SpellScript
 
 struct LunarFestivalFireworkSingle : public SpellScript
 {
-    void OnDestTarget(Spell* spell) const override
+    void OnDestTarget(Spell *spell) const override
     {
         spell->m_targets.m_destPos.z += 3.f;
     }
@@ -38,7 +38,7 @@ struct LunarFestivalFireworkSingle : public SpellScript
 
 struct LunarFestivalClusterSmallD : public SpellScript
 {
-    void OnDestTarget(Spell* spell) const override
+    void OnDestTarget(Spell *spell) const override
     {
         spell->m_targets.m_destPos.z += 2.f;
     }
@@ -46,7 +46,7 @@ struct LunarFestivalClusterSmallD : public SpellScript
 
 struct LunarFestivalClusterSmallN : public SpellScript
 {
-    void OnDestTarget(Spell* spell) const override
+    void OnDestTarget(Spell *spell) const override
     {
         spell->m_targets.m_destPos.y += 2.f;
         spell->m_targets.m_destPos.z += 5.f;
@@ -55,7 +55,7 @@ struct LunarFestivalClusterSmallN : public SpellScript
 
 struct LunarFestivalClusterSmallSE : public SpellScript
 {
-    void OnDestTarget(Spell* spell) const override
+    void OnDestTarget(Spell *spell) const override
     {
         spell->m_targets.m_destPos.x += 3.5f;
         spell->m_targets.m_destPos.y -= 1.f;
@@ -65,7 +65,7 @@ struct LunarFestivalClusterSmallSE : public SpellScript
 
 struct LunarFestivalClusterSmallSW : public SpellScript
 {
-    void OnDestTarget(Spell* spell) const override
+    void OnDestTarget(Spell *spell) const override
     {
         spell->m_targets.m_destPos.x -= 3.5f;
         spell->m_targets.m_destPos.y -= 1.f;
@@ -75,7 +75,7 @@ struct LunarFestivalClusterSmallSW : public SpellScript
 
 struct LunarFestivalClusterSmallU : public SpellScript
 {
-    void OnDestTarget(Spell* spell) const override
+    void OnDestTarget(Spell *spell) const override
     {
         spell->m_targets.m_destPos.z += 8.f;
     }
@@ -83,7 +83,7 @@ struct LunarFestivalClusterSmallU : public SpellScript
 
 struct LunarFestivalClusterBigD : public SpellScript
 {
-    void OnDestTarget(Spell* spell) const override
+    void OnDestTarget(Spell *spell) const override
     {
         spell->m_targets.m_destPos.z += 3.f;
     }
@@ -91,7 +91,7 @@ struct LunarFestivalClusterBigD : public SpellScript
 
 struct LunarFestivalClusterBigN : public SpellScript
 {
-    void OnDestTarget(Spell* spell) const override
+    void OnDestTarget(Spell *spell) const override
     {
         spell->m_targets.m_destPos.y += 3.f;
         spell->m_targets.m_destPos.z += 7.5f;
@@ -100,7 +100,7 @@ struct LunarFestivalClusterBigN : public SpellScript
 
 struct LunarFestivalClusterBigSE : public SpellScript
 {
-    void OnDestTarget(Spell* spell) const override
+    void OnDestTarget(Spell *spell) const override
     {
         spell->m_targets.m_destPos.x += 5.5f;
         spell->m_targets.m_destPos.y -= 1.5f;
@@ -110,7 +110,7 @@ struct LunarFestivalClusterBigSE : public SpellScript
 
 struct LunarFestivalClusterBigSW : public SpellScript
 {
-    void OnDestTarget(Spell* spell) const override
+    void OnDestTarget(Spell *spell) const override
     {
         spell->m_targets.m_destPos.x -= 5.5f;
         spell->m_targets.m_destPos.y -= 1.5f;
@@ -120,7 +120,7 @@ struct LunarFestivalClusterBigSW : public SpellScript
 
 struct LunarFestivalClusterBigU : public SpellScript
 {
-    void OnDestTarget(Spell* spell) const override
+    void OnDestTarget(Spell *spell) const override
     {
         spell->m_targets.m_destPos.z += 12.f;
     }

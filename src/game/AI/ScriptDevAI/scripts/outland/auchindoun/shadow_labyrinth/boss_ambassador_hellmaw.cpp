@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -26,31 +26,31 @@ EndScriptData */
 
 enum
 {
-    SAY_AGGRO_1             = -1555001,
-    SAY_AGGRO_2             = -1555002,
-    SAY_AGGRO_3             = -1555003,
-    SAY_HELP                = -1555004,
-    SAY_SLAY_1              = -1555005,
-    SAY_SLAY_2              = -1555006,
-    SAY_DEATH               = -1555007,
+    SAY_AGGRO_1 = -1555001,
+    SAY_AGGRO_2 = -1555002,
+    SAY_AGGRO_3 = -1555003,
+    SAY_HELP = -1555004,
+    SAY_SLAY_1 = -1555005,
+    SAY_SLAY_2 = -1555006,
+    SAY_DEATH = -1555007,
 
-    SPELL_CORROSIVE_ACID    = 33551,
-    SPELL_FEAR              = 33547,
-    SPELL_ENRAGE            = 34970
+    SPELL_CORROSIVE_ACID = 33551,
+    SPELL_FEAR = 33547,
+    SPELL_ENRAGE = 34970
 };
 
 struct boss_ambassador_hellmawAI : public ScriptedAI
 {
-    boss_ambassador_hellmawAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_ambassador_hellmawAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (instance_shadow_labyrinth*)pCreature->GetInstanceData();
+        m_pInstance = (instance_shadow_labyrinth *)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         m_creature->SetCanEnterCombat(false);
         SetReactState(REACT_PASSIVE);
         Reset();
     }
 
-    instance_shadow_labyrinth* m_pInstance;
+    instance_shadow_labyrinth *m_pInstance;
     bool m_bIsRegularMode;
 
     uint32 m_uiBanishTimer;
@@ -61,14 +61,14 @@ struct boss_ambassador_hellmawAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiBanishTimer         = 2000;
-        m_uiCorrosiveAcidTimer  = urand(20000, 23000);
-        m_uiFearTimer           = urand(20000, 26000);
-        m_uiEnrageTimer         = 3 * MINUTE * IN_MILLISECONDS;
-        m_bIsEnraged            = false;
+        m_uiBanishTimer = 2000;
+        m_uiCorrosiveAcidTimer = urand(20000, 23000);
+        m_uiFearTimer = urand(20000, 26000);
+        m_uiEnrageTimer = 3 * MINUTE * IN_MILLISECONDS;
+        m_bIsEnraged = false;
     }
 
-    void ReceiveAIEvent(AIEventType eventType, Unit* /*sender*/, Unit* /*invoker*/, uint32 /*miscValue*/) override
+    void ReceiveAIEvent(AIEventType eventType, Unit * /*sender*/, Unit * /*invoker*/, uint32 /*miscValue*/) override
     {
         if (eventType == AI_EVENT_CUSTOM_A)
         {
@@ -87,25 +87,31 @@ struct boss_ambassador_hellmawAI : public ScriptedAI
             m_pInstance->SetData(TYPE_HELLMAW, FAIL);
     }
 
-    void Aggro(Unit* /*pWho*/) override
+    void Aggro(Unit * /*pWho*/) override
     {
         switch (urand(0, 2))
         {
-            case 0: DoScriptText(SAY_AGGRO_1, m_creature); break;
-            case 1: DoScriptText(SAY_AGGRO_2, m_creature); break;
-            case 2: DoScriptText(SAY_AGGRO_3, m_creature); break;
+        case 0:
+            DoScriptText(SAY_AGGRO_1, m_creature);
+            break;
+        case 1:
+            DoScriptText(SAY_AGGRO_2, m_creature);
+            break;
+        case 2:
+            DoScriptText(SAY_AGGRO_3, m_creature);
+            break;
         }
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_HELLMAW, IN_PROGRESS);
     }
 
-    void KilledUnit(Unit* /*pVictim*/) override
+    void KilledUnit(Unit * /*pVictim*/) override
     {
         DoScriptText(urand(0, 1) ? SAY_SLAY_1 : SAY_SLAY_2, m_creature);
     }
 
-    void JustDied(Unit* /*pKiller*/) override
+    void JustDied(Unit * /*pKiller*/) override
     {
         DoScriptText(SAY_DEATH, m_creature);
 
@@ -169,14 +175,14 @@ struct boss_ambassador_hellmawAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_boss_ambassador_hellmaw(Creature* pCreature)
+UnitAI *GetAI_boss_ambassador_hellmaw(Creature *pCreature)
 {
     return new boss_ambassador_hellmawAI(pCreature);
 }
 
 void AddSC_boss_ambassador_hellmaw()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_ambassador_hellmaw";
     pNewScript->GetAI = &GetAI_boss_ambassador_hellmaw;
     pNewScript->RegisterSelf();

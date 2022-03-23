@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,10 +17,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "Common.h"
+#include "SRP6.h"
+
 #include "Auth/HMACSHA1.h"
 #include "Auth/base32.h"
-#include "SRP6.h"
+#include "Common.h"
 
 SRP6::SRP6()
 {
@@ -69,7 +71,7 @@ void SRP6::CalculateProof(std::string username)
     M.SetBinary(sha.GetDigest(), 20);
 }
 
-bool SRP6::CalculateSessionKey(uint8* lp_A, int l)
+bool SRP6::CalculateSessionKey(uint8 *lp_A, int l)
 {
     A.SetBinary(lp_A, l);
 
@@ -89,17 +91,17 @@ bool SRP6::CalculateSessionKey(uint8* lp_A, int l)
     return true;
 }
 
-bool SRP6::CalculateVerifier(const std::string& rI)
+bool SRP6::CalculateVerifier(const std::string &rI)
 {
     BigNumber salt;
     salt.SetRand(s_BYTE_SIZE * 8);
-    const char* _salt = salt.AsHexStr();
+    const char *_salt = salt.AsHexStr();
     bool ret = CalculateVerifier(rI, _salt);
-    OPENSSL_free((void*)_salt);
+    OPENSSL_free((void *)_salt);
     return ret;
 }
 
-bool SRP6::CalculateVerifier(const std::string& rI, const char* salt)
+bool SRP6::CalculateVerifier(const std::string &rI, const char *salt)
 {
     if (s.SetHexStr(salt) == 0 || s.isZero())
         return false;
@@ -161,7 +163,7 @@ void SRP6::HashSessionKey(void)
     K.SetBinary(vK, 40);
 }
 
-bool SRP6::Proof(uint8* lp_M, int l)
+bool SRP6::Proof(uint8 *lp_M, int l)
 {
     if (!memcmp(M.AsByteArray().data(), lp_M, l))
         return false;
@@ -171,33 +173,33 @@ bool SRP6::Proof(uint8* lp_M, int l)
 
 bool SRP6::ProofVerifier(std::string vC)
 {
-    const char* vC_hex = vC.c_str();
-    const char* v_hex = v.AsHexStr();
+    const char *vC_hex = vC.c_str();
+    const char *v_hex = v.AsHexStr();
 
     if (memcmp(vC_hex, v_hex, strlen(vC_hex)) == 0)
     {
-        OPENSSL_free((void*)v_hex);
+        OPENSSL_free((void *)v_hex);
         return true;
     }
 
-    OPENSSL_free((void*)v_hex);
+    OPENSSL_free((void *)v_hex);
     return false;
 }
 
-void SRP6::Finalize(Sha1Hash& sha)
+void SRP6::Finalize(Sha1Hash &sha)
 {
     sha.Initialize();
     sha.UpdateBigNumbers(&A, &M, &K, nullptr);
     sha.Finalize();
 }
 
-bool SRP6::SetSalt(const char* new_s)
+bool SRP6::SetSalt(const char *new_s)
 {
     if (s.SetHexStr(new_s) == 0 || s.isZero())
         return false;
     return true;
 }
-bool SRP6::SetVerifier(const char* new_v)
+bool SRP6::SetVerifier(const char *new_v)
 {
     if (v.SetHexStr(new_v) == 0 || v.isZero())
         return false;

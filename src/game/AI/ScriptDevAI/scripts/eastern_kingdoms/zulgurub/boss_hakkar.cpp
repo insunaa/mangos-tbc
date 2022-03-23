@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -21,28 +21,28 @@ SDComment:
 SDCategory: Zul'Gurub
 EndScriptData */
 
+#include "AI/ScriptDevAI/base/CombatAI.h"
 #include "AI/ScriptDevAI/include/sc_common.h"
 #include "zulgurub.h"
-#include "AI/ScriptDevAI/base/CombatAI.h"
 
 enum
 {
-    SAY_AGGRO                   = -1309020,
-    SAY_FLEEING                 = -1309021,
+    SAY_AGGRO = -1309020,
+    SAY_FLEEING = -1309021,
 
-    SPELL_BLOOD_SIPHON          = 24324,                    // triggers 24322 or 24323 on caster
-    SPELL_CORRUPTED_BLOOD       = 24328,
-    SPELL_CAUSE_INSANITY        = 24327,
-    SPELL_WILL_OF_HAKKAR        = 24178,
-    SPELL_ENRAGE                = 24318,
-    SPELL_DOUBLE_ATTACK         = 19818,
+    SPELL_BLOOD_SIPHON = 24324, // triggers 24322 or 24323 on caster
+    SPELL_CORRUPTED_BLOOD = 24328,
+    SPELL_CAUSE_INSANITY = 24327,
+    SPELL_WILL_OF_HAKKAR = 24178,
+    SPELL_ENRAGE = 24318,
+    SPELL_DOUBLE_ATTACK = 19818,
 
     // The Aspects of all High Priests
-    SPELL_ASPECT_OF_JEKLIK      = 24687, // assumed spell list index 5
-    SPELL_ASPECT_OF_VENOXIS     = 24688, // assumed spell list index 6
-    SPELL_ASPECT_OF_MARLI       = 24686, // assumed spell list index 7
-    SPELL_ASPECT_OF_THEKAL      = 24689, // assumed spell list index 8
-    SPELL_ASPECT_OF_ARLOKK      = 24690  // assumed spell list index 9
+    SPELL_ASPECT_OF_JEKLIK = 24687,  // assumed spell list index 5
+    SPELL_ASPECT_OF_VENOXIS = 24688, // assumed spell list index 6
+    SPELL_ASPECT_OF_MARLI = 24686,   // assumed spell list index 7
+    SPELL_ASPECT_OF_THEKAL = 24689,  // assumed spell list index 8
+    SPELL_ASPECT_OF_ARLOKK = 24690   // assumed spell list index 9
 };
 
 enum HakkarActions
@@ -53,12 +53,14 @@ enum HakkarActions
 
 struct boss_hakkarAI : public CombatAI
 {
-    boss_hakkarAI(Creature* creature) : CombatAI(creature, HAKKAR_ACTION_MAX), m_instance(static_cast<ScriptedInstance*>(creature->GetInstanceData()))
+    boss_hakkarAI(Creature *creature)
+        : CombatAI(creature, HAKKAR_ACTION_MAX),
+          m_instance(static_cast<ScriptedInstance *>(creature->GetInstanceData()))
     {
         AddTimerlessCombatAction(HAKKAR_ENRAGE_LOW, true);
     }
 
-    ScriptedInstance* m_instance;
+    ScriptedInstance *m_instance;
 
     void Reset() override
     {
@@ -69,7 +71,7 @@ struct boss_hakkarAI : public CombatAI
         InitiateHakkarPowerStacks();
     }
 
-    void Aggro(Unit* /*who*/) override
+    void Aggro(Unit * /*who*/) override
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
@@ -89,7 +91,8 @@ struct boss_hakkarAI : public CombatAI
         }
     }
 
-    // For each of the High Priests that is alive, update Hakkar's Power Stacks (updating Hakkar's HP)
+    // For each of the High Priests that is alive, update Hakkar's Power Stacks
+    // (updating Hakkar's HP)
     void InitiateHakkarPowerStacks()
     {
         m_creature->RemoveAurasDueToSpell(SPELL_HAKKAR_POWER);
@@ -111,11 +114,11 @@ struct boss_hakkarAI : public CombatAI
 
 struct HakkarPowerDown : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx == EFFECT_INDEX_0)
         {
-            if (Unit* target = spell->GetUnitTarget())
+            if (Unit *target = spell->GetUnitTarget())
             {
                 if (target->HasAura(SPELL_HAKKAR_POWER))
                     target->RemoveAuraStack(SPELL_HAKKAR_POWER);
@@ -126,19 +129,19 @@ struct HakkarPowerDown : public SpellScript
 
 struct BloodSiphon : public SpellScript
 {
-    void OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    void OnEffectExecute(Spell *spell, SpellEffectIndex effIdx) const override
     {
         if (effIdx != EFFECT_INDEX_0)
             return;
 
-        Unit* target = spell->GetUnitTarget();
+        Unit *target = spell->GetUnitTarget();
         target->CastSpell(spell->GetCaster(), target->HasAura(24321) ? 24323 : 24322, TRIGGERED_OLD_TRIGGERED);
     }
 };
 
 void AddSC_boss_hakkar()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "boss_hakkar";
     pNewScript->GetAI = &GetNewAIInstance<boss_hakkarAI>;
     pNewScript->RegisterSelf();

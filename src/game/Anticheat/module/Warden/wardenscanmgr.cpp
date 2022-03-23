@@ -6,15 +6,15 @@
  */
 
 #include "WardenScanMgr.hpp"
+
+#include <algorithm>
+#include <vector>
+
+#include "../config.hpp"
+#include "Database/DatabaseEnv.h"
+#include "Policies/Singleton.h"
 #include "WardenScan.hpp"
 #include "warden.hpp"
-#include "../config.hpp"
-
-#include "Policies/Singleton.h"
-#include "Database/DatabaseEnv.h"
-
-#include <vector>
-#include <algorithm>
 
 INSTANTIATE_SINGLETON_1(WardenScanMgr);
 
@@ -58,14 +58,15 @@ bool BuildRawData(const std::string &hexData, std::vector<uint8> &out)
 
     return true;
 }
-}
+} // namespace
 
 void WardenScanMgr::loadFromDB()
 {
-    auto result = WorldDatabase.Query("SELECT id,type,str,data,address,length,result,flags,comment FROM warden_scans");
+    auto result = WorldDatabase.Query("SELECT id,type,str,data,address,length,result,flags,comment FROM "
+                                      "warden_scans");
 
     // copy any non-database scans into a placeholder
-    std::vector<std::shared_ptr<const Scan> > new_scans;
+    std::vector<std::shared_ptr<const Scan>> new_scans;
     new_scans.reserve(m_scans.size());
 
     for (auto const &s : m_scans)
@@ -96,110 +97,103 @@ void WardenScanMgr::loadFromDB()
 
         switch (scanType)
         {
-            case READ_MEMORY:
+        case READ_MEMORY: {
+            std::vector<uint8> expected;
+
+            if (!BuildRawData(fields[6].GetCppString(), expected) || expected.size() != length)
             {
-                std::vector<uint8> expected;
-
-                if (!BuildRawData(fields[6].GetCppString(), expected) || expected.size() != length)
-                {
-                    sLog.outError("Failed to parse expected value in Warden scan id %u", id);
-                    continue;
-                }
-
-                auto const moduleName = fields[2].GetCppString();
-
-                // optional for this scan to specify a module name to use as a base
-                if (moduleName.empty())
-                    scan = new WindowsMemoryScan(offset, &expected[0], expected.size(), comment, flags);
-                else
-                    scan = new WindowsMemoryScan(moduleName, offset, &expected[0], expected.size(), comment, flags);
-
-                break;
-            }
-
-            case FIND_MODULE_BY_NAME:
-            {
-                auto const moduleName = fields[2].GetCppString();
-                auto const wanted = fields[6].GetBool();
-
-                scan = new WindowsModuleScan(moduleName, wanted, comment, flags);
-                break;
-            }
-
-            case FIND_MEM_IMAGE_CODE_BY_HASH:
-            case FIND_CODE_BY_HASH:
-            {
-                auto const wanted = fields[6].GetBool();
-
-                std::vector<uint8> pattern;
-                if (!BuildRawData(fields[3].GetCppString(), pattern))
-                {
-                    sLog.outError("Failed to parse expected value in Warden scan id %u", id);
-                    continue;
-                }
-
-                scan = new WindowsCodeScan(offset, pattern, scanType == FIND_MEM_IMAGE_CODE_BY_HASH, wanted, comment, flags);
-                break;
-            }
-
-            case HASH_CLIENT_FILE:
-            {
-                auto const filename = fields[2].GetCppString();
-
-                std::vector<uint8> expected;
-                if (!BuildRawData(fields[6].GetCppString(), expected))
-                {
-                    sLog.outError("Failed to parse expected value in Warden scan id %u", id);
-                    continue;
-                }
-
-                scan = new WindowsFileHashScan(filename, &expected[0], !expected.empty(), comment, flags);
-                break;
-            }
-
-            case GET_LUA_VARIABLE:
-            {
-                auto const variable = fields[2].GetCppString();
-                auto const expected = fields[3].GetCppString();
-
-                if (expected.empty())
-                    scan = new WindowsLuaScan(variable, fields[6].GetBool(), comment, flags);
-                else
-                    scan = new WindowsLuaScan(variable, expected, comment, flags);
-
-                break;
-            }
-
-            case API_CHECK:
-            {
-                auto const module = fields[2].GetCppString();
-                auto const proc = fields[3].GetCppString();
-                
-                std::vector<uint8> hash;
-                if (!BuildRawData(fields[6].GetCppString(), hash))
-                {
-                    sLog.outError("Failed to parse expected value in Warden scan id %u", id);
-                    continue;
-                }
-
-                scan = new WindowsHookScan(module, proc, &hash[0], offset, length, comment, flags);
-            }
-
-            case FIND_DRIVER_BY_NAME:
-            {
-                auto const driver = fields[2].GetCppString();
-                auto const path = fields[3].GetCppString();
-                auto const wanted = fields[6].GetBool();
-
-                scan = new WindowsDriverScan(driver, path, wanted, comment, flags);
-                break;
-            }
-
-            default:
-            {
-                sLog.outError("Unhandled Warden scan type %u id %u.  Skipped.", scanType, id);
+                sLog.outError("Failed to parse expected value in Warden scan id %u", id);
                 continue;
             }
+
+            auto const moduleName = fields[2].GetCppString();
+
+            // optional for this scan to specify a module name to use as a base
+            if (moduleName.empty())
+                scan = new WindowsMemoryScan(offset, &expected[0], expected.size(), comment, flags);
+            else
+                scan = new WindowsMemoryScan(moduleName, offset, &expected[0], expected.size(), comment, flags);
+
+            break;
+        }
+
+        case FIND_MODULE_BY_NAME: {
+            auto const moduleName = fields[2].GetCppString();
+            auto const wanted = fields[6].GetBool();
+
+            scan = new WindowsModuleScan(moduleName, wanted, comment, flags);
+            break;
+        }
+
+        case FIND_MEM_IMAGE_CODE_BY_HASH:
+        case FIND_CODE_BY_HASH: {
+            auto const wanted = fields[6].GetBool();
+
+            std::vector<uint8> pattern;
+            if (!BuildRawData(fields[3].GetCppString(), pattern))
+            {
+                sLog.outError("Failed to parse expected value in Warden scan id %u", id);
+                continue;
+            }
+
+            scan =
+                new WindowsCodeScan(offset, pattern, scanType == FIND_MEM_IMAGE_CODE_BY_HASH, wanted, comment, flags);
+            break;
+        }
+
+        case HASH_CLIENT_FILE: {
+            auto const filename = fields[2].GetCppString();
+
+            std::vector<uint8> expected;
+            if (!BuildRawData(fields[6].GetCppString(), expected))
+            {
+                sLog.outError("Failed to parse expected value in Warden scan id %u", id);
+                continue;
+            }
+
+            scan = new WindowsFileHashScan(filename, &expected[0], !expected.empty(), comment, flags);
+            break;
+        }
+
+        case GET_LUA_VARIABLE: {
+            auto const variable = fields[2].GetCppString();
+            auto const expected = fields[3].GetCppString();
+
+            if (expected.empty())
+                scan = new WindowsLuaScan(variable, fields[6].GetBool(), comment, flags);
+            else
+                scan = new WindowsLuaScan(variable, expected, comment, flags);
+
+            break;
+        }
+
+        case API_CHECK: {
+            auto const module = fields[2].GetCppString();
+            auto const proc = fields[3].GetCppString();
+
+            std::vector<uint8> hash;
+            if (!BuildRawData(fields[6].GetCppString(), hash))
+            {
+                sLog.outError("Failed to parse expected value in Warden scan id %u", id);
+                continue;
+            }
+
+            scan = new WindowsHookScan(module, proc, &hash[0], offset, length, comment, flags);
+        }
+
+        case FIND_DRIVER_BY_NAME: {
+            auto const driver = fields[2].GetCppString();
+            auto const path = fields[3].GetCppString();
+            auto const wanted = fields[6].GetBool();
+
+            scan = new WindowsDriverScan(driver, path, wanted, comment, flags);
+            break;
+        }
+
+        default: {
+            sLog.outError("Unhandled Warden scan type %u id %u.  Skipped.", scanType, id);
+            continue;
+        }
         }
 
         if (!scan)
@@ -248,19 +242,23 @@ std::vector<std::shared_ptr<const Scan>> WardenScanMgr::GetRandomScans(ScanFlags
         if (!(flags & buildMask))
             continue;
 
-        // is the scan considered advanced but advanced scans were not requested? if so, continue
+        // is the scan considered advanced but advanced scans were not requested?
+        // if so, continue
         if ((scan->flags & AdvancedScan) && !(flags & AdvancedScan))
             continue;
 
-        // if the scan is an initial-login scan, and that wasn't explicitly requested, do not include it
+        // if the scan is an initial-login scan, and that wasn't explicitly
+        // requested, do not include it
         if ((scan->flags & InitialLogin) && !(flags & InitialLogin))
             continue;
 
-        // if the scan is not an initial-login scan, and that was explicitly requested, do not include it
+        // if the scan is not an initial-login scan, and that was explicitly
+        // requested, do not include it
         if (!(scan->flags & InitialLogin) && (flags & InitialLogin))
             continue;
 
-        // if the scan is an in-world scan, and that wasn't explicitly requested, do not include it
+        // if the scan is an in-world scan, and that wasn't explicitly requested,
+        // do not include it
         if (!!(scan->flags & InWorld) && !(flags & InWorld))
             continue;
 
@@ -270,10 +268,12 @@ std::vector<std::shared_ptr<const Scan>> WardenScanMgr::GetRandomScans(ScanFlags
     // randomize the order of matching scans
     std::shuffle(matches.begin(), matches.end(), *GetRandomGenerator());
 
-    // determine how many of the identified scans we can fit into the client's request and response buffers
+    // determine how many of the identified scans we can fit into the client's
+    // request and response buffers
     size_t request = 0, reply = 0;
 
-    // if we have matched too many, shrink.  this will probably be shrunk even further, depending on buffer sizes
+    // if we have matched too many, shrink.  this will probably be shrunk even
+    // further, depending on buffer sizes
     if (matches.size() >= sAnticheatConfig.GetWardenScanCount())
         matches.resize(sAnticheatConfig.GetWardenScanCount());
 
@@ -281,7 +281,8 @@ std::vector<std::shared_ptr<const Scan>> WardenScanMgr::GetRandomScans(ScanFlags
     {
         auto const &scan = matches[i];
 
-        // if by including the current scan, the request or reply would become too large, stop here, shrinking the results to size
+        // if by including the current scan, the request or reply would become
+        // too large, stop here, shrinking the results to size
         if (request + scan->requestSize > Warden::MaxRequest || reply + scan->replySize > Warden::MaxReply)
         {
             matches.resize(i);

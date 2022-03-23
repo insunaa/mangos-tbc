@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,141 +27,149 @@
 
 enum
 {
-    MAX_TF_TOWERS                               = 5,
+    MAX_TF_TOWERS = 5,
 
     // gameobjects
-    GO_TOWER_BANNER_WEST                        = 183104,
-    GO_TOWER_BANNER_NORTH                       = 183411,
-    GO_TOWER_BANNER_EAST                        = 183412,
-    GO_TOWER_BANNER_SOUTH_EAST                  = 183413,
-    GO_TOWER_BANNER_SOUTH                       = 183414,
+    GO_TOWER_BANNER_WEST = 183104,
+    GO_TOWER_BANNER_NORTH = 183411,
+    GO_TOWER_BANNER_EAST = 183412,
+    GO_TOWER_BANNER_SOUTH_EAST = 183413,
+    GO_TOWER_BANNER_SOUTH = 183414,
 
     // spells
-    SPELL_AUCHINDOUN_BLESSING                   = 33377,
+    SPELL_AUCHINDOUN_BLESSING = 33377,
 
     // timers
-    TIMER_TF_LOCK_TIME                          = 6 * HOUR * IN_MILLISECONDS,
-    //TIMER_TF_UPDATE_TIME                        = MINUTE * IN_MILLISECONDS,
+    TIMER_TF_LOCK_TIME = 6 * HOUR * IN_MILLISECONDS,
+    // TIMER_TF_UPDATE_TIME                        = MINUTE * IN_MILLISECONDS,
 
     // quests
-    QUEST_SPIRITS_OF_AUCHINDOUM_ALLIANCE        = 11505,
-    QUEST_SPIRITS_OF_AUCHINDOUM_HORDE           = 11506,
+    QUEST_SPIRITS_OF_AUCHINDOUM_ALLIANCE = 11505,
+    QUEST_SPIRITS_OF_AUCHINDOUM_HORDE = 11506,
 
     // events
-    EVENT_WEST_TOWER_PROGRESS_ALLIANCE          = 12226,
-    EVENT_WEST_TOWER_PROGRESS_HORDE             = 12225,
-    EVENT_WEST_TOWER_NEUTRAL_ALLIANCE           = 12228,
-    EVENT_WEST_TOWER_NEUTRAL_HORDE              = 12227,
+    EVENT_WEST_TOWER_PROGRESS_ALLIANCE = 12226,
+    EVENT_WEST_TOWER_PROGRESS_HORDE = 12225,
+    EVENT_WEST_TOWER_NEUTRAL_ALLIANCE = 12228,
+    EVENT_WEST_TOWER_NEUTRAL_HORDE = 12227,
 
-    EVENT_NORTH_TOWER_PROGRESS_ALLIANCE         = 12497,
-    EVENT_NORTH_TOWER_PROGRESS_HORDE            = 12496,
-    EVENT_NORTH_TOWER_NEUTRAL_ALLIANCE          = 12490,
-    EVENT_NORTH_TOWER_NEUTRAL_HORDE             = 12491,
+    EVENT_NORTH_TOWER_PROGRESS_ALLIANCE = 12497,
+    EVENT_NORTH_TOWER_PROGRESS_HORDE = 12496,
+    EVENT_NORTH_TOWER_NEUTRAL_ALLIANCE = 12490,
+    EVENT_NORTH_TOWER_NEUTRAL_HORDE = 12491,
 
-    EVENT_EAST_TOWER_PROGRESS_ALLIANCE          = 12486,
-    EVENT_EAST_TOWER_PROGRESS_HORDE             = 12487,
-    EVENT_EAST_TOWER_NEUTRAL_ALLIANCE           = 12488,
-    EVENT_EAST_TOWER_NEUTRAL_HORDE              = 12489,
+    EVENT_EAST_TOWER_PROGRESS_ALLIANCE = 12486,
+    EVENT_EAST_TOWER_PROGRESS_HORDE = 12487,
+    EVENT_EAST_TOWER_NEUTRAL_ALLIANCE = 12488,
+    EVENT_EAST_TOWER_NEUTRAL_HORDE = 12489,
 
-    EVENT_SOUTH_EAST_TOWER_PROGRESS_ALLIANCE    = 12499,
-    EVENT_SOUTH_EAST_TOWER_PROGRESS_HORDE       = 12498,
-    EVENT_SOUTH_EAST_TOWER_NEUTRAL_ALLIANCE     = 12492,
-    EVENT_SOUTH_EAST_TOWER_NEUTRAL_HORDE        = 12493,
+    EVENT_SOUTH_EAST_TOWER_PROGRESS_ALLIANCE = 12499,
+    EVENT_SOUTH_EAST_TOWER_PROGRESS_HORDE = 12498,
+    EVENT_SOUTH_EAST_TOWER_NEUTRAL_ALLIANCE = 12492,
+    EVENT_SOUTH_EAST_TOWER_NEUTRAL_HORDE = 12493,
 
-    EVENT_SOUTH_TOWER_PROGRESS_ALLIANCE         = 12501,
-    EVENT_SOUTH_TOWER_PROGRESS_HORDE            = 12500,
-    EVENT_SOUTH_TOWER_NEUTRAL_ALLIANCE          = 12494,
-    EVENT_SOUTH_TOWER_NEUTRAL_HORDE             = 12495,
+    EVENT_SOUTH_TOWER_PROGRESS_ALLIANCE = 12501,
+    EVENT_SOUTH_TOWER_PROGRESS_HORDE = 12500,
+    EVENT_SOUTH_TOWER_NEUTRAL_ALLIANCE = 12494,
+    EVENT_SOUTH_TOWER_NEUTRAL_HORDE = 12495,
 };
 
 struct TerokkarTowerEvent
 {
-    uint32  eventEntry;
-    Team    team;
-    uint32  defenseMessage;
-    uint32  worldState;
+    uint32 eventEntry;
+    Team team;
+    uint32 defenseMessage;
+    uint32 worldState;
 };
 
-static const TerokkarTowerEvent terokkarTowerEvents[MAX_TF_TOWERS][4] =
-{
+static const TerokkarTowerEvent terokkarTowerEvents[MAX_TF_TOWERS][4] = {
     {
-        {EVENT_WEST_TOWER_PROGRESS_ALLIANCE,        ALLIANCE,   LANG_OPVP_TF_CAPTURE_TOWER_A,   WORLD_STATE_TF_WEST_TOWER_ALLIANCE},
-        {EVENT_WEST_TOWER_PROGRESS_HORDE,           HORDE,      LANG_OPVP_TF_CAPTURE_TOWER_H,   WORLD_STATE_TF_WEST_TOWER_HORDE},
-        {EVENT_WEST_TOWER_NEUTRAL_HORDE,            TEAM_NONE,  LANG_OPVP_TF_LOSE_TOWER_A,      WORLD_STATE_TF_WEST_TOWER_NEUTRAL},
-        {EVENT_WEST_TOWER_NEUTRAL_ALLIANCE,         TEAM_NONE,  LANG_OPVP_TF_LOSE_TOWER_H,      WORLD_STATE_TF_WEST_TOWER_NEUTRAL},
+        {EVENT_WEST_TOWER_PROGRESS_ALLIANCE, ALLIANCE, LANG_OPVP_TF_CAPTURE_TOWER_A,
+         WORLD_STATE_TF_WEST_TOWER_ALLIANCE},
+        {EVENT_WEST_TOWER_PROGRESS_HORDE, HORDE, LANG_OPVP_TF_CAPTURE_TOWER_H, WORLD_STATE_TF_WEST_TOWER_HORDE},
+        {EVENT_WEST_TOWER_NEUTRAL_HORDE, TEAM_NONE, LANG_OPVP_TF_LOSE_TOWER_A, WORLD_STATE_TF_WEST_TOWER_NEUTRAL},
+        {EVENT_WEST_TOWER_NEUTRAL_ALLIANCE, TEAM_NONE, LANG_OPVP_TF_LOSE_TOWER_H, WORLD_STATE_TF_WEST_TOWER_NEUTRAL},
     },
     {
-        {EVENT_NORTH_TOWER_PROGRESS_ALLIANCE,       ALLIANCE,   LANG_OPVP_TF_CAPTURE_TOWER_A,   WORLD_STATE_TF_NORTH_TOWER_ALLIANCE},
-        {EVENT_NORTH_TOWER_PROGRESS_HORDE,          HORDE,      LANG_OPVP_TF_CAPTURE_TOWER_H,   WORLD_STATE_TF_NORTH_TOWER_HORDE},
-        {EVENT_NORTH_TOWER_NEUTRAL_HORDE,           TEAM_NONE,  LANG_OPVP_TF_LOSE_TOWER_A,      WORLD_STATE_TF_NORTH_TOWER_NEUTRAL},
-        {EVENT_NORTH_TOWER_NEUTRAL_ALLIANCE,        TEAM_NONE,  LANG_OPVP_TF_LOSE_TOWER_H,      WORLD_STATE_TF_NORTH_TOWER_NEUTRAL},
+        {EVENT_NORTH_TOWER_PROGRESS_ALLIANCE, ALLIANCE, LANG_OPVP_TF_CAPTURE_TOWER_A,
+         WORLD_STATE_TF_NORTH_TOWER_ALLIANCE},
+        {EVENT_NORTH_TOWER_PROGRESS_HORDE, HORDE, LANG_OPVP_TF_CAPTURE_TOWER_H, WORLD_STATE_TF_NORTH_TOWER_HORDE},
+        {EVENT_NORTH_TOWER_NEUTRAL_HORDE, TEAM_NONE, LANG_OPVP_TF_LOSE_TOWER_A, WORLD_STATE_TF_NORTH_TOWER_NEUTRAL},
+        {EVENT_NORTH_TOWER_NEUTRAL_ALLIANCE, TEAM_NONE, LANG_OPVP_TF_LOSE_TOWER_H, WORLD_STATE_TF_NORTH_TOWER_NEUTRAL},
     },
     {
-        {EVENT_EAST_TOWER_PROGRESS_ALLIANCE,        ALLIANCE,   LANG_OPVP_TF_CAPTURE_TOWER_A,   WORLD_STATE_TF_EAST_TOWER_ALLIANCE},
-        {EVENT_EAST_TOWER_PROGRESS_HORDE,           HORDE,      LANG_OPVP_TF_CAPTURE_TOWER_H,   WORLD_STATE_TF_EAST_TOWER_HORDE},
-        {EVENT_EAST_TOWER_NEUTRAL_HORDE,            TEAM_NONE,  LANG_OPVP_TF_LOSE_TOWER_A,      WORLD_STATE_TF_EAST_TOWER_NEUTRAL},
-        {EVENT_EAST_TOWER_NEUTRAL_ALLIANCE,         TEAM_NONE,  LANG_OPVP_TF_LOSE_TOWER_H,      WORLD_STATE_TF_EAST_TOWER_NEUTRAL},
+        {EVENT_EAST_TOWER_PROGRESS_ALLIANCE, ALLIANCE, LANG_OPVP_TF_CAPTURE_TOWER_A,
+         WORLD_STATE_TF_EAST_TOWER_ALLIANCE},
+        {EVENT_EAST_TOWER_PROGRESS_HORDE, HORDE, LANG_OPVP_TF_CAPTURE_TOWER_H, WORLD_STATE_TF_EAST_TOWER_HORDE},
+        {EVENT_EAST_TOWER_NEUTRAL_HORDE, TEAM_NONE, LANG_OPVP_TF_LOSE_TOWER_A, WORLD_STATE_TF_EAST_TOWER_NEUTRAL},
+        {EVENT_EAST_TOWER_NEUTRAL_ALLIANCE, TEAM_NONE, LANG_OPVP_TF_LOSE_TOWER_H, WORLD_STATE_TF_EAST_TOWER_NEUTRAL},
     },
     {
-        {EVENT_SOUTH_EAST_TOWER_PROGRESS_ALLIANCE,  ALLIANCE,   LANG_OPVP_TF_CAPTURE_TOWER_A,   WORLD_STATE_TF_SOUTH_EAST_TOWER_ALLIANCE},
-        {EVENT_SOUTH_EAST_TOWER_PROGRESS_HORDE,     HORDE,      LANG_OPVP_TF_CAPTURE_TOWER_H,   WORLD_STATE_TF_SOUTH_EAST_TOWER_HORDE},
-        {EVENT_SOUTH_EAST_TOWER_NEUTRAL_HORDE,      TEAM_NONE,  LANG_OPVP_TF_LOSE_TOWER_A,      WORLD_STATE_TF_SOUTH_EAST_TOWER_NEUTRAL},
-        {EVENT_SOUTH_EAST_TOWER_NEUTRAL_ALLIANCE,   TEAM_NONE,  LANG_OPVP_TF_LOSE_TOWER_H,      WORLD_STATE_TF_SOUTH_EAST_TOWER_NEUTRAL},
+        {EVENT_SOUTH_EAST_TOWER_PROGRESS_ALLIANCE, ALLIANCE, LANG_OPVP_TF_CAPTURE_TOWER_A,
+         WORLD_STATE_TF_SOUTH_EAST_TOWER_ALLIANCE},
+        {EVENT_SOUTH_EAST_TOWER_PROGRESS_HORDE, HORDE, LANG_OPVP_TF_CAPTURE_TOWER_H,
+         WORLD_STATE_TF_SOUTH_EAST_TOWER_HORDE},
+        {EVENT_SOUTH_EAST_TOWER_NEUTRAL_HORDE, TEAM_NONE, LANG_OPVP_TF_LOSE_TOWER_A,
+         WORLD_STATE_TF_SOUTH_EAST_TOWER_NEUTRAL},
+        {EVENT_SOUTH_EAST_TOWER_NEUTRAL_ALLIANCE, TEAM_NONE, LANG_OPVP_TF_LOSE_TOWER_H,
+         WORLD_STATE_TF_SOUTH_EAST_TOWER_NEUTRAL},
     },
     {
-        {EVENT_SOUTH_TOWER_PROGRESS_ALLIANCE,       ALLIANCE,   LANG_OPVP_TF_CAPTURE_TOWER_A,   WORLD_STATE_TF_SOUTH_TOWER_ALLIANCE},
-        {EVENT_SOUTH_TOWER_PROGRESS_HORDE,          HORDE,      LANG_OPVP_TF_CAPTURE_TOWER_H,   WORLD_STATE_TF_SOUTH_TOWER_HORDE},
-        {EVENT_SOUTH_TOWER_NEUTRAL_HORDE,           TEAM_NONE,  LANG_OPVP_TF_LOSE_TOWER_A,      WORLD_STATE_TF_SOUTH_TOWER_NEUTRAL},
-        {EVENT_SOUTH_TOWER_NEUTRAL_ALLIANCE,        TEAM_NONE,  LANG_OPVP_TF_LOSE_TOWER_H,      WORLD_STATE_TF_SOUTH_TOWER_NEUTRAL},
+        {EVENT_SOUTH_TOWER_PROGRESS_ALLIANCE, ALLIANCE, LANG_OPVP_TF_CAPTURE_TOWER_A,
+         WORLD_STATE_TF_SOUTH_TOWER_ALLIANCE},
+        {EVENT_SOUTH_TOWER_PROGRESS_HORDE, HORDE, LANG_OPVP_TF_CAPTURE_TOWER_H, WORLD_STATE_TF_SOUTH_TOWER_HORDE},
+        {EVENT_SOUTH_TOWER_NEUTRAL_HORDE, TEAM_NONE, LANG_OPVP_TF_LOSE_TOWER_A, WORLD_STATE_TF_SOUTH_TOWER_NEUTRAL},
+        {EVENT_SOUTH_TOWER_NEUTRAL_ALLIANCE, TEAM_NONE, LANG_OPVP_TF_LOSE_TOWER_H, WORLD_STATE_TF_SOUTH_TOWER_NEUTRAL},
     },
 };
 
-static const uint32 terokkarTowers[MAX_TF_TOWERS] = {GO_TOWER_BANNER_WEST, GO_TOWER_BANNER_NORTH, GO_TOWER_BANNER_EAST, GO_TOWER_BANNER_SOUTH_EAST, GO_TOWER_BANNER_SOUTH};
+static const uint32 terokkarTowers[MAX_TF_TOWERS] = {GO_TOWER_BANNER_WEST, GO_TOWER_BANNER_NORTH, GO_TOWER_BANNER_EAST,
+                                                     GO_TOWER_BANNER_SOUTH_EAST, GO_TOWER_BANNER_SOUTH};
 
 class OutdoorPvPTF : public OutdoorPvP
 {
-        friend class OutdoorPvPMgr;
+    friend class OutdoorPvPMgr;
 
-    public:
-        OutdoorPvPTF();
+  public:
+    OutdoorPvPTF();
 
-        void HandlePlayerEnterZone(Player* player, bool isMainZone) override;
-        void HandlePlayerLeaveZone(Player* player, bool isMainZone) override;
-        void FillInitialWorldStates(WorldPacket& data, uint32& count) override;
-        void SendRemoveWorldStates(Player* player) override;
+    void HandlePlayerEnterZone(Player *player, bool isMainZone) override;
+    void HandlePlayerLeaveZone(Player *player, bool isMainZone) override;
+    void FillInitialWorldStates(WorldPacket &data, uint32 &count) override;
+    void SendRemoveWorldStates(Player *player) override;
 
-        bool HandleEvent(uint32 eventId, GameObject* go, Unit* invoker) override;
-        void HandleObjectiveComplete(uint32 eventId, const std::list<Player*>& players, Team team) override;
+    bool HandleEvent(uint32 eventId, GameObject *go, Unit *invoker) override;
+    void HandleObjectiveComplete(uint32 eventId, const std::list<Player *> &players, Team team) override;
 
-        void HandleGameObjectCreate(GameObject* go) override;
-        void Update(uint32 diff) override;
+    void HandleGameObjectCreate(GameObject *go) override;
+    void Update(uint32 diff) override;
 
-    private:
-        void UpdateTimerWorldState();
-        void CalculateTimerWorldStateValues(uint32& firstDigit, uint32& secondDigit, uint32& hoursLeft);
+  private:
+    void UpdateTimerWorldState();
+    void CalculateTimerWorldStateValues(uint32 &firstDigit, uint32 &secondDigit, uint32 &hoursLeft);
 
-        // process capture events
-        bool ProcessCaptureEvent(GameObject* go, uint32 towerId, Team team, uint32 newWorldState);
+    // process capture events
+    bool ProcessCaptureEvent(GameObject *go, uint32 towerId, Team team, uint32 newWorldState);
 
-        void LockZone(GameObject* go, uint32 towerId, Team team, uint32 newWorldState);
-        void UnlockZone();
+    void LockZone(GameObject *go, uint32 towerId, Team team, uint32 newWorldState);
+    void UnlockZone();
 
-        void LockTowers(const WorldObject* objRef);
-        void ResetTowers(const WorldObject* objRef);
+    void LockTowers(const WorldObject *objRef);
+    void ResetTowers(const WorldObject *objRef);
 
-        uint32 m_towerWorldState[MAX_TF_TOWERS];
-        uint32 m_zoneWorldState;
+    uint32 m_towerWorldState[MAX_TF_TOWERS];
+    uint32 m_zoneWorldState;
 
-        Team m_towerOwner[MAX_TF_TOWERS];
-        Team m_zoneOwner;
+    Team m_towerOwner[MAX_TF_TOWERS];
+    Team m_zoneOwner;
 
-        uint32 m_zoneLockTimer;
-        //uint32 m_zoneUpdateTimer;
+    uint32 m_zoneLockTimer;
+    // uint32 m_zoneUpdateTimer;
 
-        uint8 m_towersAlliance;
-        uint8 m_towersHorde;
+    uint8 m_towersAlliance;
+    uint8 m_towersHorde;
 
-        ObjectGuid m_towerBanners[MAX_TF_TOWERS];
+    ObjectGuid m_towerBanners[MAX_TF_TOWERS];
 };
 
 #endif

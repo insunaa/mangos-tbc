@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,28 +17,32 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "Common.h"
-#include "Database/DatabaseEnv.h"
-#include "Server/SQLStorages.h"
 #include "GMTickets/GMTicketMgr.h"
-#include "Globals/ObjectMgr.h"
-#include "Entities/ObjectGuid.h"
-#include "ProgressBar.h"
-#include "Policies/Singleton.h"
-#include "Entities/Player.h"
-#include "Chat/Chat.h"
-#include "Mails/Mail.h"
-#include "Tools/Language.h"
-#include "World/World.h"
 
 #include <regex>
 
-template <typename T>
-static inline T clamp(T v, T lo, T hi) { return std::min(std::max(v, lo), hi); }
+#include "Chat/Chat.h"
+#include "Common.h"
+#include "Database/DatabaseEnv.h"
+#include "Entities/ObjectGuid.h"
+#include "Entities/Player.h"
+#include "Globals/ObjectMgr.h"
+#include "Mails/Mail.h"
+#include "Policies/Singleton.h"
+#include "ProgressBar.h"
+#include "Server/SQLStorages.h"
+#include "Tools/Language.h"
+#include "World/World.h"
 
-bool GMTicket::Compare(GMTicket* a, GMTicket* b)
+template <typename T> static inline T clamp(T v, T lo, T hi)
 {
-    // 1) Open over closed (abandoned are stored in memory for recycling and should never appear in listings)
+    return std::min(std::max(v, lo), hi);
+}
+
+bool GMTicket::Compare(GMTicket *a, GMTicket *b)
+{
+    // 1) Open over closed (abandoned are stored in memory for recycling and
+    // should never appear in listings)
     if (a->IsOpen() && !b->IsOpen())
         return true;
 
@@ -53,9 +58,9 @@ bool GMTicket::Compare(GMTicket* a, GMTicket* b)
     return (a->GetCreatedAt() < b->GetCreatedAt());
 }
 
-GMTicket::GMTicket(Player* player, std::string message, uint8 category, time_t when/* = time(nullptr)*/)
+GMTicket::GMTicket(Player *player, std::string message, uint8 category, time_t when /* = time(nullptr)*/)
 {
-    WorldSession* session = player->GetSession();
+    WorldSession *session = player->GetSession();
 
     m_id = sTicketMgr.GenerateTicketId();
     m_category = category;
@@ -81,7 +86,7 @@ GMTicket::GMTicket(Player* player, std::string message, uint8 category, time_t w
     m_conclusion = "";
     m_notes = "";
 
-    utf8limit(m_text, 1999);    // Hardcoded client limit: 1999 bytes
+    utf8limit(m_text, 1999); // Hardcoded client limit: 1999 bytes
 
     m_statsChatIn = 0;
     m_statsChatOut = 0;
@@ -89,12 +94,13 @@ GMTicket::GMTicket(Player* player, std::string message, uint8 category, time_t w
     m_statsLastSeen = 0;
 }
 
-void GMTicket::Load(Field* fields)
+void GMTicket::Load(Field *fields)
 {
     m_id = fields[0].GetUInt32();
     m_category = fields[1].GetUInt8();
     m_state = clamp(GMTicketState(fields[2].GetUInt8()), GMTICKET_STATE_OPEN, GMTICKET_STATE_ABANDONED);
-    m_status = clamp(GMTicketEscalationStatus(fields[3].GetUInt8()), GMTICKET_ASSIGNEDTOGM_STATUS_NOT_ASSIGNED, GMTICKET_ASSIGNEDTOGM_STATUS_ESCALATED);
+    m_status = clamp(GMTicketEscalationStatus(fields[3].GetUInt8()), GMTICKET_ASSIGNEDTOGM_STATUS_NOT_ASSIGNED,
+                     GMTICKET_ASSIGNEDTOGM_STATUS_ESCALATED);
     m_level = fields[4].GetUInt8();
     m_authorGuid = ObjectGuid(HIGHGUID_PLAYER, fields[5].GetUInt32());
     m_authorName = fields[6].GetString();
@@ -115,7 +121,7 @@ void GMTicket::Load(Field* fields)
     m_conclusion = fields[21].GetCppString();
     m_notes = fields[22].GetCppString();
 
-    utf8limit(m_text, 1999);    // Hardcoded client limit: 1999 bytes
+    utf8limit(m_text, 1999); // Hardcoded client limit: 1999 bytes
 
     m_statsChatIn = 0;
     m_statsChatOut = 0;
@@ -123,7 +129,7 @@ void GMTicket::Load(Field* fields)
     m_statsLastSeen = m_seen;
 }
 
-void GMTicket::Save(SqlStatement& stmt) const
+void GMTicket::Save(SqlStatement &stmt) const
 {
     stmt.addUInt32(m_id);
     stmt.addUInt8(m_category);
@@ -150,26 +156,28 @@ void GMTicket::Save(SqlStatement& stmt) const
     stmt.addString(m_notes);
 }
 
-void GMTicketMgr::Save(const GMTicket* ticket)
+void GMTicketMgr::Save(const GMTicket *ticket)
 {
     CharacterDatabase.PExecute("DELETE FROM gm_tickets WHERE id=%u", ticket->GetId());
 
     static SqlStatementID id;
 
-    SqlStatement stmt = CharacterDatabase.CreateStatement(id,
-        "INSERT INTO gm_tickets ("
-        "id, category, state, status, level, author_guid, author_name, locale, mapid, x, y, z, o, text, created, updated, seen, answered, closed, assignee_guid, assignee_name, conclusion, notes"
-        ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-    );
+    SqlStatement stmt =
+        CharacterDatabase.CreateStatement(id, "INSERT INTO gm_tickets ("
+                                              "id, category, state, status, level, author_guid, author_name, "
+                                              "locale, mapid, x, y, z, o, text, created, updated, seen, answered, "
+                                              "closed, assignee_guid, assignee_name, conclusion, notes"
+                                              ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+                                              "?, ?, ?, ?)");
 
     ticket->Save(stmt);
 
     stmt.Execute();
 }
 
-void GMTicket::Recycle(Player* player, std::string message, uint8 category, time_t when/* = time(nullptr)*/)
+void GMTicket::Recycle(Player *player, std::string message, uint8 category, time_t when /* = time(nullptr)*/)
 {
-    WorldSession* session = player->GetSession();
+    WorldSession *session = player->GetSession();
 
     m_category = category;
     m_status = GMTICKET_ASSIGNEDTOGM_STATUS_NOT_ASSIGNED;
@@ -193,7 +201,7 @@ void GMTicket::Recycle(Player* player, std::string message, uint8 category, time
     m_conclusion = "";
     m_notes = "";
 
-    utf8limit(m_text, 1999);    // Hardcoded client limit: 1999 bytes
+    utf8limit(m_text, 1999); // Hardcoded client limit: 1999 bytes
 
     m_statsChatIn = 0;
     m_statsChatOut = 0;
@@ -225,24 +233,24 @@ void GMTicket::SetState(GMTicketState state, time_t when)
     m_state = state;
 }
 
-void GMTicket::SetUpdated(const std::string& text, time_t when)
+void GMTicket::SetUpdated(const std::string &text, time_t when)
 {
     if (!IsOpen())
         return;
 
     m_text = text;
 
-    utf8limit(m_text, 1999);    // Hardcoded client limit: 1999 bytes
+    utf8limit(m_text, 1999); // Hardcoded client limit: 1999 bytes
 
     m_updated = when;
 
-    if (IsEscalated())          // De-escalate back to normal priority
+    if (IsEscalated()) // De-escalate back to normal priority
         m_status = GMTICKET_ASSIGNEDTOGM_STATUS_NOT_ASSIGNED;
 }
 
-void GMTicket::SetAssignee(uint8 level, WorldSession* session/* = nullptr*/)
+void GMTicket::SetAssignee(uint8 level, WorldSession *session /* = nullptr*/)
 {
-    if (!session)          // Unassigning a present assignee: ticket escalation
+    if (!session) // Unassigning a present assignee: ticket escalation
     {
         if (!IsEscalated())
             ++m_statsEscalations;
@@ -256,7 +264,7 @@ void GMTicket::SetAssignee(uint8 level, WorldSession* session/* = nullptr*/)
         m_level = level;
         m_assigneeName = session->GetPlayerName();
 
-        if (Player const* player = session->GetPlayer())
+        if (Player const *player = session->GetPlayer())
             m_assigneeGuid = player->GetObjectGuid();
         else
             m_assigneeGuid = ObjectGuid();
@@ -277,8 +285,9 @@ void GMTicket::UpdateStatsChat(bool incoming)
     }
 }
 
-GMSurveyResult::GMSurveyResult(const GMSurveyEntry &entry, uint32 ticketId, const std::map<uint32, uint8> &answers, const std::string &feedback) :
-    m_ticketId(ticketId), m_surveyId(entry.ID), m_comment(feedback)
+GMSurveyResult::GMSurveyResult(const GMSurveyEntry &entry, uint32 ticketId, const std::map<uint32, uint8> &answers,
+                               const std::string &feedback)
+    : m_ticketId(ticketId), m_surveyId(entry.ID), m_comment(feedback)
 {
     for (uint8 i = 0; i < MAX_GMSURVEY_QUESTIONS; ++i)
     {
@@ -294,7 +303,7 @@ GMSurveyResult::GMSurveyResult(const GMSurveyEntry &entry, uint32 ticketId, cons
     }
 }
 
-void GMTicketMgr::Save(const GMSurveyResult* survey)
+void GMTicketMgr::Save(const GMSurveyResult *survey)
 {
     static SqlStatementID id;
 
@@ -330,15 +339,16 @@ void GMTicketMgr::LoadGMTickets()
     RemoveAll();
 
     // Try to get highest ticket id to start counting from
-    if (QueryResult* max = CharacterDatabase.Query("SELECT MAX(id) FROM gm_tickets"))
+    if (QueryResult *max = CharacterDatabase.Query("SELECT MAX(id) FROM gm_tickets"))
         m_lastTicketId = max->Fetch()->GetUInt32();
 
     // Load open tickets into memory
-    QueryResult* result = CharacterDatabase.Query(
-        "SELECT "
-        "id, category, state, status, level, author_guid, author_name, locale, mapid, x, y, z, o, text, created, updated, seen, answered, closed, assignee_guid, assignee_name, conclusion, notes"
-        " FROM gm_tickets WHERE state = 0"
-    );
+    QueryResult *result =
+        CharacterDatabase.Query("SELECT "
+                                "id, category, state, status, level, author_guid, author_name, locale, "
+                                "mapid, x, y, z, o, text, created, updated, seen, answered, closed, "
+                                "assignee_guid, assignee_name, conclusion, notes"
+                                " FROM gm_tickets WHERE state = 0");
 
     if (!result)
     {
@@ -350,14 +360,14 @@ void GMTicketMgr::LoadGMTickets()
     }
 
     BarGoLink bar(result->GetRowCount());
-    
+
     do
     {
         bar.step();
 
-        Field* fields = result->Fetch();
+        Field *fields = result->Fetch();
 
-        GMTicket* ticket = new GMTicket(fields);
+        GMTicket *ticket = new GMTicket(fields);
         Add(ticket, true);
     } while (result->NextRow());
 
@@ -369,68 +379,84 @@ void GMTicketMgr::LoadGMTickets()
     sLog.outString();
 }
 
-void GMTicketMgr::Print(GMTicket const& ticket, WorldSession* session, time_t now/* = time(nullptr)*/)
+void GMTicketMgr::Print(GMTicket const &ticket, WorldSession *session, time_t now /* = time(nullptr)*/)
 {
     const LocaleConstant locale = session->GetSessionDbcLocale();
 
     ChatHandler ch(session);
 
-    const Player* author = sObjectMgr.GetPlayer(ticket.GetAuthorGuid());
+    const Player *author = sObjectMgr.GetPlayer(ticket.GetAuthorGuid());
     const bool offline = (!author);
 
-    const double x = double(ticket.GetPositionX()), y = double(ticket.GetPositionY()), z = double(ticket.GetPositionZ());
+    const double x = double(ticket.GetPositionX()), y = double(ticket.GetPositionY()),
+                 z = double(ticket.GetPositionZ());
 
     ch.SendSysMessage(LANG_TICKETS_PRINT_SPACER);
-    ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_SUMMARY, PrintTicketStatus(ticket), uint32(ticket.GetLevel()), ticket.GetId(), PrintTicketCategory(ticket, locale), uint32(ticket.GetCategory()));
-    ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_AUTHOR, ticket.GetAuthorName(), ticket.GetAuthorName(), ticket.GetAuthorGuid().GetCounter(), ticket.GetLocale(), (offline ? sObjectMgr.GetMangosString(LANG_OFFLINE, locale) : ""));
+    ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_SUMMARY, PrintTicketStatus(ticket), uint32(ticket.GetLevel()),
+                       ticket.GetId(), PrintTicketCategory(ticket, locale), uint32(ticket.GetCategory()));
+    ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_AUTHOR, ticket.GetAuthorName(), ticket.GetAuthorName(),
+                       ticket.GetAuthorGuid().GetCounter(), ticket.GetLocale(),
+                       (offline ? sObjectMgr.GetMangosString(LANG_OFFLINE, locale) : ""));
     ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_LOCATION, x, y, z, ticket.GetMapId());
-    ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_SUBMITTED, TimeToTimestampStr(ticket.GetCreatedAt()).c_str(), secsToTimeString((now - ticket.GetCreatedAt()), true).c_str());
+    ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_SUBMITTED, TimeToTimestampStr(ticket.GetCreatedAt()).c_str(),
+                       secsToTimeString((now - ticket.GetCreatedAt()), true).c_str());
     if (auto updated = ticket.GetUpdatedAt())
-        ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_UPDATED, TimeToTimestampStr(updated).c_str(), secsToTimeString((now - updated), true).c_str());
+        ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_UPDATED, TimeToTimestampStr(updated).c_str(),
+                           secsToTimeString((now - updated), true).c_str());
     if (auto seen = ticket.GetLastSeenAt())
-        ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_SEEN, TimeToTimestampStr(seen).c_str(), secsToTimeString((now - seen), true).c_str());
+        ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_SEEN, TimeToTimestampStr(seen).c_str(),
+                           secsToTimeString((now - seen), true).c_str());
     if (auto answered = ticket.GetAnsweredAt())
-        ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_ANSWERED, TimeToTimestampStr(answered).c_str(), secsToTimeString((now - answered), true).c_str());
+        ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_ANSWERED, TimeToTimestampStr(answered).c_str(),
+                           secsToTimeString((now - answered), true).c_str());
     if (auto closed = ticket.GetClosedAt())
-        ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_CLOSED, TimeToTimestampStr(closed).c_str(), secsToTimeString((now - closed), true).c_str());
+        ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_CLOSED, TimeToTimestampStr(closed).c_str(),
+                           secsToTimeString((now - closed), true).c_str());
     if (!std::string(ticket.GetAssigneeName()).empty())
-        ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_ASSIGNED, ticket.GetAssigneeName(), ticket.GetAssigneeName(), ticket.GetAssigneeGuid().GetCounter());
+        ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_ASSIGNED, ticket.GetAssigneeName(), ticket.GetAssigneeName(),
+                           ticket.GetAssigneeGuid().GetCounter());
     ch.SendSysMessage(LANG_TICKET_DETAILS_LINE_TEXT);
-    for (auto& line : StrSplit(ticket.GetText(), "\n"))
+    for (auto &line : StrSplit(ticket.GetText(), "\n"))
         ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_QUOTE, line.c_str());
-    const std::string& conclusion = ticket.GetConclusion();
+    const std::string &conclusion = ticket.GetConclusion();
     if (!conclusion.empty())
     {
         ch.SendSysMessage(LANG_TICKET_DETAILS_LINE_CONCLUSION);
-        for (auto& line : StrSplit(conclusion, "\n"))
+        for (auto &line : StrSplit(conclusion, "\n"))
             ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_QUOTE_GM, line.c_str());
     }
-    const std::string& notes = ticket.GetNotes();
+    const std::string &notes = ticket.GetNotes();
     if (!notes.empty())
     {
         ch.SendSysMessage(LANG_TICKET_DETAILS_LINE_GM_NOTES);
-        for (auto& line : StrSplit(notes, "\n"))
+        for (auto &line : StrSplit(notes, "\n"))
             ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_QUOTE_GM, line.c_str());
     }
     if (ticket.IsOpen())
     {
         const std::string id = std::to_string(ticket.GetId());
         std::string color = (CanWhisper(&ticket, session) == COMMAND_RESULT_SUCCESS ? "FF1AFF1A" : "FFFF1A1A");
-        const std::string whisper = "|Hplayer:T#" + id + "whisper|h{|c" + color + sObjectMgr.GetMangosString(LANG_TICKET_DETAILS_ACTION_WHISPER, locale) + "|r}|h";
+        const std::string whisper = "|Hplayer:T#" + id + "whisper|h{|c" + color +
+                                    sObjectMgr.GetMangosString(LANG_TICKET_DETAILS_ACTION_WHISPER, locale) + "|r}|h";
         color = (CanClose(&ticket, true, session) == COMMAND_RESULT_SUCCESS ? "FF1AFF1A" : "FFFF1A1A");
-        const std::string resolve = "|Hplayer:T#" + id + "resolve|h{|c" + color + sObjectMgr.GetMangosString(LANG_TICKET_DETAILS_ACTION_RESOLVE, locale) + "|r}|h";
+        const std::string resolve = "|Hplayer:T#" + id + "resolve|h{|c" + color +
+                                    sObjectMgr.GetMangosString(LANG_TICKET_DETAILS_ACTION_RESOLVE, locale) + "|r}|h";
         color = (CanClose(&ticket, false, session) == COMMAND_RESULT_SUCCESS ? "FF1AFF1A" : "FFFF1A1A");
-        const std::string discard = "|Hplayer:T#" + id + "discard|h{|c" + color + sObjectMgr.GetMangosString(LANG_TICKET_DETAILS_ACTION_DISCARD, locale) + "|r}|h";
+        const std::string discard = "|Hplayer:T#" + id + "discard|h{|c" + color +
+                                    sObjectMgr.GetMangosString(LANG_TICKET_DETAILS_ACTION_DISCARD, locale) + "|r}|h";
         color = (CanSort(&ticket, session) == COMMAND_RESULT_SUCCESS ? "FF1AFF1A" : "FFFF1A1A");
-        const std::string sort = "|Hplayer:T#" + id + "sort|h{|c" + color + sObjectMgr.GetMangosString(LANG_TICKET_DETAILS_ACTION_SORT, locale) + "|r}|h";
+        const std::string sort = "|Hplayer:T#" + id + "sort|h{|c" + color +
+                                 sObjectMgr.GetMangosString(LANG_TICKET_DETAILS_ACTION_SORT, locale) + "|r}|h";
         color = (CanComment(&ticket, session) == COMMAND_RESULT_SUCCESS ? "FF1AFF1A" : "FFFF1A1A");
-        const std::string note = "|Hplayer:T#" + id + "note|h{|c" + color + sObjectMgr.GetMangosString(LANG_TICKET_DETAILS_ACTION_NOTE, locale) + "|r}|h";
-        ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_ACTIONS, whisper.c_str(), resolve.c_str(), discard.c_str(), sort.c_str(), note.c_str());
+        const std::string note = "|Hplayer:T#" + id + "note|h{|c" + color +
+                                 sObjectMgr.GetMangosString(LANG_TICKET_DETAILS_ACTION_NOTE, locale) + "|r}|h";
+        ch.PSendSysMessage(LANG_TICKET_DETAILS_LINE_ACTIONS, whisper.c_str(), resolve.c_str(), discard.c_str(),
+                           sort.c_str(), note.c_str());
     }
     ch.SendSysMessage(LANG_TICKETS_PRINT_SPACER);
 }
 
-const std::string GMTicketMgr::PrintMailResponse(GMTicket const& ticket, bool resolved)
+const std::string GMTicketMgr::PrintMailResponse(GMTicket const &ticket, bool resolved)
 {
     const int32 localeIndex = GetLocaleByName(ticket.GetLocale());
     const MangosStrings textId = (resolved ? LANG_TICKET_CLOSED_LETTER_RESOLVED : LANG_TICKET_CLOSED_LETTER_DISCARDED);
@@ -440,7 +466,7 @@ const std::string GMTicketMgr::PrintMailResponse(GMTicket const& ticket, bool re
 
     ss << "\n|TInterface\\RAIDFRAME\\ReadyCheck-" << (resolved ? "" : "Not") << "Ready:64:64:144:0|t"; // TBC+ spacer
 
-    const std::string& conclusion = ticket.GetConclusion();
+    const std::string &conclusion = ticket.GetConclusion();
     const std::string assignee = std::string(ticket.GetAssigneeName());
 
     if (!conclusion.empty() && !assignee.empty())
@@ -453,9 +479,9 @@ const std::string GMTicketMgr::PrintMailResponse(GMTicket const& ticket, bool re
     return ss.str();
 }
 
-const char* GMTicketMgr::PrintTicketCategory(GMTicket const& ticket, LocaleConstant locale/* = LOCALE_DEFAULT*/)
+const char *GMTicketMgr::PrintTicketCategory(GMTicket const &ticket, LocaleConstant locale /* = LOCALE_DEFAULT*/)
 {
-    if (GMTicketCategoryEntry const* entry = sGMTicketCategoryStore.LookupEntry(ticket.GetCategory()))
+    if (GMTicketCategoryEntry const *entry = sGMTicketCategoryStore.LookupEntry(ticket.GetCategory()))
     {
         if (!std::string(entry->name[locale]).empty())
             return entry->name[locale];
@@ -466,90 +492,124 @@ const char* GMTicketMgr::PrintTicketCategory(GMTicket const& ticket, LocaleConst
     return sObjectMgr.GetMangosString(LANG_UNKNOWN, locale);
 }
 
-const char* GMTicketMgr::PrintTicketChatAlert(GMTicketMgrChatAlert alert, LocaleConstant locale/* = LOCALE_DEFAULT*/)
+const char *GMTicketMgr::PrintTicketChatAlert(GMTicketMgrChatAlert alert, LocaleConstant locale /* = LOCALE_DEFAULT*/)
 {
     MangosStrings textId = MangosStrings(0);
 
     switch (alert)
     {
-        case GMTICKETMGR_CHAT_ONLINE:                           textId = LANG_TICKET_ASSIGNEE_ALERT_ONLINE;     break;
-        case GMTICKETMGR_CHAT_OFFLINE:                          textId = LANG_TICKET_ASSIGNEE_ALERT_OFFLINE;    break;
-        case GMTICKETMGR_CHAT_UPDATED:                          textId = LANG_TICKET_ASSIGNEE_ALERT_UPDATED;    break;
-        case GMTICKETMGR_CHAT_ABANDONED:                        textId = LANG_TICKET_ASSIGNEE_ALERT_ABANDONED;  break;
-        case GMTICKETMGR_CHAT_ESCALATED:                        textId = LANG_TICKET_ASSIGNEE_ALERT_ESCALATED;  break;
+    case GMTICKETMGR_CHAT_ONLINE:
+        textId = LANG_TICKET_ASSIGNEE_ALERT_ONLINE;
+        break;
+    case GMTICKETMGR_CHAT_OFFLINE:
+        textId = LANG_TICKET_ASSIGNEE_ALERT_OFFLINE;
+        break;
+    case GMTICKETMGR_CHAT_UPDATED:
+        textId = LANG_TICKET_ASSIGNEE_ALERT_UPDATED;
+        break;
+    case GMTICKETMGR_CHAT_ABANDONED:
+        textId = LANG_TICKET_ASSIGNEE_ALERT_ABANDONED;
+        break;
+    case GMTICKETMGR_CHAT_ESCALATED:
+        textId = LANG_TICKET_ASSIGNEE_ALERT_ESCALATED;
+        break;
     }
 
     return sObjectMgr.GetMangosString(textId, locale);
 }
 
-const char* GMTicketMgr::PrintTicketStatus(GMTicket const& ticket, LocaleConstant locale/* = LOCALE_DEFAULT*/)
+const char *GMTicketMgr::PrintTicketStatus(GMTicket const &ticket, LocaleConstant locale /* = LOCALE_DEFAULT*/)
 {
     MangosStrings textId = LANG_UNKNOWN;
 
     // Condensed: prints only what you need to see about ticket's status
     switch (ticket.GetState())
     {
-        case GMTICKET_STATE_CLOSED:                             textId = LANG_TICKET_STATUS_BRIEF_CLOSED;       break;
-        case GMTICKET_STATE_ABANDONED:                          textId = LANG_TICKET_STATUS_BRIEF_ABANDONED;    break;
-        case GMTICKET_STATE_OPEN:
-            switch (ticket.GetStatus())
+    case GMTICKET_STATE_CLOSED:
+        textId = LANG_TICKET_STATUS_BRIEF_CLOSED;
+        break;
+    case GMTICKET_STATE_ABANDONED:
+        textId = LANG_TICKET_STATUS_BRIEF_ABANDONED;
+        break;
+    case GMTICKET_STATE_OPEN:
+        switch (ticket.GetStatus())
+        {
+        case GMTICKET_ASSIGNEDTOGM_STATUS_ASSIGNED:
+            textId = LANG_TICKET_STATUS_BRIEF_ASSIGNED;
+            break;
+        case GMTICKET_ASSIGNEDTOGM_STATUS_ESCALATED:
+            textId = LANG_TICKET_STATUS_BRIEF_ESCALATED;
+            break;
+        case GMTICKET_ASSIGNEDTOGM_STATUS_NOT_ASSIGNED:
+            switch (uint8(ticket.IsSeen()))
             {
-                case GMTICKET_ASSIGNEDTOGM_STATUS_ASSIGNED:     textId = LANG_TICKET_STATUS_BRIEF_ASSIGNED;     break;
-                case GMTICKET_ASSIGNEDTOGM_STATUS_ESCALATED:    textId = LANG_TICKET_STATUS_BRIEF_ESCALATED;    break;
-                case GMTICKET_ASSIGNEDTOGM_STATUS_NOT_ASSIGNED:
-                    switch (uint8(ticket.IsSeen()))
-                    {
-                        case false:                             textId = LANG_TICKET_STATUS_BRIEF_UNSEEN;       break;
-                        case true:                              textId = LANG_TICKET_STATUS_BRIEF_OPEN;         break;
-                    }
+            case false:
+                textId = LANG_TICKET_STATUS_BRIEF_UNSEEN;
+                break;
+            case true:
+                textId = LANG_TICKET_STATUS_BRIEF_OPEN;
+                break;
             }
+        }
     }
 
     return sObjectMgr.GetMangosString(textId, locale);
 }
 
-const char* GMTicketMgr::PrintTicketStatusColorSequence(GMTicket const& ticket)
+const char *GMTicketMgr::PrintTicketStatusColorSequence(GMTicket const &ticket)
 {
     switch (ticket.GetState())
     {
-        case GMTICKET_STATE_CLOSED:                             return "|cFF808080";    // Gray
-        case GMTICKET_STATE_ABANDONED:                          return "|cFFC0C0C0";    // Silver
-        case GMTICKET_STATE_OPEN:
-            switch (ticket.GetStatus())
+    case GMTICKET_STATE_CLOSED:
+        return "|cFF808080"; // Gray
+    case GMTICKET_STATE_ABANDONED:
+        return "|cFFC0C0C0"; // Silver
+    case GMTICKET_STATE_OPEN:
+        switch (ticket.GetStatus())
+        {
+        case GMTICKET_ASSIGNEDTOGM_STATUS_ASSIGNED:
+            return "|cFF1AFF1A"; // Green
+        case GMTICKET_ASSIGNEDTOGM_STATUS_ESCALATED:
+            return "|cFFFF1A1A"; // Red
+        case GMTICKET_ASSIGNEDTOGM_STATUS_NOT_ASSIGNED:
+            switch (uint8(ticket.IsSeen()))
             {
-                case GMTICKET_ASSIGNEDTOGM_STATUS_ASSIGNED:     return "|cFF1AFF1A";    // Green
-                case GMTICKET_ASSIGNEDTOGM_STATUS_ESCALATED:    return "|cFFFF1A1A";    // Red
-                case GMTICKET_ASSIGNEDTOGM_STATUS_NOT_ASSIGNED:
-                    switch (uint8(ticket.IsSeen()))
-                    {
-                        case true:                              return "|cFFFF00FF";    // Fuchsia
-                        case false:                             return "|cFFFFFF00";    // Yellow
-                    }
+            case true:
+                return "|cFFFF00FF"; // Fuchsia
+            case false:
+                return "|cFFFFFF00"; // Yellow
             }
+        }
     }
     return "";
 }
 
-const std::string GMTicketMgr::PrintTicketSummaryLine(const GMTicket& ticket, LocaleConstant locale/* = LOCALE_DEFAULT*/)
+const std::string GMTicketMgr::PrintTicketSummaryLine(const GMTicket &ticket,
+                                                      LocaleConstant locale /* = LOCALE_DEFAULT*/)
 {
     std::string id = std::to_string(ticket.GetId()), name = std::string(ticket.GetAuthorName());
 
     std::ostringstream ss;
     ss << "  " << std::string(PrintTicketStatusColorSequence(ticket));
-    ss << "|Hplayer:T#" << id << "read|hT#" << id                                          << "  ";
-    ss << "L" << std::to_string(ticket.GetLevel())                                         << "  ";
-    ss << std::string(PrintTicketStatus(ticket, locale))  << "|h|r"                        << "  ";
-    ss << "|c00FFFFFF<" << name << ">|r"                                                   << "  ";
-    ss << "|c00FFFFFF[" << std::string(ticket.GetLocale()) << "]|r"                        << "  ";
+    ss << "|Hplayer:T#" << id << "read|hT#" << id << "  ";
+    ss << "L" << std::to_string(ticket.GetLevel()) << "  ";
+    ss << std::string(PrintTicketStatus(ticket, locale)) << "|h|r"
+       << "  ";
+    ss << "|c00FFFFFF<" << name << ">|r"
+       << "  ";
+    ss << "|c00FFFFFF[" << std::string(ticket.GetLocale()) << "]|r"
+       << "  ";
     if (ticket.GetCategory())
-        ss << "|c00FFFFFF\"" << std::string(PrintTicketCategory(ticket, locale)) << "\"|r" << "  ";
+        ss << "|c00FFFFFF\"" << std::string(PrintTicketCategory(ticket, locale)) << "\"|r"
+           << "  ";
     if (!sObjectMgr.GetPlayer(ticket.GetAuthorGuid()))
         ss << "|c00FF1A1A" << sObjectMgr.GetMangosString(LANG_OFFLINE, locale) << "|r";
     ss << std::endl;
     return ss.str();
 }
 
-void GMTicketMgr::PrintTicketList(WorldSession* session, std::ostringstream& output, size_t max, GMTicketCategoryEntry const* category/* = nullptr*/, bool online/* = false*/) const
+void GMTicketMgr::PrintTicketList(WorldSession *session, std::ostringstream &output, size_t max,
+                                  GMTicketCategoryEntry const *category /* = nullptr*/, bool online /* = false*/) const
 {
     size_t count = 0;
     std::ostringstream tickets;
@@ -576,29 +636,33 @@ void GMTicketMgr::PrintTicketList(WorldSession* session, std::ostringstream& out
     output << std::string(session->GetMangosString(LANG_TICKETS_PRINT_SPACER)) << std::endl;
 }
 
-bool GMTicketMgr::TicketChatIncoming(GMTicket* ticket, Player* player, WorldSession* gm, const std::string& message, bool addon/* = false*/)
+bool GMTicketMgr::TicketChatIncoming(GMTicket *ticket, Player *player, WorldSession *gm, const std::string &message,
+                                     bool addon /* = false*/)
 {
     if (!ticket || !player || !player->IsInWorld() || !gm || message.empty())
         return false;
 
-    // Do not send confirmations, afk, dnd or system notifications for addon messages
+    // Do not send confirmations, afk, dnd or system notifications for addon
+    // messages
     if (!addon)
     {
         ticket->UpdateStatsChat(true);
 
         WorldPacket inform;
-        ChatHandler::BuildChatPacket(inform, CHAT_MSG_WHISPER_INFORM, message.c_str(), LANG_UNIVERSAL, CHAT_TAG_GM, ticket->GetAssigneeGuid(), ticket->GetAssigneeName());
+        ChatHandler::BuildChatPacket(inform, CHAT_MSG_WHISPER_INFORM, message.c_str(), LANG_UNIVERSAL, CHAT_TAG_GM,
+                                     ticket->GetAssigneeGuid(), ticket->GetAssigneeName());
         player->GetSession()->SendPacket(inform);
 
         // Announce afk or dnd message
-        if (Player* client = gm->GetPlayer())
+        if (Player *client = gm->GetPlayer())
         {
             if (client->isAFK() || client->isDND())
             {
                 const ChatMsg msgType = (client->isAFK() ? CHAT_MSG_AFK : CHAT_MSG_DND);
 
                 inform.clear();
-                ChatHandler::BuildChatPacket(inform, msgType, client->autoReplyMsg.c_str(), LANG_UNIVERSAL, CHAT_TAG_GM, ticket->GetAssigneeGuid(), ticket->GetAssigneeName());
+                ChatHandler::BuildChatPacket(inform, msgType, client->autoReplyMsg.c_str(), LANG_UNIVERSAL, CHAT_TAG_GM,
+                                             ticket->GetAssigneeGuid(), ticket->GetAssigneeName());
                 player->GetSession()->SendPacket(inform);
             }
         }
@@ -615,18 +679,21 @@ bool GMTicketMgr::TicketChatIncoming(GMTicket* ticket, Player* player, WorldSess
     ss << message;
 
     WorldPacket whisper;
-    ChatHandler::BuildChatPacket(whisper, CHAT_MSG_WHISPER, ss.str().c_str(), lang, tag, ticket->GetAuthorGuid(), ticket->GetAuthorName());
+    ChatHandler::BuildChatPacket(whisper, CHAT_MSG_WHISPER, ss.str().c_str(), lang, tag, ticket->GetAuthorGuid(),
+                                 ticket->GetAuthorName());
     gm->SendPacket(whisper);
 
     return true;
 }
 
-bool GMTicketMgr::TicketChatOutgoing(GMTicket* ticket, WorldSession* gm, Player* player, const std::string& message, bool addon/* = false*/)
+bool GMTicketMgr::TicketChatOutgoing(GMTicket *ticket, WorldSession *gm, Player *player, const std::string &message,
+                                     bool addon /* = false*/)
 {
     if (!ticket || !gm || !player || !player->IsInWorld() || message.empty())
         return false;
 
-    // Do not send confirmations, afk, dnd or system notifications for addon messages
+    // Do not send confirmations, afk, dnd or system notifications for addon
+    // messages
     if (!addon)
     {
         ticket->UpdateStatsChat(false);
@@ -638,7 +705,8 @@ bool GMTicketMgr::TicketChatOutgoing(GMTicket* ticket, WorldSession* gm, Player*
         ss << message;
 
         WorldPacket inform;
-        ChatHandler::BuildChatPacket(inform, CHAT_MSG_WHISPER_INFORM, ss.str().c_str(), LANG_UNIVERSAL, CHAT_TAG_NONE, ticket->GetAuthorGuid(), ticket->GetAuthorName());
+        ChatHandler::BuildChatPacket(inform, CHAT_MSG_WHISPER_INFORM, ss.str().c_str(), LANG_UNIVERSAL, CHAT_TAG_NONE,
+                                     ticket->GetAuthorGuid(), ticket->GetAuthorName());
         gm->SendPacket(inform);
 
         // Announce afk or dnd message
@@ -647,39 +715,44 @@ bool GMTicketMgr::TicketChatOutgoing(GMTicket* ticket, WorldSession* gm, Player*
             const ChatMsg msgType = (player->isAFK() ? CHAT_MSG_AFK : CHAT_MSG_DND);
 
             inform.clear();
-            ChatHandler::BuildChatPacket(inform, msgType, player->autoReplyMsg.c_str(), LANG_UNIVERSAL, CHAT_TAG_NONE, ticket->GetAuthorGuid());
+            ChatHandler::BuildChatPacket(inform, msgType, player->autoReplyMsg.c_str(), LANG_UNIVERSAL, CHAT_TAG_NONE,
+                                         ticket->GetAuthorGuid());
             gm->SendPacket(inform);
         }
     }
 
-    Player* client = gm->GetPlayer();
+    Player *client = gm->GetPlayer();
 
     const Language lang = (addon ? LANG_ADDON : LANG_UNIVERSAL);
     const ChatTagFlags tag = ((client ? client->GetChatTag() : CHAT_TAG_NONE) | CHAT_TAG_GM);
 
     WorldPacket whisper;
-    ChatHandler::BuildChatPacket(whisper, CHAT_MSG_WHISPER, message.c_str(), lang, tag, ticket->GetAssigneeGuid(), ticket->GetAssigneeName());
+    ChatHandler::BuildChatPacket(whisper, CHAT_MSG_WHISPER, message.c_str(), lang, tag, ticket->GetAssigneeGuid(),
+                                 ticket->GetAssigneeName());
     player->GetSession()->SendPacket(whisper);
 
     return true;
 }
 
-bool GMTicketMgr::TicketChatAlert(const GMTicket* ticket, GMTicketMgrChatAlert alert)
+bool GMTicketMgr::TicketChatAlert(const GMTicket *ticket, GMTicketMgrChatAlert alert)
 {
-    if (!ticket || !ticket->IsAssigned() || (ticket->IsAssignedTo(ticket->GetAuthorGuid()) && alert == GMTICKETMGR_CHAT_OFFLINE))
+    if (!ticket || !ticket->IsAssigned() ||
+        (ticket->IsAssignedTo(ticket->GetAuthorGuid()) && alert == GMTICKETMGR_CHAT_OFFLINE))
         return false;
 
-    Player* gm = sObjectMgr.GetPlayer(ticket->GetAssigneeGuid());
+    Player *gm = sObjectMgr.GetPlayer(ticket->GetAssigneeGuid());
 
     if (!gm || !gm->isAcceptTickets())
         return false;
 
     std::ostringstream ss;
 
-    ss << "|cFFFFFF00[" << ticket->GetIdTag() << "]: " << PrintTicketChatAlert(alert, gm->GetSession()->GetSessionDbcLocale()) << "|r";
+    ss << "|cFFFFFF00[" << ticket->GetIdTag()
+       << "]: " << PrintTicketChatAlert(alert, gm->GetSession()->GetSessionDbcLocale()) << "|r";
 
     WorldPacket data;
-    ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER, ss.str().c_str(), LANG_UNIVERSAL, CHAT_TAG_NONE, ticket->GetAuthorGuid(), ticket->GetAuthorName());
+    ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER, ss.str().c_str(), LANG_UNIVERSAL, CHAT_TAG_NONE,
+                                 ticket->GetAuthorGuid(), ticket->GetAuthorName());
     gm->GetSession()->SendPacket(data);
 
     return true;
@@ -687,16 +760,17 @@ bool GMTicketMgr::TicketChatAlert(const GMTicket* ticket, GMTicketMgrChatAlert a
 
 void GMTicketMgr::OnPlayerOnlineState(Player &player, bool online) const
 {
-    if (GMTicket* ticket = GetTicketByPlayer(player.GetObjectGuid()))
+    if (GMTicket *ticket = GetTicketByPlayer(player.GetObjectGuid()))
         TicketChatAlert(ticket, (online ? GMTICKETMGR_CHAT_ONLINE : GMTICKETMGR_CHAT_OFFLINE));
 
     if (!online)
     {
-        // Foolproofing: just in case if we have old surveyed ticket, cancel survey by unloading it from memory
-        if (GMTicket* surveyed = sTicketMgr.GetTicketByPlayer(player.GetObjectGuid(), GMTICKET_STATE_CLOSED))
+        // Foolproofing: just in case if we have old surveyed ticket, cancel
+        // survey by unloading it from memory
+        if (GMTicket *surveyed = sTicketMgr.GetTicketByPlayer(player.GetObjectGuid(), GMTICKET_STATE_CLOSED))
             sTicketMgr.Survey(surveyed);
     }
-    else if (WorldSession* session = player.GetSession())
+    else if (WorldSession *session = player.GetSession())
     {
         if (session->GetSecurity() >= SEC_GAMEMASTER)
             sTicketMgr.ShowMOTD(player);
@@ -707,11 +781,12 @@ void GMTicketMgr::ShowMOTD(Player &gm) const
 {
     const bool notifications = gm.isAcceptTickets();
 
-    if (WorldSession* session = gm.GetSession())
+    if (WorldSession *session = gm.GetSession())
     {
         std::string status = (session->GetMangosString((notifications ? LANG_ON : LANG_OFF)));
         strToUpper(status);
-        session->SendNotification("|cFFFFFF00%s: %s|r", session->GetMangosString(LANG_TICKETS_NOTIFICATIONS), status.c_str());
+        session->SendNotification("|cFFFFFF00%s: %s|r", session->GetMangosString(LANG_TICKETS_NOTIFICATIONS),
+                                  status.c_str());
     }
 
     if (!notifications)
@@ -722,14 +797,15 @@ void GMTicketMgr::ShowMOTD(Player &gm) const
     ch.PSendSysMessage(LANG_TICKET_MOTD_SYSTEM_STATUS, ch.GetMangosString(GetSystemStatus() ? LANG_ON : LANG_OFF));
 
     if (m_currentTicketCountClosed)
-        ch.PSendSysMessage(LANG_TICKET_MOTD_SYSTEM_STATS_CLOSED, m_currentTicketCountClosed, secsToTimeString(uint32(GetAverageResolutionDays() * DAY)).c_str());
+        ch.PSendSysMessage(LANG_TICKET_MOTD_SYSTEM_STATS_CLOSED, m_currentTicketCountClosed,
+                           secsToTimeString(uint32(GetAverageResolutionDays() * DAY)).c_str());
 
     if (m_currentTicketCountOpen)
     {
-        const ObjectGuid& guid = gm.GetObjectGuid();
+        const ObjectGuid &guid = gm.GetObjectGuid();
 
         uint32 assignedCount = 0, escalatedCount = 0;
-        std::deque<GMTicket*> assignedOnline;
+        std::deque<GMTicket *> assignedOnline;
 
         for (auto itr = m_list.begin(); itr != m_list.end(); ++itr)
         {
@@ -742,7 +818,7 @@ void GMTicketMgr::ShowMOTD(Player &gm) const
                 {
                     ++assignedCount;
 
-                    if (const Player* player = sObjectMgr.GetPlayer((*itr)->GetAuthorGuid()))
+                    if (const Player *player = sObjectMgr.GetPlayer((*itr)->GetAuthorGuid()))
                         assignedOnline.push_back((*itr));
                 }
             }
@@ -754,7 +830,8 @@ void GMTicketMgr::ShowMOTD(Player &gm) const
         {
             ch.PSendSysMessage(LANG_TICKET_MOTD_SYSTEM_ASSIGNED, assignedCount, uint32(assignedOnline.size()));
 
-            // Show notifications for each player awaiting gm's reponse right now:
+            // Show notifications for each player awaiting gm's reponse right
+            // now:
             for (auto itr = assignedOnline.begin(); itr != assignedOnline.end(); ++itr)
             {
                 if ((*itr)->GetAuthorGuid() != gm.GetObjectGuid())
@@ -764,18 +841,19 @@ void GMTicketMgr::ShowMOTD(Player &gm) const
     }
 }
 
-std::pair<bool, bool> GMTicketMgr::HookGMTicketWhisper(Player* sender, const std::string& recepient, Player* character, const std::string& msg, bool addon)
+std::pair<bool, bool> GMTicketMgr::HookGMTicketWhisper(Player *sender, const std::string &recepient, Player *character,
+                                                       const std::string &msg, bool addon)
 {
     // GM ticket chat: outgoing hook
     if (sender->isAcceptTickets())
     {
-        GMTicket* ticket = nullptr;
+        GMTicket *ticket = nullptr;
 
         if (character)
             ticket = GetTicketByPlayer(character->GetObjectGuid(), GMTICKET_STATE_OPEN);
         else
         {
-            auto const& result = GetTicketByIdTag(recepient, GMTICKET_STATE_OPEN);
+            auto const &result = GetTicketByIdTag(recepient, GMTICKET_STATE_OPEN);
             ticket = result.first;
 
             // Parse quick actions:
@@ -783,13 +861,15 @@ std::pair<bool, bool> GMTicketMgr::HookGMTicketWhisper(Player* sender, const std
             {
                 std::smatch sm;
 
-                for (auto const& action : { "read", "whisper", "resolve", "discard", "sort", "note" })
+                for (auto const &action : {"read", "whisper", "resolve", "discard", "sort", "note"})
                 {
                     std::regex re(action, std::regex::icase);
 
                     if (std::regex_search(result.second, sm, re))
                     {
-                        ChatHandler(sender).ParseCommands((".ticket " + std::string(action) + " " + std::to_string(ticket->GetId()) + " " + msg).c_str());
+                        ChatHandler(sender).ParseCommands(
+                            (".ticket " + std::string(action) + " " + std::to_string(ticket->GetId()) + " " + msg)
+                                .c_str());
                         return {true, true};
                     }
                 }
@@ -809,7 +889,8 @@ std::pair<bool, bool> GMTicketMgr::HookGMTicketWhisper(Player* sender, const std
     // GM ticket chat: incoming hook
     if (character && character->isAcceptTickets())
     {
-        if (GMTicket* ticket = GetTicketByPlayer(sender->GetObjectGuid(), GMTICKET_STATE_OPEN, character->GetObjectGuid()))
+        if (GMTicket *ticket =
+                GetTicketByPlayer(sender->GetObjectGuid(), GMTICKET_STATE_OPEN, character->GetObjectGuid()))
         {
             if (!TicketChatIncoming(ticket, sender, character->GetSession(), msg, addon))
                 return {true, false};
@@ -820,15 +901,15 @@ std::pair<bool, bool> GMTicketMgr::HookGMTicketWhisper(Player* sender, const std
     return {false, false};
 }
 
-bool GMTicketMgr::HookGMTicketWhoQuery(const std::string& query, Player* gm) const
+bool GMTicketMgr::HookGMTicketWhoQuery(const std::string &query, Player *gm) const
 {
     if (gm && gm->isAcceptTickets())
     {
-        if (WorldSession* session = gm->GetSession())
+        if (WorldSession *session = gm->GetSession())
         {
             auto result = GetTicketByIdTag(query, GMTICKET_STATE_OPEN);
 
-            if (GMTicket* ticket = result.first)
+            if (GMTicket *ticket = result.first)
             {
                 WorldPacket hooked(SMSG_WHO, (4 + 4));
                 hooked << uint32(0);
@@ -844,7 +925,7 @@ bool GMTicketMgr::HookGMTicketWhoQuery(const std::string& query, Player* gm) con
     return false;
 }
 
-GMTicket* GMTicketMgr::GetTicketById(uint32 id, GMTicketState state/* = GMTICKET_STATE_OPEN*/) const
+GMTicket *GMTicketMgr::GetTicketById(uint32 id, GMTicketState state /* = GMTICKET_STATE_OPEN*/) const
 {
     auto itr = m_tickets.find(id);
     if (itr != m_tickets.end() && itr->second->GetState() == state)
@@ -853,16 +934,18 @@ GMTicket* GMTicketMgr::GetTicketById(uint32 id, GMTicketState state/* = GMTICKET
     return nullptr;
 }
 
-GMTicket* GMTicketMgr::GetTicketByPlayer(ObjectGuid playerGuid, GMTicketState state/* = GMTICKET_STATE_OPEN*/, ObjectGuid assigneeGuid/* = ObjectGuid()*/) const
+GMTicket *GMTicketMgr::GetTicketByPlayer(ObjectGuid playerGuid, GMTicketState state /* = GMTICKET_STATE_OPEN*/,
+                                         ObjectGuid assigneeGuid /* = ObjectGuid()*/) const
 {
     if (playerGuid.IsPlayer())
     {
-        GMTicket* ticket;
+        GMTicket *ticket;
 
         for (auto itr = m_tickets.begin(); itr != m_tickets.end(); ++itr)
         {
             ticket = itr->second;
-            if (ticket && ticket->GetState() == state && ticket->GetAuthorGuid() == playerGuid && (!assigneeGuid.IsPlayer() || (ticket->IsAssigned() && ticket->IsAssignedTo(assigneeGuid))))
+            if (ticket && ticket->GetState() == state && ticket->GetAuthorGuid() == playerGuid &&
+                (!assigneeGuid.IsPlayer() || (ticket->IsAssigned() && ticket->IsAssignedTo(assigneeGuid))))
                 return ticket;
         }
     }
@@ -870,7 +953,9 @@ GMTicket* GMTicketMgr::GetTicketByPlayer(ObjectGuid playerGuid, GMTicketState st
     return nullptr;
 }
 
-std::pair<GMTicket*, std::string> GMTicketMgr::GetTicketByIdTag(const std::string& tag, GMTicketState state/* = GMTICKET_STATE_OPEN*/, ObjectGuid assigneeGuid/* = ObjectGuid()*/) const
+std::pair<GMTicket *, std::string> GMTicketMgr::GetTicketByIdTag(const std::string &tag,
+                                                                 GMTicketState state /* = GMTICKET_STATE_OPEN*/,
+                                                                 ObjectGuid assigneeGuid /* = ObjectGuid()*/) const
 {
     uint32 ticketid = 0;
     std::string command;
@@ -885,16 +970,17 @@ std::pair<GMTicket*, std::string> GMTicketMgr::GetTicketByIdTag(const std::strin
         if (smatch.size() > 2)
             command = smatch[2].str();
 
-        if (GMTicket* ticket = GetTicketById(ticketid))
+        if (GMTicket *ticket = GetTicketById(ticketid))
         {
-            if (ticket->GetState() == state && (!assigneeGuid.IsPlayer() || (ticket->IsAssigned() && ticket->IsAssignedTo(assigneeGuid))))
+            if (ticket->GetState() == state &&
+                (!assigneeGuid.IsPlayer() || (ticket->IsAssigned() && ticket->IsAssignedTo(assigneeGuid))))
                 return {ticket, command};
         }
     }
     return {nullptr, command};
 }
 
-bool GMTicketMgr::Add(GMTicket* ticket, bool loading/* = false*/)
+bool GMTicketMgr::Add(GMTicket *ticket, bool loading /* = false*/)
 {
     if (!ticket || !ticket->GetId())
         return false;
@@ -912,13 +998,14 @@ bool GMTicketMgr::Add(GMTicket* ticket, bool loading/* = false*/)
     {
         Save(ticket);
 
-        sWorld.SendWorldTextToAcceptingTickets(LANG_TICKET_BROADCAST_NEW, ticket->GetIdTag().c_str(), ticket->GetAuthorName());
+        sWorld.SendWorldTextToAcceptingTickets(LANG_TICKET_BROADCAST_NEW, ticket->GetIdTag().c_str(),
+                                               ticket->GetAuthorName());
     }
 
     return true;
 }
 
-bool GMTicketMgr::Recycle(GMTicket* ticket)
+bool GMTicketMgr::Recycle(GMTicket *ticket)
 {
     if (!ticket || ticket->GetState() != GMTICKET_STATE_ABANDONED)
         return false;
@@ -934,12 +1021,13 @@ bool GMTicketMgr::Recycle(GMTicket* ticket)
 
     m_list.sort(GMTicket::Compare);
 
-    sWorld.SendWorldTextToAcceptingTickets(LANG_TICKET_BROADCAST_NEW, ticket->GetIdTag().c_str(), ticket->GetAuthorName());
+    sWorld.SendWorldTextToAcceptingTickets(LANG_TICKET_BROADCAST_NEW, ticket->GetIdTag().c_str(),
+                                           ticket->GetAuthorName());
 
     return true;
 }
 
-void GMTicketMgr::Survey(GMTicket* ticket, const GMSurveyResult* result/* = nullptr*/)
+void GMTicketMgr::Survey(GMTicket *ticket, const GMSurveyResult *result /* = nullptr*/)
 {
     if (!ticket || ticket->IsOpen() || !ticket->IsSurveyed())
         return;
@@ -954,7 +1042,7 @@ void GMTicketMgr::Survey(GMTicket* ticket, const GMSurveyResult* result/* = null
     Remove(*ticket);
 }
 
-GMTicketMgr::CommandResult GMTicketMgr::Abandon(GMTicket* ticket)
+GMTicketMgr::CommandResult GMTicketMgr::Abandon(GMTicket *ticket)
 {
     if (!ticket || !ticket->IsOpen())
         return COMMAND_RESULT_TICKET_NOT_FOUND;
@@ -973,7 +1061,7 @@ GMTicketMgr::CommandResult GMTicketMgr::Abandon(GMTicket* ticket)
     return COMMAND_RESULT_SUCCESS;
 }
 
-GMTicketMgr::CommandResult GMTicketMgr::Escalate(GMTicket* ticket, WorldSession* session, uint8 level)
+GMTicketMgr::CommandResult GMTicketMgr::Escalate(GMTicket *ticket, WorldSession *session, uint8 level)
 {
     if (!ticket || !ticket->IsOpen())
         return COMMAND_RESULT_TICKET_NOT_FOUND;
@@ -983,7 +1071,8 @@ GMTicketMgr::CommandResult GMTicketMgr::Escalate(GMTicket* ticket, WorldSession*
     // Cannot escalate a ticket if ticket's access level is significantly higher
     else if (!session || uint8(session->GetSecurity()) < ticket->GetLevel())
         return COMMAND_RESULT_ACCESS_DENIED;
-    // Cannot force-escalate an assigned ticket if assignee is currently online and you have same or lower access level
+    // Cannot force-escalate an assigned ticket if assignee is currently online
+    // and you have same or lower access level
     else if (ticket->IsAssigned() && !ticket->IsAssignedTo(session->GetPlayerName()))
     {
         if (uint8(session->GetSecurity()) == ticket->GetLevel() && sObjectMgr.GetPlayer(ticket->GetAssigneeGuid()))
@@ -1000,7 +1089,8 @@ GMTicketMgr::CommandResult GMTicketMgr::Escalate(GMTicket* ticket, WorldSession*
     else if (level > session->GetSecurity())
         return COMMAND_RESULT_ACCESS_DENIED;
 
-    // Check if we are actually escalating it and not just updating the level of arleady escalated ticket
+    // Check if we are actually escalating it and not just updating the level of
+    // arleady escalated ticket
     const bool initial = !ticket->IsEscalated();
 
     if (initial)
@@ -1014,16 +1104,17 @@ GMTicketMgr::CommandResult GMTicketMgr::Escalate(GMTicket* ticket, WorldSession*
     {
         m_list.sort(GMTicket::Compare);
 
-        if (Player* character = sObjectMgr.GetPlayer(ticket->GetAuthorGuid()))
+        if (Player *character = sObjectMgr.GetPlayer(ticket->GetAuthorGuid()))
             character->GetSession()->SendGMTicketResult(SMSG_GM_TICKET_STATUS_UPDATE, GMTICKET_STATUS_UPDATED);
     }
 
-    sWorld.SendWorldTextToAcceptingTickets(LANG_TICKET_BROADCAST_ESCALATION, ticket->GetIdTag().c_str(), uint32(ticket->GetLevel()), session->GetPlayerName());
+    sWorld.SendWorldTextToAcceptingTickets(LANG_TICKET_BROADCAST_ESCALATION, ticket->GetIdTag().c_str(),
+                                           uint32(ticket->GetLevel()), session->GetPlayerName());
 
     return COMMAND_RESULT_SUCCESS;
 }
 
-GMTicketMgr::CommandResult GMTicketMgr::Comment(GMTicket* ticket, WorldSession* session, const std::string& text)
+GMTicketMgr::CommandResult GMTicketMgr::Comment(GMTicket *ticket, WorldSession *session, const std::string &text)
 {
     CommandResult result = CanComment(ticket, session);
 
@@ -1032,7 +1123,7 @@ GMTicketMgr::CommandResult GMTicketMgr::Comment(GMTicket* ticket, WorldSession* 
 
     time_t now = time(nullptr);
 
-    for (auto& line : StrSplit(text, "\n"))
+    for (auto &line : StrSplit(text, "\n"))
     {
         std::ostringstream output;
         output << TimeToTimestampStr(now) << " [" << session->GetPlayerName() << "]: " << line;
@@ -1041,12 +1132,13 @@ GMTicketMgr::CommandResult GMTicketMgr::Comment(GMTicket* ticket, WorldSession* 
 
     Save(ticket);
 
-    sWorld.SendWorldTextToAcceptingTickets(LANG_TICKET_BROADCAST_COMMENTARY, ticket->GetIdTag().c_str(), session->GetPlayerName());
+    sWorld.SendWorldTextToAcceptingTickets(LANG_TICKET_BROADCAST_COMMENTARY, ticket->GetIdTag().c_str(),
+                                           session->GetPlayerName());
 
     return COMMAND_RESULT_SUCCESS;
 }
 
-GMTicketMgr::CommandResult GMTicketMgr::Read(GMTicket* ticket)
+GMTicketMgr::CommandResult GMTicketMgr::Read(GMTicket *ticket)
 {
     if (!ticket)
         return COMMAND_RESULT_TICKET_NOT_FOUND;
@@ -1064,14 +1156,15 @@ GMTicketMgr::CommandResult GMTicketMgr::Read(GMTicket* ticket)
     {
         m_list.sort(GMTicket::Compare);
 
-        if (Player* character = sObjectMgr.GetPlayer(ticket->GetAuthorGuid()))
+        if (Player *character = sObjectMgr.GetPlayer(ticket->GetAuthorGuid()))
             character->GetSession()->SendGMTicketResult(SMSG_GM_TICKET_STATUS_UPDATE, GMTICKET_STATUS_UPDATED);
     }
 
     return COMMAND_RESULT_SUCCESS;
 }
 
-GMTicketMgr::CommandResult GMTicketMgr::Sort(GMTicket* ticket, const GMTicketCategoryEntry& category, WorldSession* session/* = nullptr*/)
+GMTicketMgr::CommandResult GMTicketMgr::Sort(GMTicket *ticket, const GMTicketCategoryEntry &category,
+                                             WorldSession *session /* = nullptr*/)
 {
     CommandResult result = CanSort(ticket, session);
 
@@ -1084,16 +1177,18 @@ GMTicketMgr::CommandResult GMTicketMgr::Sort(GMTicket* ticket, const GMTicketCat
 
         Save(ticket);
 
-        sWorld.SendWorldTextToAcceptingTickets(LANG_TICKET_BROADCAST_CATEGORY, ticket->GetIdTag().c_str(), PrintTicketCategory(*ticket, sWorld.GetDefaultDbcLocale()), category.ID, session->GetPlayerName());
+        sWorld.SendWorldTextToAcceptingTickets(LANG_TICKET_BROADCAST_CATEGORY, ticket->GetIdTag().c_str(),
+                                               PrintTicketCategory(*ticket, sWorld.GetDefaultDbcLocale()), category.ID,
+                                               session->GetPlayerName());
 
-        if (Player* character = sObjectMgr.GetPlayer(ticket->GetAuthorGuid()))
+        if (Player *character = sObjectMgr.GetPlayer(ticket->GetAuthorGuid()))
             character->GetSession()->SendGMTicketResult(SMSG_GM_TICKET_STATUS_UPDATE, GMTICKET_STATUS_UPDATED);
     }
 
     return COMMAND_RESULT_SUCCESS;
 }
 
-GMTicketMgr::CommandResult GMTicketMgr::Update(GMTicket* ticket, const std::string& text)
+GMTicketMgr::CommandResult GMTicketMgr::Update(GMTicket *ticket, const std::string &text)
 {
     if (!ticket || !ticket->IsOpen())
         return COMMAND_RESULT_TICKET_NOT_FOUND;
@@ -1112,27 +1207,28 @@ GMTicketMgr::CommandResult GMTicketMgr::Update(GMTicket* ticket, const std::stri
     m_list.sort(GMTicket::Compare);
 
     if (deescalation)
-         sWorld.SendWorldTextToAcceptingTickets(LANG_TICKET_BROADCAST_DEESCALATION, ticket->GetIdTag().c_str());
+        sWorld.SendWorldTextToAcceptingTickets(LANG_TICKET_BROADCAST_DEESCALATION, ticket->GetIdTag().c_str());
 
-    if (Player* character = sObjectMgr.GetPlayer(ticket->GetAuthorGuid()))
+    if (Player *character = sObjectMgr.GetPlayer(ticket->GetAuthorGuid()))
         character->GetSession()->SendGMTicketResult(SMSG_GM_TICKET_STATUS_UPDATE, GMTICKET_STATUS_UPDATED);
 
     return COMMAND_RESULT_SUCCESS;
 }
 
-GMTicketMgr::CommandResult GMTicketMgr::Whisper(GMTicket *ticket, const std::string& message, WorldSession* session/* = nullptr*/)
+GMTicketMgr::CommandResult GMTicketMgr::Whisper(GMTicket *ticket, const std::string &message,
+                                                WorldSession *session /* = nullptr*/)
 {
     CommandResult result = CanWhisper(ticket, session);
 
     if (result != COMMAND_RESULT_SUCCESS)
         return result;
 
-    Player* gm = session->GetPlayer();
+    Player *gm = session->GetPlayer();
     ObjectGuid guid = (gm ? gm->GetObjectGuid() : ObjectGuid());
 
     const bool assignment = !ticket->IsAssigned();
 
-    Player* character = sObjectMgr.GetPlayer(ticket->GetAuthorGuid());
+    Player *character = sObjectMgr.GetPlayer(ticket->GetAuthorGuid());
 
     if (guid)
     {
@@ -1143,7 +1239,8 @@ GMTicketMgr::CommandResult GMTicketMgr::Whisper(GMTicket *ticket, const std::str
 
         if (assignment)
         {
-            sWorld.SendWorldTextToAcceptingTickets(LANG_TICKET_BROADCAST_ASSIGNMENT, ticket->GetIdTag().c_str(), ticket->GetAssigneeName());
+            sWorld.SendWorldTextToAcceptingTickets(LANG_TICKET_BROADCAST_ASSIGNMENT, ticket->GetIdTag().c_str(),
+                                                   ticket->GetAssigneeName());
 
             if (character)
                 character->GetSession()->SendGMTicketResult(SMSG_GM_TICKET_STATUS_UPDATE, GMTICKET_STATUS_UPDATED);
@@ -1169,11 +1266,11 @@ bool GMTicketMgr::SetSystemStatus(bool status)
     // Do loop over open tickets, poke online clients to initiate ticket update
     for (auto itr = m_tickets.begin(); itr != m_tickets.end(); ++itr)
     {
-        GMTicket* t = itr->second;
+        GMTicket *t = itr->second;
 
         if (t && t->IsOpen())
         {
-            if (Player* character = sObjectMgr.GetPlayer(t->GetAuthorGuid()))
+            if (Player *character = sObjectMgr.GetPlayer(t->GetAuthorGuid()))
                 character->GetSession()->SendGMTicketResult(SMSG_GM_TICKET_STATUS_UPDATE, GMTICKET_STATUS_UPDATED);
         }
     }
@@ -1181,7 +1278,7 @@ bool GMTicketMgr::SetSystemStatus(bool status)
     return true;
 }
 
-GMTicketMgr::CommandResult GMTicketMgr::CanComment(const GMTicket* ticket, WorldSession* who)
+GMTicketMgr::CommandResult GMTicketMgr::CanComment(const GMTicket *ticket, WorldSession *who)
 {
     if (!ticket || !ticket->IsOpen())
         return COMMAND_RESULT_TICKET_NOT_FOUND;
@@ -1193,7 +1290,7 @@ GMTicketMgr::CommandResult GMTicketMgr::CanComment(const GMTicket* ticket, World
     return COMMAND_RESULT_SUCCESS;
 }
 
-GMTicketMgr::CommandResult GMTicketMgr::CanClose(const GMTicket* ticket, bool resolve, WorldSession* who)
+GMTicketMgr::CommandResult GMTicketMgr::CanClose(const GMTicket *ticket, bool resolve, WorldSession *who)
 {
     const bool self = (resolve && ticket && (strcmp(who->GetPlayerName(), ticket->GetAuthorName()) == 0));
 
@@ -1202,7 +1299,8 @@ GMTicketMgr::CommandResult GMTicketMgr::CanClose(const GMTicket* ticket, bool re
     // Cannot close an unread ticket, unless own
     else if (!self && !ticket->IsSeen())
         return COMMAND_RESULT_TICKET_UNSEEN;
-    // Cannot close a ticket if ticket's access level is significantly higher, unless own
+    // Cannot close a ticket if ticket's access level is significantly higher,
+    // unless own
     else if (!who || (!self && uint8(who->GetSecurity()) < ticket->GetLevel()))
         return COMMAND_RESULT_ACCESS_DENIED;
     // Cannot resolve already assigned ticket unless its own ticket
@@ -1221,7 +1319,8 @@ GMTicketMgr::CommandResult GMTicketMgr::CanSort(const GMTicket *ticket, WorldSes
     // Ticket neeeds to be read at least once
     else if (!ticket->IsSeen())
         return COMMAND_RESULT_TICKET_UNSEEN;
-    // Cannot change ticket's category if ticket's access level is significantly higher
+    // Cannot change ticket's category if ticket's access level is significantly
+    // higher
     else if (!who || uint8(who->GetSecurity()) < ticket->GetLevel())
         return COMMAND_RESULT_ACCESS_DENIED;
     // Cannot change an assigned ticket's category
@@ -1230,7 +1329,7 @@ GMTicketMgr::CommandResult GMTicketMgr::CanSort(const GMTicket *ticket, WorldSes
     return COMMAND_RESULT_SUCCESS;
 }
 
-GMTicketMgr::CommandResult GMTicketMgr::CanWhisper(const GMTicket* ticket, WorldSession* who)
+GMTicketMgr::CommandResult GMTicketMgr::CanWhisper(const GMTicket *ticket, WorldSession *who)
 {
     if (!ticket || !ticket->IsOpen())
         return COMMAND_RESULT_TICKET_NOT_FOUND;
@@ -1246,7 +1345,7 @@ GMTicketMgr::CommandResult GMTicketMgr::CanWhisper(const GMTicket* ticket, World
     return COMMAND_RESULT_SUCCESS;
 }
 
-bool GMTicketMgr::Remove(GMTicket& ticket)
+bool GMTicketMgr::Remove(GMTicket &ticket)
 {
     m_list.remove(&ticket);
 
@@ -1277,7 +1376,8 @@ void GMTicketMgr::RemoveAll()
     m_currentTicketCountOpen = 0;
 }
 
-GMTicketMgr::CommandResult GMTicketMgr::Close(GMTicket* ticket, const std::string& conclusion, bool resolved, WorldSession* session/* = nullptr*/)
+GMTicketMgr::CommandResult GMTicketMgr::Close(GMTicket *ticket, const std::string &conclusion, bool resolved,
+                                              WorldSession *session /* = nullptr*/)
 {
     CommandResult result = CanClose(ticket, resolved, session);
 
@@ -1286,10 +1386,11 @@ GMTicketMgr::CommandResult GMTicketMgr::Close(GMTicket* ticket, const std::strin
 
     const bool self = (resolved && (strcmp(session->GetPlayerName(), ticket->GetAuthorName()) == 0));
 
-    // Foolproofing: just in case if we have old surveyed ticket, cancel survey by unloading it from memory
+    // Foolproofing: just in case if we have old surveyed ticket, cancel survey
+    // by unloading it from memory
     if (resolved && ticket->IsSurveyed())
     {
-        if (GMTicket* surveyed = sTicketMgr.GetTicketByPlayer(ticket->GetAuthorGuid(), GMTICKET_STATE_CLOSED))
+        if (GMTicket *surveyed = sTicketMgr.GetTicketByPlayer(ticket->GetAuthorGuid(), GMTICKET_STATE_CLOSED))
             sTicketMgr.Survey(surveyed);
     }
 
@@ -1307,13 +1408,15 @@ GMTicketMgr::CommandResult GMTicketMgr::Close(GMTicket* ticket, const std::strin
 
     Save(ticket);
 
-    Player* character = sObjectMgr.GetPlayer(ticket->GetAuthorGuid());
+    Player *character = sObjectMgr.GetPlayer(ticket->GetAuthorGuid());
 
-    sWorld.SendWorldTextToAcceptingTickets(LANG_TICKET_BROADCAST_CLOSED, ticket->GetIdTag().c_str(), ticket->GetAssigneeName());
+    sWorld.SendWorldTextToAcceptingTickets(LANG_TICKET_BROADCAST_CLOSED, ticket->GetIdTag().c_str(),
+                                           ticket->GetAssigneeName());
 
     // Prepare in-game mail response
     {
-        std::string title = sObjectMgr.GetMangosString(LANG_TICKET_CLOSED_LETTER_TITLE, GetLocaleByName(ticket->GetLocale()));
+        std::string title =
+            sObjectMgr.GetMangosString(LANG_TICKET_CLOSED_LETTER_TITLE, GetLocaleByName(ticket->GetLocale()));
         const std::string text = PrintMailResponse(*ticket, resolved);
 
         MailDraft draft(title, text);
@@ -1327,13 +1430,15 @@ GMTicketMgr::CommandResult GMTicketMgr::Close(GMTicket* ticket, const std::strin
         if (resolved && ticket->IsSurveyed())
         {
             character->GetSession()->SendGMTicketResult(SMSG_GM_TICKET_STATUS_UPDATE, GMTICKET_STATUS_SURVEY);
-            return COMMAND_RESULT_SUCCESS;  // Delay unloading surveyed ticket from memory until survey is complete
+            return COMMAND_RESULT_SUCCESS; // Delay unloading surveyed ticket
+                                           // from memory until survey is
+                                           // complete
         }
         else
             character->GetSession()->SendGMTicketResult(SMSG_GM_TICKET_STATUS_UPDATE, GMTICKET_STATUS_CLOSED);
     }
 
-    Remove(*ticket);                        // Unload closed ticket from memory
+    Remove(*ticket); // Unload closed ticket from memory
     return COMMAND_RESULT_SUCCESS;
 }
 
@@ -1342,7 +1447,7 @@ float GMTicketMgr::GetOldestTicketAgeLastUpdateDays(time_t now) const
     return (m_statsOldestTicketAgeLastUpdate ? GetDaysPassed(now, m_statsOldestTicketAgeLastUpdate) : -1);
 }
 
-void GMTicketMgr::UpdateTicketQueueStats(GMTicket& closed, time_t when)
+void GMTicketMgr::UpdateTicketQueueStats(GMTicket &closed, time_t when)
 {
     MANGOS_ASSERT(m_currentTicketCountClosed)
 
@@ -1350,7 +1455,8 @@ void GMTicketMgr::UpdateTicketQueueStats(GMTicket& closed, time_t when)
     m_statsAverageResolutionDays = (m_statsCurrentTotalResolutionDays / m_currentTicketCountClosed);
 
     // Order of the list is the FIFO queue's order, declared in GMTicket::Compare
-    // Do loop over queued tickets, record first (oldest) new non-escalated queued ticket's time since creation
+    // Do loop over queued tickets, record first (oldest) new non-escalated
+    // queued ticket's time since creation
     for (auto itr = m_list.begin(); itr != m_list.end(); ++itr)
     {
         if ((*itr) && (*itr)->IsOpen() && !(*itr)->IsEscalated() && !(*itr)->IsSeen())
@@ -1363,16 +1469,17 @@ void GMTicketMgr::UpdateTicketQueueStats(GMTicket& closed, time_t when)
     }
 }
 
-void GMTicketMgr::UpdateTicketQueueTimers(GMTicket* except/* = nullptr*/) const
+void GMTicketMgr::UpdateTicketQueueTimers(GMTicket *except /* = nullptr*/) const
 {
-    // Do loop over open tickets, poke online clients to initiate ticket waiting time update
+    // Do loop over open tickets, poke online clients to initiate ticket waiting
+    // time update
     for (auto itr = m_tickets.begin(); itr != m_tickets.end(); ++itr)
     {
-        GMTicket* t = itr->second;
+        GMTicket *t = itr->second;
 
         if (t && t != except && t->IsOpen() && !t->IsSeen() && !t->IsEscalated())
         {
-            if (Player* character = sObjectMgr.GetPlayer(t->GetAuthorGuid()))
+            if (Player *character = sObjectMgr.GetPlayer(t->GetAuthorGuid()))
                 character->GetSession()->SendGMTicketResult(SMSG_GM_TICKET_STATUS_UPDATE, GMTICKET_STATUS_UPDATED);
         }
     }

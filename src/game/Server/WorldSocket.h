@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,14 +26,14 @@
 #ifndef _WORLDSOCKET_H
 #define _WORLDSOCKET_H
 
-#include "Common.h"
+#include <chrono>
+#include <deque>
+#include <functional>
+
 #include "Auth/AuthCrypt.h"
 #include "Auth/BigNumber.h"
+#include "Common.h"
 #include "Network/Socket.hpp"
-
-#include <chrono>
-#include <functional>
-#include <deque>
 
 class WorldPacket;
 class WorldSession;
@@ -76,81 +77,93 @@ class WorldSession;
 
 class WorldSocket : public MaNGOS::Socket
 {
-    private:
-#if defined( __GNUC__ )
+  private:
+#if defined(__GNUC__)
 #pragma pack(1)
 #else
-#pragma pack(push,1)
+#pragma pack(push, 1)
 #endif
-        struct ClientPktHeader
-        {
-            uint16 size;
-            uint32 cmd;
-        };
-#if defined( __GNUC__ )
+    struct ClientPktHeader
+    {
+        uint16 size;
+        uint32 cmd;
+    };
+#if defined(__GNUC__)
 #pragma pack()
 #else
 #pragma pack(pop)
 #endif
 
-        /// Time in which the last ping was received
-        std::chrono::system_clock::time_point m_lastPingTime;
+    /// Time in which the last ping was received
+    std::chrono::system_clock::time_point m_lastPingTime;
 
-        /// Keep track of over-speed pings ,to prevent ping flood.
-        uint32 m_overSpeedPings;
+    /// Keep track of over-speed pings ,to prevent ping flood.
+    uint32 m_overSpeedPings;
 
-        ClientPktHeader m_existingHeader;
-        bool m_useExistingHeader;
+    ClientPktHeader m_existingHeader;
+    bool m_useExistingHeader;
 
-        /// Class used for managing encryption of the headers
-        AuthCrypt m_crypt;
+    /// Class used for managing encryption of the headers
+    AuthCrypt m_crypt;
 
-        /// Session to which received packets are routed
-        WorldSession* m_session;
+    /// Session to which received packets are routed
+    WorldSession *m_session;
 
-        const uint32 m_seed;
+    const uint32 m_seed;
 
-        BigNumber m_s;
+    BigNumber m_s;
 
-        /// process one incoming packet.
-        virtual bool ProcessIncomingData() override;
+    /// process one incoming packet.
+    virtual bool ProcessIncomingData() override;
 
-        /// Called by ProcessIncoming() on CMSG_AUTH_SESSION.
-        bool HandleAuthSession(WorldPacket& recvPacket);
+    /// Called by ProcessIncoming() on CMSG_AUTH_SESSION.
+    bool HandleAuthSession(WorldPacket &recvPacket);
 
-        /// Called by ProcessIncoming() on CMSG_PING.
-        bool HandlePing(WorldPacket& recvPacket);
+    /// Called by ProcessIncoming() on CMSG_PING.
+    bool HandlePing(WorldPacket &recvPacket);
 
-        std::mutex m_worldSocketMutex;
+    std::mutex m_worldSocketMutex;
 
-        std::deque<uint32> m_opcodeHistoryOut;
-        std::deque<uint32> m_opcodeHistoryInc;
+    std::deque<uint32> m_opcodeHistoryOut;
+    std::deque<uint32> m_opcodeHistoryInc;
 
-        bool m_loggingPackets;
+    bool m_loggingPackets;
 
-    public:
-        WorldSocket(boost::asio::io_service& service, std::function<void (Socket*)> closeHandler);
+  public:
+    WorldSocket(boost::asio::io_service &service, std::function<void(Socket *)> closeHandler);
 
-        // send a packet \o/
-        void SendPacket(const WorldPacket& pct, bool immediate = false);
+    // send a packet \o/
+    void SendPacket(const WorldPacket &pct, bool immediate = false);
 
-        void FinalizeSession() { m_session = nullptr; }
+    void FinalizeSession()
+    {
+        m_session = nullptr;
+    }
 
-        virtual bool Open() override;
+    virtual bool Open() override;
 
-        /// Return the session key
-        BigNumber& GetSessionKey() { return m_s; }
+    /// Return the session key
+    BigNumber &GetSessionKey()
+    {
+        return m_s;
+    }
 
-        std::deque<uint32> GetOutOpcodeHistory();
-        std::deque<uint32> GetIncOpcodeHistory();
+    std::deque<uint32> GetOutOpcodeHistory();
+    std::deque<uint32> GetIncOpcodeHistory();
 
-        static std::vector<uint32> m_packetCooldowns;
-        std::map<uint32, TimePoint> m_lastPacket;
+    static std::vector<uint32> m_packetCooldowns;
+    std::map<uint32, TimePoint> m_lastPacket;
 
-        bool IsLoggingPackets() const { return m_loggingPackets; }
-        void SetPacketLogging(bool state) { m_loggingPackets = state; }
+    bool IsLoggingPackets() const
+    {
+        return m_loggingPackets;
+    }
+    void SetPacketLogging(bool state)
+    {
+        m_loggingPackets = state;
+    }
 };
 
-#endif  /* _WORLDSOCKET_H */
+#endif /* _WORLDSOCKET_H */
 
 /// @}

@@ -1,6 +1,6 @@
-/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+/* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright
+ * information This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
@@ -26,9 +26,9 @@ npc_ame01
 npc_ringo
 EndContentData */
 
-#include "AI/ScriptDevAI/include/sc_common.h"
 #include "AI/ScriptDevAI/base/escort_ai.h"
 #include "AI/ScriptDevAI/base/follower_ai.h"
+#include "AI/ScriptDevAI/include/sc_common.h"
 
 /*######
 ## npc_ame01
@@ -36,76 +36,86 @@ EndContentData */
 
 enum
 {
-    SAY_AME_START           = -1000446,
-    SAY_AME_PROGRESS        = -1000447,
-    SAY_AME_END             = -1000448,
-    SAY_AME_AGGRO1          = -1000449,
-    SAY_AME_AGGRO2          = -1000450,
-    SAY_AME_AGGRO3          = -1000451,
+    SAY_AME_START = -1000446,
+    SAY_AME_PROGRESS = -1000447,
+    SAY_AME_END = -1000448,
+    SAY_AME_AGGRO1 = -1000449,
+    SAY_AME_AGGRO2 = -1000450,
+    SAY_AME_AGGRO3 = -1000451,
 
-    QUEST_CHASING_AME       = 4245
+    QUEST_CHASING_AME = 4245
 };
 
 struct npc_ame01AI : public npc_escortAI
 {
-    npc_ame01AI(Creature* pCreature) : npc_escortAI(pCreature)
+    npc_ame01AI(Creature *pCreature) : npc_escortAI(pCreature)
     {
         m_creature->SetStandState(UNIT_STAND_STATE_DEAD, true);
         Reset();
     }
 
-    void Reset() override {}
+    void Reset() override
+    {
+    }
 
     void WaypointReached(uint32 uiPointId) override
     {
         switch (uiPointId)
         {
-            case 1:
-                DoScriptText(SAY_AME_START, m_creature);
-                break;
-            case 20:
-                DoScriptText(SAY_AME_PROGRESS, m_creature);
-                break;
-            case 38:
-                DoScriptText(SAY_AME_END, m_creature);
-                if (Player* pPlayer = GetPlayerForEscort())
-                    pPlayer->RewardPlayerAndGroupAtEventExplored(QUEST_CHASING_AME, m_creature);
-                break;
+        case 1:
+            DoScriptText(SAY_AME_START, m_creature);
+            break;
+        case 20:
+            DoScriptText(SAY_AME_PROGRESS, m_creature);
+            break;
+        case 38:
+            DoScriptText(SAY_AME_END, m_creature);
+            if (Player *pPlayer = GetPlayerForEscort())
+                pPlayer->RewardPlayerAndGroupAtEventExplored(QUEST_CHASING_AME, m_creature);
+            break;
         }
     }
 
-    void Aggro(Unit* pWho) override
+    void Aggro(Unit *pWho) override
     {
         if (pWho->GetTypeId() == TYPEID_PLAYER)
             return;
 
-        if (Player* pPlayer = GetPlayerForEscort())
+        if (Player *pPlayer = GetPlayerForEscort())
         {
             if (pPlayer->GetVictim() && pPlayer->GetVictim() == pWho)
                 return;
 
             switch (urand(0, 2))
             {
-                case 0: DoScriptText(SAY_AME_AGGRO1, m_creature, pWho); break;
-                case 1: DoScriptText(SAY_AME_AGGRO2, m_creature, pWho); break;
-                case 2: DoScriptText(SAY_AME_AGGRO3, m_creature, pWho); break;
+            case 0:
+                DoScriptText(SAY_AME_AGGRO1, m_creature, pWho);
+                break;
+            case 1:
+                DoScriptText(SAY_AME_AGGRO2, m_creature, pWho);
+                break;
+            case 2:
+                DoScriptText(SAY_AME_AGGRO3, m_creature, pWho);
+                break;
             }
         }
     }
 };
 
-bool QuestAccept_npc_ame01(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+bool QuestAccept_npc_ame01(Player *pPlayer, Creature *pCreature, const Quest *pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_CHASING_AME)
     {
-        if (npc_ame01AI* pAmeAI = dynamic_cast<npc_ame01AI*>(pCreature->AI()))
+        if (npc_ame01AI *pAmeAI = dynamic_cast<npc_ame01AI *>(pCreature->AI()))
         {
             pCreature->SetStandState(UNIT_STAND_STATE_STAND);
 
             if (pPlayer->GetTeam() == ALLIANCE)
-                pCreature->SetFactionTemporary(FACTION_ESCORT_A_PASSIVE, TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_TOGGLE_IMMUNE_TO_NPC);
+                pCreature->SetFactionTemporary(FACTION_ESCORT_A_PASSIVE,
+                                               TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_TOGGLE_IMMUNE_TO_NPC);
             else if (pPlayer->GetTeam() == HORDE)
-                pCreature->SetFactionTemporary(FACTION_ESCORT_H_PASSIVE, TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_TOGGLE_IMMUNE_TO_NPC);
+                pCreature->SetFactionTemporary(FACTION_ESCORT_H_PASSIVE,
+                                               TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_TOGGLE_IMMUNE_TO_NPC);
 
             pAmeAI->Start(false, pPlayer, pQuest);
         }
@@ -113,7 +123,7 @@ bool QuestAccept_npc_ame01(Player* pPlayer, Creature* pCreature, const Quest* pQ
     return true;
 }
 
-UnitAI* GetAI_npc_ame01(Creature* pCreature)
+UnitAI *GetAI_npc_ame01(Creature *pCreature)
 {
     return new npc_ame01AI(pCreature);
 }
@@ -124,36 +134,36 @@ UnitAI* GetAI_npc_ame01(Creature* pCreature)
 
 enum
 {
-    SAY_RIN_START_1             = -1000416,
-    SAY_RIN_START_2             = -1000417,
+    SAY_RIN_START_1 = -1000416,
+    SAY_RIN_START_2 = -1000417,
 
-    SAY_FAINT_1                 = -1000418,
-    SAY_FAINT_2                 = -1000419,
-    SAY_FAINT_3                 = -1000420,
-    SAY_FAINT_4                 = -1000421,
+    SAY_FAINT_1 = -1000418,
+    SAY_FAINT_2 = -1000419,
+    SAY_FAINT_3 = -1000420,
+    SAY_FAINT_4 = -1000421,
 
-    SAY_WAKE_1                  = -1000422,
-    SAY_WAKE_2                  = -1000423,
-    SAY_WAKE_3                  = -1000424,
-    SAY_WAKE_4                  = -1000425,
+    SAY_WAKE_1 = -1000422,
+    SAY_WAKE_2 = -1000423,
+    SAY_WAKE_3 = -1000424,
+    SAY_WAKE_4 = -1000425,
 
-    SAY_RIN_END_1               = -1000426,
-    SAY_SPR_END_2               = -1000427,
-    SAY_RIN_END_3               = -1000428,
-    EMOTE_RIN_END_4             = -1000429,
-    EMOTE_RIN_END_5             = -1000430,
-    SAY_RIN_END_6               = -1000431,
-    SAY_SPR_END_7               = -1000432,
-    EMOTE_RIN_END_8             = -1000433,
+    SAY_RIN_END_1 = -1000426,
+    SAY_SPR_END_2 = -1000427,
+    SAY_RIN_END_3 = -1000428,
+    EMOTE_RIN_END_4 = -1000429,
+    EMOTE_RIN_END_5 = -1000430,
+    SAY_RIN_END_6 = -1000431,
+    SAY_SPR_END_7 = -1000432,
+    EMOTE_RIN_END_8 = -1000433,
 
-    SPELL_REVIVE_RINGO          = 15591,
-    QUEST_A_LITTLE_HELP         = 4491,
-    NPC_SPRAGGLE                = 9997
+    SPELL_REVIVE_RINGO = 15591,
+    QUEST_A_LITTLE_HELP = 4491,
+    NPC_SPRAGGLE = 9997
 };
 
 struct npc_ringoAI : public FollowerAI
 {
-    npc_ringoAI(Creature* pCreature) : FollowerAI(pCreature)
+    npc_ringoAI(Creature *pCreature) : FollowerAI(pCreature)
     {
         m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
         Reset();
@@ -163,7 +173,7 @@ struct npc_ringoAI : public FollowerAI
     uint32 m_uiEndEventProgress;
     uint32 m_uiEndEventTimer;
 
-    Unit* pSpraggle;
+    Unit *pSpraggle;
 
     void Reset() override
     {
@@ -173,7 +183,7 @@ struct npc_ringoAI : public FollowerAI
         pSpraggle = nullptr;
     }
 
-    void MoveInLineOfSight(Unit* pWho) override
+    void MoveInLineOfSight(Unit *pWho) override
     {
         FollowerAI::MoveInLineOfSight(pWho);
 
@@ -181,7 +191,7 @@ struct npc_ringoAI : public FollowerAI
         {
             if (m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
             {
-                if (Player* pPlayer = GetLeaderForFollower())
+                if (Player *pPlayer = GetLeaderForFollower())
                 {
                     if (pPlayer->GetQuestStatus(QUEST_A_LITTLE_HELP) == QUEST_STATUS_INCOMPLETE)
                         pPlayer->RewardPlayerAndGroupAtEventExplored(QUEST_A_LITTLE_HELP, m_creature);
@@ -193,7 +203,7 @@ struct npc_ringoAI : public FollowerAI
         }
     }
 
-    void SpellHit(Unit* /*pCaster*/, const SpellEntry* pSpell) override
+    void SpellHit(Unit * /*pCaster*/, const SpellEntry *pSpell) override
     {
         if (HasFollowState(STATE_FOLLOW_INPROGRESS | STATE_FOLLOW_PAUSED) && pSpell->Id == SPELL_REVIVE_RINGO)
             ClearFaint();
@@ -207,10 +217,18 @@ struct npc_ringoAI : public FollowerAI
 
             switch (urand(0, 3))
             {
-                case 0: DoScriptText(SAY_FAINT_1, m_creature); break;
-                case 1: DoScriptText(SAY_FAINT_2, m_creature); break;
-                case 2: DoScriptText(SAY_FAINT_3, m_creature); break;
-                case 3: DoScriptText(SAY_FAINT_4, m_creature); break;
+            case 0:
+                DoScriptText(SAY_FAINT_1, m_creature);
+                break;
+            case 1:
+                DoScriptText(SAY_FAINT_2, m_creature);
+                break;
+            case 2:
+                DoScriptText(SAY_FAINT_3, m_creature);
+                break;
+            case 3:
+                DoScriptText(SAY_FAINT_4, m_creature);
+                break;
             }
         }
 
@@ -227,10 +245,18 @@ struct npc_ringoAI : public FollowerAI
 
         switch (urand(0, 3))
         {
-            case 0: DoScriptText(SAY_WAKE_1, m_creature); break;
-            case 1: DoScriptText(SAY_WAKE_2, m_creature); break;
-            case 2: DoScriptText(SAY_WAKE_3, m_creature); break;
-            case 3: DoScriptText(SAY_WAKE_4, m_creature); break;
+        case 0:
+            DoScriptText(SAY_WAKE_1, m_creature);
+            break;
+        case 1:
+            DoScriptText(SAY_WAKE_2, m_creature);
+            break;
+        case 2:
+            DoScriptText(SAY_WAKE_3, m_creature);
+            break;
+        case 3:
+            DoScriptText(SAY_WAKE_4, m_creature);
+            break;
         }
 
         SetFollowPaused(false);
@@ -252,43 +278,43 @@ struct npc_ringoAI : public FollowerAI
 
                     switch (m_uiEndEventProgress)
                     {
-                        case 1:
-                            DoScriptText(SAY_RIN_END_1, m_creature);
-                            m_uiEndEventTimer = 3000;
-                            break;
-                        case 2:
-                            DoScriptText(SAY_SPR_END_2, pSpraggle);
-                            m_uiEndEventTimer = 5000;
-                            break;
-                        case 3:
-                            DoScriptText(SAY_RIN_END_3, m_creature);
-                            m_uiEndEventTimer = 1000;
-                            break;
-                        case 4:
-                            DoScriptText(EMOTE_RIN_END_4, m_creature);
-                            SetFaint();
-                            m_uiEndEventTimer = 9000;
-                            break;
-                        case 5:
-                            DoScriptText(EMOTE_RIN_END_5, m_creature);
-                            ClearFaint();
-                            m_uiEndEventTimer = 1000;
-                            break;
-                        case 6:
-                            DoScriptText(SAY_RIN_END_6, m_creature);
-                            m_uiEndEventTimer = 3000;
-                            break;
-                        case 7:
-                            DoScriptText(SAY_SPR_END_7, pSpraggle);
-                            m_uiEndEventTimer = 10000;
-                            break;
-                        case 8:
-                            DoScriptText(EMOTE_RIN_END_8, m_creature);
-                            m_uiEndEventTimer = 5000;
-                            break;
-                        case 9:
-                            SetFollowComplete();
-                            break;
+                    case 1:
+                        DoScriptText(SAY_RIN_END_1, m_creature);
+                        m_uiEndEventTimer = 3000;
+                        break;
+                    case 2:
+                        DoScriptText(SAY_SPR_END_2, pSpraggle);
+                        m_uiEndEventTimer = 5000;
+                        break;
+                    case 3:
+                        DoScriptText(SAY_RIN_END_3, m_creature);
+                        m_uiEndEventTimer = 1000;
+                        break;
+                    case 4:
+                        DoScriptText(EMOTE_RIN_END_4, m_creature);
+                        SetFaint();
+                        m_uiEndEventTimer = 9000;
+                        break;
+                    case 5:
+                        DoScriptText(EMOTE_RIN_END_5, m_creature);
+                        ClearFaint();
+                        m_uiEndEventTimer = 1000;
+                        break;
+                    case 6:
+                        DoScriptText(SAY_RIN_END_6, m_creature);
+                        m_uiEndEventTimer = 3000;
+                        break;
+                    case 7:
+                        DoScriptText(SAY_SPR_END_7, pSpraggle);
+                        m_uiEndEventTimer = 10000;
+                        break;
+                    case 8:
+                        DoScriptText(EMOTE_RIN_END_8, m_creature);
+                        m_uiEndEventTimer = 5000;
+                        break;
+                    case 9:
+                        SetFollowComplete();
+                        break;
                     }
 
                     ++m_uiEndEventProgress;
@@ -317,16 +343,16 @@ struct npc_ringoAI : public FollowerAI
     }
 };
 
-UnitAI* GetAI_npc_ringo(Creature* pCreature)
+UnitAI *GetAI_npc_ringo(Creature *pCreature)
 {
     return new npc_ringoAI(pCreature);
 }
 
-bool QuestAccept_npc_ringo(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+bool QuestAccept_npc_ringo(Player *pPlayer, Creature *pCreature, const Quest *pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_A_LITTLE_HELP)
     {
-        if (npc_ringoAI* pRingoAI = dynamic_cast<npc_ringoAI*>(pCreature->AI()))
+        if (npc_ringoAI *pRingoAI = dynamic_cast<npc_ringoAI *>(pCreature->AI()))
         {
             pCreature->SetStandState(UNIT_STAND_STATE_STAND);
             pRingoAI->StartFollow(pPlayer, FACTION_ESCORT_N_FRIEND_PASSIVE, pQuest);
@@ -338,23 +364,23 @@ bool QuestAccept_npc_ringo(Player* pPlayer, Creature* pCreature, const Quest* pQ
 
 enum
 {
-    SPELL_FOOLS_PLIGHT              = 23504,
-    SPELL_CHAIN_LIGHTNING           = 23206,
-    SPELL_TEMPTRESS_KISS            = 23205,
-    SPELL_SILENCE                   = 23207,
+    SPELL_FOOLS_PLIGHT = 23504,
+    SPELL_CHAIN_LIGHTNING = 23206,
+    SPELL_TEMPTRESS_KISS = 23205,
+    SPELL_SILENCE = 23207,
 
-    EMOTE_SILENCE                   = -1001250,
+    EMOTE_SILENCE = -1001250,
 
-    NPC_SIMONE_THE_INCONSPICUOUS    = 14527,
-    NPC_SIMONE_THE_SEDUCTRESS       = 14533,
-    NPC_PRECIOUS                    = 14528,
-    NPC_PRECIOUS_THE_DEVOURER       = 14538,
-    NPC_THE_CLEANER                 = 14503,
+    NPC_SIMONE_THE_INCONSPICUOUS = 14527,
+    NPC_SIMONE_THE_SEDUCTRESS = 14533,
+    NPC_PRECIOUS = 14528,
+    NPC_PRECIOUS_THE_DEVOURER = 14538,
+    NPC_THE_CLEANER = 14503,
 
-    QUEST_STAVE_OF_THE_ANCIENTS     = 7636
+    QUEST_STAVE_OF_THE_ANCIENTS = 7636
 };
 
-#define GOSSIP_ITEM                 "Show me your real face, demon."
+#define GOSSIP_ITEM "Show me your real face, demon."
 
 /*######
 ## npc_precious_the_devourer
@@ -362,7 +388,10 @@ enum
 
 struct npc_precious_the_devourerAI : public ScriptedAI
 {
-    npc_precious_the_devourerAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_precious_the_devourerAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     ObjectGuid m_simoneGuid;
     uint32 m_uiSplitCheck_Timer;
@@ -373,9 +402,9 @@ struct npc_precious_the_devourerAI : public ScriptedAI
         m_uiSplitCheck_Timer = 7500;
     }
 
-    void Aggro(Unit* pWho) override
+    void Aggro(Unit *pWho) override
     {
-        if (Creature* pSimone = m_creature->GetMap()->GetCreature(m_simoneGuid))
+        if (Creature *pSimone = m_creature->GetMap()->GetCreature(m_simoneGuid))
         {
             if (pSimone->IsAlive())
             {
@@ -386,7 +415,7 @@ struct npc_precious_the_devourerAI : public ScriptedAI
 
     void EnterEvadeMode() override
     {
-        if (Creature* pSimone = m_creature->GetMap()->GetCreature(m_simoneGuid))
+        if (Creature *pSimone = m_creature->GetMap()->GetCreature(m_simoneGuid))
         {
             if (!pSimone->IsAlive())
             {
@@ -404,7 +433,7 @@ struct npc_precious_the_devourerAI : public ScriptedAI
             if (m_uiSplitCheck_Timer < uiDiff)
             {
                 m_uiSplitCheck_Timer = 2500;
-                if (Creature* pSimone = m_creature->GetMap()->GetCreature(m_simoneGuid))
+                if (Creature *pSimone = m_creature->GetMap()->GetCreature(m_simoneGuid))
                 {
                     if (pSimone->IsInCombat())
                         pSimone->AI()->EnterEvadeMode();
@@ -420,7 +449,7 @@ struct npc_precious_the_devourerAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_npc_precious_the_devourer(Creature* pCreature)
+UnitAI *GetAI_npc_precious_the_devourer(Creature *pCreature)
 {
     return new npc_precious_the_devourerAI(pCreature);
 }
@@ -431,9 +460,9 @@ UnitAI* GetAI_npc_precious_the_devourer(Creature* pCreature)
 
 struct npc_simone_seductressAI : public ScriptedAI
 {
-    npc_simone_seductressAI(Creature* pCreature) : ScriptedAI(pCreature)
+    npc_simone_seductressAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_uiDespawn_Timer = 20 * MINUTE*IN_MILLISECONDS;
+        m_uiDespawn_Timer = 20 * MINUTE * IN_MILLISECONDS;
         Reset();
     }
 
@@ -462,33 +491,37 @@ struct npc_simone_seductressAI : public ScriptedAI
 
     void JustReachedHome() override
     {
-        if (Creature* pPrecious = m_creature->GetMap()->GetCreature(m_preciousGuid))
+        if (Creature *pPrecious = m_creature->GetMap()->GetCreature(m_preciousGuid))
         {
             if (!pPrecious->IsAlive())
             {
                 pPrecious->ForcedDespawn();
-                Creature* pPreciousNew = m_creature->SummonCreature(NPC_PRECIOUS_THE_DEVOURER,
-                    m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetAngle(m_creature), TEMPSPAWN_DEAD_DESPAWN, 0, true);
+                Creature *pPreciousNew = m_creature->SummonCreature(
+                    NPC_PRECIOUS_THE_DEVOURER, m_creature->GetPositionX(), m_creature->GetPositionY(),
+                    m_creature->GetPositionZ(), m_creature->GetAngle(m_creature), TEMPSPAWN_DEAD_DESPAWN, 0, true);
 
                 if (pPreciousNew)
                 {
                     m_preciousGuid = pPreciousNew->GetObjectGuid();
 
-                    if (npc_precious_the_devourerAI * pDevourer = dynamic_cast<npc_precious_the_devourerAI*> (pPreciousNew->AI()))
+                    if (npc_precious_the_devourerAI *pDevourer =
+                            dynamic_cast<npc_precious_the_devourerAI *>(pPreciousNew->AI()))
                         pDevourer->m_simoneGuid = m_creature->GetObjectGuid();
                 }
             }
         }
         else
         {
-            Creature* pPreciousNew = m_creature->SummonCreature(NPC_PRECIOUS_THE_DEVOURER,
-                m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetAngle(m_creature), TEMPSPAWN_DEAD_DESPAWN, 0, true);
+            Creature *pPreciousNew = m_creature->SummonCreature(
+                NPC_PRECIOUS_THE_DEVOURER, m_creature->GetPositionX(), m_creature->GetPositionY(),
+                m_creature->GetPositionZ(), m_creature->GetAngle(m_creature), TEMPSPAWN_DEAD_DESPAWN, 0, true);
 
             if (pPreciousNew)
             {
                 m_preciousGuid = pPreciousNew->GetObjectGuid();
 
-                if (npc_precious_the_devourerAI * pDevourer = dynamic_cast<npc_precious_the_devourerAI*> (pPreciousNew->AI()))
+                if (npc_precious_the_devourerAI *pDevourer =
+                        dynamic_cast<npc_precious_the_devourerAI *>(pPreciousNew->AI()))
                     pDevourer->m_simoneGuid = m_creature->GetObjectGuid();
             }
         }
@@ -496,9 +529,9 @@ struct npc_simone_seductressAI : public ScriptedAI
         Reset();
     }
 
-    void Aggro(Unit* pWho) override
+    void Aggro(Unit *pWho) override
     {
-        if (Creature* pPrecious = m_creature->GetMap()->GetCreature(m_preciousGuid))
+        if (Creature *pPrecious = m_creature->GetMap()->GetCreature(m_preciousGuid))
         {
             if (pPrecious->IsAlive())
             {
@@ -515,9 +548,9 @@ struct npc_simone_seductressAI : public ScriptedAI
             DemonDespawn();
     }
 
-    void JustDied(Unit* /*pKiller*/) override
+    void JustDied(Unit * /*pKiller*/) override
     {
-        if (Creature* pSimone = m_creature->GetMap()->GetCreature(m_simoneGuid))
+        if (Creature *pSimone = m_creature->GetMap()->GetCreature(m_simoneGuid))
         {
             uint32 m_respawn_delay_Timer = 2 * HOUR;
             pSimone->SetRespawnDelay(m_respawn_delay_Timer);
@@ -528,7 +561,7 @@ struct npc_simone_seductressAI : public ScriptedAI
 
     void DemonDespawn(bool triggered = true)
     {
-        if (Creature* pSimone = m_creature->GetMap()->GetCreature(m_simoneGuid))
+        if (Creature *pSimone = m_creature->GetMap()->GetCreature(m_simoneGuid))
         {
             pSimone->SetRespawnDelay(15 * MINUTE);
             pSimone->SetRespawnTime(15 * MINUTE);
@@ -537,27 +570,29 @@ struct npc_simone_seductressAI : public ScriptedAI
 
         if (triggered)
         {
-            Creature* pCleaner = m_creature->SummonCreature(NPC_THE_CLEANER, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetAngle(m_creature), TEMPSPAWN_DEAD_DESPAWN, 20 * MINUTE*IN_MILLISECONDS);
+            Creature *pCleaner = m_creature->SummonCreature(
+                NPC_THE_CLEANER, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(),
+                m_creature->GetAngle(m_creature), TEMPSPAWN_DEAD_DESPAWN, 20 * MINUTE * IN_MILLISECONDS);
             if (pCleaner)
             {
-                ThreatList const& SimonetList = m_creature->getThreatManager().getThreatList();
+                ThreatList const &SimonetList = m_creature->getThreatManager().getThreatList();
 
                 for (auto itr : SimonetList)
                 {
-                    if (Unit* pUnit = m_creature->GetMap()->GetUnit(itr->getUnitGuid()))
+                    if (Unit *pUnit = m_creature->GetMap()->GetUnit(itr->getUnitGuid()))
                     {
                         if (pUnit->IsAlive())
                             pCleaner->AI()->AttackStart(pUnit);
                     }
                 }
 
-                if (Creature* pPrecious = m_creature->GetMap()->GetCreature(m_preciousGuid))
+                if (Creature *pPrecious = m_creature->GetMap()->GetCreature(m_preciousGuid))
                 {
-                    ThreatList const& PrecioustList = pPrecious->getThreatManager().getThreatList();
+                    ThreatList const &PrecioustList = pPrecious->getThreatManager().getThreatList();
 
                     for (auto itr : PrecioustList)
                     {
-                        if (Unit* pUnit = m_creature->GetMap()->GetUnit(itr->getUnitGuid()))
+                        if (Unit *pUnit = m_creature->GetMap()->GetUnit(itr->getUnitGuid()))
                         {
                             if (pUnit->IsAlive())
                                 pCleaner->AI()->AttackStart(pUnit);
@@ -567,7 +602,7 @@ struct npc_simone_seductressAI : public ScriptedAI
             }
         }
 
-        if (Creature* pPrecious = m_creature->GetMap()->GetCreature(m_preciousGuid))
+        if (Creature *pPrecious = m_creature->GetMap()->GetCreature(m_preciousGuid))
         {
             pPrecious->SetVisibility(VISIBILITY_OFF);
             pPrecious->ForcedDespawn();
@@ -579,9 +614,9 @@ struct npc_simone_seductressAI : public ScriptedAI
         m_creature->RemoveFromWorld();
     }
 
-    void SpellHit(Unit* /*pCaster*/, const SpellEntry* pSpell) override
+    void SpellHit(Unit * /*pCaster*/, const SpellEntry *pSpell) override
     {
-        if (pSpell && pSpell->Id == 14280)   // Viper Sting (Rank 3)
+        if (pSpell && pSpell->Id == 14280) // Viper Sting (Rank 3)
         {
             if (DoCastSpellIfCan(m_creature, SPELL_SILENCE, CAST_TRIGGERED) == CAST_OK)
                 DoScriptText(EMOTE_SILENCE, m_creature);
@@ -603,7 +638,7 @@ struct npc_simone_seductressAI : public ScriptedAI
             if (m_uiSplitCheck_Timer < uiDiff)
             {
                 m_uiSplitCheck_Timer = 2500;
-                if (Creature* pPrecious = m_creature->GetMap()->GetCreature(m_preciousGuid))
+                if (Creature *pPrecious = m_creature->GetMap()->GetCreature(m_preciousGuid))
                 {
                     if (pPrecious->IsInCombat())
                         pPrecious->AI()->EnterEvadeMode();
@@ -622,7 +657,7 @@ struct npc_simone_seductressAI : public ScriptedAI
         if (m_uiThreatCheck_Timer < uiDiff)
         {
             m_uiThreatCheck_Timer = 2000;
-            if (Creature* pPrecious = m_creature->GetMap()->GetCreature(m_preciousGuid))
+            if (Creature *pPrecious = m_creature->GetMap()->GetCreature(m_preciousGuid))
             {
                 if (pPrecious->getThreatManager().getThreatList().size() > 1)
                     DemonDespawn();
@@ -651,7 +686,7 @@ struct npc_simone_seductressAI : public ScriptedAI
     }
 };
 
-UnitAI* GetAI_npc_simone_seductress(Creature* pCreature)
+UnitAI *GetAI_npc_simone_seductress(Creature *pCreature)
 {
     return new npc_simone_seductressAI(pCreature);
 }
@@ -662,7 +697,10 @@ UnitAI* GetAI_npc_simone_seductress(Creature* pCreature)
 
 struct npc_simone_the_inconspicuousAI : public ScriptedAI
 {
-    npc_simone_the_inconspicuousAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_simone_the_inconspicuousAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiFoolsPlight_Timer;
     uint32 m_uiTransform_Timer;
@@ -684,7 +722,7 @@ struct npc_simone_the_inconspicuousAI : public ScriptedAI
         m_uiTransformEmote_Timer = 5000;
         m_bTransform = false;
 
-        Creature* pPrecious = GetClosestCreatureWithEntry(m_creature, NPC_PRECIOUS, 100.0f);
+        Creature *pPrecious = GetClosestCreatureWithEntry(m_creature, NPC_PRECIOUS, 100.0f);
         if (pPrecious)
         {
             pPrecious->SetVisibility(VISIBILITY_ON);
@@ -692,8 +730,9 @@ struct npc_simone_the_inconspicuousAI : public ScriptedAI
         }
         else
         {
-            pPrecious = m_creature->SummonCreature(NPC_PRECIOUS,
-                m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSPAWN_DEAD_DESPAWN, 0);
+            pPrecious = m_creature->SummonCreature(NPC_PRECIOUS, m_creature->GetPositionX(), m_creature->GetPositionY(),
+                                                   m_creature->GetPositionZ(), m_creature->GetOrientation(),
+                                                   TEMPSPAWN_DEAD_DESPAWN, 0);
             pPrecious->GetMotionMaster()->MoveFollow(m_creature, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
         }
     }
@@ -702,13 +741,14 @@ struct npc_simone_the_inconspicuousAI : public ScriptedAI
     {
         if (m_creature->GetMap()->GetPlayer(m_playerGuid))
         {
-            Creature* pDemon = m_creature->SummonCreature(NPC_SIMONE_THE_SEDUCTRESS,
-                m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSPAWN_DEAD_DESPAWN, 0);
-            Creature* pPrecious = GetClosestCreatureWithEntry(m_creature, NPC_PRECIOUS, 100.0f);
+            Creature *pDemon = m_creature->SummonCreature(NPC_SIMONE_THE_SEDUCTRESS, m_creature->GetPositionX(),
+                                                          m_creature->GetPositionY(), m_creature->GetPositionZ(),
+                                                          m_creature->GetOrientation(), TEMPSPAWN_DEAD_DESPAWN, 0);
+            Creature *pPrecious = GetClosestCreatureWithEntry(m_creature, NPC_PRECIOUS, 100.0f);
 
             if (pDemon)
             {
-                if (npc_simone_seductressAI * pSimone = dynamic_cast<npc_simone_seductressAI*> (pDemon->AI()))
+                if (npc_simone_seductressAI *pSimone = dynamic_cast<npc_simone_seductressAI *>(pDemon->AI()))
                     pSimone->m_simoneGuid = m_creature->GetObjectGuid();
 
                 m_creature->SetVisibility(VISIBILITY_OFF);
@@ -717,15 +757,17 @@ struct npc_simone_the_inconspicuousAI : public ScriptedAI
 
             if (pDemon && pPrecious)
             {
-                Creature* pPreciousDevourer = m_creature->SummonCreature(NPC_PRECIOUS_THE_DEVOURER,
-                    pPrecious->GetPositionX(), pPrecious->GetPositionY(), pPrecious->GetPositionZ(), pPrecious->GetAngle(pPrecious), TEMPSPAWN_DEAD_DESPAWN, 0, true);
+                Creature *pPreciousDevourer = m_creature->SummonCreature(
+                    NPC_PRECIOUS_THE_DEVOURER, pPrecious->GetPositionX(), pPrecious->GetPositionY(),
+                    pPrecious->GetPositionZ(), pPrecious->GetAngle(pPrecious), TEMPSPAWN_DEAD_DESPAWN, 0, true);
 
                 if (pPreciousDevourer)
                 {
-                    if (npc_simone_seductressAI * pSimone = dynamic_cast<npc_simone_seductressAI*> (pDemon->AI()))
+                    if (npc_simone_seductressAI *pSimone = dynamic_cast<npc_simone_seductressAI *>(pDemon->AI()))
                         pSimone->m_preciousGuid = pPreciousDevourer->GetObjectGuid();
 
-                    if (npc_precious_the_devourerAI * pDevourer = dynamic_cast<npc_precious_the_devourerAI*> (pPreciousDevourer->AI()))
+                    if (npc_precious_the_devourerAI *pDevourer =
+                            dynamic_cast<npc_precious_the_devourerAI *>(pPreciousDevourer->AI()))
                         pDevourer->m_simoneGuid = pDemon->GetObjectGuid();
                 }
 
@@ -782,7 +824,7 @@ struct npc_simone_the_inconspicuousAI : public ScriptedAI
     }
 };
 
-bool GossipHello_npc_simone_the_inconspicuous(Player* pPlayer, Creature* pCreature)
+bool GossipHello_npc_simone_the_inconspicuous(Player *pPlayer, Creature *pCreature)
 {
     if (pPlayer->GetQuestStatus(QUEST_STAVE_OF_THE_ANCIENTS) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
@@ -791,22 +833,23 @@ bool GossipHello_npc_simone_the_inconspicuous(Player* pPlayer, Creature* pCreatu
     return true;
 }
 
-bool GossipSelect_npc_simone_the_inconspicuous(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 /*uiAction*/)
+bool GossipSelect_npc_simone_the_inconspicuous(Player *pPlayer, Creature *pCreature, uint32 /*uiSender*/,
+                                               uint32 /*uiAction*/)
 {
     pPlayer->CLOSE_GOSSIP_MENU();
-    ((npc_simone_the_inconspicuousAI*)pCreature->AI())->BeginEvent(pPlayer->GetObjectGuid());
+    ((npc_simone_the_inconspicuousAI *)pCreature->AI())->BeginEvent(pPlayer->GetObjectGuid());
     pCreature->HandleEmote(EMOTE_ONESHOT_LAUGH);
     return true;
 }
 
-UnitAI* GetAI_npc_simone_the_inconspicuous(Creature* pCreature)
+UnitAI *GetAI_npc_simone_the_inconspicuous(Creature *pCreature)
 {
     return new npc_simone_the_inconspicuousAI(pCreature);
 }
 
 void AddSC_ungoro_crater()
 {
-    Script* pNewScript = new Script;
+    Script *pNewScript = new Script;
     pNewScript->Name = "npc_ame01";
     pNewScript->GetAI = &GetAI_npc_ame01;
     pNewScript->pQuestAcceptNPC = &QuestAccept_npc_ame01;

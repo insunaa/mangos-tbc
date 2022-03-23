@@ -1,5 +1,6 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,11 +40,10 @@ extern SQLStorage sFactionStore;
 extern SQLStorage sCreatureConditionalSpawnStore;
 extern SQLStorage sWorldSafeLocsStore;
 
-
 extern SQLHashStorage sGOStorage;
 
 extern SQLMultiStorage sSpellScriptTargetStorage;
 
-SQLStorage                 const* GetSpellStore();
+SQLStorage const *GetSpellStore();
 
 #endif

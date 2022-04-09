@@ -1,5 +1,5 @@
 project('CMaNGOS_TBC', 'cpp', 'c',
-  default_options : ['cpp_std=c++17'])
+  default_options : ['cpp_std=c++17', 'buildtype=release', 'warning_level=0'])
 
 if build_machine.system() == 'windows'
 #  error('Windows is currently not supported through Meson. Please use CMake instead')

@@ -11,7 +11,7 @@ _linker_args = ''
 boost_dep = dependency('boost', version: '>=1.66.0', modules: ['thread', 'program_options', 'system', 'filesystem'], static: true)
 mariadb_dep = dependency('mariadb', required: false)
 mysql_dep = dependency('mysql', required: false)
-postgresql_dep = dependency('postgresql', required: false)
+postgresql_dep = dependency('postgresql', required: get_option('POSTGRESQL'))
 zlib_dep = dependency('zlib', static: true, fallback: ['zlib', 'zlib_dep'])
 openssl_dep = dependency('openssl', version: ['>=1.1.0', '<3.0.0'], static: true, fallback: ['openssl'])
 
@@ -39,11 +39,7 @@ if not mariadb_dep.found() and not mysql_dep.found() and not postgresql_dep.foun
 endif
 
 if get_option('POSTGRESQL')
-  if postgresql_dep.found()
-    add_project_arguments('-DDO_POSTGRESQL', language: 'cpp')
-  else
-    error('PostgreSQL could not be found.')
-  endif
+  add_project_arguments('-DDO_POSTGRESQL', language: 'cpp')
 endif
 
 if get_option('DEBUG')

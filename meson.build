@@ -1,4 +1,4 @@
-project('CMaNGOS_TBC', 'cpp', 'c',
+project('CMaNGOS TBC', 'cpp', 'c',
   default_options : ['cpp_std=c++17', 'buildtype=release', 'warning_level=0'])
 
 if build_machine.system() == 'windows'

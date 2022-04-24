@@ -2,7 +2,10 @@ project('CMaNGOS_TBC', 'cpp', 'c',
   default_options : ['cpp_std=c++17', 'buildtype=release', 'warning_level=0'])
 
 if build_machine.system() == 'windows'
-#  error('Windows is currently not supported through Meson. Please use CMake instead')
+  warning('Windows requires extra care when installing dependencies, as it has no integrated system to manage them.')
+  warning('Boost in particular needs to be installed from SourceForge and must not contain any .pdb files to be properly detected.')
+  warning('It is strongly recommended to use the Ninja generator instead of the MSVC generator.')
+  warning('To configure the build use `meson configure` in the build directory.')
   add_project_arguments('/Zc:strictStrings-', language : 'cpp')
 endif
 
@@ -74,11 +77,11 @@ if get_option('BUILD_DOCS')
 endif
 
 if get_option('BUILD_RECASTDEMOMOD')
+  error('RECASTDEMOMOD currently unavailable')
   if build_machine.system() == 'windows'
     if not get_option('BUILD_EXTRACTORS')
       subdir('contrib/mmap')
     endif
-    error('RECASTDEMOMOD currently unavailable')
     subdir('contrib/recastdemomod')
   else
     message('BUILD_RECASTDEMOMOD forced to OFF. Not supported on non windows system.')

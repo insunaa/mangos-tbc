@@ -138,7 +138,7 @@ void MessageDeliverer::Visit(CameraMapType& m)
         {
             if (WorldSession* session = owner->GetSession())
             {
-                if (session->GetOS() != CLIENT_HERMES)
+                if (!isHermes || session->GetOS() == CLIENT_HERMES)
                     session->SendPacket(i_message);
             }
         }
@@ -157,7 +157,7 @@ void MessageDelivererExcept::Visit(CameraMapType& m)
 
         if (WorldSession* session = owner->GetSession())
         {
-            if (session->GetOS() != CLIENT_HERMES)
+            if (!isHermes || session->GetOS() == CLIENT_HERMES)
                 session->SendPacket(i_message);
         }
     }
@@ -171,7 +171,7 @@ void ObjectMessageDeliverer::Visit(CameraMapType& m)
     {
         if (WorldSession* session = iter.getSource()->GetOwner()->GetSession())
         {
-            if (session->GetOS() != CLIENT_HERMES)
+            if (!isHermes || session->GetOS() == CLIENT_HERMES)
                 session->SendPacket(i_message);
         }
     }
@@ -190,7 +190,7 @@ void MessageDistDeliverer::Visit(CameraMapType& m)
         {
             if (WorldSession* session = owner->GetSession())
             {
-                if (session->GetOS() != CLIENT_HERMES)
+                if (!isHermes || session->GetOS() == CLIENT_HERMES)
                     session->SendPacket(i_message);
             }
         }
@@ -206,7 +206,7 @@ void ObjectMessageDistDeliverer::Visit(CameraMapType& m)
         {
             if (WorldSession* session = iter.getSource()->GetOwner()->GetSession())
             {
-                if (session->GetOS() != CLIENT_HERMES)
+                if (!isHermes || session->GetOS() == CLIENT_HERMES)
                     session->SendPacket(i_message);
             }
         }

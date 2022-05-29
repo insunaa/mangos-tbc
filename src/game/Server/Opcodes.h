@@ -1093,7 +1093,11 @@ enum Opcodes
     SMSG_REFER_A_FRIEND_FAILURE                     = 0x420,
     SMSG_SPLINE_MOVE_SET_FLYING                     = 0x421,
     SMSG_SPLINE_MOVE_UNSET_FLYING                   = 0x422,
-    SMSG_SUMMON_CANCEL                              = 0x423
+    SMSG_SUMMON_CANCEL                              = 0x423,
+    SMSG_HIGHEST_THREAT_UPDATE                      = 0x482,
+    SMSG_THREAT_UPDATE                              = 0x483,
+    SMSG_THREAT_REMOVE                              = 0x484,
+    SMSG_THREAT_CLEAR                               = 0x485,
 };
 
 // Don't forget to change this value and add opcode name to Opcodes.cpp when you add new opcode!

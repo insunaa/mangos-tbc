@@ -449,7 +449,7 @@ HostileReference* ThreatContainer::selectNextVictim(Unit* attacker, HostileRefer
 //============================================================
 
 ThreatManager::ThreatManager(Unit* owner)
-    : iCurrentVictim(nullptr), iOwner(owner)
+    : iCurrentVictim(nullptr), iOwner(owner), iUpdateTimer(THREAT_UPDATE_INTERVAL), iUpdateNeed(false)
 {
 }
 
@@ -460,6 +460,8 @@ void ThreatManager::clearReferences()
     iThreatContainer.clearReferences();
     iThreatOfflineContainer.clearReferences();
     iCurrentVictim = nullptr;
+    iUpdateTimer.Reset(THREAT_UPDATE_INTERVAL);
+    iUpdateNeed = false;
 }
 
 //============================================================
@@ -492,7 +494,7 @@ void ThreatManager::addThreat(Unit* victim, float threat, bool crit, SpellSchool
             if (redirectedTarget != getOwner() && redirectedTarget->IsAlive())
             {
                 addThreatDirectly(redirectedTarget, calculatedThreat);
-                calculatedThreat = 0;                                 // but still need add to threat list
+                calculatedThreat = 0;
             }
         }
     }
@@ -503,8 +505,11 @@ void ThreatManager::addThreat(Unit* victim, float threat, bool crit, SpellSchool
 void ThreatManager::addThreatDirectly(Unit* victim, float threat)
 {
     HostileReference* ref = iThreatContainer.addThreat(victim, threat);
+    // Ref is online
+    if (ref)
+        iUpdateNeed = true;
     // Ref is not in the online refs, search the offline refs next
-    if (!ref)
+    else
         ref = iThreatOfflineContainer.addThreat(victim, threat);
 
     if (!ref)                                               // there was no ref => create a new one
@@ -512,6 +517,7 @@ void ThreatManager::addThreatDirectly(Unit* victim, float threat)
         HostileReference* hostileReference = new HostileReference(victim, this, 0); // threat has to be 0 here
         iThreatContainer.addReference(hostileReference);
         hostileReference->addThreat(threat); // now we add the real threat
+        iUpdateNeed = true;
         Unit* owner = getOwner();
         owner->TriggerAggroLinkingEvent(victim);
         Unit* victim_owner = victim->GetMaster();
@@ -527,11 +533,13 @@ void ThreatManager::addThreatDirectly(Unit* victim, float threat)
 void ThreatManager::modifyThreatPercent(Unit* victim, int32 threatPercent)
 {
     iThreatContainer.modifyThreatPercent(victim, threatPercent);
+    iUpdateNeed = true;
 }
 
 void ThreatManager::modifyAllThreatPercent(int32 threatPercent)
 {
     iThreatContainer.modifyAllThreatPercent(threatPercent);
+    iUpdateNeed = true;
 }
 
 //============================================================
@@ -625,7 +633,15 @@ void ThreatManager::FixateTarget(Unit* victim)
 
 void ThreatManager::setCurrentVictim(HostileReference* hostileReference)
 {
+    // including nullptr==nullptr case
+    if (hostileReference == iCurrentVictim)
+        return;
+
+    if (hostileReference)
+        iOwner->SendHighestThreatUpdate(hostileReference);
+
     iCurrentVictim = hostileReference;
+    iUpdateNeed = true;
 }
 
 void ThreatManager::setCurrentVictimByTarget(Unit* target)
@@ -661,7 +677,9 @@ void ThreatManager::processThreatEvent(ThreatRefStatusChangeEvent& threatRefStat
                     setCurrentVictim(nullptr);
                     setDirty(true);
                 }
+                iOwner->SendThreatRemove(hostileReference);
                 iThreatContainer.remove(hostileReference);
+                iUpdateNeed = true;
                 iThreatOfflineContainer.addReference(hostileReference);
             }
             else
@@ -669,6 +687,7 @@ void ThreatManager::processThreatEvent(ThreatRefStatusChangeEvent& threatRefStat
                 if (getCurrentVictim() && hostileReference->getThreat() > (1.1f * getCurrentVictim()->getThreat()))
                     setDirty(true);
                 iThreatContainer.addReference(hostileReference);
+                iUpdateNeed = true;
                 iThreatOfflineContainer.remove(hostileReference);
             }
             break;
@@ -680,7 +699,9 @@ void ThreatManager::processThreatEvent(ThreatRefStatusChangeEvent& threatRefStat
             }
             if (hostileReference->isOnline())
             {
+                iOwner->SendThreatRemove(hostileReference);
                 iThreatContainer.remove(hostileReference);
+                iUpdateNeed = true;
             }
             else
                 iThreatOfflineContainer.remove(hostileReference);
@@ -691,6 +712,21 @@ void ThreatManager::processThreatEvent(ThreatRefStatusChangeEvent& threatRefStat
             setDirty(true);
             break;
     }
+}
+
+void ThreatManager::UpdateForClient(uint32 diff)
+{
+    if (!iUpdateNeed || isThreatListEmpty())
+        return;
+
+    iUpdateTimer.Update(diff);
+    if (iUpdateTimer.Passed())
+    {
+        iOwner->SendThreatUpdate();
+        iUpdateTimer.Reset(THREAT_UPDATE_INTERVAL);
+        iUpdateNeed = false;
+    }
+
 }
 
 void ThreatManager::ClearSuppressed(HostileReference* except)

@@ -91,7 +91,8 @@ enum ClientOSType
 {
     CLIENT_OS_UNKNOWN,
     CLIENT_OS_WIN,
-    CLIENT_OS_MAC
+    CLIENT_OS_MAC,
+    CLIENT_HERMES
 };
 
 enum ClientPlatformType

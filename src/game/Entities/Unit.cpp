@@ -11579,9 +11579,6 @@ uint32 Unit::GetCombatRatingDamageReduction(CombatRating cr, float rate, float c
 
 void Unit::SendThreatUpdate()
 {
-    if (Player const* player = GetControllingPlayer())
-        if (player->GetSession()->GetOS() != CLIENT_HERMES)
-            return;
     ThreatList const& tlist = getThreatManager().getThreatList();
     if (uint32 count = tlist.size())
     {
@@ -11600,9 +11597,6 @@ void Unit::SendThreatUpdate()
 
 void Unit::SendHighestThreatUpdate(HostileReference* pHostilReference)
 {
-    if (Player const* player = GetControllingPlayer())
-        if (player->GetSession()->GetOS() != CLIENT_HERMES)
-            return;
     ThreatList const& tlist = getThreatManager().getThreatList();
     if (uint32 count = tlist.size())
     {
@@ -11622,9 +11616,6 @@ void Unit::SendHighestThreatUpdate(HostileReference* pHostilReference)
 
 void Unit::SendThreatClear() const
 {
-    if (Player const* player = GetControllingPlayer())
-        if (player->GetSession()->GetOS() != CLIENT_HERMES)
-            return;
     DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "WORLD: Send SMSG_THREAT_CLEAR Message");
     WorldPacket data(SMSG_THREAT_CLEAR, 8);
     data << GetPackGUID();
@@ -11633,9 +11624,6 @@ void Unit::SendThreatClear() const
 
 void Unit::SendThreatRemove(HostileReference* pHostileReference) const
 {
-    if (Player const* player = GetControllingPlayer())
-        if (player->GetSession()->GetOS() != CLIENT_HERMES)
-            return;
     DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "WORLD: Send SMSG_THREAT_REMOVE Message");
     WorldPacket data(SMSG_THREAT_REMOVE, 8 + 8);
     data << GetPackGUID();

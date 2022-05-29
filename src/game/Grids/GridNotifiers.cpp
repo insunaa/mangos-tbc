@@ -29,6 +29,11 @@
 
 using namespace MaNGOS;
 
+bool IsHermesOpcode(Opcodes opcode)
+{
+    return (opcode > 0x423 && opcode < NUM_MSG_TYPES);
+}
+
 void VisibleChangesNotifier::Visit(CameraMapType& m)
 {
     for (auto& iter : m)
@@ -124,6 +129,7 @@ void VisibleNotifier::Notify()
 
 void MessageDeliverer::Visit(CameraMapType& m)
 {
+    bool isHermes = IsHermesOpcode(i_message.GetOpcode());
     for (auto& iter : m)
     {
         Player* owner = iter.getSource()->GetOwner();
@@ -131,13 +137,17 @@ void MessageDeliverer::Visit(CameraMapType& m)
         if (i_toSelf || owner != &i_player)
         {
             if (WorldSession* session = owner->GetSession())
-                session->SendPacket(i_message);
+            {
+                if (session->GetOS() != CLIENT_HERMES)
+                    session->SendPacket(i_message);
+            }
         }
     }
 }
 
 void MessageDelivererExcept::Visit(CameraMapType& m)
 {
+    bool isHermes = IsHermesOpcode(i_message.GetOpcode());
     for (auto& iter : m)
     {
         Player* owner = iter.getSource()->GetOwner();
@@ -146,21 +156,30 @@ void MessageDelivererExcept::Visit(CameraMapType& m)
             continue;
 
         if (WorldSession* session = owner->GetSession())
-            session->SendPacket(i_message);
+        {
+            if (session->GetOS() != CLIENT_HERMES)
+                session->SendPacket(i_message);
+        }
     }
 }
 
 void ObjectMessageDeliverer::Visit(CameraMapType& m)
 {
+    bool isHermes = IsHermesOpcode(i_message.GetOpcode());
+
     for (auto& iter : m)
     {
         if (WorldSession* session = iter.getSource()->GetOwner()->GetSession())
-            session->SendPacket(i_message);
+        {
+            if (session->GetOS() != CLIENT_HERMES)
+                session->SendPacket(i_message);
+        }
     }
 }
 
 void MessageDistDeliverer::Visit(CameraMapType& m)
 {
+    bool isHermes = IsHermesOpcode(i_message.GetOpcode());
     for (auto& iter : m)
     {
         Player* owner = iter.getSource()->GetOwner();
@@ -170,19 +189,26 @@ void MessageDistDeliverer::Visit(CameraMapType& m)
                 (!i_dist || iter.getSource()->GetBody()->IsWithinDist(&i_player, i_dist)))
         {
             if (WorldSession* session = owner->GetSession())
-                session->SendPacket(i_message);
+            {
+                if (session->GetOS() != CLIENT_HERMES)
+                    session->SendPacket(i_message);
+            }
         }
     }
 }
 
 void ObjectMessageDistDeliverer::Visit(CameraMapType& m)
 {
+    bool isHermes = IsHermesOpcode(i_message.GetOpcode());
     for (auto& iter : m)
     {
         if (!i_dist || iter.getSource()->GetBody()->IsWithinDist(&i_object, i_dist))
         {
             if (WorldSession* session = iter.getSource()->GetOwner()->GetSession())
-                session->SendPacket(i_message);
+            {
+                if (session->GetOS() != CLIENT_HERMES)
+                    session->SendPacket(i_message);
+            }
         }
     }
 }

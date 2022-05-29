@@ -1101,7 +1101,7 @@ enum Opcodes
 };
 
 // Don't forget to change this value and add opcode name to Opcodes.cpp when you add new opcode!
-#define NUM_MSG_TYPES 0x424
+#define NUM_MSG_TYPES 0x486
 
 /// Player state
 enum SessionStatus

@@ -213,6 +213,7 @@ game_sources = [
     './Spells/SpellMgr.cpp',
     './Spells/UnitAuraProcHandler.cpp',
     './Spells/Spell.cpp',
+    './Spells/SpellDefines.cpp',
     './Spells/Scripts/SpellScript.cpp',
     './Spells/Scripts/Scripting/ClassScripts/Warlock.cpp',
     './Spells/Scripts/Scripting/ClassScripts/Shaman.cpp',
@@ -854,6 +855,18 @@ playerbot_sources = [
     './PlayerBot/AI/PlayerbotShamanAI.h',
     './PlayerBot/AI/PlayerbotDruidAI.h',
     './PlayerBot/AI/PlayerbotPriestAI.h',
+    './PlayerBot/Base/PlayerbotMgr.cpp',
+    './PlayerBot/Base/PlayerbotClassAI.cpp',
+    './PlayerBot/Base/PlayerbotAI.cpp',
+    './PlayerBot/AI/PlayerbotWarlockAI.cpp',
+    './PlayerBot/AI/PlayerbotMageAI.cpp',
+    './PlayerBot/AI/PlayerbotHunterAI.cpp',
+    './PlayerBot/AI/PlayerbotRogueAI.cpp',
+    './PlayerBot/AI/PlayerbotWarriorAI.cpp',
+    './PlayerBot/AI/PlayerbotPaladinAI.cpp',
+    './PlayerBot/AI/PlayerbotShamanAI.cpp',
+    './PlayerBot/AI/PlayerbotDruidAI.cpp',
+    './PlayerBot/AI/PlayerbotPriestAI.cpp',
 ]
 
 game_inc_dirs = ['../framework', '../shared', '../../dep/g3dlite', '../../dep/recastnavigation', '../../dep/src', '../../dep/include/gsoap', '../../dep/include/utf8cpp', '../../dep/include', '.', 'vmap', 'AuctionHouseBot', 'BattleGround', 'OutdoorPvP', 'PlayerBot']

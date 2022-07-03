@@ -17,6 +17,7 @@ mysql_dep = dependency('mysql', required: false)
 postgresql_dep = dependency('postgresql', required: get_option('POSTGRESQL'))
 zlib_dep = dependency('zlib', static: true, fallback: ['zlib', 'zlib_dep'])
 openssl_dep = dependency('openssl', version: ['>=1.1.0', '<3.0.0'], static: true, fallback: ['openssl'])
+utfcpp_dep = dependency('utfcpp', static: true, fallback: ['utfcpp'])
 
 if not mariadb_dep.found() and not mysql_dep.found() and not postgresql_dep.found()
   if build_machine.system() == 'windows'

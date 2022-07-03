@@ -1,0 +1,13 @@
+[wrap-file]
+directory = utfcpp-3.2.1
+source_url = https://github.com/nemtrif/utfcpp/archive/v3.2.1.tar.gz
+source_filename = utfcpp-3.2.1.tar.gz
+source_hash = 8d6aa7d77ad0abb35bb6139cb9a33597ac4c5b33da6a004ae42429b8598c9605
+patch_filename = utfcpp_3.2.1-1_patch.zip
+patch_url = https://wrapdb.mesonbuild.com/v2/utfcpp_3.2.1-1/get_patch
+patch_hash = f1623d8e96337cf681d57718bf2f3b0469d6a475cd2acdf040c9ac6288eed0d1
+wrapdb_version = 3.2.1-1
+
+[provide]
+utfcpp = utfcpp_dep
+

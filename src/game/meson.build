@@ -909,8 +909,8 @@ if get_option('BUILD_GAME_SERVER')
 gamelib = static_library('game',
                         game_sources,
                         include_directories: game_inc,
-                        dependencies: [zlib_dep, boost_dep, mariadb_dep, mysql_dep, postgresql_dep],
-                        link_with: [frameworklib, libutf8cpp, sharedlib, g3dlib, detourlib],
+                        dependencies: [zlib_dep, boost_dep, mariadb_dep, mysql_dep, postgresql_dep, utfcpp_dep],
+                        link_with: [frameworklib, sharedlib, g3dlib, detourlib],
                         cpp_args: game_args,
                         cpp_pch: pch_files,
                         install : false

@@ -117,8 +117,8 @@ if get_option('BUILD_GAME_SERVER') or get_option('BUILD_LOGIN_SERVER')
 sharedlib = static_library('shared',
                         [actual_rev, shared_sources],
                         include_directories: shared_inc,
-                        dependencies: [zlib_dep, boost_dep, mariadb_dep, mysql_dep, postgresql_dep, openssl_dep],
-                        link_with: [frameworklib, libutf8cpp],
+                        dependencies: [zlib_dep, boost_dep, mariadb_dep, mysql_dep, postgresql_dep, openssl_dep, utfcpp_dep],
+                        link_with: [frameworklib],
                         install : false
 )
 endif

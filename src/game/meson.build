@@ -869,7 +869,11 @@ playerbot_sources = [
     './PlayerBot/AI/PlayerbotPriestAI.cpp',
 ]
 
-game_inc_dirs = ['../framework', '../shared', '../../dep/g3dlite', '../../dep/recastnavigation', '../../dep/src', '../../dep/include/gsoap', '../../dep/include/utf8cpp', '../../dep/include', '.', 'vmap', 'AuctionHouseBot', 'BattleGround', 'OutdoorPvP', 'PlayerBot']
+game_inc_dirs = ['../framework', '../shared', '../../dep/g3dlite', '../../dep/recastnavigation', '../../dep/src', '../../dep/include/gsoap', '../../dep/include', '.', 'vmap', 'AuctionHouseBot', 'BattleGround', 'OutdoorPvP', 'PlayerBot']
+
+if utfcpp_dep.found() == false
+  game_inc_dirs = [game_inc_dirs, '../../dep/include/utf8cpp']
+endif
 
 if build_machine.system() == 'windows'
   game_inc_dirs = game_inc_dirs + ['../../dep/lib/include', '../../dep/lib/include/mysql']

@@ -86,7 +86,11 @@ shared_windows = [
     'ServiceWin32.h'
 ]
 
-shared_inc_dirs = ['../framework', '../../dep/include/gsoap', '../../dep/include/utf8cpp', '../../dep/include', 'Database']
+shared_inc_dirs = ['../framework', '../../dep/include/gsoap', '../../dep/include', 'Database']
+
+if utfcpp_dep.found() == false
+  shared_inc_dirs = [shared_inc_dirs, '../../dep/include/utf8cpp']
+endif
 
 if build_machine.system() == 'windows'
   shared_sources = shared_sources + shared_windows

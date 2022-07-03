@@ -1,5 +1,5 @@
 project('CMaNGOS TBC', 'cpp', 'c',
-  default_options : ['cpp_std=c++17', 'buildtype=release', 'warning_level=0'])
+  default_options : ['cpp_std=c++17', 'buildtype=release', 'warning_level=0', 'default_library=static'])
 
 if build_machine.system() == 'windows'
   warning('Windows requires extra care when installing dependencies, as it has no integrated system to manage them.')
@@ -11,13 +11,13 @@ endif
 
 _linker_args = ''
 
-boost_dep = dependency('boost', version: '>=1.66.0', modules: ['thread', 'program_options', 'system', 'filesystem'], static: true)
+boost_dep = dependency('boost', version: '>=1.66.0', modules: ['thread', 'program_options', 'system', 'filesystem'], static: true, required: true)
 mariadb_dep = dependency('mariadb', required: false)
 mysql_dep = dependency('mysql', required: false)
 postgresql_dep = dependency('postgresql', required: get_option('POSTGRESQL'))
-zlib_dep = dependency('zlib', static: true, fallback: ['zlib', 'zlib_dep'])
-openssl_dep = dependency('openssl', version: ['>=1.1.0', '<3.0.0'], static: true, fallback: ['openssl'])
-utfcpp_dep = dependency('utfcpp', static: true, fallback: ['utfcpp'])
+zlib_dep = dependency('zlib', static: true, fallback: ['zlib', 'zlib_dep'], required: true)
+openssl_dep = dependency('openssl', version: ['>=1.1.0', '<3.0.0'], static: true, fallback: ['openssl'], required: true)
+utfcpp_dep = dependency('utfcpp', static: true, fallback: ['utfcpp'], required: true)
 
 if not mariadb_dep.found() and not mysql_dep.found() and not postgresql_dep.found()
   if build_machine.system() == 'windows'

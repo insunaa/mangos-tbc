@@ -97,7 +97,7 @@ if get_option('BUILD_GIT_ID')
 endif
 
 subdir('dep')
-if get_option('BUILD_GAME_SERVER') or get_option('BUILD_LOGIN_SERVER') or ('BUILD_EXTRACTORS')
+if get_option('BUILD_GAME_SERVER') or get_option('BUILD_LOGIN_SERVER') or get_option('BUILD_EXTRACTORS')
   subdir('src')
 endif
 

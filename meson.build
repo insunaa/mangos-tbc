@@ -28,7 +28,7 @@ if not mariadb_dep.found() and not mysql_dep.found() and not postgresql_dep.foun
     fs = import('fs')
     if fs.is_dir('C:\Program Files\MySQL\MySQL Server 8.0\lib')
       mysql_dll = 'C:\Program Files\MySQL\MySQL Server 8.0\lib\libmysql.dll'
-    elif fs.is_dir('C:\Program Files\MySQL\MySQL Server 8.0\lib')
+    elif fs.is_dir('C:\Program Files\MySQL\MySQL Server 5.7\lib')
       mysql_dll = 'C:\Program Files\MySQL\MySQL Server 5.7\lib\libmysql.dll'
     else
       error('No local MySQL Server installation found')

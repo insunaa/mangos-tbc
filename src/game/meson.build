@@ -529,7 +529,7 @@ scriptdev_sources = [
     './AI/ScriptDevAI/scripts/eastern_kingdoms/redridge_mountains.cpp',
     './AI/ScriptDevAI/scripts/eastern_kingdoms/eversong_woods.cpp',
     './AI/ScriptDevAI/scripts/eastern_kingdoms/stratholme/boss_cannon_master_willey.cpp',
-    './AI/ScriptDevAI/scripts/eastern_kingdoms/stratholme/instance_stratholme.cpp',
+    './AI/ScriptDevAI/scripts/eastern_kingdoms/stratholme/stratholmeScripts.cpp',
     './AI/ScriptDevAI/scripts/eastern_kingdoms/stratholme/boss_maleki_the_pallid.cpp',
     './AI/ScriptDevAI/scripts/eastern_kingdoms/stratholme/stratholme.cpp',
     './AI/ScriptDevAI/scripts/eastern_kingdoms/stratholme/boss_dathrohan_balnazzar.cpp',

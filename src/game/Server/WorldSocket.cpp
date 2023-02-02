@@ -493,8 +493,6 @@ bool WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         clientOS = CLIENT_OS_WIN;
     else if (os == "OSX")
         clientOS = CLIENT_OS_MAC;
-    else if (os == "HRM")
-        clientOS = CLIENT_HERMES;
     else
     {
         sLog.outError("WorldSocket::HandleAuthSession: Unrecognized OS '%s' for account '%s' from %s", os.c_str(), account.c_str(), address.c_str());

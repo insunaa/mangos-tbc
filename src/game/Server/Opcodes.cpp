@@ -1086,8 +1086,4 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x421*/ { "SMSG_SPLINE_MOVE_SET_FLYING",                  STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x422*/ { "SMSG_SPLINE_MOVE_UNSET_FLYING",                STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x423*/ { "SMSG_SUMMON_CANCEL",                           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
-    /*0x482*/ { "SMSG_HIGHEST_THREAT_UPDATE",                   STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
-    /*0x483*/ { "SMSG_THREAT_UPDATE",                           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
-    /*0x484*/ { "SMSG_THREAT_REMOVE",                           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
-    /*0x485*/ { "SMSG_THREAT_CLEAR",                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
 };

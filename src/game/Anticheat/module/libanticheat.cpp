@@ -48,7 +48,7 @@ Warden *CreateWarden(WorldSession *session, const BigNumber &K, NamreebAnticheat
     Warden* warden;
     ClientOSType os = session->GetOS();
 
-    if (os == CLIENT_OS_MAC || os == CLIENT_HERMES)
+    if (os == CLIENT_OS_MAC)
         warden = new WardenMac(session, K, anticheat);
     else if (os == CLIENT_OS_WIN)
         warden = new WardenWin(session, K, anticheat);

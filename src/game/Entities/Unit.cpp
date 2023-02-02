@@ -11575,6 +11575,9 @@ void Unit::SendThreatUpdate()
             data.clear();
             data.str(std::string());
         }
+        data.clear();
+        data.str(std::string());
+        data << number << ": " << "END";
         //SendMessageToSet(data.str(), false);
     }
 }
@@ -11614,6 +11617,9 @@ void Unit::SendHighestThreatUpdate(HostileReference* pHostilReference)
             data.clear();
             data.str(std::string());
         }
+        data.clear();
+        data.str(std::string());
+        data << number << ": " << "END";
         //SendMessageToSet(data.str(), false);
     }
 }
@@ -11629,6 +11635,9 @@ void Unit::SendThreatClear() const
     data.str(std::string());
     data << number << ": " << std::uppercase << "0x" << std::hex << GetObjectGuid() << std::dec;
     SendMessageToSet(data.str(), false);
+    data.clear();
+    data.str(std::string());
+    data << number << ": " << "END";
 }
 
 void Unit::SendThreatRemove(HostileReference* pHostileReference) const
@@ -11646,6 +11655,9 @@ void Unit::SendThreatRemove(HostileReference* pHostileReference) const
     data.str(std::string());
     data << number << ": " << std::uppercase << "0x" << std::hex << pHostileReference->getUnitGuid() << std::dec;
     SendMessageToSet(data.str(), false);
+    data.clear();
+    data.str(std::string());
+    data << number << ": " << "END";
 }
 
 struct StopAttackFactionHelper

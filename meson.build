@@ -12,11 +12,17 @@ mariadb_dep = dependency('mariadb', required: false)
 mysql_dep = dependency('mysql', required: false)
 postgresql_dep = dependency('postgresql', required: get_option('POSTGRESQL'))
 zlib_dep = dependency('zlib', static: true, fallback: ['zlib', 'zlib_dep'], required: true)
-openssl_dep = dependency('openssl', version: ['>=1.1.0', '<3.0.0'], static: true, fallback: ['openssl'], required: true)
+openssl_dep = dependency('openssl', version: ['>=1.1.1'], static: true, fallback: ['openssl'], required: true)
 utfcpp_dep = dependency('utf8cpp', static: true, required: false)
 if not utfcpp_dep.found()
   utfcpp_dep = dependency('utfcpp', static: true, fallback: ['utfcpp'], required: true)
 endif
+
+global_includes = include_directories('src/game', 'dep/libmpq', 'src', 'src/framework',
+                                      'dep/json', 'dep/g3dlite', 'src/shared', 'dep/recastnavigation',
+                                      'dep/recastnavigation/Recast/Include', 'dep/recastnavigation/Detour/Include',
+                                      'src/game/MotionGenerators', 'dep/include/bzip2', 'dep/include/gsoap',
+                                      'dep/include')
 
 if not mariadb_dep.found() and not mysql_dep.found() and not postgresql_dep.found()
   if build_machine.system() == 'windows'

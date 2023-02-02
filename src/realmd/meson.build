@@ -23,7 +23,7 @@ if get_option('BUILD_LOGIN_SERVER')
 executable('realmd',
             realmd_sources,
             link_with: [sharedlib],
-            include_directories: realmd_inc,
+            include_directories: [global_includes, realmd_inc],
             dependencies: [boost_dep, mariadb_dep, zlib_dep, mysql_dep, postgresql_dep, openssl_dep, utfcpp_dep],
             link_args: _linker_args,
             install: true

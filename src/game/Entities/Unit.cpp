@@ -50,6 +50,7 @@
 #include "Tools/Formulas.h"
 #include "Entities/Transports.h"
 #include "Anticheat/Anticheat.hpp"
+#include <sstream>
 
 #ifdef BUILD_METRICS
  #include "Metric/Metric.h"
@@ -11540,6 +11541,79 @@ uint32 Unit::GetCombatRatingDamageReduction(CombatRating cr, float rate, float c
     if (percent > cap)
         percent = cap;
     return uint32(percent * damage / 100.0f);
+}
+
+void Unit::SendThreatUpdate()
+{
+    ThreatList const& tlist = getThreatManager().getThreatList();
+    if (uint32 count = tlist.size())
+    {
+        DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "WORLD: Send SMSG_THREAT_UPDATE Message");
+        std::stringstream data;
+        data << std::uppercase;
+        data << "SMSG_THREAT_UPDATE";
+        data << "\n";
+        data << "0x" << std::hex << GetObjectGuid() << std::dec;
+        data << "\n";
+        data << uint32(count);
+        for (auto itr : tlist)
+        {
+            data << "\n";
+            data << "0x" << std::hex << itr->getUnitGuid() << std::dec;
+            data << "\n";
+            data << uint32(itr->getThreat());
+        }
+        SendMessageToSet(data.str(), false);
+    }
+}
+
+void Unit::SendHighestThreatUpdate(HostileReference* pHostilReference)
+{
+    ThreatList const& tlist = getThreatManager().getThreatList();
+    if (uint32 count = tlist.size())
+    {
+        DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "WORLD: Send SMSG_HIGHEST_THREAT_UPDATE Message");
+        std::stringstream data;
+        data << std::uppercase;
+        data << "SMSG_HIGHEST_THREAT_UPDATE";
+        data << "0x" << std::hex << GetOwnerGuid() << std::dec;
+        data << "\n";
+        data << "0x" << std::hex << pHostilReference->getUnitGuid() << std::dec;
+        data << "\n";
+        data << uint32(count);
+        for (auto itr : tlist)
+        {
+            data << "\n";
+            data << "0x" << std::hex << itr->getUnitGuid() << std::dec;
+            data << "\n";
+            data << uint32(itr->getThreat());
+        }
+        SendMessageToSet(data.str(), false);
+    }
+}
+
+void Unit::SendThreatClear() const
+{
+    DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "WORLD: Send SMSG_THREAT_CLEAR Message");
+    std::stringstream data;
+    data << std::uppercase;
+    data << "SMSG_THREAT_CLEAR";
+    data << "\n";
+    data << "0x" << std::hex << GetObjectGuid() << std::dec;
+    SendMessageToSet(data.str(), false);
+}
+
+void Unit::SendThreatRemove(HostileReference* pHostileReference) const
+{
+    DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "WORLD: Send SMSG_THREAT_REMOVE Message");
+    std::stringstream data;
+    data << std::uppercase;
+    data << "SMSG_THREAT_REMOVE";
+    data << "\n";
+    data << "0x" << std::hex << GetObjectGuid() << std::dec;
+    data << "\n";
+    data << "0x" << std::hex << pHostileReference->getUnitGuid() << std::dec;
+    SendMessageToSet(data.str(), false);
 }
 
 struct StopAttackFactionHelper

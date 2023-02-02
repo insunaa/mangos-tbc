@@ -23,6 +23,7 @@
 #include "Globals/SharedDefines.h"
 #include "Utilities/LinkedReference/Reference.h"
 #include "Entities/UnitEvents.h"
+#include "Util/Timer.h"
 #include "Entities/ObjectGuid.h"
 #include <list>
 

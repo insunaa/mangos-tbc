@@ -279,7 +279,7 @@ scriptdev_sources = [
 './AI/ScriptDevAI/scripts/eastern_kingdoms/naxxramas/boss_anubrekhan.cpp',
 './AI/ScriptDevAI/scripts/eastern_kingdoms/naxxramas/boss_thaddius.cpp',
 './AI/ScriptDevAI/scripts/eastern_kingdoms/naxxramas/boss_noth.cpp',
-'./AI/ScriptDevAI/scripts/eastern_kingdoms/naxxramas/instance_naxxramas.cpp',
+'./AI/ScriptDevAI/scripts/eastern_kingdoms/naxxramas/naxxramas.cpp',
 './AI/ScriptDevAI/scripts/eastern_kingdoms/naxxramas/boss_four_horsemen.cpp',
 './AI/ScriptDevAI/scripts/eastern_kingdoms/naxxramas/boss_gothik.cpp',
 './AI/ScriptDevAI/scripts/eastern_kingdoms/naxxramas/boss_sapphiron.cpp',

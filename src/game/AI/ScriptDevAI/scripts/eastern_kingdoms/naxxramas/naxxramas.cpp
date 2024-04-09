@@ -235,6 +235,10 @@ void instance_naxxramas::OnObjectCreate(GameObject* gameObject)
             break;
 
         // Plague Quarter
+        case GO_PLAG_SLIME01_DOOR:
+        case GO_PLAG_SLIME02_DOOR:
+            gameObject->SetGoState(GO_STATE_READY);
+            break;
         case GO_PLAG_NOTH_ENTRY_DOOR:
             break;
         case GO_PLAG_NOTH_EXIT_DOOR:
